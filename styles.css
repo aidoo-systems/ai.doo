@@ -48,26 +48,48 @@ button {
 }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-weight: 500;
   font-size: 1.4rem;
   letter-spacing: 0.02em;
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.logo-head {
+  fill: #ffffff;
+  stroke: rgba(14, 19, 21, 0.2);
+  stroke-width: 1.4;
+}
+
+.logo-core {
+  fill: url(#logo-gradient);
+}
+
+.logo-wordmark {
   display: inline-flex;
   align-items: baseline;
+  gap: 6px;
 }
 
-.logo span {
+.logo-wordmark span {
   font-weight: 700;
   position: relative;
-  margin-right: 6px;
 }
 
-.logo span::after {
+.logo-wordmark span::after {
   content: "";
   position: absolute;
-  right: -10px;
-  bottom: 0.2em;
-  width: 6px;
-  height: 6px;
+  right: -12px;
+  bottom: 0.15em;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
   background: var(--accent);
 }
@@ -320,6 +342,15 @@ main {
   gap: 30px;
   border-top: 1px solid var(--border);
   background: #f2f4f7;
+}
+
+.site-footer .logo-mark {
+  width: 40px;
+  height: 40px;
+}
+
+.site-footer .logo-core {
+  fill: url(#logo-gradient-footer);
 }
 
 .footer-brand p {
