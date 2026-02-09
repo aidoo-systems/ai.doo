@@ -1,20 +1,42 @@
 # ai.doo
 
-Deployment notes for installing the site on an Ubuntu VPS with Caddy.
+Static marketing site for [aidoo.biz](https://aidoo.biz), served from an Ubuntu VPS with Caddy.
 
-## Prerequisites
+## Hosting overview
 
-- Ubuntu 22.04 or 24.04
-- A domain pointing to the VPS (A/AAAA records)
-- SSH access with sudo
+- **Stack**: Static HTML/CSS/JS — no build step
+- **Server**: Ubuntu VPS running [Caddy](https://caddyserver.com/) as a file server
+- **Web root**: `/var/www/aidoo.biz`
+- **TLS**: Automatic via Caddy (provisions and renews certificates)
+- **Deploy**: Pushes to `main` auto-deploy via GitHub Actions (rsync over SSH)
 
-## 1) Install dependencies
+## Auto-deploy workflow
 
-Update packages and install git and Caddy:
+The workflow at `.github/workflows/deploy.yml` runs on every push to `main`:
+
+1. Checks out the repo
+2. Connects to the VPS over SSH using a deploy key
+3. Rsyncs site files to `/var/www/aidoo.biz/`, excluding `.git`, `.github`, `README.md`, and `logo_designs.png`
+4. Caddy serves the updated files immediately (no restart needed)
+
+### Required GitHub secrets
+
+Stored under the **VPS** environment in Settings > Secrets and variables > Actions:
+
+| Secret | Description |
+|--------|-------------|
+| `VPS_HOST` | Server IP or hostname |
+| `VPS_USER` | SSH username on the VPS |
+| `VPS_SSH_KEY` | Private ed25519 key for SSH auth |
+
+The matching public key must be in `~/.ssh/authorized_keys` on the VPS for the deploy user.
+
+## VPS setup
+
+### 1) Install Caddy
 
 ```
 sudo apt update
-sudo apt install -y git
 sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https
 curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/gpg.key" | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
 curl -1sLf "https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt" | sudo tee /etc/apt/sources.list.d/caddy-stable.list
@@ -22,25 +44,7 @@ sudo apt update
 sudo apt install -y caddy
 ```
 
-## 2) Deploy the site
-
-Clone the repository into the web root:
-
-```
-sudo mkdir -p /var/www
-sudo git clone https://github.com/ForceSensitiveSaiyan/ai.doo.git /var/www/aidoo.biz
-```
-
-If you need a specific branch:
-
-```
-cd /var/www/aidoo.biz
-sudo git checkout <branch>
-```
-
-## 3) Configure Caddy
-
-Create a site config for your domain:
+### 2) Configure Caddy
 
 ```
 sudo tee /etc/caddy/Caddyfile >/dev/null <<'EOF'
@@ -49,45 +53,35 @@ aidoo.biz, www.aidoo.biz {
     file_server
 }
 EOF
-```
 
-Reload Caddy:
-
-```
 sudo systemctl reload caddy
 ```
 
-## 4) Set permissions (if needed)
-
-Ensure Caddy can read the files:
+### 3) Prepare the web root
 
 ```
-sudo chown -R caddy:caddy /var/www/aidoo.biz
-sudo find /var/www/aidoo.biz -type d -exec chmod 755 {} \;
-sudo find /var/www/aidoo.biz -type f -exec chmod 644 {} \;
+sudo mkdir -p /var/www/aidoo.biz
+sudo chown -R <deploy-user>:<deploy-user> /var/www/aidoo.biz
 ```
 
-## 5) Update the live site
+The deploy user must own the directory so rsync can write to it.
 
-Pull new changes on the VPS:
+### 4) Set up the deploy key
+
+```
+ssh-keygen -t ed25519 -f ~/deploy_key -C "github-actions-deploy" -N ""
+cat ~/deploy_key.pub >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+Copy the contents of `~/deploy_key` into the `VPS_SSH_KEY` GitHub secret, then delete both key files from the VPS.
+
+## Manual deploy
+
+If needed, you can bypass the workflow and deploy manually:
 
 ```
 cd /var/www/aidoo.biz
-sudo git pull
+sudo git pull origin main
 ```
-
-If you use a non-default branch:
-
-```
-sudo git pull origin <branch>
-```
-
-## CI/CD
-
-Pushes to `main` auto-deploy to the VPS via GitHub Actions (rsync over SSH).
-
-## Notes
-
-- Caddy automatically provisions and renews TLS certificates.
-- If you see a permission error, re-check ownership and file mode.
-- If the repo includes build steps (e.g. npm, bun), add them after the clone and after each pull.
