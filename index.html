@@ -4,29 +4,30 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ai.doo — Private AI products & bespoke solutions</title>
-  <meta name="description" content="ai.doo builds private, self-hosted AI products — and extends them into bespoke solutions. One example: PIKA (pikachat.biz)." />
+  <meta name="description" content="ai.doo builds private, self-hosted AI products — and extends them into bespoke solutions for real environments." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#0b1020">
 
   <style>
     :root{
-      --bg:#fbfcfe;
-      --surface:#ffffff;
-      --ink:#0b1220;
-      --muted:#5f6b80;
-      --border:rgba(15,23,42,.10);
-      --border2:rgba(15,23,42,.07);
+      --bg0:#0b1020;
+      --bg1:#111a33;
+      --ink:#eaf0ff;
+      --muted:rgba(234,240,255,0.72);
+      --accent:#2a8bc9;
+      --accent2:#4db8ff;
+      --card:rgba(255,255,255,0.06);
+      --card2:rgba(255,255,255,0.09);
+      --stroke:rgba(255,255,255,0.12);
 
-      --accent:#2563eb;   /* solid default */
-      --accent2:#7c3aed;  /* hero moments only */
-
-      --radius:20px;
-      --max:1120px;
-      --shadow:0 18px 55px rgba(2,8,23,.08);
-      --shadow2:0 10px 26px rgba(2,8,23,.06);
+      --radius:16px;
+      --max:1080px;
+      --shadow:0 16px 48px rgba(0,0,0,.30);
+      --shadow2:0 8px 24px rgba(0,0,0,.20);
     }
 
     *{box-sizing:border-box}
@@ -36,25 +37,26 @@
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--ink);
       background:
-        radial-gradient(1000px 600px at 12% -10%, rgba(37,99,235,.08), transparent 60%),
-        radial-gradient(900px 520px at 92% 10%, rgba(124,58,237,.06), transparent 62%),
-        var(--bg);
-      line-height:1.55;
+        radial-gradient(800px 600px at 20% 8%, rgba(77,184,255,.10), transparent 65%),
+        radial-gradient(700px 500px at 80% 25%, rgba(42,139,201,.07), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.6;
+      min-height:100vh;
     }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:0 auto;padding:22px}
+    .wrap{max-width:var(--max);margin:0 auto;padding:24px}
 
     /* Header */
     header{
       position:sticky;top:0;z-index:50;
-      background:rgba(251,252,254,.84);
-      backdrop-filter:blur(10px);
-      border-bottom:1px solid var(--border2);
+      background:rgba(11,16,32,.88);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--stroke);
     }
     .nav{
       max-width:var(--max);
       margin:0 auto;
-      padding:14px 22px;
+      padding:16px 24px;
       display:flex;
       align-items:center;
       justify-content:space-between;
@@ -64,45 +66,48 @@
       display:flex;
       align-items:center;
       gap:12px;
-      font-weight:950;
+      font-weight:700;
       letter-spacing:.2px;
     }
     .logoMark{
-      width:40px;height:40px;border-radius:14px;
+      width:40px;height:40px;border-radius:12px;
       display:grid;place-items:center;
-      background:rgba(2,8,23,.02);
-      border:1px solid rgba(15,23,42,.08);
+      background:var(--card2);
+      border:1px solid var(--stroke);
       overflow:hidden;
     }
-    .logoMark img{width:34px;height:34px;display:block}
+    .logoMark img{
+      width:34px;height:34px;display:block;
+      filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));
+    }
 
     /* Wordmark */
     .wordmark{
       display:inline-flex;
       align-items:baseline;
-      font-weight:950;
-      letter-spacing:-0.65px;
+      font-weight:750;
+      letter-spacing:-0.5px;
       font-size:18px;
       line-height:1;
     }
     .wm-ai,.wm-doo{color:var(--ink)}
     .wm-dot{
-      width:8px;height:8px;border-radius:999px;
-      margin:0 6px 3px 6px;
-      background:var(--accent);
-      box-shadow:0 10px 18px rgba(37,99,235,.18);
+      width:7px;height:7px;border-radius:999px;
+      margin:0 5px 3px 5px;
+      background:var(--accent2);
       display:inline-block;
     }
 
     nav{
-      display:flex;gap:18px;align-items:center;
-      color:rgba(2,8,23,.62);
-      font-weight:800;
+      display:flex;gap:20px;align-items:center;
+      color:var(--muted);
+      font-weight:500;
+      font-size:14px;
     }
     nav a{
       position:relative;
       padding:8px 2px;
-      color:rgba(2,8,23,.62);
+      color:var(--muted);
       transition:color .15s ease;
     }
     nav a:hover{color:var(--ink)}
@@ -110,8 +115,8 @@
       content:"";
       position:absolute;
       left:0;right:0;bottom:3px;
-      height:2px;
-      background:var(--accent);
+      height:1.5px;
+      background:var(--accent2);
       transform:scaleX(0);
       transform-origin:left;
       transition:transform .15s ease;
@@ -123,16 +128,16 @@
     .navRight{display:flex;align-items:center;gap:10px}
     .menuBtn{
       display:none;
-      padding:10px 12px;border-radius:12px;
-      border:1px solid var(--border);
-      background:var(--surface);
-      font-weight:900;
+      padding:10px 12px;border-radius:10px;
+      border:1px solid var(--stroke);
+      background:var(--card2);
+      font-weight:600;
       color:var(--ink);
     }
     .mobileNav{
       display:none;
-      border-top:1px solid var(--border2);
-      padding:10px 22px 14px;
+      border-top:1px solid var(--stroke);
+      padding:10px 24px 14px;
       max-width:var(--max);
       margin:0 auto;
     }
@@ -140,217 +145,210 @@
       display:block;
       padding:10px 0;
       color:var(--muted);
-      font-weight:850;
-      border-bottom:1px solid rgba(15,23,42,.06);
+      font-weight:500;
+      border-bottom:1px solid var(--stroke);
     }
     .mobileNav a:last-child{border-bottom:none}
 
     /* Buttons */
     .btn{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
-      padding:11px 16px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:var(--surface);
-      font-weight:900;
+      padding:11px 18px;
+      border-radius:10px;
+      border:1px solid var(--stroke);
+      background:var(--card);
+      color:var(--ink);
+      font-weight:600;
+      font-size:14px;
       cursor:pointer;
-      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+      transition:transform .16s ease-out, box-shadow .16s ease-out, border-color .16s ease-out;
       white-space:nowrap;
     }
     .btn:hover{
       transform:translateY(-1px);
-      border-color:rgba(37,99,235,.22);
-      box-shadow:var(--shadow2);
+      border-color:rgba(42,139,201,.30);
+      box-shadow:0 6px 20px rgba(0,0,0,.25);
     }
     .btn.primary{
       border-color:transparent;
       color:#fff;
       background:var(--accent);
-      box-shadow:0 16px 34px rgba(37,99,235,.18);
+      box-shadow:0 8px 24px rgba(42,139,201,.25);
     }
-    .btn.primary:hover{box-shadow:0 20px 46px rgba(37,99,235,.22)}
+    .btn.primary:hover{box-shadow:0 12px 32px rgba(42,139,201,.35)}
     .btn.subtle{
-      background:rgba(2,8,23,.01);
-      border-color:rgba(15,23,42,.10);
-      color:rgba(2,8,23,.78);
+      background:transparent;
+      border-color:var(--stroke);
+      color:var(--muted);
     }
-    .btn.subtle:hover{border-color:rgba(15,23,42,.16)}
+    .btn.subtle:hover{border-color:rgba(42,139,201,.25);color:var(--ink)}
 
     /* Hero */
     .hero{
-      padding:78px 0 18px;
+      padding:100px 0 48px;
       display:grid;
-      gap:18px;
+      gap:20px;
       position:relative;
-      overflow:hidden;
-    }
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:-60px -40px auto auto;
-      width:min(560px, 62vw);
-      height:min(560px, 62vw);
-      background:
-        radial-gradient(circle at 30% 30%, rgba(37,99,235,.14), transparent 60%),
-        radial-gradient(circle at 70% 70%, rgba(124,58,237,.10), transparent 58%);
-      filter:blur(2px);
-      opacity:.55;
-      pointer-events:none;
     }
     .pill{
       width:fit-content;
       display:inline-flex;align-items:center;gap:10px;
-      padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(37,99,235,.16);
-      background:rgba(37,99,235,.06);
-      color:rgba(2,8,23,.72);
-      font-size:13px;font-weight:950;
+      padding:7px 14px;border-radius:999px;
+      border:1px solid rgba(77,184,255,.18);
+      background:rgba(77,184,255,.06);
+      color:var(--muted);
+      font-size:13px;font-weight:600;
       position:relative;
     }
     h1{
       margin:0;
-      font-size:clamp(36px,4vw,60px);
-      line-height:1.02;
-      letter-spacing:-1.2px;
+      font-size:clamp(34px,3.8vw,56px);
+      line-height:1.06;
+      letter-spacing:-1px;
       max-width:18ch;
       position:relative;
+      font-weight:700;
+      color:#fff;
+    }
+    .h2{
+      margin:0 0 10px;
+      font-size:28px;
+      letter-spacing:-.6px;
+      line-height:1.2;
+      font-weight:700;
+      color:#fff;
     }
     .sub{
       margin:0;
       color:var(--muted);
-      font-size:clamp(16px,1.35vw,18px);
-      max-width:80ch;
+      font-size:clamp(16px,1.3vw,17px);
+      max-width:56ch;
       position:relative;
+      line-height:1.65;
     }
-    .ctaRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;position:relative}
+    .ctaRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;position:relative}
 
     /* Sections */
-    .section{padding:72px 0 22px} /* studio breathing room */
+    .section{padding:96px 0 40px}
     .kicker{
       margin:0 0 10px;
-      color:rgba(2,8,23,.55);
-      font-size:13px;
-      letter-spacing:.26px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.3px;
       text-transform:uppercase;
-      font-weight:950;
-    }
-    .h2{
-      margin:0 0 10px;
-      font-size:30px;
-      letter-spacing:-.8px;
-      line-height:1.18;
+      font-weight:600;
     }
     .lead{
       margin:0;
       color:var(--muted);
-      max-width:82ch;
-      font-size:16px;
+      max-width:60ch;
+      font-size:15px;
+      line-height:1.65;
     }
 
     /* Grid/cards */
     .grid{
       display:grid;
-      gap:14px;
+      gap:16px;
       grid-template-columns:repeat(12,1fr);
-      margin-top:18px;
+      margin-top:24px;
     }
     .card{
-      border:1px solid rgba(15,23,42,.08);
-      background:rgba(255,255,255,.92);
-      border-radius:20px;
-      padding:20px;
-      box-shadow:none;
-      transition:transform .15s ease, border-color .15s ease, background .15s ease;
+      border:1px solid var(--stroke);
+      background:var(--card);
+      border-radius:14px;
+      padding:24px;
+      box-shadow:0 2px 8px rgba(0,0,0,.18);
+      transition:transform .18s ease-out, border-color .18s ease-out, box-shadow .18s ease-out, background .18s ease-out;
     }
-    .card:hover{
-      transform:translateY(-2px);
-      border-color:rgba(37,99,235,.18);
-      background:#fff;
+    .card:hover,
+    .card:focus-visible{
+      transform:translateY(-3px);
+      border-color:rgba(42,139,201,.35);
+      box-shadow:0 12px 32px rgba(0,0,0,.30), 0 0 0 1px rgba(42,139,201,.10);
+      background:var(--card2);
     }
-    .card h3{margin:2px 0 8px;font-size:16px;letter-spacing:-.2px}
-    .card p{margin:0;color:var(--muted);font-size:14px}
+    .card h3{margin:2px 0 8px;font-size:15px;letter-spacing:-.15px;font-weight:650;color:#fff}
+    .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
 
     .span4{grid-column:span 4}
     .span6{grid-column:span 6}
     .span12{grid-column:span 12}
 
     /* Chips */
-    .chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+    .chips{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
     .chip{
-      display:inline-flex;align-items:center;gap:10px;
-      padding:7px 10px;border-radius:999px;
-      border:1px solid rgba(15,23,42,.10);
-      background:rgba(2,8,23,.02);
-      color:rgba(2,8,23,.76);
-      font-size:13px;
-      font-weight:900;
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid var(--stroke);
+      background:var(--card);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:600;
     }
     .dot{
-      width:9px;height:9px;border-radius:999px;
-      background:var(--accent);
-      box-shadow:0 10px 18px rgba(37,99,235,.14);
+      width:7px;height:7px;border-radius:999px;
+      background:var(--accent2);
     }
 
     /* Principle / proof band */
     .proof{
-      margin-top:18px;
-      border:1px solid rgba(37,99,235,.14);
+      margin-top:24px;
+      border:1px solid var(--stroke);
       border-radius:var(--radius);
-      background:linear-gradient(180deg, rgba(37,99,235,.04), rgba(255,255,255,.70));
-      padding:18px;
+      background:var(--card);
+      padding:20px;
       display:flex;
       gap:12px;
       align-items:flex-start;
       flex-wrap:wrap;
     }
     .proof .title{
-      font-weight:950;
-      color:var(--ink);
+      font-weight:650;
+      color:#fff;
       margin:0;
       font-size:14px;
-      letter-spacing:-.2px;
-      min-width:220px;
+      letter-spacing:-.15px;
+      min-width:200px;
     }
     .proof p{
       margin:0;
       color:var(--muted);
       font-size:14px;
-      max-width:90ch;
+      max-width:80ch;
+      line-height:1.6;
     }
 
     /* CTA band */
     .ctaBand{
-      margin:46px 0 12px;
-      padding:18px;
+      margin:64px 0 16px;
+      padding:28px;
       border-radius:var(--radius);
-      border:1px solid rgba(37,99,235,.16);
-      background:
-        radial-gradient(900px 260px at 10% 10%, rgba(37,99,235,.10), transparent 55%),
-        radial-gradient(900px 260px at 90% 20%, rgba(124,58,237,.08), transparent 58%),
-        var(--surface);
+      border:1px solid var(--stroke);
+      background:var(--card2);
       box-shadow:var(--shadow);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      gap:20px;
       flex-wrap:wrap;
     }
-    .ctaBand .title{font-weight:950;font-size:18px;margin:0 0 4px}
+    .ctaBand .title{font-weight:650;font-size:17px;margin:0 0 4px;color:#fff}
     .ctaBand .small{margin:0;color:var(--muted);font-size:13px}
 
     footer{
-      border-top:1px solid rgba(15,23,42,.10);
-      padding:18px 0 38px;
+      border-top:1px solid var(--stroke);
+      padding:32px 0 48px;
       color:var(--muted);
-      margin-top:28px;
+      margin-top:48px;
     }
-    .footerRow{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
-    .footerCol a{color:var(--muted);font-weight:900}
+    .footerRow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .footerCol a{color:var(--muted);font-weight:500}
     .footerCol a:hover{color:var(--ink)}
     .trustline{
       margin:10px 0 0;
       font-size:13px;
-      color:rgba(2,8,23,.65);
+      color:var(--muted);
     }
 
     @media (max-width: 920px){
@@ -358,6 +356,13 @@
       .menuBtn{display:inline-flex}
       .span4,.span6{grid-column:span 12}
       .ctaBand{flex-direction:column;align-items:flex-start}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        transition-duration:0.01ms !important;
+        animation-duration:0.01ms !important;
+      }
     }
   </style>
 </head>
@@ -367,7 +372,7 @@
   <div class="nav">
     <a class="brand" href="#top" aria-label="ai.doo home">
       <span class="logoMark" aria-hidden="true" title="ai.doo">
-        <img src="aidoo_middle_vector_polished.svg" alt="" />
+        <img src="favicon.svg" alt="" />
       </span>
 
       <span class="wordmark" aria-label="ai.doo">
@@ -400,34 +405,32 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="pill">Private-by-default • Self-hosted • Built for ops</div>
+    <div class="pill">Private-first AI</div>
 
-    <h1>Private AI products. Built for real environments.</h1>
+    <h1>Private AI products for real environments.</h1>
 
     <p class="sub">
-      ai.doo builds focused, self-hosted AI products — and extends them into bespoke private solutions when a tailored fit is needed.
-      <br><br>
-      One example is <strong>PIKA</strong>, a secure document Q&amp;A system powered by local AI.
+      Self-hosted AI tools — extended into bespoke private solutions where a tailored fit is needed. One example: <strong>PIKA</strong>, secure document Q&amp;A powered by local models.
     </p>
 
     <div class="ctaRow">
       <a class="btn primary" href="#contact">Discuss a pilot</a>
-      <a class="btn subtle" href="#what">See what we do</a>
+      <a class="btn subtle" href="#what">What we do</a>
     </div>
   </section>
 
   <!-- WHAT -->
   <section class="section" id="what">
     <p class="kicker">What we do</p>
-    <h2 class="h2">Simple capabilities for real internal problems</h2>
+    <h2 class="h2">Practical tools for private environments</h2>
     <p class="lead">
-      Pragmatic systems designed for privacy-first environments — and maintainable long after the demo.
+      Systems designed for privacy-first environments — maintainable long after the demo.
     </p>
 
     <div class="grid">
       <div class="card span4">
-        <h3>Private document intelligence</h3>
-        <p>Upload, index, and query internal documents using local AI — without sending data to the cloud.</p>
+        <h3>Document intelligence</h3>
+        <p>Index and query internal documents with local AI. No data leaves your infrastructure.</p>
         <div class="chips">
           <span class="chip"><span class="dot"></span> RAG</span>
           <span class="chip"><span class="dot"></span> Citations</span>
@@ -437,13 +440,12 @@
 
       <div class="card span4">
         <h3>Automation &amp; extraction</h3>
-        <p>Summarise documents, extract structured data, and build lightweight automations around real operational needs.</p>
-        <!-- Intentionally no chips here (studio rhythm) -->
+        <p>Summarise, extract structured data, and build lightweight automations for operational needs.</p>
       </div>
 
       <div class="card span4">
         <h3>Self-hosted delivery</h3>
-        <p>Containerised deployments with clear configuration, sensible defaults, and practical performance guidance.</p>
+        <p>Containerised deployments with sensible defaults and practical performance guidance.</p>
         <div class="chips">
           <span class="chip"><span class="dot"></span> Docker</span>
           <span class="chip"><span class="dot"></span> Local inference</span>
@@ -455,7 +457,7 @@
     <div class="proof" aria-label="Positioning note">
       <p class="title">Product-led, by design.</p>
       <p>
-        We don’t pretend to have a catalogue. We build focused products — then extend them into bespoke, private solutions where a tailored fit is required.
+        Focused products first — extended into bespoke private solutions where needed.
       </p>
     </div>
   </section>
@@ -463,43 +465,43 @@
   <!-- HOW -->
   <section class="section" id="how">
     <p class="kicker">How we work</p>
-    <h2 class="h2">Fast pilots. Clear scope. No nonsense.</h2>
+    <h2 class="h2">Fast pilots. Clear scope. Honest delivery.</h2>
     <p class="lead">
-      You’ll see a working pilot early, with measurable outcomes and a clear path to production that respects your constraints.
+      A working pilot early, with measurable outcomes and a clear path to production.
     </p>
 
     <div class="grid">
       <div class="card span6">
-        <h3>1) Discover &amp; define</h3>
-        <p>Align on the use case, data sensitivity, hardware, and success criteria — in plain language.</p>
+        <h3>1. Discover &amp; define</h3>
+        <p>Align on the use case, data sensitivity, and success criteria — in plain language.</p>
       </div>
       <div class="card span6">
-        <h3>2) Pilot in your environment</h3>
-        <p>Deploy where your data lives. See real behaviour — not a deck.</p>
+        <h3>2. Pilot in your environment</h3>
+        <p>Deploy where your data lives. See real behaviour, not a deck.</p>
       </div>
       <div class="card span6">
-        <h3>3) Harden for production</h3>
-        <p>Configuration, monitoring, performance tuning, and clear operational documentation.</p>
+        <h3>3. Harden for production</h3>
+        <p>Configuration, monitoring, performance tuning, and clear documentation.</p>
       </div>
       <div class="card span6">
-        <h3>4) Extend where needed</h3>
-        <p>Bespoke features and integrations layered on top of the product foundation.</p>
+        <h3>4. Extend where needed</h3>
+        <p>Bespoke features and integrations on top of the product foundation.</p>
       </div>
     </div>
   </section>
 
   <!-- PIKA -->
   <section class="section" id="pika">
-    <p class="kicker">Product example</p>
+    <p class="kicker">Product</p>
     <h2 class="h2">PIKA</h2>
     <p class="lead">
-      A self-hosted document intelligence product: upload documents, index them locally, and ask questions securely.
+      Self-hosted document intelligence. Upload, index locally, ask questions securely.
     </p>
 
     <div class="grid">
       <div class="card span12">
         <h3>pikachat.biz</h3>
-        <p style="margin-bottom:12px;">See how the ai.doo approach translates into a real, working product.</p>
+        <p style="margin-bottom:12px;">See the ai.doo approach in a working product.</p>
         <a class="btn primary" href="https://pikachat.biz" target="_blank" rel="noopener">Visit PIKA</a>
       </div>
     </div>
@@ -508,8 +510,8 @@
   <!-- CTA -->
   <section class="ctaBand" id="contact">
     <div>
-      <p class="title">Interested in a private AI pilot you can actually run?</p>
-      <p class="small">Email <strong>hello@aidoo.biz</strong> with a brief outline of your use case and environment.</p>
+      <p class="title">Let's build something private.</p>
+      <p class="small">Email <strong>hello@aidoo.biz</strong> — outline your use case and environment.</p>
     </div>
     <div class="ctaRow" style="margin:0;">
       <a class="btn primary" href="mailto:hello@aidoo.biz?subject=ai.doo%20Pilot%20Request">Email hello@aidoo.biz</a>
@@ -520,31 +522,31 @@
   <footer>
     <div class="footerRow">
       <div class="footerCol">
-        <div style="display:flex;align-items:center;gap:12px;font-weight:950;color:var(--ink);">
+        <div style="display:flex;align-items:center;gap:12px;font-weight:700;color:var(--ink);">
           <span class="logoMark" aria-hidden="true">
-            <img src="aidoo_middle_vector_polished.svg" alt="" />
+            <img src="favicon.svg" alt="" />
           </span>
           <span class="wordmark" aria-label="ai.doo">
             <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
           </span>
         </div>
 
-        <p class="trustline">Self-hosted by default. No data sent to third-party clouds.</p>
-        <p style="margin:10px 0 0; font-size:13px;">© <span id="year"></span> ai.doo</p>
+        <p class="trustline">Self-hosted by default. No data leaves your infrastructure.</p>
+        <p style="margin:10px 0 0; font-size:13px;">&copy; <span id="year"></span> ai.doo</p>
       </div>
 
       <div class="footerCol" style="font-size:13px;">
-        <div style="font-weight:950;color:var(--ink);margin-bottom:8px;">Navigate</div>
+        <div style="font-weight:650;color:var(--ink);margin-bottom:8px;">Navigate</div>
         <div><a href="#what">What we do</a></div>
         <div><a href="#how">How we work</a></div>
         <div><a href="#pika">PIKA</a></div>
       </div>
 
       <div class="footerCol" style="font-size:13px;">
-        <div style="font-weight:950;color:var(--ink);margin-bottom:8px;">Contact</div>
+        <div style="font-weight:650;color:var(--ink);margin-bottom:8px;">Contact</div>
         <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
         <div style="margin-top:6px;">
-          <a href="#" title="Replace with your LinkedIn URL">LinkedIn</a> •
+          <a href="#" title="Replace with your LinkedIn URL">LinkedIn</a> &bull;
           <a href="#" title="Replace with your GitHub URL">GitHub</a>
         </div>
       </div>
