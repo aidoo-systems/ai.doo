@@ -11,6 +11,16 @@
       steps:
         - uses: actions/checkout@v4
 
+        - name: Fetch PIKA changelog
+          run: |
+            curl -sf -H "Authorization: token ${{ secrets.PIKA_REPO_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3.raw" \
+              "https://api.github.com/repos/ForceSensitiveSaiyan/pika/contents/CHANGELOG.md" \
+              -o CHANGELOG.md
+
+        - name: Build changelog page
+          run: python build-changelog.py --changelog CHANGELOG.md
+
         - name: Deploy via rsync
           env:
             SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
@@ -26,4 +36,7 @@
               --exclude='.github' \
               --exclude='README.md' \
               --exclude='logo_designs.png' \
+              --exclude='build-changelog.py' \
+              --exclude='CHANGELOG.md' \
+              --exclude='nul' \
               ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/var/www/aidoo.biz/

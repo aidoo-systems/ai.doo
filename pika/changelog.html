@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PIKA Changelog — ai.doo</title>
+  <meta name="description" content="Release notes and changelog for PIKA, the private document intelligence system by ai.doo." />
+  <link rel="canonical" href="https://aidoo.biz/pika/changelog">
+  <meta name="author" content="ai.doo">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PIKA Changelog — ai.doo">
+  <meta property="og:description" content="Release notes and changelog for PIKA, the private document intelligence system.">
+  <meta property="og:url" content="https://aidoo.biz/pika/changelog">
+  <meta property="og:site_name" content="ai.doo">
+  <meta property="og:image" content="https://aidoo.biz/og-image.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#0b1020">
+
+  <style>
+    :root{
+      --bg0:#0b1020;
+      --bg1:#111a33;
+      --ink:#eaf0ff;
+      --muted:rgba(234,240,255,0.72);
+      --accent:#2a8bc9;
+      --accent2:#4db8ff;
+      --card:rgba(255,255,255,0.06);
+      --card2:rgba(255,255,255,0.09);
+      --stroke:rgba(255,255,255,0.12);
+      --radius:16px;
+      --max:1080px;
+      --shadow:0 16px 48px rgba(0,0,0,.30);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(800px 600px at 20% 8%, rgba(77,184,255,.10), transparent 65%),
+        radial-gradient(700px 500px at 80% 25%, rgba(42,139,201,.07), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.6;
+      min-height:100vh;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:0 auto;padding:24px}
+
+    /* Header */
+    header{
+      position:sticky;top:0;z-index:50;
+      background:rgba(11,16,32,.88);
+      backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--stroke);
+    }
+    .nav{
+      max-width:var(--max);
+      margin:0 auto;
+      padding:16px 24px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .logoMark{
+      width:40px;height:40px;border-radius:12px;
+      display:grid;place-items:center;
+      background:var(--card2);
+      border:1px solid var(--stroke);
+      overflow:hidden;
+    }
+    .logoMark img{
+      width:34px;height:34px;display:block;
+      filter:drop-shadow(0 1px 3px rgba(0,0,0,.45));
+    }
+    .wordmark{
+      display:inline-flex;
+      align-items:baseline;
+      font-weight:700;
+      letter-spacing:-0.5px;
+      font-size:18px;
+      line-height:1;
+    }
+    .wm-ai,.wm-doo{color:var(--ink)}
+    .wm-dot{
+      width:7px;height:7px;border-radius:999px;
+      margin:0 5px 3px 5px;
+      background:var(--accent2);
+      display:inline-block;
+    }
+
+    nav{
+      display:flex;gap:20px;align-items:center;
+      color:var(--muted);
+      font-weight:400;
+      font-size:14px;
+    }
+    nav a{
+      position:relative;
+      padding:8px 2px;
+      color:var(--muted);
+      transition:color .15s ease;
+    }
+    nav a:hover{color:var(--ink)}
+    nav a::after{
+      content:"";
+      position:absolute;
+      left:0;right:0;bottom:3px;
+      height:1.5px;
+      background:var(--accent2);
+      transform:scaleX(0);
+      transform-origin:left;
+      transition:transform .15s ease;
+      border-radius:999px;
+      opacity:.9;
+    }
+    nav a:hover::after{transform:scaleX(1)}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:11px 18px;
+      border-radius:10px;
+      border:1px solid var(--stroke);
+      background:var(--card);
+      color:var(--ink);
+      font-weight:600;
+      font-size:14px;
+      cursor:pointer;
+      transition:transform .16s ease-out, box-shadow .16s ease-out, border-color .16s ease-out;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+      border-color:rgba(42,139,201,.30);
+      box-shadow:0 6px 20px rgba(0,0,0,.25);
+    }
+    .btn.primary{
+      border-color:transparent;
+      color:#fff;
+      background:var(--accent);
+      box-shadow:0 8px 24px rgba(42,139,201,.25);
+    }
+    .btn.primary:hover{box-shadow:0 12px 32px rgba(42,139,201,.35)}
+
+    .navRight{display:flex;align-items:center;gap:10px}
+
+    /* Page heading */
+    .pageHeader{
+      padding:80px 0 32px;
+    }
+    .kicker{
+      margin:0 0 8px;
+      color:var(--muted);
+      font-size:12px;
+      letter-spacing:.3px;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+    .h2{
+      margin:0 0 16px;
+      font-size:28px;
+      letter-spacing:-.6px;
+      line-height:1.2;
+      font-weight:700;
+      color:#fff;
+    }
+    .lead{
+      margin:0;
+      color:var(--muted);
+      max-width:60ch;
+      font-size:15px;
+      line-height:1.65;
+    }
+
+    /* Changelog content */
+    .changelog{
+      padding:0 0 80px;
+    }
+    /* Rendered markdown */
+    .changelog-body h2{
+      margin:48px 0 16px;
+      padding-top:32px;
+      border-top:1px solid var(--stroke);
+      font-size:22px;
+      letter-spacing:-.4px;
+      font-weight:700;
+      color:#fff;
+    }
+    .changelog-body h2:first-child{
+      margin-top:0;
+      padding-top:0;
+      border-top:none;
+    }
+    .changelog-body h3{
+      margin:24px 0 12px;
+      font-size:14px;
+      font-weight:700;
+      color:var(--accent2);
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+    .changelog-body ul{
+      margin:0 0 16px;
+      padding-left:20px;
+    }
+    .changelog-body li{
+      margin:6px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.65;
+    }
+    .changelog-body li strong{
+      color:var(--ink);
+      font-weight:600;
+    }
+    .changelog-body p{
+      margin:8px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.65;
+    }
+    .changelog-body a{
+      color:var(--accent2);
+      text-decoration:underline;
+      text-underline-offset:2px;
+    }
+    .changelog-body a:hover{color:var(--ink)}
+
+    /* Footer */
+    footer{
+      border-top:1px solid var(--stroke);
+      padding:32px 0 48px;
+      color:var(--muted);
+      margin-top:48px;
+    }
+    .footerInner{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+      font-size:13px;
+    }
+    .footerInner a{color:var(--muted)}
+    .footerInner a:hover{color:var(--ink)}
+
+    @media (max-width: 920px){
+      .wrap{padding:20px}
+      nav{display:none}
+      .menuBtn{display:inline-flex}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        transition-duration:0.01ms !important;
+        animation-duration:0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="https://aidoo.biz/" aria-label="ai.doo home">
+      <span class="logoMark" aria-hidden="true" title="ai.doo">
+        <img src="../favicon.svg" alt="" />
+      </span>
+      <span class="wordmark" aria-label="ai.doo">
+        <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+      </span>
+    </a>
+
+    <div class="navRight">
+      <a class="btn primary" href="https://pikachat.biz" target="_blank" rel="noopener">Visit PIKA</a>
+    </div>
+  </div>
+
+</header>
+
+<main class="wrap">
+
+  <section class="pageHeader">
+    <p class="kicker">PIKA</p>
+    <h1 class="h2">Changelog</h1>
+    <p class="lead">Release notes for PIKA — the private document intelligence system.</p>
+  </section>
+
+  <section class="changelog">
+    <div class="changelog-body">
+      <!-- CHANGELOG_START -->
+      <h2>0.3.0 - 2026-02-09</h2>
+      <h3>Added</h3>
+      <ul>
+      <li>Version display in health endpoint and admin About section</li>
+      <li>Version detection tests for health endpoint and admin UI</li>
+      <li>Comprehensive README sections for testing, CI/CD, and deployment</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+      <li>Production hardening improvements for version management</li>
+      <li>CI pipeline now runs on all <code>v*</code> tags</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+      <li>Auth mock in <code>test_admin_page_accessible_when_authenticated</code></li>
+      </ul>
+      <h2>0.2.0 - 2026-02-09</h2>
+      <h3>Added</h3>
+      <ul>
+      <li><strong>Authentication &amp; multi-user support</strong> — bcrypt password hashing, role-based access (admin/user), per-user chat history and sessions</li>
+      <li><strong>Query queue system</strong> — FIFO queue with configurable concurrency, per-user limits, position display, and automatic timeout</li>
+      <li><strong>Backup &amp; restore</strong> — full ZIP backup of documents, index, config, and user database with background progress tracking and one-click restore</li>
+      <li><strong>Streaming responses</strong> — real-time token streaming from Ollama to the browser</li>
+      <li><strong>Prometheus metrics</strong> — <code>/metrics</code> endpoint with request latency, query counters, queue gauges, and index stats</li>
+      <li><strong>Structured JSON logging</strong> — production-grade logging with human-readable fallback in debug mode</li>
+      <li><strong>Ollama retry logic</strong> — automatic retry with exponential backoff for transient LLM failures</li>
+      <li><strong>Async background indexing</strong> — start/cancel/poll indexing operations without blocking the UI</li>
+      <li><strong>GitHub Actions CI</strong> — lint (ruff), test (pytest + coverage), dependency audit (pip-audit), and Docker image build/push to GHCR</li>
+      <li><strong>SSH deploy workflow</strong> — manual-trigger deployment to multiple environments with health checks and auto-rollback</li>
+      <li><strong>Release workflow</strong> — auto-create GitHub Releases from <code>v*</code> tags</li>
+      <li><strong>CSRF protection</strong> on all forms</li>
+      <li><strong>Rate limiting</strong> on queries and uploads via slowapi</li>
+      <li><strong>Security headers</strong> on all responses (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy)</li>
+      <li><strong>Audit logging</strong> for admin actions with pagination</li>
+      <li><strong>Feedback system</strong> — thumbs up/down on query responses</li>
+      <li><strong>Dark mode</strong> and modern UI redesign</li>
+      <li><strong>First-launch setup flow</strong> and admin page redesign</li>
+      <li><strong>NVIDIA GPU support</strong> in Docker Compose with AMD ROCm as commented alternative</li>
+      <li><strong>Automated backup</strong> via API with cron integration</li>
+      <li><strong>Graceful degradation</strong> when Ollama is unavailable</li>
+      <li>Clear chat history button</li>
+      <li>Cancel model download capability</li>
+      <li>Loading indicators on admin documents section</li>
+      <li>Admin page performance caching</li>
+      </ul>
+      <h3>Changed</h3>
+      <ul>
+      <li>Default model changed to <code>llama3.2:3b</code></li>
+      <li>Consolidated Docker Compose files (base + override pattern)</li>
+      <li>Hardcoded values moved to <code>config.py</code></li>
+      <li>Query status tracking is now user-specific</li>
+      </ul>
+      <h3>Fixed</h3>
+      <ul>
+      <li>ChromaDB readonly database error after backup restore</li>
+      <li>Streaming query source serialization (<code>asdict()</code>)</li>
+      <li>History logging and navigation-resilient queries</li>
+      <li>Race condition on <code>_running_queries</code> set</li>
+      <li>Restore success message now correctly states index is restored</li>
+      <li>Duplicate message bug in chat</li>
+      <li>Model pull progress tracking across page navigation</li>
+      </ul>
+      <h3>Security</h3>
+      <ul>
+      <li>Password complexity requirements (min 8 chars, uppercase, lowercase, digit)</li>
+      <li>Path traversal prevention on file operations</li>
+      <li>Container runs as non-root <code>pika</code> user</li>
+      <li>Vulnerable dependencies bumped (pip-audit)</li>
+      </ul>
+      <h2>0.1.0 - 2026-01-15</h2>
+      <h3>Added</h3>
+      <ul>
+      <li><strong>Initial release</strong> of PIKA (Private Intelligent Knowledge Assistant)</li>
+      <li>FastAPI web application with Ollama LLM integration</li>
+      <li>RAG engine with ChromaDB vector storage and sentence-transformers embeddings</li>
+      <li>Document processor supporting PDF, DOCX, TXT, and Markdown</li>
+      <li>Web chat interface with file upload</li>
+      <li>Docker deployment with setup script</li>
+      <li>Admin page for model and document management</li>
+      <li>Confidence scoring on query responses</li>
+      </ul>
+      <!-- CHANGELOG_END -->
+    </div>
+  </section>
+
+  <footer>
+    <div class="footerInner">
+      <span>&copy; <span id="year"></span> ai.doo</span>
+      <span>
+        <a href="https://aidoo.biz/">Home</a> &middot;
+        <a href="https://pikachat.biz" target="_blank" rel="noopener">PIKA</a>
+      </span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
