@@ -66,8 +66,41 @@ background:
 
 Push to `main` → GitHub Actions workflow → `rsync` to `/var/www/aidoo.biz/` on the VPS. No build step. New directories (e.g. `privacy/`) are picked up automatically.
 
+## Products
+
+### PIKA
+- Self-hosted document intelligence application
+- Runs entirely within the customer's own infrastructure — ai.doo never receives or stores customer data
+- Has (or is in the process of getting) an Android app on the **Google Play Store**
+- Android app may request device storage (document selection) and camera permissions; all processing is local
+- No user accounts currently; account/deletion flows are planned for future versions
+- Marketing/landing page at `/pika/` with a changelog at `/pika/changelog`
+- Changelog is auto-generated on deploy (built by the GitHub Actions workflow)
+
+## Privacy policy (`/privacy/`)
+
+File: `privacy/index.html`
+
+Sections (as of Feb 2026):
+1. Introduction
+2. Information we collect (server access logs only)
+3. Google Fonts (only meaningful third-party data touch-point)
+4. Our apps (PIKA) — includes Android permissions disclosure
+5. Cookies (none set)
+6. How we use information
+7. Data retention (logs ~90 days)
+8. Your rights (IOM DPA 2018)
+9. Contact
+10. Changes to this policy
+11. Data deletion (Google Play requirement)
+
+Key notes:
+- IOM Data Protection Act 2018 is explicitly called out as equivalent to UK GDPR and EU GDPR — important for Google Play reviewers
+- Policy covers both the website and mobile applications on the Google Play Store
+- Page uses `<meta name="robots" content="noindex">`
+
 ## Key contacts / identity
 - Trading as: **ai.doo**
 - Domain: `aidoo.biz`
 - Contact email: `hello@aidoo.biz`
-- Jurisdiction: Isle of Man — Data Protection Act 2018
+- Jurisdiction: Isle of Man — Data Protection Act 2018 (equivalent to UK GDPR and EU GDPR)
