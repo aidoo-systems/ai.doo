@@ -428,6 +428,8 @@
 
     /* Pricing */
     .pricingCard{background:var(--card2);border-color:rgba(42,139,201,.30)}
+    .pricingTier{display:flex;flex-direction:column}
+    .pricingBtnWrap{margin-top:auto;padding-top:20px}
     .featureList{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:8px}
     .featureList li{font-size:13px;color:var(--muted);padding-left:16px;position:relative;line-height:1.5}
     .featureList li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:999px;background:var(--accent2);opacity:.7}
@@ -603,7 +605,7 @@
     <h1>Private AI products for real environments.</h1>
 
     <p class="sub">
-      Self-hosted AI tools — extended into bespoke private solutions where a tailored fit is needed. One example: <strong>PIKA</strong>, secure document Q&amp;A powered by local models.
+      Private, self-hosted AI tools for organisations where data sovereignty matters — extended into bespoke solutions where a closer fit is needed.
     </p>
 
     <div class="ctaRow">
@@ -648,9 +650,9 @@
     </div>
 
     <div class="proof" aria-label="Positioning note">
-      <p class="title">Product-led, by design.</p>
+      <p class="title">Working software first.</p>
       <p>
-        Focused products first — extended into bespoke private solutions where needed.
+        Every engagement starts from products that are already deployed and proven — not a discovery phase building from scratch. Bespoke work extends the foundation; it doesn't replace it.
       </p>
     </div>
   </section>
@@ -696,7 +698,7 @@
     </p>
 
     <div class="grid">
-      <div class="card span4">
+      <div class="card span4 pricingTier">
         <div class="step-num">Discovery</div>
         <h3>Free initial call</h3>
         <p>No obligation. Understand your environment and goals. We'll tell you honestly if we're a good fit.</p>
@@ -705,27 +707,27 @@
           <li>Your use case and constraints</li>
           <li>Clear next-step recommendation</li>
         </ul>
-        <div style="margin-top:20px;">
+        <div class="pricingBtnWrap">
           <a class="btn" href="mailto:hello@aidoo.biz?subject=Discovery%20call">Email us</a>
         </div>
       </div>
 
-      <div class="card span4 pricingCard">
+      <div class="card span4 pricingCard pricingTier">
         <div class="step-num">Pilot</div>
-        <h3>A working system in your environment</h3>
-        <p>Fixed scope, measurable outcome. Pricing on request.</p>
+        <h3>Fixed-scope pilot</h3>
+        <p>A working system in your environment. Measurable outcome, pricing on request.</p>
         <ul class="featureList">
           <li>Deployed in your infrastructure</li>
           <li>Real data, real behaviour</li>
           <li>Defined success criteria</li>
           <li>Handover documentation</li>
         </ul>
-        <div style="margin-top:20px;">
+        <div class="pricingBtnWrap">
           <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Pilot%20discussion">Discuss a pilot</a>
         </div>
       </div>
 
-      <div class="card span4">
+      <div class="card span4 pricingTier">
         <div class="step-num">Production</div>
         <h3>Full build &amp; ongoing support</h3>
         <p>Complete solution with documentation and ongoing support. Custom scope agreed after pilot.</p>
@@ -735,7 +737,7 @@
           <li>Bespoke extensions</li>
           <li>Ongoing support agreement</li>
         </ul>
-        <div style="margin-top:20px;">
+        <div class="pricingBtnWrap">
           <a class="btn" href="mailto:hello@aidoo.biz?subject=Production%20enquiry">Get in touch</a>
         </div>
       </div>
@@ -747,14 +749,43 @@
     <p class="kicker">Product</p>
     <h2 class="h2">PIKA</h2>
     <p class="lead">
-      Self-hosted document intelligence. Upload, index locally, ask questions securely.
+      Self-hosted document intelligence. Your documents, your infrastructure, your control.
     </p>
 
     <div class="grid">
-      <div class="card span12">
-        <h3>PIKA</h3>
-        <p style="margin-bottom:12px;">See the ai.doo approach in a working product.</p>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div class="card span4">
+        <h3>Ask questions, get answers</h3>
+        <p>Query internal documents in plain language. Every answer includes citations so you can verify the source directly.</p>
+        <div class="chips">
+          <span class="chip"><span class="dot"></span> RAG</span>
+          <span class="chip"><span class="dot"></span> Citations</span>
+        </div>
+      </div>
+
+      <div class="card span4">
+        <h3>Runs on your hardware</h3>
+        <p>No cloud dependency. PIKA uses local inference models — your documents never leave the building.</p>
+        <div class="chips">
+          <span class="chip"><span class="dot"></span> Local models</span>
+          <span class="chip"><span class="dot"></span> Docker</span>
+        </div>
+      </div>
+
+      <div class="card span4">
+        <h3>Built for teams</h3>
+        <p>Access control and multi-user support, with a clean interface designed for day-to-day operational use.</p>
+        <div class="chips">
+          <span class="chip"><span class="dot"></span> Access control</span>
+          <span class="chip"><span class="dot"></span> Multi-user</span>
+        </div>
+      </div>
+
+      <div class="card span12" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+        <div>
+          <h3 style="margin-bottom:6px;">See PIKA in detail</h3>
+          <p>Full feature overview, release notes, and deployment guides on the PIKA page.</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;flex-shrink:0;">
           <a class="btn primary" href="pika/">Visit PIKA</a>
           <a class="btn subtle" href="pika/changelog.html">Changelog</a>
         </div>
@@ -824,7 +855,7 @@
     <button class="chatClose" id="chatClose" aria-label="Close chat">&#x2715;</button>
   </div>
   <div class="chatMessages" id="chatMessages" aria-live="polite" aria-atomic="false">
-    <div class="chatMsg assistant">Hi! Ask me anything about ai.doo, PIKA, or how we work.</div>
+    <div class="chatMsg assistant">Hi. Ask me anything about ai.doo, PIKA, or how we work.</div>
   </div>
   <div class="chatInputRow">
     <textarea class="chatInput" id="chatInput" placeholder="Type a message…" rows="1" aria-label="Your message"></textarea>
