@@ -15,7 +15,7 @@ PIKA — ai.doo's flagship product:
 - Self-hosted document intelligence application
 - Upload, index, and query internal documents using local AI models
 - No data ever sent to external servers; runs entirely within the customer's infrastructure
-- Available as an Android app on Google Play (all processing is local)
+- Designed to be deployed within an organisation's own infrastructure — not a cloud service
 - Features: RAG (retrieval-augmented generation), citations, access control, document Q&A
 - Changelog at aidoo.biz/pika/changelog
 
