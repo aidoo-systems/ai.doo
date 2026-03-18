@@ -14,7 +14,7 @@ Hub provides centralised user management for the ai.doo suite. PIKA and VERA del
 1. Log in to Hub as an admin.
 2. Navigate to the **Users** tab.
 3. Click **Create User**.
-4. Fill in username, email, password, and role.
+4. Fill in username, password, and role.
 5. Click **Save**.
 
 The new user can immediately log in to PIKA and VERA.
@@ -28,7 +28,6 @@ The new user can immediately log in to PIKA and VERA.
       -H "Content-Type: application/json" \
       -d '{
         "username": "alice",
-        "email": "alice@example.com",
         "password": "S3cureP@ss1",
         "role": "user"
       }'
@@ -57,7 +56,7 @@ Hub enforces rate limiting on failed login attempts to prevent brute-force attac
 | Lockout duration | **15 minutes** |
 
 !!! note
-    The lockout counter resets after a successful login. An admin can also manually unlock an account from the Users tab.
+    The lockout counter resets after a successful login. An admin can manually unlock an account via the API: `POST /api/users/{id}/unlock`.
 
 ## Enabling / Disabling Users
 
@@ -85,7 +84,7 @@ PIKA and VERA do not maintain their own user databases. Instead, they validate c
 
 ```
 User → PIKA/VERA login form
-       → POST /api/auth/verify (Hub)
+       → POST /api/auth/validate (Hub)
        ← 200 OK + user claims
        → Session created in PIKA/VERA
 ```

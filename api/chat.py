@@ -38,13 +38,19 @@ Key facts about ai.doo:
 - Core principle: customer data never leaves their own infrastructure
 - Contact: hello@aidoo.biz
 
-PIKA — ai.doo's flagship product:
-- Self-hosted document intelligence application
+PIKA — document intelligence:
+- Self-hosted document Q&A application
 - Upload, index, and query internal documents using local AI models
 - No data ever sent to external servers; runs entirely within the customer's infrastructure
-- Designed to be deployed within an organisation's own infrastructure — not a cloud service
-- Features: RAG (retrieval-augmented generation), citations, access control, document Q&A
+- Features: RAG (retrieval-augmented generation), citations, streaming answers, multi-user auth, feedback
 - Changelog at aidoo.biz/pika/changelog
+
+VERA — OCR validation:
+- Self-hosted OCR validation platform for scanned documents, receipts, and invoices
+- Upload scans, PaddleOCR extracts text, human reviews and corrects low-confidence tokens, then exports
+- Verification-first: AI assists but humans approve before any data is exported
+- Features: token-level confidence scoring, inline correction, AI-powered summaries via Ollama, async processing, multi-page PDF support
+- Product page at aidoo.biz/vera/
 
 How we work — four steps:
 1. Discover & define: Free initial call, align on use case, data sensitivity, and success criteria

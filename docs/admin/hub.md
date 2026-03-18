@@ -9,7 +9,7 @@ Hub is the central management service for the ai.doo suite. It runs alongside Ol
 | Ollama management | Pull, delete, and inspect models through a web UI instead of the CLI |
 | User management | Create accounts, assign roles, enable/disable access for PIKA and VERA |
 | License management | Activate and monitor your ai.doo license key |
-| Audit logging | Immutable log of admin actions — logins, model pulls, user changes |
+| Audit logging | Immutable log of admin actions — logins, user changes, license activation |
 
 ## Accessing Hub
 
@@ -26,7 +26,7 @@ http://localhost:2000
 
 On the first visit Hub presents a setup page:
 
-1. **Create admin account** — enter a username, email, and password. This becomes the first admin user.
+1. **Create admin account** — enter a username and password. This becomes the first admin user.
 2. **Pull a model** — Hub will prompt you to pull at least one model so the suite is functional.
 3. **Activate license** (optional) — paste your license key, or skip to run in unlicensed mode.
 
@@ -55,7 +55,7 @@ Browse the audit log. Each entry records:
 
 - **Timestamp** (UTC)
 - **Actor** — the user who performed the action
-- **Action** — e.g. `user.created`, `model.pulled`, `license.activated`
+- **Action** — e.g. `user_created`, `login_success`, `license_activated`
 - **Detail** — contextual data (model name, target user, etc.)
 
 Audit entries are append-only and cannot be deleted through the UI.

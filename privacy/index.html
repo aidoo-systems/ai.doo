@@ -110,13 +110,13 @@
   <a class="back" href="/">&#8592; ai.doo</a>
 
   <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: <span id="lastUpdated">21 February 2026</span></p>
+  <p class="updated">Last updated: <span id="lastUpdated">18 March 2026</span></p>
 
   <h2>1. Introduction</h2>
   <p>
     This privacy policy explains how ai.doo ("we", "us", "our") collects, uses, and protects
     information when you use our website at <strong>aidoo.biz</strong>, our mobile applications
-    available on the Google Play Store, and our products (including PIKA). We are trading as
+    available on the Google Play Store, and our products (including PIKA and VERA). We are trading as
     ai.doo and are subject to the Isle of Man Data Protection Act 2018 (which provides
     protections equivalent to the UK GDPR and EU GDPR).
   </p>
@@ -158,16 +158,36 @@
 
   <hr class="divider">
 
-  <h2>4. Our products (PIKA)</h2>
+  <h2>4. Our products (PIKA and VERA)</h2>
   <p>
-    PIKA is a self-hosted document intelligence application. It is designed to run entirely
-    within your own infrastructure. Data you enter into PIKA — including documents and
-    queries — is processed on your own systems. ai.doo does not receive, store, or have
-    access to that data.
+    PIKA and VERA are self-hosted applications designed to run entirely within your own
+    infrastructure. Data you enter — including documents, queries, and OCR results — is
+    processed on your own systems. ai.doo does not receive, store, or have access to that data.
   </p>
+  <ul>
+    <li><strong>PIKA</strong> — document intelligence and Q&A via retrieval-augmented generation (RAG)</li>
+    <li><strong>VERA</strong> — OCR validation platform for scanned documents, receipts, and invoices</li>
+  </ul>
   <p>
-    This policy will be updated as our products evolve and as specific hosting arrangements
-    are confirmed.
+    Both products use local AI models via Ollama. No data is sent to external AI services
+    unless you explicitly configure a cloud endpoint.
+  </p>
+
+  <h2>4a. Chat widget</h2>
+  <p>
+    The chat widget on aidoo.biz uses OpenAI's API (gpt-4o-mini model) to answer questions
+    about our products. When you send a message through the chat widget:
+  </p>
+  <ul>
+    <li>Your message text is sent to OpenAI's servers for processing</li>
+    <li>Your IP address is logged by our server for rate limiting</li>
+    <li>No conversation history is stored — each message is processed independently</li>
+  </ul>
+  <p>
+    OpenAI's data handling is governed by their
+    <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">privacy policy</a>.
+    The chat widget is only used on the marketing site — it is completely separate from the
+    self-hosted PIKA and VERA products.
   </p>
 
   <hr class="divider">
@@ -236,10 +256,10 @@
 
   <h2>11. Data deletion</h2>
   <p>
-    Our current apps do not require user accounts. If future versions implement accounts,
-    we will provide a clear, in-app path for users to request the deletion of their account
-    and all associated data. You may also request data deletion at any time by emailing
-    <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a>.
+    PIKA and VERA use centralised user accounts managed through the ai.doo Hub. An
+    administrator can disable or delete user accounts from the Hub admin panel. To request
+    deletion of your account or associated data, contact your organisation's administrator or
+    email <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a>.
   </p>
 
 </div>
