@@ -6,10 +6,10 @@ A reverse proxy terminates TLS and routes traffic to the ai.doo services. **Cadd
 
 | Service | Internal Port | Suggested Public Path |
 |---|---|---|
-| Hub | 2000 | `hub.example.com` |
+| Hub | 8000 | `hub.example.com` |
 | PIKA | 8000 | `pika.example.com` |
-| VERA (Next.js) | 3000 | `vera.example.com` |
-| VERA (API) | 4000 | `vera.example.com/api/*` |
+| VERA frontend | 3000 | `vera.example.com` |
+| VERA backend | 8000 | `vera.example.com/api/*` |
 
 !!! warning
     Never expose Ollama (port 11434) to the public internet. It has no authentication. Only the Docker bridge network (`ollama_network`) should be able to reach it.
@@ -26,7 +26,7 @@ Caddy obtains and renews TLS certificates automatically via Let's Encrypt.
 }
 
 hub.example.com {
-    reverse_proxy hub:2000
+    reverse_proxy hub:8000
 
     header {
         Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
@@ -51,11 +51,11 @@ pika.example.com {
 
 vera.example.com {
     handle /api/* {
-        reverse_proxy vera-backend:4000
+        reverse_proxy backend:8000
     }
 
     handle {
-        reverse_proxy vera-frontend:3000
+        reverse_proxy frontend:3000
     }
 
     header {
@@ -112,7 +112,7 @@ If you prefer nginx, here is an equivalent configuration.
 
 ```nginx
 upstream hub {
-    server hub:2000;
+    server hub:8000;
 }
 
 upstream pika {
@@ -120,11 +120,11 @@ upstream pika {
 }
 
 upstream vera_api {
-    server vera-backend:4000;
+    server backend:8000;
 }
 
 upstream vera_frontend {
-    server vera-frontend:3000;
+    server frontend:3000;
 }
 
 server {
@@ -219,4 +219,4 @@ Both configurations above include these recommended headers:
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limit referrer information |
 
 !!! note
-    VERA uses `SAMEORIGIN` for `X-Frame-Options` and a more permissive CSP because the Next.js frontend requires `unsafe-eval` in development mode. Tighten these in production if you build the frontend for production.
+    VERA uses `SAMEORIGIN` for `X-Frame-Options` and a more permissive CSP because the Next.js frontend may require `unsafe-eval` for certain features. The production Docker image uses a standalone build, but some Next.js runtime features still need `unsafe-eval`.

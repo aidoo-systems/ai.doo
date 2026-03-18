@@ -94,7 +94,7 @@ Both apps require two environment variables to connect to Hub:
 
 ```bash
 # pika/.env or vera/.env
-HUB_BASE_URL=http://hub:2000
+HUB_BASE_URL=http://hub:8000
 HUB_AUTH_API_KEY=<shared-api-key>
 ```
 
