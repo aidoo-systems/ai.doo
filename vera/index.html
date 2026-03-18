@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PIKA — Document Q&A Platform | ai.doo</title>
-  <meta name="description" content="PIKA is a self-hosted document intelligence platform. Upload documents, ask questions in plain language, get cited answers from your own data. RAG-powered, private, multi-user." />
-  <link rel="canonical" href="https://aidoo.biz/pika/">
+  <title>VERA — OCR Validation Platform | ai.doo</title>
+  <meta name="description" content="VERA is a self-hosted OCR validation platform. Upload scanned documents, review AI-extracted text, correct errors, and export validated data. Human-in-the-loop accuracy." />
+  <link rel="canonical" href="https://aidoo.biz/vera/">
   <meta name="author" content="ai.doo">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="PIKA — Document Q&A Platform | ai.doo">
-  <meta property="og:description" content="Self-hosted document Q&A. Upload, ask, get cited answers — all on your infrastructure.">
-  <meta property="og:url" content="https://aidoo.biz/pika/">
+  <meta property="og:title" content="VERA — OCR Validation Platform | ai.doo">
+  <meta property="og:description" content="Self-hosted OCR validation. Upload, review, correct, export — with human-in-the-loop accuracy.">
+  <meta property="og:url" content="https://aidoo.biz/vera/">
   <meta property="og:site_name" content="ai.doo">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,7 +153,6 @@
     .card h3{margin:0 0 10px;font-size:15px;letter-spacing:-.15px;font-weight:700;color:#fff}
     .card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
 
-    .span3{grid-column:span 3}
     .span4{grid-column:span 4}
     .span6{grid-column:span 6}
     .span12{grid-column:span 12}
@@ -212,7 +211,7 @@
       .wrap{padding:20px}
       nav{display:none}
       .menuBtn{display:inline-flex}
-      .span3,.span4,.span6{grid-column:span 12}
+      .span4,.span6{grid-column:span 12}
       .steps{grid-template-columns:1fr;gap:24px}
       .step:not(:last-child)::after{display:none}
       .step{padding:0;border-left:2px solid var(--stroke);padding-left:20px}
@@ -248,9 +247,8 @@
 
     <nav aria-label="Primary navigation">
       <a href="../">Home</a>
-      <a href="../vera/">VERA</a>
-      <a href="changelog">Changelog</a>
-      <a href="https://docs.aidoo.biz/pika/overview" target="_blank" rel="noopener">Docs</a>
+      <a href="../pika/">PIKA</a>
+      <a href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Docs</a>
       <a href="../#contact">Contact</a>
     </nav>
 
@@ -262,9 +260,8 @@
 
   <div class="mobileNav" id="mobileNav">
     <a href="../">Home</a>
-    <a href="../vera/">VERA</a>
-    <a href="changelog">Changelog</a>
-    <a href="https://docs.aidoo.biz/pika/overview" target="_blank" rel="noopener">Docs</a>
+    <a href="../pika/">PIKA</a>
+    <a href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Docs</a>
     <a href="../#contact">Contact</a>
   </div>
 </header>
@@ -273,16 +270,16 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="pill">Self-hosted RAG</div>
+    <div class="pill">Self-hosted OCR</div>
 
-    <h1>Ask your documents anything.</h1>
+    <h1>Validate AI-extracted text with confidence.</h1>
 
     <p class="sub">
-      PIKA is a self-hosted document intelligence platform. Upload internal documents, ask questions in plain language, and get answers grounded in your data — with citations. All inference runs locally via Ollama.
+      VERA combines PaddleOCR with human review. Upload scanned documents, review every token, correct errors before they propagate, and export validated data. All on your infrastructure.
     </p>
 
     <div class="ctaRow">
-      <a class="btn primary" href="https://docs.aidoo.biz/pika/overview" target="_blank" rel="noopener">Read the docs</a>
+      <a class="btn primary" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Read the docs</a>
       <a class="btn subtle" href="#how">How it works</a>
     </div>
   </section>
@@ -290,54 +287,55 @@
   <!-- FEATURES -->
   <section class="section" id="features">
     <p class="kicker">Features</p>
-    <h2 class="h2">Document intelligence, on your terms.</h2>
+    <h2 class="h2">OCR you can trust.</h2>
     <p class="lead">
-      RAG-powered Q&A that runs entirely within your infrastructure. No data leaves your network. No cloud dependency.
+      Raw OCR is never good enough for production. VERA puts a human in the loop — so you export data you've actually verified.
     </p>
 
     <div class="grid">
       <div class="card span4">
-        <h3>RAG with citations</h3>
-        <p>Answers are grounded in your documents with source citations. See exactly which passages informed each response.</p>
+        <h3>PaddleOCR engine</h3>
+        <p>High-accuracy text extraction powered by PaddleOCR, running locally. Supports scanned documents, photos, and multi-page PDFs.</p>
         <div class="chips">
-          <span class="chip"><span class="dot"></span> Retrieval-augmented</span>
-          <span class="chip"><span class="dot"></span> Source citations</span>
+          <span class="chip"><span class="dot"></span> PDF</span>
+          <span class="chip"><span class="dot"></span> JPEG / PNG</span>
+          <span class="chip"><span class="dot"></span> Multi-page</span>
         </div>
       </div>
 
       <div class="card span4">
-        <h3>Local embeddings</h3>
-        <p>Documents are chunked and embedded using Sentence Transformers, stored in ChromaDB. No external API calls — everything stays local.</p>
+        <h3>Token-level review</h3>
+        <p>Review every extracted token with confidence scores. Accept, correct, or reject individual words — not entire pages.</p>
         <div class="chips">
-          <span class="chip"><span class="dot"></span> ChromaDB</span>
-          <span class="chip"><span class="dot"></span> Sentence Transformers</span>
+          <span class="chip"><span class="dot"></span> Confidence scoring</span>
+          <span class="chip"><span class="dot"></span> Inline editing</span>
         </div>
       </div>
 
       <div class="card span4">
-        <h3>Streaming responses</h3>
-        <p>Answers stream token-by-token via Ollama. Choose your model — from lightweight 3B models to larger, more capable ones.</p>
+        <h3>AI-powered summaries</h3>
+        <p>Ollama generates document summaries from validated text. Useful for quick triage and downstream workflows.</p>
         <div class="chips">
+          <span class="chip"><span class="dot"></span> Local LLM</span>
           <span class="chip"><span class="dot"></span> Ollama</span>
-          <span class="chip"><span class="dot"></span> Any GGUF model</span>
         </div>
       </div>
 
       <div class="card span6">
-        <h3>Multi-user access control</h3>
-        <p>User accounts managed through the ai.doo Hub. Role-based access controls which documents each user can query. Separate workspaces keep data isolated.</p>
+        <h3>Async processing</h3>
+        <p>Documents are processed in the background by Celery workers. Upload a batch, come back when they're ready. Stuck documents are automatically recovered.</p>
       </div>
 
       <div class="card span6">
-        <h3>Answer feedback</h3>
-        <p>Users can rate responses with thumbs up/down. Feedback is logged for quality monitoring and helps identify documents that need updating.</p>
+        <h3>Centralised auth via Hub</h3>
+        <p>User accounts, roles, and licensing managed through the ai.doo Hub. No separate user database to maintain.</p>
       </div>
     </div>
 
     <div class="proof">
-      <p class="title">Privacy by architecture.</p>
+      <p class="title">Verification-first design.</p>
       <p>
-        PIKA doesn't send data to external APIs. Embeddings are computed locally, inference runs on your GPU via Ollama, and documents are stored in your own ChromaDB instance. There's no telemetry, no phone-home, no cloud fallback.
+        VERA is built around the principle that OCR output must be verified before it's trusted. The human corrects before export — not after errors have propagated through your pipeline.
       </p>
     </div>
   </section>
@@ -345,31 +343,31 @@
   <!-- HOW IT WORKS -->
   <section class="section" id="how">
     <p class="kicker">Workflow</p>
-    <h2 class="h2">Upload. Index. Ask. Cite.</h2>
+    <h2 class="h2">Upload. Review. Correct. Export.</h2>
     <p class="lead">
-      From raw documents to cited answers in four steps.
+      Four steps from scanned document to validated, exportable data.
     </p>
 
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
         <h3>Upload</h3>
-        <p>Upload PDF, DOCX, TXT, or Markdown files through the web interface or API.</p>
+        <p>Drop scanned documents (PDF, JPEG, PNG) into VERA. Multi-page PDFs are split automatically.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>Index</h3>
-        <p>Documents are chunked, embedded with Sentence Transformers, and stored in ChromaDB for fast retrieval.</p>
+        <h3>OCR extraction</h3>
+        <p>PaddleOCR processes each page in the background. Confidence scores are assigned to every token.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
-        <h3>Ask</h3>
-        <p>Ask questions in plain language. PIKA retrieves the most relevant chunks and sends them to Ollama with your query.</p>
+        <h3>Human review</h3>
+        <p>Review tokens side-by-side with the original scan. Correct low-confidence words, accept the rest.</p>
       </div>
       <div class="step">
         <div class="step-num">04</div>
-        <h3>Cite</h3>
-        <p>Get streaming answers with inline citations pointing back to the source documents and passages.</p>
+        <h3>Export</h3>
+        <p>Export validated text. Only verified data leaves the system.</p>
       </div>
     </div>
   </section>
@@ -379,25 +377,21 @@
     <p class="kicker">Architecture</p>
     <h2 class="h2">Built for self-hosted deployment.</h2>
     <p class="lead">
-      A single Docker Compose file gets you running. Connects to the shared Ollama instance for inference.
+      Runs entirely on your infrastructure via Docker Compose. No cloud dependency.
     </p>
 
     <div class="grid">
-      <div class="card span3">
-        <h3>FastAPI</h3>
-        <p>Async Python backend with streaming response support and Prometheus metrics.</p>
+      <div class="card span4">
+        <h3>Backend</h3>
+        <p>FastAPI + Celery workers for async OCR processing. PostgreSQL for structured data, Redis for task queues.</p>
       </div>
-      <div class="card span3">
-        <h3>ChromaDB</h3>
-        <p>Vector store for document embeddings. Persistent storage, fast similarity search.</p>
+      <div class="card span4">
+        <h3>Frontend</h3>
+        <p>Next.js application with a token-level review interface. Responsive, fast, production-built.</p>
       </div>
-      <div class="card span3">
-        <h3>Ollama</h3>
-        <p>Local LLM inference. GPU-accelerated. Use any GGUF-compatible model.</p>
-      </div>
-      <div class="card span3">
-        <h3>Hub auth</h3>
-        <p>Centralised user management, licensing, and audit logging via ai.doo Hub.</p>
+      <div class="card span4">
+        <h3>Infrastructure</h3>
+        <p>Docker Compose deployment. Connects to shared Ollama instance for AI summaries. GPU-accelerated where available.</p>
       </div>
     </div>
   </section>
@@ -407,39 +401,39 @@
     <p class="kicker">Pricing</p>
     <h2 class="h2">Licensed per seat. Self-hosted.</h2>
     <p class="lead">
-      PIKA is licensed through the ai.doo Hub. No per-query fees, no cloud costs. You own your infrastructure and your data.
+      VERA is licensed through the ai.doo Hub. No per-document fees, no cloud costs. You own your infrastructure.
     </p>
 
     <div class="grid">
       <div class="card span6 pricingCard pricingTier">
         <div class="step-num">Professional</div>
         <h3>Per-seat annual license</h3>
-        <p>Full PIKA deployment with RAG, citations, streaming, multi-user access, and ongoing updates.</p>
+        <p>Full VERA deployment with Hub authentication, async processing, AI summaries, and ongoing updates.</p>
         <ul class="featureList">
-          <li>Unlimited documents and queries</li>
-          <li>RAG with inline citations</li>
+          <li>Unlimited documents</li>
+          <li>PaddleOCR + AI summaries</li>
           <li>Multi-user with Hub auth</li>
-          <li>Streaming responses</li>
+          <li>Background processing (Celery)</li>
           <li>Priority email support</li>
         </ul>
         <div class="pricingBtnWrap">
-          <a class="btn primary" href="mailto:hello@aidoo.biz?subject=PIKA%20License%20Enquiry">Get pricing</a>
+          <a class="btn primary" href="mailto:hello@aidoo.biz?subject=VERA%20License%20Enquiry">Get pricing</a>
         </div>
       </div>
 
       <div class="card span6 pricingTier">
         <div class="step-num">Enterprise</div>
         <h3>Custom deployment</h3>
-        <p>Bespoke document pipelines, custom integrations, dedicated support, and on-site deployment assistance.</p>
+        <p>Bespoke integrations, custom export formats, dedicated support, and on-site deployment assistance.</p>
         <ul class="featureList">
           <li>Everything in Professional</li>
-          <li>Custom document pipelines</li>
+          <li>Custom integrations</li>
           <li>Dedicated support channel</li>
           <li>Deployment assistance</li>
           <li>SLA available</li>
         </ul>
         <div class="pricingBtnWrap">
-          <a class="btn" href="mailto:hello@aidoo.biz?subject=PIKA%20Enterprise%20Enquiry">Contact us</a>
+          <a class="btn" href="mailto:hello@aidoo.biz?subject=VERA%20Enterprise%20Enquiry">Contact us</a>
         </div>
       </div>
     </div>
@@ -448,12 +442,12 @@
   <!-- CTA -->
   <section class="ctaBand">
     <div>
-      <p class="title">Ready to query your documents privately?</p>
-      <p class="small">Email <strong>hello@aidoo.biz</strong> to discuss PIKA for your organisation.</p>
+      <p class="title">Ready to validate with confidence?</p>
+      <p class="small">Email <strong>hello@aidoo.biz</strong> to discuss VERA for your organisation.</p>
     </div>
     <div class="ctaRow" style="margin:0;">
-      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=PIKA%20Enquiry">Get in touch</a>
-      <a class="btn subtle" href="https://docs.aidoo.biz/pika/overview" target="_blank" rel="noopener">Read the docs</a>
+      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=VERA%20Enquiry">Get in touch</a>
+      <a class="btn subtle" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Read the docs</a>
     </div>
   </section>
 
@@ -475,8 +469,7 @@
       <div class="footerCol" style="font-size:13px;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Navigate</div>
         <div><a href="../">Home</a></div>
-        <div><a href="../vera/">VERA</a></div>
-        <div><a href="changelog">Changelog</a></div>
+        <div><a href="../pika/">PIKA</a></div>
         <div><a href="https://docs.aidoo.biz" target="_blank" rel="noopener">Documentation</a></div>
         <div><a href="../privacy/">Privacy policy</a></div>
       </div>
