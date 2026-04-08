@@ -36,4 +36,4 @@ All products connect to a shared **Ollama** instance for local AI inference. Hub
 
 ## Support
 
-For support, contact us at **support@aidoo.biz**.
+For support, contact us at **hello@aidoo.biz**.

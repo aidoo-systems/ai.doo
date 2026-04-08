@@ -91,7 +91,7 @@ If any provision of this Agreement is held to be unenforceable, the remaining pr
 
 For questions about this Agreement or to request permissions:
 
-- **Email:** support@aidoo.biz
+- **Email:** hello@aidoo.biz
 - **Web:** https://www.aidoo.biz
 
 ---

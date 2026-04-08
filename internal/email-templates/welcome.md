@@ -38,7 +38,7 @@ PIKA and VERA will pick up the license automatically within the hour.
 - [Hub admin guide](https://docs.aidoo.biz/admin/hub/)
 - [Installation docs](https://docs.aidoo.biz/installation/quick-start/)
 
-If you have any questions, reply to this email or reach us at **support@aidoo.biz**.
+If you have any questions, reply to this email or reach us at **hello@aidoo.biz**.
 
 Welcome aboard.
 

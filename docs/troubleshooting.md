@@ -123,7 +123,7 @@ docker compose restart worker
 
 ## Getting Help
 
-- **Email:** support@aidoo.biz
+- **Email:** hello@aidoo.biz
 - **Docs:** https://docs.aidoo.biz
 - **Health endpoints:** Every service exposes `/health` for quick status checks.
 - **Metrics:** Every service exposes `/metrics` for Prometheus scraping.

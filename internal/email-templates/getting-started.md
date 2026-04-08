@@ -45,6 +45,6 @@ Go to Hub > Users and create accounts for your team. Each user gets access to th
 
 **Need help?**
 
-Reply to this email or contact **support@aidoo.biz**. We're here to help.
+Reply to this email or contact **hello@aidoo.biz**. We're here to help.
 
 The ai.doo team
