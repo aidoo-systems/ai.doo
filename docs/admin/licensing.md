@@ -96,6 +96,46 @@ ai.doo uses **graduated enforcement** — restrictions increase over time, givin
 !!! tip
     The 14-day grace period lets you evaluate the full suite before purchasing. After that, graduated enforcement gives you at least 30 additional days of read-only access before hard lockdown — and your data is always preserved.
 
+## Revoking a License
+
+If a license key needs to be invalidated — for example, after a refund, a leaked key, or a misissued license — Hub supports immediate revocation by `jti` (the unique license ID).
+
+=== "Hub UI (Admin)"
+
+    Currently available via API only. A UI option is planned for a future release.
+
+=== "API"
+
+    ```bash
+    curl -X POST http://localhost:2000/api/license/revoke \
+      -H "Content-Type: application/json" \
+      -b <session-cookie> \
+      -d '{"jti": "<license-jti>", "reason": "customer refunded"}'
+    ```
+
+    A successful response returns the updated license status with `"revoked_jti"` confirming the action. An already-revoked jti returns `409`.
+
+=== "CLI (Operator)"
+
+    The `generate-license.py` script records revocations locally:
+
+    ```bash
+    python generate-license.py --revoke <jti> --reason "customer refunded"
+    ```
+
+    This writes to `~/.aidoo/revocations.json` and prints instructions for applying the revocation to Hub (either by copying the file to Hub's `data/` directory or by calling the API).
+
+**What happens after revocation:**
+
+- The revoked license receives **hard enforcement** immediately — the system is locked.
+- PIKA and VERA will pick up the change on their next license poll (up to 1 hour, or immediately via `POST /internal/license/refresh` on each service).
+- The revocation is recorded in Hub's audit log.
+- Revocations are stored in `data/license-revocations.json` and survive restarts.
+- To restore access, activate a new license key.
+
+!!! warning
+    Revocation is irreversible for a given jti. If the same JWT is re-pasted into Hub, it will still be rejected. Issue a new license instead.
+
 ## Seat Enforcement
 
 Seats are counted as the number of **enabled** user accounts in Hub (both admin and user roles). Disabled accounts do not count against the seat limit.
