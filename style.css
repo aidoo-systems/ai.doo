@@ -180,6 +180,17 @@ nav a:hover::after,nav a:focus-visible::after{transform:scaleX(1)}
 .tokStatus.ok{background:rgba(40,200,100,.12);border:1px solid rgba(40,200,100,.35);color:#5fe39a}
 .tokStatus.low{background:rgba(254,188,46,.12);border:1px solid rgba(254,188,46,.40);color:#ffd980}
 .mockTokMeta{font-size:11px;color:var(--muted)}
+
+/* Hub dashboard (homepage) — local models, services, users */
+.mockRowHead{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+.mockRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 11px;border:1px solid var(--stroke);border-radius:9px;background:var(--card);font-size:12.5px}
+.mockRow .name{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.mockRow .meta{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:11px;white-space:nowrap}
+.statusDot{width:7px;height:7px;border-radius:999px;background:#28c840;box-shadow:0 0 0 3px rgba(40,200,100,.15)}
+.mockSplit{display:flex;gap:8px}
+.mockSplit > .mockRow{flex:1}
+.mockFoot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;padding-top:2px}
+.mockBadge{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border-radius:999px;background:rgba(40,200,100,.12);border:1px solid rgba(40,200,100,.30);color:#5fe39a;font-weight:700;font-size:11px}
 .pill{
   width:fit-content;display:inline-flex;align-items:center;gap:10px;
   padding:7px 14px;border-radius:999px;border:1px solid rgba(77,184,255,.18);
