@@ -144,6 +144,42 @@ nav a:hover::after,nav a:focus-visible::after{transform:scaleX(1)}
 }
 .heroMeta{display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:30px;color:var(--muted);font-size:13px;font-weight:600}
 .heroMeta span{display:inline-flex;align-items:center;gap:8px}
+
+/* Split hero: copy beside a product mock */
+.hero.heroSplit{grid-template-columns:1.05fr .95fr;gap:clamp(32px,4vw,56px);align-items:center}
+.heroText{display:grid;align-content:start}
+.heroVisual{position:relative}
+
+/* Product UI mock — built from the shared tokens, no images */
+.mock{
+  border:1px solid var(--stroke);border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.02));
+  box-shadow:var(--shadow);
+}
+.mockBar{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--stroke);background:rgba(255,255,255,.04)}
+.mockDot{width:10px;height:10px;border-radius:999px;background:var(--stroke)}
+.mockDot.r{background:#ff5f57}.mockDot.y{background:#febc2e}.mockDot.g{background:#28c840}
+.mockTitle{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px}
+.mockBody{padding:16px;display:flex;flex-direction:column;gap:12px}
+.mockMeta{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--muted);font-weight:600}
+
+/* PIKA: chat with citation */
+.mockMsg{max-width:88%;padding:10px 13px;font-size:13px;line-height:1.5}
+.mockMsg.u{align-self:flex-end;background:var(--accent);color:#fff;border-radius:12px 4px 12px 12px}
+.mockMsg.a{align-self:flex-start;background:var(--card2);border:1px solid var(--stroke);color:var(--ink);border-radius:4px 12px 12px 12px}
+.mockCite{display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:5px 9px;border-radius:8px;background:rgba(77,184,255,.10);border:1px solid rgba(77,184,255,.28);font-size:11px;color:var(--accent2);font-weight:700}
+.mockInput{display:flex;align-items:center;gap:8px;margin-top:2px;padding:10px 12px;border-radius:10px;border:1px solid var(--stroke);background:var(--card);color:var(--muted);font-size:12px}
+.mockInput .send{margin-left:auto;width:24px;height:24px;border-radius:7px;background:var(--accent);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700}
+
+/* VERA: token review (mirrors the real TokenList component) */
+.mockTok{border:1px solid var(--stroke);border-radius:10px;padding:9px 11px;background:var(--card);display:flex;flex-direction:column;gap:5px}
+.mockTok.sel{border-color:rgba(77,184,255,.45);background:rgba(77,184,255,.06)}
+.mockTokTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tokText{font-size:13px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.tokStatus{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;letter-spacing:.3px;white-space:nowrap}
+.tokStatus.ok{background:rgba(40,200,100,.12);border:1px solid rgba(40,200,100,.35);color:#5fe39a}
+.tokStatus.low{background:rgba(254,188,46,.12);border:1px solid rgba(254,188,46,.40);color:#ffd980}
+.mockTokMeta{font-size:11px;color:var(--muted)}
 .pill{
   width:fit-content;display:inline-flex;align-items:center;gap:10px;
   padding:7px 14px;border-radius:999px;border:1px solid rgba(77,184,255,.18);
@@ -273,6 +309,7 @@ footer{border-top:1px solid var(--stroke);padding:32px 0 48px;color:var(--muted)
   nav{display:none}
   .menuBtn{display:inline-flex}
   .span3,.span4,.span5,.span6,.span7{grid-column:span 12}
+  .hero.heroSplit{grid-template-columns:1fr;gap:36px}
   .steps{grid-template-columns:1fr;gap:24px}
   .step:not(:last-child)::after{display:none}
   .step{padding:0;border-left:2px solid var(--stroke);padding-left:20px}
@@ -288,6 +325,18 @@ footer{border-top:1px solid var(--stroke);padding:32px 0 48px;color:var(--muted)
   .hero > :nth-child(3){animation-delay:.16s}
   .hero > :nth-child(4){animation-delay:.24s}
   .hero > :nth-child(5){animation-delay:.32s}
+
+  /* Split hero: stagger the copy, float the mock in gently */
+  .heroSplit > .heroText{animation:none}
+  .heroSplit .heroText > *{animation:fadeUp .5s ease both}
+  .heroSplit .heroText > :nth-child(1){animation-delay:.02s}
+  .heroSplit .heroText > :nth-child(2){animation-delay:.10s}
+  .heroSplit .heroText > :nth-child(3){animation-delay:.18s}
+  .heroSplit .heroText > :nth-child(4){animation-delay:.26s}
+  .heroSplit .heroText > :nth-child(5){animation-delay:.34s}
+  .heroSplit > .heroVisual{animation-delay:.22s}
+  .heroVisual .mock{animation:mockFloat 7s ease-in-out infinite alternate}
+  @keyframes mockFloat{from{transform:translateY(0)}to{transform:translateY(-9px)}}
 
   @keyframes auroraDrift{
     from{transform:translate3d(-2%,0,0) scale(1)}

@@ -84,24 +84,47 @@
 <main class="wrap" id="top">
 
   <!-- HERO -->
-  <section class="hero">
-    <div class="pill">Self-hosted OCR</div>
+  <section class="hero heroSplit">
+    <div class="heroText">
+      <div class="pill">Self-hosted OCR</div>
 
-    <h1>Validate AI-extracted text <span class="grad">with confidence.</span></h1>
+      <h1>Validate AI-extracted text <span class="grad">with confidence.</span></h1>
 
-    <p class="sub">
-      VERA combines PaddleOCR with human review. Upload scanned documents, review every token, correct errors before they propagate, and export validated data. All on your infrastructure.
-    </p>
+      <p class="sub">
+        VERA combines PaddleOCR with human review. Upload scanned documents, review every token, correct errors before they propagate, and export validated data. All on your infrastructure.
+      </p>
 
-    <div class="ctaRow">
-      <a class="btn primary" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Read the docs</a>
-      <a class="btn subtle" href="#how">How it works</a>
+      <div class="ctaRow">
+        <a class="btn primary" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Read the docs</a>
+        <a class="btn subtle" href="#how">How it works</a>
+      </div>
+
+      <div class="heroMeta">
+        <span><span class="dot"></span> PaddleOCR engine</span>
+        <span><span class="dot"></span> Human-in-the-loop</span>
+        <span><span class="dot"></span> Only verified data exported</span>
+      </div>
     </div>
 
-    <div class="heroMeta">
-      <span><span class="dot"></span> PaddleOCR engine</span>
-      <span><span class="dot"></span> Human-in-the-loop</span>
-      <span><span class="dot"></span> Only verified data exported</span>
+    <div class="heroVisual" aria-hidden="true">
+      <div class="mock">
+        <div class="mockBar">
+          <span class="mockDot r"></span><span class="mockDot y"></span><span class="mockDot g"></span>
+          <span class="mockTitle">VERA</span>
+        </div>
+        <div class="mockBody">
+          <div class="mockMeta">invoice_2043.pdf &middot; page 1 of 3</div>
+          <div class="mockTok">
+            <div class="mockTokTop"><span class="tokText">INV-2043</span><span class="tokStatus ok">Reviewed</span></div>
+            <div class="mockTokMeta">High &middot; 0.98 &middot; no flags</div>
+          </div>
+          <div class="mockTok sel">
+            <div class="mockTokTop"><span class="tokText">&pound;1,240.00</span><span class="tokStatus low">Needs review</span></div>
+            <div class="mockTokMeta">Low &middot; 0.72 &middot; low_confidence</div>
+          </div>
+          <div class="mockInput">2 tokens to review <span class="send">&check;</span></div>
+        </div>
+      </div>
     </div>
   </section>
 
