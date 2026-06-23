@@ -87,7 +87,7 @@
   <section class="hero">
     <div class="pill">Self-hosted OCR</div>
 
-    <h1>Validate AI-extracted text with confidence.</h1>
+    <h1>Validate AI-extracted text <span class="grad">with confidence.</span></h1>
 
     <p class="sub">
       VERA combines PaddleOCR with human review. Upload scanned documents, review every token, correct errors before they propagate, and export validated data. All on your infrastructure.
@@ -97,10 +97,16 @@
       <a class="btn primary" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Read the docs</a>
       <a class="btn subtle" href="#how">How it works</a>
     </div>
+
+    <div class="heroMeta">
+      <span><span class="dot"></span> PaddleOCR engine</span>
+      <span><span class="dot"></span> Human-in-the-loop</span>
+      <span><span class="dot"></span> Only verified data exported</span>
+    </div>
   </section>
 
   <!-- FEATURES -->
-  <section class="section" id="features">
+  <section class="section reveal" id="features">
     <p class="kicker">Features</p>
     <h2 class="h2">OCR you can trust.</h2>
     <p class="lead">
@@ -156,7 +162,7 @@
   </section>
 
   <!-- HOW IT WORKS -->
-  <section class="section" id="how">
+  <section class="section reveal" id="how">
     <p class="kicker">Workflow</p>
     <h2 class="h2">Upload. Review. Correct. Export.</h2>
     <p class="lead">
@@ -188,7 +194,7 @@
   </section>
 
   <!-- TECH STACK -->
-  <section class="section" id="stack">
+  <section class="section reveal" id="stack">
     <p class="kicker">Architecture</p>
     <h2 class="h2">Built for self-hosted deployment.</h2>
     <p class="lead">
@@ -212,7 +218,7 @@
   </section>
 
   <!-- PRICING -->
-  <section class="section" id="pricing">
+  <section class="section reveal" id="pricing">
     <p class="kicker">Pricing</p>
     <h2 class="h2">Licensed per seat. Self-hosted.</h2>
     <p class="lead">
@@ -223,7 +229,7 @@
     <div class="grid">
       <div class="card span6 pricingCard pricingTier">
         <div class="step-num">Professional</div>
-        <h3>Per-seat annual license</h3>
+        <h3>From &pound;50 <span style="font-size:.55em;font-weight:400;opacity:.7">/seat/year</span></h3>
         <p>Full VERA deployment with Hub authentication, async processing, AI summaries, and ongoing updates.</p>
         <ul class="featureList">
           <li>Unlimited documents</li>
@@ -231,9 +237,10 @@
           <li>Multi-user with Hub auth</li>
           <li>Background processing (Celery)</li>
           <li>Priority email support</li>
+          <li>14-day free evaluation</li>
         </ul>
         <div class="pricingBtnWrap">
-          <a class="btn primary" href="mailto:hello@aidoo.biz?subject=VERA%20License%20Enquiry">Get pricing</a>
+          <a class="btn primary" href="mailto:hello@aidoo.biz?subject=VERA%20License%20Enquiry">Start a pilot</a>
         </div>
       </div>
 
@@ -307,6 +314,19 @@
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Scroll reveal — progressive enhancement.
+  (function() {
+    if (!("IntersectionObserver" in window) ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.documentElement.classList.add("has-reveal");
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+  })();
 
   const menuBtn = document.getElementById("menuBtn");
   const mobileNav = document.getElementById("mobileNav");

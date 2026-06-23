@@ -60,6 +60,7 @@ nav:
       - Reverse Proxy: admin/reverse-proxy.md
       - Backup & Restore: admin/backup-restore.md
       - Monitoring: admin/monitoring.md
+  - Running a Pilot: admin/pilot.md
   - Troubleshooting: troubleshooting.md
   - EULA: eula.md
 
@@ -69,5 +70,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/aidoo-systems
+    - icon: fontawesome/solid/envelope
+      link: mailto:hello@aidoo.biz
+      name: Feedback
 
 copyright: Copyright &copy; 2026 ai.doo Ltd
