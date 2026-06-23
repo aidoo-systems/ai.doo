@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ai.doo Labs — Games & apps from Aidoo Systems</title>
+  <meta name="description" content="The creative side of ai.doo. Indie games and mobile apps from Aidoo Systems — Reactor Panic, Submarine Panic, Pomodorable, and Reality Check." />
+  <link rel="canonical" href="https://aidoo.biz/labs/">
+  <meta name="author" content="ai.doo">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ai.doo Labs — Games & apps from Aidoo Systems">
+  <meta property="og:description" content="The creative side of ai.doo. Indie games and mobile apps from Aidoo Systems.">
+  <meta property="og:url" content="https://aidoo.biz/labs/">
+  <meta property="og:site_name" content="ai.doo">
+  <meta property="og:image" content="https://aidoo.biz/og-image.png">
+
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#0b1020">
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* ai.doo Labs — a lighter, more playful skin over the shared design system */
+    :root{ --play:#a78bfa; --play2:#22d3ee; }
+
+    .pill.play{border-color:rgba(167,139,250,.28);background:rgba(167,139,250,.08)}
+    .pill.play .dot{background:var(--play)}
+
+    /* Playful gradient for the Labs wordmark */
+    .playGrad{
+      background:linear-gradient(110deg,var(--play),var(--play2) 55%,var(--play));
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+
+    /* Status tag on each project card */
+    .statusTag{
+      display:inline-flex;align-items:center;gap:7px;width:fit-content;
+      padding:5px 11px;border-radius:999px;margin:0 0 14px;
+      font-size:11px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+      border:1px solid var(--stroke);background:var(--card);color:var(--muted);
+    }
+    .statusTag .sdot{width:7px;height:7px;border-radius:999px;background:var(--play2)}
+    .statusTag.live{border-color:rgba(40,200,100,.35);color:#7fe7a8}
+    .statusTag.live .sdot{background:#28c840;box-shadow:0 0 0 3px rgba(40,200,100,.15)}
+    .statusTag.dev{border-color:rgba(254,188,46,.40);color:#ffd980}
+    .statusTag.dev .sdot{background:#febc2e}
+
+    /* Project cards: bigger, with a playful hover accent */
+    .projCard{display:flex;flex-direction:column}
+    .projCard h3{font-size:19px;margin-bottom:8px}
+    .projCard .desc{margin:0;color:var(--muted);font-size:14.5px;line-height:1.6}
+    .projCard:hover::after{background:linear-gradient(90deg,transparent,var(--play2),transparent)}
+    .projChips{margin-top:14px}
+    .projChips .chip .dot{background:var(--play)}
+    .projBtns{margin-top:auto;padding-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+
+    /* Themed glyph block at the top of each card */
+    .projGlyph{
+      height:128px;margin:-24px -24px 18px;display:grid;place-items:center;
+      border-bottom:1px solid var(--stroke);position:relative;overflow:hidden;
+    }
+    .projGlyph .label{position:relative;font-weight:800;letter-spacing:2px;font-size:13px;color:rgba(255,255,255,.85);text-transform:uppercase}
+    /* Reactor Panic — reactor warning red/amber */
+    .gl-reactor{background:
+      radial-gradient(120px 90px at 50% 30%, rgba(255,95,87,.30), transparent 70%),
+      repeating-linear-gradient(45deg, rgba(254,188,46,.10) 0 12px, transparent 12px 24px),
+      linear-gradient(180deg, rgba(255,95,87,.12), transparent)}
+    /* Submarine Panic — sonar green CRT */
+    .gl-sub{background:
+      radial-gradient(140px 100px at 50% 40%, rgba(40,200,100,.28), transparent 70%),
+      repeating-radial-gradient(circle at 50% 40%, rgba(40,200,100,.10) 0 2px, transparent 2px 18px),
+      linear-gradient(180deg, rgba(40,200,100,.10), transparent)}
+    /* Pomodorable — tomato red/green */
+    .gl-pom{background:
+      radial-gradient(120px 90px at 50% 35%, rgba(255,99,99,.32), transparent 70%),
+      linear-gradient(180deg, rgba(40,200,100,.12), transparent)}
+    /* Reality Check — news bluff violet/cyan */
+    .gl-real{background:
+      radial-gradient(130px 90px at 35% 35%, rgba(167,139,250,.30), transparent 70%),
+      radial-gradient(120px 90px at 70% 55%, rgba(34,211,238,.22), transparent 70%),
+      linear-gradient(180deg, rgba(167,139,250,.10), transparent)}
+
+    .labsNote{margin-top:8px;color:var(--muted);font-size:13px}
+    .labsNote a{color:var(--accent2)}
+  </style>
+
+  <script defer src="https://analytics.aidoo.biz/script.js" data-website-id="bc0dc6af-ac24-4d29-ab68-3b19be32c468"></script>
+</head>
+
+<body>
+<a href="#top" class="skip-link">Skip to content</a>
+<header>
+  <div class="nav">
+    <a class="brand" href="../" aria-label="ai.doo home">
+      <span class="logoMark" aria-hidden="true" title="ai.doo">
+        <img src="../favicon.svg" alt="" />
+      </span>
+      <span class="wordmark" aria-label="ai.doo Labs">
+        <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+        <span style="margin-left:8px;font-weight:700;" class="playGrad">Labs</span>
+      </span>
+    </a>
+
+    <nav aria-label="Primary navigation">
+      <a href="../">ai.doo</a>
+      <a href="#games">Games</a>
+      <a href="#apps">Apps</a>
+      <a href="../#contact">Contact</a>
+    </nav>
+
+    <div class="navRight">
+      <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav">Menu</button>
+      <a class="btn primary" href="../">Back to ai.doo</a>
+    </div>
+  </div>
+
+  <div class="mobileNav" id="mobileNav">
+    <a href="../">ai.doo</a>
+    <a href="#games">Games</a>
+    <a href="#apps">Apps</a>
+    <a href="../#contact">Contact</a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="pill play"><span class="dot"></span> The creative side of ai.doo</div>
+
+    <h1>Things we build <span class="playGrad">for the fun of it.</span></h1>
+
+    <p class="sub">
+      ai.doo Labs is where Aidoo Systems ships its side projects — handmade indie games and mobile apps,
+      built with the same care as our corporate tools, just with more colour. No enterprise SLAs here. Just things we enjoy making.
+    </p>
+
+    <div class="ctaRow">
+      <a class="btn primary" href="#games">See the games</a>
+      <a class="btn subtle" href="#apps">Browse the apps</a>
+    </div>
+
+    <div class="heroMeta">
+      <span><span class="dot"></span> Indie games</span>
+      <span><span class="dot"></span> Mobile apps</span>
+      <span><span class="dot"></span> Built in the open</span>
+    </div>
+  </section>
+
+  <!-- GAMES -->
+  <section class="section reveal" id="games">
+    <p class="kicker">Games</p>
+    <h2 class="h2">Procedural arcade panic.</h2>
+    <p class="lead">
+      Portrait, mobile-first survival games built in Godot — fully procedural, with zero external assets. Every pixel and sound generated in code.
+    </p>
+
+    <div class="grid">
+      <!-- Reactor Panic -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-reactor"><span class="label">&#9762; Reactor Panic</span></div>
+        <span class="statusTag live"><span class="sdot"></span> Out now</span>
+        <h3>Reactor Panic</h3>
+        <p class="desc">
+          A portrait-mode arcade survival game with a Soviet reactor control-panel aesthetic. Sort plasma cores into
+          containment tubes before instability triggers a meltdown. Procedurally generated, down to the last warning klaxon.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Android</span>
+          <span class="chip"><span class="dot"></span> iOS</span>
+          <span class="chip"><span class="dot"></span> itch.io</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener">Google Play</a>
+          <a class="btn subtle" href="https://apps.apple.com/us/app/reactor-panic/id6773935208" target="_blank" rel="noopener">App Store</a>
+          <a class="btn subtle" href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener">itch.io</a>
+        </div>
+        <p class="labsNote"><a href="../privacy-reactor-panic/">Privacy policy</a></p>
+      </div>
+
+      <!-- Submarine Panic -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-sub"><span class="label">&#9678; Submarine Panic</span></div>
+        <span class="statusTag dev"><span class="sdot"></span> Prototype &middot; v0.1</span>
+        <h3>Submarine Panic</h3>
+        <p class="desc">
+          A claustrophobic Cold War survival game. Keep a failing submarine alive through a procedural CRT control room —
+          gauges, a sonar scope, a ballast lever, flood panels, and torpedo tubes — where every ping risks an official patrol report.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Godot 4.6</span>
+          <span class="chip"><span class="dot"></span> Mobile-first</span>
+          <span class="chip"><span class="dot"></span> Procedural</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn subtle" href="https://github.com/aidoo-systems" target="_blank" rel="noopener">Follow development</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APPS -->
+  <section class="section reveal" id="apps">
+    <p class="kicker">Apps</p>
+    <h2 class="h2">Small apps, made with care.</h2>
+    <p class="lead">
+      Mobile apps that do one thing well — and respect your privacy while doing it. Each ships with a plain-language privacy policy.
+    </p>
+
+    <div class="grid">
+      <!-- Pomodorable -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-pom"><span class="label">&#127813; Pomodorable</span></div>
+        <span class="statusTag dev"><span class="sdot"></span> In development</span>
+        <h3>Pomodorable</h3>
+        <p class="desc">
+          A focused Pomodoro timer for Android with Do Not Disturb integration and notification capture — so distractions
+          wait until your break. Grow a tomato garden that flourishes the more you focus.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Android</span>
+          <span class="chip"><span class="dot"></span> Kotlin &amp; Compose</span>
+          <span class="chip"><span class="dot"></span> Focus &amp; DND</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn subtle" href="https://github.com/aidoo-systems" target="_blank" rel="noopener">Follow development</a>
+        </div>
+        <p class="labsNote"><a href="../privacy-pomodorable/">Privacy policy</a></p>
+      </div>
+
+      <!-- Reality Check -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-real"><span class="label">&#9670; Reality Check</span></div>
+        <span class="statusTag live"><span class="sdot"></span> Live on Android</span>
+        <h3>Reality Check: News Bluff</h3>
+        <p class="desc">
+          A daily news game: three headlines, one lie. Pick the fake, then review the explanation and the real sources.
+          A small daily nudge toward reading the news more sceptically.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Android</span>
+          <span class="chip"><span class="dot"></span> Flutter</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.aidoo.realitycheck&amp;hl=en-US" target="_blank" rel="noopener">Google Play</a>
+        </div>
+        <p class="labsNote"><a href="../privacy-reality-check/">Privacy policy</a></p>
+      </div>
+    </div>
+
+    <div class="proof" aria-label="About ai.doo Labs">
+      <p class="title">Why a Labs?</p>
+      <p>
+        ai.doo's day job is private, self-hosted AI for organisations. ai.doo Labs is the same team's playground —
+        a place to ship the games and apps we build for ourselves. Curious about the serious side?
+        <a href="../" style="color:var(--accent2)">Visit ai.doo</a>.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footerRow">
+      <div class="footerCol">
+        <div style="display:flex;align-items:center;gap:12px;font-weight:700;color:var(--ink);">
+          <span class="logoMark" aria-hidden="true">
+            <img src="../favicon.svg" alt="" />
+          </span>
+          <span class="wordmark" aria-label="ai.doo Labs">
+            <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+            <span style="margin-left:8px;font-weight:700;" class="playGrad">Labs</span>
+          </span>
+        </div>
+        <p class="trustline">The creative side of Aidoo Systems.</p>
+        <p style="margin:10px 0 0; font-size:13px;">&copy; <span id="year"></span> ai.doo</p>
+      </div>
+
+      <div class="footerCol" style="font-size:13px;">
+        <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Projects</div>
+        <div><a href="#games">Reactor Panic</a></div>
+        <div><a href="#games">Submarine Panic</a></div>
+        <div><a href="#apps">Pomodorable</a></div>
+        <div><a href="#apps">Reality Check</a></div>
+      </div>
+
+      <div class="footerCol" style="font-size:13px;">
+        <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">More</div>
+        <div><a href="../">ai.doo (corporate)</a></div>
+        <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
+        <div style="margin-top:6px;">
+          <a href="https://github.com/aidoo-systems" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Scroll reveal — progressive enhancement.
+  (function() {
+    if (!("IntersectionObserver" in window) ||
+        matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.documentElement.classList.add("has-reveal");
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add("is-visible"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+  })();
+
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileNav = document.getElementById("mobileNav");
+
+  menuBtn?.addEventListener("click", () => {
+    const isOpen = mobileNav.classList.toggle("open");
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  mobileNav?.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+    mobileNav.classList.remove("open");
+    menuBtn.setAttribute("aria-expanded", "false");
+  }));
+
+  document.addEventListener("click", (e) => {
+    if (mobileNav?.classList.contains("open") &&
+        !mobileNav.contains(e.target) &&
+        !menuBtn.contains(e.target)) {
+      mobileNav.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+</script>
+</body>
+</html>
