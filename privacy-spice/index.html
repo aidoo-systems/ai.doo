@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Privacy Policy — SPICE</title>
+  <meta name="description" content="Privacy policy for SPICE, the ingredient-to-meal-plan web app by ai.doo." />
+  <link rel="canonical" href="https://aidoo.biz/privacy-spice/">
+  <meta name="robots" content="noindex">
+  <meta name="author" content="ai.doo">
+
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#0b1020">
+
+  <style>
+    /* Self-hosted Inter — no third-party font CDN on a privacy page */
+    @font-face{
+      font-family:'Inter';
+      font-style:normal;
+      font-weight:100 900;
+      font-display:swap;
+      src:url('/fonts/inter-latin.woff2') format('woff2');
+    }
+
+    :root{
+      --bg0:#0b1020;
+      --bg1:#111a33;
+      --ink:#eaf0ff;
+      --muted:rgba(234,240,255,0.72);
+      --accent:#2a8bc9;
+      --accent2:#4db8ff;
+      --stroke:rgba(255,255,255,0.12);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(800px 600px at 20% 8%, rgba(77,184,255,.10), transparent 65%),
+        radial-gradient(700px 500px at 80% 25%, rgba(42,139,201,.07), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.6;
+      min-height:100vh;
+    }
+    a{color:var(--accent2);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{
+      max-width:72ch;
+      margin:0 auto;
+      padding:48px 24px 80px;
+    }
+
+    .back{
+      display:inline-block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:40px;
+    }
+    .back:hover{color:var(--ink);text-decoration:none}
+
+    .updated{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 40px;
+      letter-spacing:.2px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(26px,4vw,36px);
+      line-height:1.1;
+      letter-spacing:-0.5px;
+      font-weight:700;
+      color:#fff;
+    }
+
+    h2{
+      margin:40px 0 10px;
+      font-size:16px;
+      font-weight:700;
+      color:#fff;
+      letter-spacing:-.1px;
+    }
+
+    p{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    ul{
+      margin:0 0 14px;
+      padding-left:20px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    li{margin-bottom:6px}
+
+    .divider{
+      border:none;
+      border-top:1px solid var(--stroke);
+      margin:40px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="/">&#8592; ai.doo</a>
+
+  <h1>Privacy Policy — SPICE</h1>
+  <p class="updated">Effective date: 1 July 2026</p>
+
+  <p>
+    SPICE ("the App") is an ingredient-to-meal-plan web app by ai.doo, available at
+    <a href="https://spice.aidoo.biz/">spice.aidoo.biz</a>. Tell it what ingredients you have and it
+    suggests a meal plan. This policy explains what information is involved, how it is used, and your choices.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Summary in plain language</h2>
+  <ul>
+    <li>No accounts. We do not ask for your name, email address, or location.</li>
+    <li>Your saved recipes, pantry staples, settings, and stats stay in your browser (localStorage).</li>
+    <li>The ingredients you enter are sent to OpenAI to generate a meal plan.</li>
+    <li>We keep an anonymous count of which ingredient combinations are popular, with no link to you.</li>
+    <li>We use privacy-friendly, self-hosted analytics with no advertising cookies.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>Information involved when you use SPICE</h2>
+  <ul>
+    <li>
+      <strong>Ingredients and preferences you enter</strong> — the ingredients, cooking time, equipment,
+      skill level, and flavour mode you choose are sent to our backend and on to OpenAI to generate a
+      suggestion. Please do not enter personal or sensitive information into these fields.
+    </li>
+    <li>
+      <strong>Data stored in your browser</strong> — saved recipes, pantry staples, chosen settings, and
+      personal stats (such as recipes generated and your daily streak) are stored locally in your browser
+      via localStorage. This stays on your device and is not sent to us.
+    </li>
+    <li>
+      <strong>Anonymous community data</strong> — when a suggestion is generated or rated, we store an
+      anonymous signature of the ingredient combination and any rating so we can show how popular a combo
+      is and its aggregated feedback. This is not linked to you or your device.
+    </li>
+    <li>
+      <strong>Technical data</strong> — like most web services, our servers process your IP address
+      transiently to apply rate limits and keep the service available. We do not use it to build a profile
+      of you.
+    </li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>How the information is used</h2>
+  <ul>
+    <li>Generate meal-plan suggestions from the ingredients you enter.</li>
+    <li>Show anonymous community popularity and rating breakdowns for ingredient combinations.</li>
+    <li>Protect the service with rate limiting and basic security measures.</li>
+    <li>Understand aggregate usage so we can improve the App.</li>
+  </ul>
+
+  <hr class="divider">
+
+  <h2>Third-party services</h2>
+  <p>
+    SPICE relies on a small number of third-party and self-hosted services:
+  </p>
+  <ul>
+    <li>
+      <strong>OpenAI</strong> — the ingredients and preferences you submit are sent to OpenAI's API to
+      generate suggestions. See
+      <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">OpenAI's privacy policy</a>.
+    </li>
+    <li>
+      <strong>Umami analytics</strong> — we use Umami, a privacy-friendly analytics tool that we host
+      ourselves on ai.doo infrastructure. It records aggregate usage (such as page views) without
+      advertising cookies and without cross-site tracking.
+    </li>
+  </ul>
+  <p>
+    We do not sell your information, and we do not serve ads.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Data retention</h2>
+  <p>
+    Data stored in your browser stays until you clear it or your browser removes it. You can delete it at
+    any time by clearing site data for spice.aidoo.biz or by using the reset options in the App. Anonymous
+    community and analytics data is aggregated and retained to keep those features working.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Children's privacy</h2>
+  <p>
+    SPICE is not directed to children under 13, and we do not knowingly collect personal information from
+    children.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Your rights</h2>
+  <p>
+    SPICE is operated from the Isle of Man and processes information in line with the Isle of Man Data
+    Protection Act 2018 (equivalent to UK and EU GDPR). Depending on where you live, you may have rights to
+    access, correct, or delete personal data, or to object to certain processing. Because SPICE does not
+    require an account and stores your personal settings on your own device, most of your data is already
+    under your control. For any request, email
+    <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a>.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Security</h2>
+  <p>
+    We use reasonable technical and organisational measures to protect information, including security
+    headers and rate limiting. No method of transmission or storage is completely secure, but we work to
+    safeguard data.
+  </p>
+
+  <hr class="divider">
+
+  <h2>International transfers</h2>
+  <p>
+    OpenAI may process data on servers outside your country. We rely on the safeguards offered by those
+    providers where required.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Changes</h2>
+  <p>
+    We may update this policy from time to time. The effective date above shows when it was last revised.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Contact</h2>
+  <p>
+    If you have questions about this policy, contact
+    <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a>.
+  </p>
+
+</div>
+</body>
+</html>
