@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ai.doo Labs — Indie games & apps</title>
-  <meta name="description" content="The creative side of ai.doo. Indie games and apps: Reactor Panic, Submarine Panic, SPICE, Pomodorable, and Reality Check." />
+  <meta name="description" content="The creative side of ai.doo. Indie games and apps: Reactor Panic, Submarine Panic, Orbital Panic, SPICE, Pomodorable, and Reality Check." />
   <link rel="canonical" href="https://aidoo.biz/labs/">
   <meta name="author" content="ai.doo">
 
@@ -71,6 +71,11 @@
       radial-gradient(140px 100px at 50% 40%, rgba(40,200,100,.28), transparent 70%),
       repeating-radial-gradient(circle at 50% 40%, rgba(40,200,100,.10) 0 2px, transparent 2px 18px),
       linear-gradient(180deg, rgba(40,200,100,.10), transparent)}
+    /* Orbital Panic — deep-space violet with orbit rings */
+    .gl-orbital{background:
+      radial-gradient(120px 90px at 50% 40%, rgba(167,139,250,.28), transparent 70%),
+      repeating-radial-gradient(circle at 50% 40%, rgba(34,211,238,.12) 0 2px, transparent 2px 22px),
+      linear-gradient(180deg, rgba(99,102,241,.12), transparent)}
     /* Pomodorable — tomato red/green */
     .gl-pom{background:
       radial-gradient(120px 90px at 50% 35%, rgba(255,99,99,.32), transparent 70%),
@@ -187,11 +192,33 @@
       <!-- Submarine Panic -->
       <div class="card span6 projCard">
         <div class="projGlyph gl-sub"><span class="label">&#9678; Submarine Panic</span></div>
-        <span class="statusTag dev"><span class="sdot"></span> Prototype &middot; v0.1</span>
+        <span class="statusTag live"><span class="sdot"></span> Out now</span>
         <h3>Submarine Panic</h3>
         <p class="desc">
           A claustrophobic Cold War survival game. Keep a failing submarine alive through a procedural CRT control room
           of gauges, a sonar scope, a ballast lever, flood panels, and torpedo tubes, where every ping risks an official patrol report.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Android</span>
+          <span class="chip"><span class="dot"></span> iOS</span>
+          <span class="chip"><span class="dot"></span> itch.io</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener">Google Play</a>
+          <a class="btn subtle" href="https://apps.apple.com/us/app/submarine-panic/id6786455427" target="_blank" rel="noopener">App Store</a>
+          <a class="btn subtle" href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener">itch.io</a>
+        </div>
+        <p class="labsNote"><a href="../privacy-submarine-panic/">Privacy policy</a></p>
+      </div>
+
+      <!-- Orbital Panic -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-orbital"><span class="label">&#9737; Orbital Panic</span></div>
+        <span class="statusTag dev"><span class="sdot"></span> In development</span>
+        <h3>Orbital Panic</h3>
+        <p class="desc">
+          A one-tap arcade game about piloting a tiny space probe through an endless chain of orbits. Break orbit,
+          thread the capture ring around the next planet, dodge black holes, and see how long a chain you can hold.
         </p>
         <div class="chips projChips">
           <span class="chip"><span class="dot"></span> Godot 4.6</span>
@@ -201,7 +228,6 @@
         <div class="projBtns">
           <a class="btn subtle" href="https://github.com/aidoo-systems" target="_blank" rel="noopener">Follow development</a>
         </div>
-        <p class="labsNote"><a href="../privacy-submarine-panic/">Privacy policy</a></p>
       </div>
     </div>
   </section>
@@ -218,7 +244,7 @@
       <!-- Pomodorable -->
       <div class="card span6 projCard">
         <div class="projGlyph gl-pom"><span class="label">&#127813; Pomodorable</span></div>
-        <span class="statusTag dev"><span class="sdot"></span> In development</span>
+        <span class="statusTag live"><span class="sdot"></span> Live on Android</span>
         <h3>Pomodorable</h3>
         <p class="desc">
           A focused Pomodoro timer for Android with Do Not Disturb integration and notification capture, so distractions
@@ -230,7 +256,7 @@
           <span class="chip"><span class="dot"></span> Focus &amp; DND</span>
         </div>
         <div class="projBtns">
-          <a class="btn subtle" href="https://github.com/aidoo-systems" target="_blank" rel="noopener">Follow development</a>
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.aidoo.pomodorable" target="_blank" rel="noopener">Google Play</a>
         </div>
         <p class="labsNote"><a href="../privacy-pomodorable/">Privacy policy</a></p>
       </div>
@@ -305,6 +331,7 @@
         <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Projects</div>
         <div><a href="#games">Reactor Panic</a></div>
         <div><a href="#games">Submarine Panic</a></div>
+        <div><a href="#games">Orbital Panic</a></div>
         <div><a href="#apps">SPICE</a></div>
         <div><a href="#apps">Pomodorable</a></div>
         <div><a href="#apps">Reality Check</a></div>
