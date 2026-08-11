@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **Thunee privacy policy** at `/privacy-thunee/`, documenting its fully local save data, zero network access, and absence of ads, analytics, accounts, and tracking
 - **Thunee on ai.doo Labs** — the in-development South African partnership card game now appears in the games catalogue
 - **Labs sitemap entry** — `/labs/` and the previously omitted VERA changelog are now included in `sitemap.xml`, with accurate `lastmod` dates across the public pages
 - **Self-hosted Umami analytics** — cookieless, first-party analytics on every marketing page and the docs site, served from `analytics.aidoo.biz`
