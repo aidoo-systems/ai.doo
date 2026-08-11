@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ai.doo Labs — Indie games & apps</title>
-  <meta name="description" content="The creative side of ai.doo. Indie games and apps: Reactor Panic, Submarine Panic, Orbital Panic, SPICE, Pomodorable, and Reality Check." />
+  <meta name="description" content="The creative side of ai.doo. Indie games and apps: Reactor Panic, Submarine Panic, Orbital Panic, Thunee, SPICE, Pomodorable, and Reality Check." />
   <link rel="canonical" href="https://aidoo.biz/labs/">
   <meta name="author" content="ai.doo">
 
@@ -76,6 +76,11 @@
       radial-gradient(120px 90px at 50% 40%, rgba(167,139,250,.28), transparent 70%),
       repeating-radial-gradient(circle at 50% 40%, rgba(34,211,238,.12) 0 2px, transparent 2px 22px),
       linear-gradient(180deg, rgba(99,102,241,.12), transparent)}
+    /* Thunee — green baize and warm card-table gold */
+    .gl-thunee{background:
+      radial-gradient(130px 90px at 50% 38%, rgba(254,188,46,.28), transparent 70%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,.055) 0 1px, transparent 1px 18px),
+      linear-gradient(180deg, rgba(20,125,83,.30), rgba(8,72,54,.12))}
     /* Pomodorable — tomato red/green */
     .gl-pom{background:
       radial-gradient(120px 90px at 50% 35%, rgba(255,99,99,.32), transparent 70%),
@@ -161,9 +166,10 @@
   <!-- GAMES -->
   <section class="section reveal" id="games">
     <p class="kicker">Games</p>
-    <h2 class="h2">Procedural arcade panic.</h2>
+    <h2 class="h2">Playful systems. Procedural worlds.</h2>
     <p class="lead">
-      Portrait, mobile-first survival games built in Godot. Fully procedural, with zero external assets, and every pixel and sound generated in code.
+      Arcade panic and card-table tactics built in Godot, with every visual drawn
+      procedurally and every sound generated in code.
     </p>
 
     <div class="grid">
@@ -214,21 +220,41 @@
       <!-- Orbital Panic -->
       <div class="card span6 projCard">
         <div class="projGlyph gl-orbital"><span class="label">&#9737; Orbital Panic</span></div>
-        <span class="statusTag dev"><span class="sdot"></span> In development</span>
+        <span class="statusTag live"><span class="sdot"></span> Out now</span>
         <h3>Orbital Panic</h3>
         <p class="desc">
           A one-tap arcade game about piloting a tiny space probe through an endless chain of orbits. Break orbit,
           thread the capture ring around the next planet, dodge black holes, and see how long a chain you can hold.
         </p>
         <div class="chips projChips">
-          <span class="chip"><span class="dot"></span> Godot 4.6</span>
-          <span class="chip"><span class="dot"></span> Mobile-first</span>
+          <span class="chip"><span class="dot"></span> Android</span>
+          <span class="chip"><span class="dot"></span> iOS</span>
           <span class="chip"><span class="dot"></span> Procedural</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn primary" href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener">Google Play</a>
+          <a class="btn subtle" href="https://apps.apple.com/us/app/orbital-panic/id6795683174" target="_blank" rel="noopener">App Store</a>
+        </div>
+        <p class="labsNote"><a href="../privacy-orbital-panic/">Privacy policy</a></p>
+      </div>
+
+      <!-- Thunee -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-thunee"><span class="label">&#9824; Thunee</span></div>
+        <span class="statusTag dev"><span class="sdot"></span> In development</span>
+        <h3>Thunee</h3>
+        <p class="desc">
+          A 3D take on South Africa's partnership trick-taking classic. Bid for trump, read the table,
+          declare Thunee, and race to 12 balls with a 24-card deck where Jack is high and Nine comes second.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Godot 4.6</span>
+          <span class="chip"><span class="dot"></span> Desktop</span>
+          <span class="chip"><span class="dot"></span> Card game</span>
         </div>
         <div class="projBtns">
           <a class="btn subtle" href="https://github.com/aidoo-systems" target="_blank" rel="noopener">Follow development</a>
         </div>
-        <p class="labsNote"><a href="../privacy-orbital-panic/">Privacy policy</a></p>
       </div>
     </div>
   </section>
@@ -333,6 +359,7 @@
         <div><a href="#games">Reactor Panic</a></div>
         <div><a href="#games">Submarine Panic</a></div>
         <div><a href="#games">Orbital Panic</a></div>
+        <div><a href="#games">Thunee</a></div>
         <div><a href="#apps">SPICE</a></div>
         <div><a href="#apps">Pomodorable</a></div>
         <div><a href="#apps">Reality Check</a></div>
