@@ -100,6 +100,7 @@ Two-job GitHub Actions workflow on push to `main`:
 ## Chat API backend (`api/`)
 
 - **`api/chat.py`** — Flask app, `POST /api/chat`, uses `gpt-4o-mini`, CORS restricted to `aidoo.biz`
+- **`api/site_context.py`** — builds chatbot context at service startup from sitemap pages and other public HTML pages with canonical URLs; reads the repository root locally and `/var/www/aidoo.biz` in production (`AIDOO_SITE_ROOT` overrides discovery)
 - **`api/requirements.txt`** — `flask`, `openai`, `gunicorn`
 - Runs as a systemd service (`aidoo-api`) on the VPS at `127.0.0.1:8765`
 - Caddy proxies `location /api/*` to the service
