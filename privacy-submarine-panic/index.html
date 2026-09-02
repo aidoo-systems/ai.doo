@@ -116,20 +116,22 @@
   <a class="back" href="/">&#8592; ai.doo</a>
 
   <h1>Privacy Policy — Submarine Panic</h1>
-  <p class="updated">Last updated: June 2026</p>
+  <p class="updated">Last updated: September 2026</p>
 
   <p>
-    Submarine Panic is a mobile game built in Godot. It is designed to run entirely on your device,
-    with no online features. This policy explains what the game stores and confirms that none of it
-    leaves your phone. Our website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>.
+    Submarine Panic is a mobile game built in Godot. The whole game plays offline on your device.
+    It has one online feature, an optional fleet board, and you can switch it off. This policy
+    explains what the game keeps on your phone, what the board sends if you leave it on, and how to
+    have an entry removed. Our website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>.
   </p>
 
   <hr class="divider">
 
   <h2>Data we collect</h2>
   <p>
-    None that leaves your device. Submarine Panic does not create an account, and it sends no data to
-    us or to anyone else.
+    Submarine Panic does not create an account and never asks who you are. Everything the game needs
+    lives in a save file on your phone. The only thing that leaves your device is a fleet board entry,
+    and only while posting is switched on.
   </p>
   <p>
     The game does keep a small save file on your device so it can remember your progress between sessions.
@@ -139,42 +141,53 @@
     <li>Your settings, such as volume, haptics, and the CRT visual toggle</li>
     <li>Your high score and current rank</li>
     <li>Records of your past patrols (the in-game incident summaries)</li>
+    <li>Your fleet board callsign, and whether posting is switched on</li>
   </ul>
   <p>
-    This information stays in local storage on your device and is never transmitted.
+    This information stays in local storage on your device. None of it is transmitted except the
+    handful of fields listed under &ldquo;The fleet board&rdquo; below.
   </p>
 
   <hr class="divider">
 
   <h2>Network and online features</h2>
   <p>
-    The current version of Submarine Panic ships without the internet permission. It makes no network
-    connections and works fully offline. There are no online accounts and no cloud saves.
-  </p>
-  <p>
-    We may add an optional online leaderboard in a future update. The next section describes how that
-    would work. It is not part of the game today, and we will update this policy and the app's
-    permissions before any such feature ships.
+    Every part of the game plays offline. The one network feature is the fleet board, described
+    below. The app requests the internet permission so the board can work, and nothing else in the
+    game uses it. There are no online accounts and no cloud saves, so your progress is never uploaded
+    and never restored from anywhere.
   </p>
 
   <hr class="divider">
 
-  <h2>Optional online leaderboard (planned)</h2>
+  <h2>The fleet board</h2>
   <p>
-    If we add a leaderboard, taking part would be optional, and you could play the whole game without
-    ever submitting a score. Submitting a score would send a small amount of data to a developer-hosted
-    leaderboard service:
+    The fleet board ranks finished patrols against other players, with a board for the day&rsquo;s
+    dive and an all-time board. When a patrol ends and posting is switched on, the game sends these
+    fields, and nothing else, over HTTPS to our own service at spsb.aidoo.biz:
   </p>
   <ul>
-    <li>A persistent anonymous player ID</li>
-    <li>An optional display name that you choose and can change or clear</li>
-    <li>Your score, run duration, and difficulty</li>
-    <li>A timestamp for the entry</li>
+    <li>A random player ID generated on your device the first time you open the board</li>
+    <li>Your callsign, which the game suggests and you can change</li>
+    <li>Your score, how long the patrol lasted, how deep you went, and how many hunters you sank</li>
+    <li>Which mode you played, and for a daily dive, the date and the condition it ran on</li>
+    <li>The version of the game and the time the patrol finished</li>
   </ul>
   <p>
-    This would not include your real name, contacts, or any other personal details. When the feature
-    is released, we will confirm its exact behaviour here and explain how to request removal of your
-    leaderboard entry.
+    That is the whole list. There is no real name, no email address, no location, no device or
+    advertising identifier, and nothing that identifies your phone. The player ID is random and is not
+    linked to an account, because there are no accounts.
+  </p>
+  <p>
+    <strong>Switching it off.</strong> Open the fleet board from the title screen and press POSTING.
+    With posting off, no patrol is ever sent, the board does not ask the server who you are, and any
+    patrols saved while you had no signal are discarded rather than sent later. The rest of the game
+    is unchanged, and you can still read the board.
+  </p>
+  <p>
+    <strong>If you play with no signal.</strong> A finished patrol waits on your device and is sent
+    the next time the game can reach the service, so an entry may arrive a day or more after you
+    played. Switching posting off clears anything still waiting.
   </p>
 
   <hr class="divider">
@@ -189,33 +202,45 @@
 
   <h2>Data sharing</h2>
   <p>
-    We do not sell, rent, or share your data, because we never receive any in the first place. Your
-    save file stays with you.
+    We do not sell or rent your data, and we do not share it with advertisers. There are no
+    advertising or analytics SDKs in the game. The one thing that is public is the board itself. Your
+    callsign, score and rank are visible to other players, which is the point of a leaderboard. Your
+    player ID is never shown to anyone.
+  </p>
+  <p>
+    We may change or remove a callsign that is offensive or abusive. This does not affect your score.
   </p>
 
   <hr class="divider">
 
   <h2>Storage and deletion</h2>
   <p>
-    All game data is stored locally on your device. To remove it completely, uninstall the game or
-    clear its data in your device settings. There is nothing for us to delete on our side.
+    Your save file is stored on your device. To remove it, uninstall the game or clear its data in
+    your device settings. Clearing the data also discards your player ID, so any board entries you
+    posted are left with no way to trace them back to you.
+  </p>
+  <p>
+    To have a board entry removed, or to report a callsign, email
+    <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a> and include the callsign shown in the game.
+    We will remove the entry.
   </p>
 
   <hr class="divider">
 
   <h2>Children's privacy</h2>
   <p>
-    Submarine Panic is a general-audience game and is not directed at children under 13. The current
-    game collects no personal information and has no online features, so there is nothing for a child
-    to share with us. If the optional leaderboard above is added, it will not ask for personal details.
+    Submarine Panic is a general-audience game and is not directed at children under 13. The game
+    asks for no personal information at any point. The fleet board carries only a random ID, a
+    callsign and the numbers from a patrol, and it can be switched off entirely.
   </p>
 
   <hr class="divider">
 
   <h2>Changes to this policy</h2>
   <p>
-    If the game gains a feature that changes how data is handled, such as an optional online
-    leaderboard, we will update this policy before that feature ships.
+    If a change to the game changes how data is handled, we will update this policy before that
+    change ships, as we did when the fleet board replaced the offline-only version described in the
+    previous policy.
   </p>
 
   <hr class="divider">
