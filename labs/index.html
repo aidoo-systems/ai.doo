@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ai.doo Labs — Indie games & apps</title>
-  <meta name="description" content="The creative side of ai.doo. Indie games and apps: Reactor Panic, Submarine Panic, Orbital Panic, Thunee, SPICE, Pomodorable, and Reality Check." />
+  <title>ai.doo Labs — Indie games, apps & web toys</title>
+  <meta name="description" content="The creative side of ai.doo. Indie games, apps and web toys: Reactor Panic, Submarine Panic, Orbital Panic, Thunee, SPICE, Pomodorable, Reality Check, and Pipes 98." />
   <link rel="canonical" href="https://aidoo.biz/labs/">
   <meta name="author" content="ai.doo">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="ai.doo Labs — Indie games & apps">
-  <meta property="og:description" content="The creative side of ai.doo. Indie games and mobile apps.">
+  <meta property="og:title" content="ai.doo Labs — Indie games, apps & web toys">
+  <meta property="og:description" content="The creative side of ai.doo. Indie games, mobile apps and web toys.">
   <meta property="og:url" content="https://aidoo.biz/labs/">
   <meta property="og:site_name" content="ai.doo">
   <meta property="og:image" content="https://aidoo.biz/og-image.png">
@@ -95,6 +95,13 @@
       radial-gradient(130px 90px at 50% 35%, rgba(254,188,46,.30), transparent 70%),
       radial-gradient(120px 90px at 70% 60%, rgba(255,120,60,.20), transparent 70%),
       linear-gradient(180deg, rgba(254,188,46,.10), transparent)}
+    /* Pipes 98: teal desktop with glossy pipework */
+    .gl-pipes{background:
+      radial-gradient(circle at 24% 68%, rgba(255,215,65,.9) 0 7px, rgba(170,105,20,.75) 8px 13px, transparent 14px),
+      radial-gradient(circle at 77% 28%, rgba(107,227,130,.9) 0 7px, rgba(18,118,55,.8) 8px 13px, transparent 14px),
+      linear-gradient(90deg, transparent 0 22%, rgba(242,180,45,.7) 22% 27%, transparent 27%),
+      linear-gradient(0deg, transparent 0 25%, rgba(43,190,88,.65) 25% 31%, transparent 31%),
+      linear-gradient(145deg, rgba(0,128,128,.72), rgba(0,36,38,.88))}
 
     .labsNote{margin-top:8px;color:var(--muted);font-size:13px}
     .labsNote a{color:var(--accent2)}
@@ -153,13 +160,13 @@
     <h1>Things we build <span class="playGrad">for the fun of it.</span></h1>
 
     <p class="sub">
-      ai.doo Labs is where we ship our side projects: handmade indie games and mobile apps,
+      ai.doo Labs is where we ship our side projects: handmade indie games, mobile apps and web toys,
       built with the same care as our corporate tools, just with more colour. No enterprise SLAs here. Just things we enjoy making.
     </p>
 
     <div class="ctaRow">
       <a class="btn primary" href="#games">See the games</a>
-      <a class="btn subtle" href="#apps">Browse the apps</a>
+      <a class="btn subtle" href="#apps">Browse apps &amp; toys</a>
       <a class="btn subtle" href="https://www.tiktok.com/@aidoolabs" target="_blank" rel="me noopener" aria-label="Watch ai.doo Labs on TikTok (opens in a new tab)">Watch on TikTok</a>
     </div>
 
@@ -267,12 +274,12 @@
     </div>
   </section>
 
-  <!-- APPS -->
+  <!-- APPS AND WEB TOYS -->
   <section class="section reveal" id="apps">
-    <p class="kicker">Apps</p>
-    <h2 class="h2">Small apps, made with care.</h2>
+    <p class="kicker">Apps &amp; web toys</p>
+    <h2 class="h2">Small ideas, made with care.</h2>
     <p class="lead">
-      Small apps that do one thing well, on the web or in your pocket, and respect your privacy while doing it. Each ships with a plain-language privacy policy.
+      Small apps and web toys that do one thing well, on the web or in your pocket, and respect your privacy while doing it.
     </p>
 
     <div class="grid">
@@ -334,6 +341,26 @@
         </div>
         <p class="labsNote"><a href="../privacy-spice/">Privacy policy</a></p>
       </div>
+
+      <!-- Pipes 98 -->
+      <div class="card span6 projCard">
+        <div class="projGlyph gl-pipes"><span class="label">&#9495;&#9473; Pipes 98</span></div>
+        <span class="statusTag live"><span class="sdot"></span> Live on the web</span>
+        <h3>Pipes 98</h3>
+        <p class="desc">
+          A tribute to the classic Windows 3D Pipes screensaver, with a little more to do. Watch glossy pipes grow across
+          a Windows 98-style desktop, tweak the screensaver, or take control in a turn-based 3D routing game.
+        </p>
+        <div class="chips projChips">
+          <span class="chip"><span class="dot"></span> Web toy</span>
+          <span class="chip"><span class="dot"></span> Screensaver</span>
+          <span class="chip"><span class="dot"></span> Playable</span>
+        </div>
+        <div class="projBtns">
+          <a class="btn primary" href="https://pipes98.com/" target="_blank" rel="noopener">Visit Pipes 98</a>
+        </div>
+        <p class="labsNote">Independent tribute. Runs in your browser.</p>
+      </div>
     </div>
 
     <div class="proof" aria-label="About ai.doo Labs">
@@ -371,6 +398,7 @@
         <div><a href="#apps">SPICE</a></div>
         <div><a href="#apps">Pomodorable</a></div>
         <div><a href="#apps">Reality Check</a></div>
+        <div><a href="#apps">Pipes 98</a></div>
       </div>
 
       <div class="footerCol" style="font-size:13px;">

@@ -80,6 +80,8 @@ def test_public_site_context_includes_labs_products_and_download_link():
         "Pomodorable",
         "Reality Check",
         "SPICE",
+        "Pipes 98",
     ):
         assert product in context
     assert "https://play.google.com/store/apps/details?id=com.aidoo.thunee" in context
+    assert "https://pipes98.com/" in context
