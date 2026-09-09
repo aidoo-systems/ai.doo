@@ -84,4 +84,5 @@ def test_public_site_context_includes_labs_products_and_download_link():
     ):
         assert product in context
     assert "https://play.google.com/store/apps/details?id=com.aidoo.thunee" in context
+    assert "https://apps.apple.com/gb/app/durbans-thunee/id6800611695" in context
     assert "https://pipes98.com/" in context
