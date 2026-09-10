@@ -1,3 +1,6 @@
 nul
 __pycache__/
 .pytest_cache/
+
+# Claude Code local state (settings, agent memory) - machine-specific
+.claude/
