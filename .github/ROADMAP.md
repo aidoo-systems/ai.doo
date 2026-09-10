@@ -22,7 +22,9 @@ Target: safe controlled pilots.
 - [x] Enforce VERA document ownership and reviewer assignment across backend endpoints, including images, exports, and status streams.
 - [x] Bind document access to immutable Hub account identifiers.
 - [x] Enforce current Hub account status, roles and security versions in VERA sessions; remove VERA outage credential login fallback.
-- [ ] Apply equivalent session lifecycle enforcement to PIKA and Hub's own browser sessions before allowing suite-wide username reuse.
+- [x] Check current account identity, security version and role in PIKA and Hub browser sessions, including pending Hub two-factor logins.
+- [x] Add durable server-side logout revocation for PIKA and Hub signed cookies.
+- [x] Bind PIKA history and queued-query ownership to permanent subjects before allowing suite-wide username reuse.
 - [ ] Add directory-backed assignee selection, team access, and the reviewer assignment interface.
 - [ ] Back up and restore VERA's database and file storage as one recoverable unit.
 - [ ] Enforce the licensed product list in PIKA and VERA.
@@ -137,7 +139,9 @@ Target: evidence that supports corporate procurement.
 | VERA ownership and reviewer access API | Implemented and tested, pending release | P0 |
 | Hub account subjects and VERA identity-bound access | Implemented and tested, pending release | P0 |
 | VERA session lifecycle and verification-outage UI | Implemented and tested, pending release | P0 |
-| PIKA/Hub browser session lifecycle, assignment UI and team access | Not started | P0 |
+| PIKA/Hub account-change enforcement | Implemented and tested, pending release | P0 |
+| PIKA/Hub logout revocation and PIKA historical-data identity | Implemented and tested, pending release | P0 |
+| Assignment UI and team access | Not started | P0 |
 | Complete VERA backup and restore | Not started | P0 |
 | Product-scoped licence enforcement | Not started | P0 |
 | Canonical versioned installer | Not started | P1 |
@@ -156,7 +160,7 @@ Target: evidence that supports corporate procurement.
 - Added migration regression coverage for legacy-data preservation, rollback, and repeat upgrades on SQLite and PostgreSQL. Fixed historical migration defects blocking clean installs on both database engines.
 - Assignment is API-only for now. Hub now supplies permanent UUID account subjects, and VERA uses these for document access. Non-null assignments require an active account verified through Hub. Unknown or disabled accounts and unavailable directory responses leave all access unchanged.
 - Migration `0007_account_subjects` preserves existing username labels but does not infer account identity from them. Older username-only documents become administrator-only until explicitly reassigned. Upgrade Hub first, then VERA, and require users to sign in again. No live database has been migrated.
-- Keep the suite-wide restriction on username reuse until PIKA and Hub browser-session lifecycle enforcement is released. VERA now checks current account status and a security version with a non-sliding 30-second cache, and no longer uses cached passwords to log in during Hub outages. Group membership, a directory-backed picker and the assignment UI remain open work.
+- Keep the suite-wide restriction on username reuse until PIKA history and queued-query ownership move to permanent subjects. VERA and PIKA check current account status with a non-sliding 30-second cache and no longer use cached passwords to log in during Hub outages. Hub checks the local account database on each browser request. Durable logout revocation, group membership, a directory-backed picker and the assignment UI remain open work.
 - Identity verification passed locally: 244 Hub tests, 236 VERA backend tests with 75.14% coverage, SQLite and PostgreSQL upgrade/rollback checks, and lint in both products. Tests used disposable databases; the PostgreSQL container was removed afterwards. Nothing has been committed, pushed or deployed.
 
 ## Session lifecycle follow-up
@@ -167,3 +171,26 @@ Target: evidence that supports corporate procurement.
 - The browser rechecks sessions every 30 seconds, redirects revoked sessions to sign-in, and hides the workspace behind a retry screen when verification is unavailable. This is a bounded check, not instantaneous revocation, and does not retract downloaded content or cancel already-authorized work.
 - Follow-up verification passed locally: 264 VERA backend tests with 77.30% coverage, 55 frontend tests, 246 Hub tests, TypeScript checks and Python lint. Hub migration tests cover legacy databases and repeated execution. Nothing committed, pushed, or deployed; PIKA and Hub browser-session enforcement remain the next security work.
 - Deployment notes and the permission matrix are in `vera/.github/DOCUMENT_ACCESS.md`. No running customer database has been migrated by this work.
+
+## PIKA and Hub account-change enforcement
+
+- PIKA permissions now use a verified request principal. Account changes take effect after at most 30 seconds of cached facts; expired-cache verification failures deny access. Valid automation keys remain independent of stale browser cookies.
+- PIKA query and generation streams recheck each chunk. The direct generation endpoint now requires authentication.
+- Hub checks signed browser and pending two-factor sessions against its local database on each request. Model-pull streams recheck each event. Missing, disabled or changed accounts cannot continue with old cookie roles.
+- Signed-cookie logout replay protection is still open in both products. PIKA also retains username-based history and queued-query ownership. Keep both issues in the release gate rather than claiming full session lifecycle coverage.
+- Verification: all 254 Hub tests and 96 focused PIKA authentication/API tests passed. Lint passed for Hub and all changed PIKA files. PIKA's broad suite was interrupted after 121 passes and four outdated administrator-fixture failures; those fixtures were corrected and passed in the focused rerun. The entire PIKA suite has not been reverified.
+- HTTP test startup no longer downloads/loads an embedding model on each test. Disposable test containers have been removed. No production deployment, commit or push was performed.
+
+## Durable logout and PIKA ownership milestone
+
+This section supersedes the earlier open-work and verification snapshots above.
+
+- Hub and PIKA now require durable per-login session grants. Logout revokes a copied cookie on subsequent requests and stream events without relying on account-cache expiry. Independent logins remain valid. Missing grants deny access; logout storage failures report 503 and allow a retry.
+- Hub rotates pending grants when two-factor authentication completes. Both products enforce absolute grant expiry. Old cookies require a fresh login after upgrade. This is application-local logout, not global suite sign-out.
+- PIKA history, queue submission, status, cancellation and clearing use verified immutable subjects. Streamed and queued answers retain usernames only as display labels. API-key automation has its own identity and no all-users history mode. Feedback updates are isolated by subject.
+- Legacy history is preserved under existing retention limits but is not reassigned or exposed based on a username. Back it up and review ownership before any separate reassignment. Queues remain process-local; distributed work and multi-worker JSON-history coordination are not included.
+- Final regression passed: 378 PIKA tests, 260 Hub tests, 264 VERA backend tests with 77.30% coverage, and 55 VERA frontend tests. VERA TypeScript, Hub/VERA lint, all changed PIKA-file lint and whitespace checks passed. Three PIKA query fixtures were updated to provide a real automation identity rather than a bare mocked authentication boolean.
+- Upgrade Hub first, then the matching PIKA and VERA revisions. Persist the session databases and signing secrets. Do not restore stale session grants during recovery; invalidate them or rotate signing secrets before reopening access. Keep username reuse restricted until the coordinated deployment is complete.
+- No push, deployment, live migration or customer-data change was performed. The clean-host TLS installation and complete backup/restore gates remain open.
+- Next implementation milestone: VERA's persistent inbox and directory-backed reviewer assignment interface.
+- Local product commits: PIKA `f70309e`, Hub (`ollama`) `490939d`, VERA `43bce2e`. These form the coordinated security milestone; they have not been pushed or deployed.
