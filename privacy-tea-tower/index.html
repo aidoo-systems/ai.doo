@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Privacy Policy — Tea Tower</title>
+  <meta name="description" content="Privacy policy for the Tea Tower mobile game." />
+  <link rel="canonical" href="https://aidoo.biz/privacy-tea-tower/">
+  <meta name="robots" content="noindex">
+  <meta name="author" content="ai.doo">
+
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#1f1a24">
+
+  <style>
+    /* Self-hosted Inter — no third-party font CDN on a privacy page */
+    @font-face{
+      font-family:'Inter';
+      font-style:normal;
+      font-weight:100 900;
+      font-display:swap;
+      src:url('/fonts/inter-latin.woff2') format('woff2');
+    }
+
+    :root{
+      --bg0:#1f1a24;
+      --bg1:#2a2029;
+      --ink:#fff0db;
+      --muted:rgba(255,240,219,0.74);
+      --accent:#b8662f;
+      --accent2:#e6995a;
+      --stroke:rgba(255,255,255,0.12);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(800px 600px at 20% 8%, rgba(230,153,82,.10), transparent 65%),
+        radial-gradient(700px 500px at 80% 25%, rgba(184,102,47,.07), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.6;
+      min-height:100vh;
+    }
+    a{color:var(--accent2);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .wrap{
+      max-width:72ch;
+      margin:0 auto;
+      padding:48px 24px 80px;
+    }
+
+    .back{
+      display:inline-block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:40px;
+    }
+    .back:hover{color:var(--ink);text-decoration:none}
+
+    .updated{
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 40px;
+      letter-spacing:.2px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:clamp(26px,4vw,36px);
+      line-height:1.1;
+      letter-spacing:-0.5px;
+      font-weight:700;
+      color:#fff;
+    }
+
+    h2{
+      margin:40px 0 10px;
+      font-size:16px;
+      font-weight:700;
+      color:#fff;
+      letter-spacing:-.1px;
+    }
+
+    p{
+      margin:0 0 14px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    ul{
+      margin:0 0 14px;
+      padding-left:20px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    li{margin-bottom:6px}
+
+    .divider{
+      border:none;
+      border-top:1px solid var(--stroke);
+      margin:40px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="back" href="/">&#8592; ai.doo</a>
+
+  <h1>Privacy Policy — Tea Tower</h1>
+  <p class="updated">Last updated: September 2026</p>
+
+  <p>
+    Tea Tower is a mobile game about stacking teacups, made by ai.doo. The whole game plays offline on
+    your device. It has one online feature, a leaderboard, and you can switch posting to it off. This
+    policy explains what the game keeps on your phone, what the leaderboard sends if you leave it on,
+    and how to have an entry removed. Our website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>.
+  </p>
+
+  <hr class="divider">
+
+  <h2>What stays on your device</h2>
+  <p>
+    Tea Tower does not create an account and never asks who you are. It keeps a few small values in the
+    app's own storage on your phone so it can remember you between sessions:
+  </p>
+  <ul>
+    <li>Your settings: sound and ambience volume, vibration, and whether posting to the leaderboard is on</li>
+    <li>Your best score and your biggest single collapse</li>
+    <li>Your last seven runs (the date, the cups stacked and the score), shown on the title screen</li>
+    <li>Your leaderboard name and a random player ID</li>
+    <li>Any finished runs waiting to be sent while you had no signal</li>
+  </ul>
+  <p>
+    None of this is transmitted except the handful of fields listed under &ldquo;The leaderboard&rdquo;
+    below.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Network and online features</h2>
+  <p>
+    Every part of the game plays offline. The one network feature is the leaderboard. The app requests
+    the internet permission so the leaderboard can work, and nothing else in the game uses it. There are
+    no online accounts and no cloud saves.
+  </p>
+
+  <hr class="divider">
+
+  <h2>The leaderboard</h2>
+  <p>
+    The leaderboard ranks players' best runs against everyone else's. When a run ends and posting is
+    switched on, the game sends these fields, and nothing else, over HTTPS to our own service at
+    ttsb.aidoo.biz:
+  </p>
+  <ul>
+    <li>A random player ID, generated on your device</li>
+    <li>Your leaderboard name, which starts as a random tea name and which you can change</li>
+    <li>Your score and the number of cups you stacked</li>
+    <li>The version of the game and the time the run finished</li>
+  </ul>
+  <p>
+    If you change your name, the new name and your player ID are sent. When you open the leaderboard, the
+    game sends your player ID to look up your own place on it.
+  </p>
+  <p>
+    That is the whole list. There is no real name, no email address, no location, no device or
+    advertising identifier, and nothing that identifies your phone. The player ID is random and is not
+    linked to an account, because there are no accounts. Our service, like any web server, sees the
+    network address a request comes from; it uses it only to limit how often one address can post, and
+    does not store it with your runs.
+  </p>
+  <p>
+    <strong>Switching it off.</strong> Open Settings (the teaspoon on the title screen) and set
+    <em>Post to leaderboard</em> to Off. With posting off, no run is ever sent, your name is not sent,
+    the game does not ask the server where you stand, and any runs waiting to be sent are discarded
+    rather than sent later. You can still read the leaderboard, and the rest of the game is unchanged.
+  </p>
+  <p>
+    <strong>If you play with no signal.</strong> A finished run waits on your device and is sent the next
+    time the game can reach the service, so an entry may arrive some time after you played.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Data we do not collect</h2>
+  <p>
+    We do not collect location, contacts, photos, microphone, camera, or payment data. There are no ads,
+    no in-app purchases, no third-party analytics SDKs, and no tracking of any kind.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Data sharing</h2>
+  <p>
+    We do not sell or rent your data, and we do not share it with advertisers or anyone else. The one
+    thing that is public is the leaderboard itself: your name, score, cups and rank are visible to other
+    players, which is the point of a leaderboard. Your player ID is never shown to anyone.
+  </p>
+  <p>
+    Names are filtered automatically, and we may change or remove a name that is offensive or abusive.
+    This does not affect your score.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Storage and deletion</h2>
+  <p>
+    Leaderboard entries are kept on our own server for as long as the leaderboard runs. Everything else
+    is stored only on your device; to remove it, uninstall the game or clear its data in your device
+    settings. Clearing the data also discards your player ID, so any entries you posted are left with no
+    way to trace them back to you.
+  </p>
+  <p>
+    To have a leaderboard entry removed, or to report a name, email
+    <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a> and include the name shown in the game. We will
+    remove the entry.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Children's privacy</h2>
+  <p>
+    Tea Tower is a general-audience game and is not directed at children under 13. The game asks for no
+    personal information at any point. The leaderboard carries only a random ID, a name and the numbers
+    from a run, and posting to it can be switched off entirely.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Changes to this policy</h2>
+  <p>
+    If a change to the game changes how data is handled, we will update this policy before that change
+    ships.
+  </p>
+
+  <hr class="divider">
+
+  <h2>Contact</h2>
+  <p>
+    Email: <a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a><br>
+    Website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>
+  </p>
+
+  <p class="updated" style="margin-top:40px">&copy; 2026 ai.doo</p>
+
+</div>
+</body>
+</html>
