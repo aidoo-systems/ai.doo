@@ -1,0 +1,8 @@
+# Explicit, so the lint gate means the same thing on every ruff version.
+# ruff 0.16 widened its default rules (import sorting, blind except); with no
+# config, CI's newer ruff failed code the local 0.15 passed. Change the rule set
+# here, deliberately, never by upgrading ruff.
+target-version = "py311"
+
+[lint]
+select = ["E4", "E7", "E9", "F"]
