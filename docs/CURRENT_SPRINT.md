@@ -12,10 +12,11 @@ and a gate proves it (P1.1).
 ## Current truth
 
 - Adopted into the studio 2026-09-30 (P0.1). Gates: lint, format, tests, build, audit, docs.
-- `bash scripts/gates.sh` on `studio/adopt`: all six PASS (34 tests; `mkdocs build --strict` clean; pip-audit clean).
+- Adoption merged (aidoo-systems/ai.doo#11, 02e7e38) and deployed: CI Gates and Deploy both green. Live check: `/privacy-tea-tower/` 200; `AGENTS.md`, `scripts/gates.sh`, `ruff.toml`, `.gitattributes` and docs.aidoo.biz `/ROADMAP/` all 404.
+- `bash scripts/gates.sh` on local `main` after the rebase: all six PASS.
 - Static HTML has no automated check: links, assets and the sitemap are unverified.
 - Known defects found at adoption, not yet worked: chat rate limit keyed on the proxy address (P1.5); unpinned mkdocs-material in deploy (P1.4).
-- Owner's in-flight edits on `main` (not in this branch): `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`, and unpushed commit 591c281, whose `api/chat.py` fails `ruff format`.
+- Owner's work on local `main`, not pushed: the enterprise-roadmap commit (rebased onto the merge) and uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`. `api/chat.py` passes `format` under `ruff.toml`.
 
 ## Execution order
 
@@ -30,8 +31,7 @@ and a gate proves it (P1.1).
 
 ## Owner gates — waiting on a human
 
-- Merge the adoption PR, then bring `main` into the primary checkout so the wiki can publish.
-- Rebase or reformat unpushed commit 591c281 (`python -m ruff format api/chat.py`) before pushing.
+- None blocking P1.1. (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
 
 ## Work log
 
