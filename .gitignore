@@ -2,5 +2,12 @@ nul
 __pycache__/
 .pytest_cache/
 
-# Claude Code local state (settings, agent memory) - machine-specific
-.claude/
+# Claude Code local state - machine-specific. .claude/settings.json is shared and committed.
+.claude/settings.local.json
+.claude/todo.md
+.claude/agent-memory/
+.claude/agents/
+
+# Studio loop state and the deploy job's docs build output
+.loop/
+_docs_build/

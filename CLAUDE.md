@@ -6,6 +6,37 @@ Pure static HTML/CSS/JS site — no framework, no build tool, no bundler. Every 
 
 There is also a small Python/Flask backend (`api/`) that powers the chat widget. It runs as a systemd service on the VPS, proxied through Caddy.
 
+It is a studio project (adopted 2026-09-30).
+
+## Working rules
+
+1. Read `docs/CURRENT_SPRINT.md`, then `docs/DECISIONS.md`, before non-trivial work. The site's roadmap is `docs/ROADMAP.md`; `.github/ROADMAP.md` is the **suite's** enterprise roadmap (PIKA/VERA/Hub), not this repo's.
+2. **Say only what ships.** No page or doc may claim behaviour the suite hasn't implemented and tested. Check product claims against `.github/ROADMAP.md`.
+3. The chatbot stays a guide: no lead capture, no support flows.
+4. Run the gates before pushing to `main`. **`main` is production**, and deploy doesn't wait for the gates (D-006).
+
+## Gates
+
+```bash
+bash scripts/gates.sh              # all: lint, format, tests, build, audit, docs (~70s)
+SKIP_SLOW=1 bash scripts/gates.sh  # skip audit for the inner loop; never to land
+bash scripts/gates.sh tests        # one gate
+```
+
+Needs `python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdocs<2" mkdocs-material`. CI runs the same script (`.github/workflows/ci.yml`).
+
+## Traps
+
+- **`docs/` is two things.** It's the MkDocs source for docs.aidoo.biz *and* the studio's docs. Studio files are kept off the public site by `exclude_docs` in `mkdocs.yml`. A new internal file under `docs/` must be added there too, or it goes live.
+- **The deploy rsync is an exclude list.** Every new non-web file or folder at the repo root (like `AGENTS.md` and `scripts/`) must be added to the `--exclude` list in `deploy.yml`, or it's served publicly at aidoo.biz.
+- **`CHANGELOG.md` means two things.** Locally it's the site's changelog. In deploy, it's overwritten with PIKA's changelog before `build-changelog.py` runs. Running `python build-changelog.py` locally with no `--changelog` renders the *site's* changelog into `pika/changelog.html`. Don't commit that.
+- **`build-changelog.py` rewrites `pika/changelog.html` in place.** The `build` gate deliberately doesn't run it; the `tests` gate covers the renderer.
+- **The chat rate limit isn't per visitor.** It keys on `request.remote_addr`, which behind Caddy is loopback, so all visitors share about 10 requests/min per gunicorn worker (P1.5).
+- **The chatbot learns from `sitemap.xml`.** `api/site_context.py` loads every sitemap page at API startup. A page missing from the sitemap is invisible to the bot, and a new page needs an API restart (any deploy restarts it).
+- **mkdocs-material is unpinned in deploy.** MkDocs 2.0 drops theme overrides, which `overrides/` relies on (P1.4).
+- **Line endings.** Some files are CRLF (`deploy.yml`, `mkdocs.yml`); preserve them when editing.
+- The pages table below is incomplete; `sitemap.xml` plus the `privacy-*/` folders are the full list.
+
 ## Pages and paths
 
 | URL path | File |

@@ -2,6 +2,16 @@ site_name: ai.doo Documentation
 site_url: https://docs.aidoo.biz
 site_description: Documentation for the ai.doo self-hosted AI suite — PIKA, VERA, and Hub.
 
+# The studio's project documents live in docs/ beside the customer docs.
+# They are internal and must never publish to docs.aidoo.biz.
+exclude_docs: |
+  /PRODUCT_BRIEF.md
+  /ARCHITECTURE.md
+  /ROADMAP.md
+  /CURRENT_SPRINT.md
+  /DECISIONS.md
+  /design/
+
 theme:
   name: material
   custom_dir: overrides

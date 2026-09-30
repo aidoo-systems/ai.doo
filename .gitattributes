@@ -1,0 +1,2 @@
+# Shell scripts must stay LF: with core.autocrlf=true (this machine) bash fails on CRLF
+*.sh text eol=lf

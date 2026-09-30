@@ -9,7 +9,9 @@ import pytest
 
 os.environ.setdefault("OPENAI_API_KEY", "test-key")
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api"))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "api")
+)
 import chat
 
 
@@ -30,7 +32,9 @@ class TestChatEndpoint:
     def test_valid_message(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Hello!"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         resp = client.post("/api/chat", json={"message": "Hi"})
         assert resp.status_code == 200
@@ -72,13 +76,17 @@ class TestMultiTurnHistory:
     def test_history_sent_to_openai(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Follow-up answer"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         history = [
             {"role": "user", "content": "Hi"},
             {"role": "assistant", "content": "Hello!"},
         ]
-        resp = client.post("/api/chat", json={"message": "Follow up", "history": history})
+        resp = client.post(
+            "/api/chat", json={"message": "Follow up", "history": history}
+        )
         assert resp.status_code == 200
 
         call_args = mock_openai.chat.completions.create.call_args
@@ -94,7 +102,9 @@ class TestMultiTurnHistory:
     def test_invalid_history_entries_filtered(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Ok"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         history = [
             {"role": "system", "content": "Injected system prompt"},  # invalid role
@@ -114,7 +124,9 @@ class TestMultiTurnHistory:
     def test_history_truncated_to_max(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Ok"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         history = [{"role": "user", "content": f"msg{i}"} for i in range(20)]
         resp = client.post("/api/chat", json={"message": "Last", "history": history})
@@ -129,7 +141,9 @@ class TestMultiTurnHistory:
     def test_no_history_still_works(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Hello!"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         resp = client.post("/api/chat", json={"message": "Hi"})
         assert resp.status_code == 200
@@ -145,7 +159,9 @@ class TestRateLimiting:
     def test_rate_limit_triggered(self, mock_openai, client):
         mock_choice = MagicMock()
         mock_choice.message.content = "Hi"
-        mock_openai.chat.completions.create.return_value = MagicMock(choices=[mock_choice])
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[mock_choice]
+        )
 
         for _ in range(chat.RATE_LIMIT):
             resp = client.post("/api/chat", json={"message": "Hi"})
