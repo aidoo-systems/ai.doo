@@ -44,6 +44,8 @@
               --exclude='.claude' \
               --exclude='README.md' \
               --exclude='CLAUDE.md' \
+              --exclude='AGENTS.md' \
+              --exclude='scripts/' \
               --exclude='tests/' \
               --exclude='logo_designs.png' \
               --exclude='build-changelog.py' \

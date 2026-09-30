@@ -1,0 +1,22 @@
+name: Gates
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0 # the docs gate compares sprint dates with git history
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12" # the VPS runs python3.12 (README, VPS setup)
+      # Same tools deploy uses, plus the gate tooling. mkdocs-material is pinned
+      # to what the local gate was proven with; see ROADMAP P1.4 for deploy's pin.
+      - run: python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdocs<2" mkdocs-material
+      - run: bash scripts/gates.sh # same definition as the desk

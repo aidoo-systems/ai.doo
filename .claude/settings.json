@@ -1,0 +1,55 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git rm:*)",
+      "Bash(git branch:*)",
+      "Bash(git switch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git merge:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git worktree:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m ruff:*)",
+      "Bash(python -m pip:*)",
+      "Bash(python -m mkdocs:*)",
+      "Bash(pip-audit:*)",
+      "Bash(bash scripts/gates.sh:*)",
+      "Bash(./scripts/gates.sh:*)",
+      "Bash(gh:*)",
+      "Bash(codex review:*)",
+      "Bash(curl:*)",
+      "Bash(wc:*)",
+      "Bash(python3 C:/dev/repos/studio/tools/sb.py:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:aidoo.biz)",
+      "WebFetch(domain:docs.aidoo.biz)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "case \"$CLAUDE_FILE_PATH\" in *.py) python3 -m ruff check --fix --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null; python3 -m ruff format --quiet \"$CLAUDE_FILE_PATH\" 2>/dev/null;; esac; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
