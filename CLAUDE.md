@@ -24,7 +24,7 @@ bash scripts/gates.sh tests        # one gate
 bash scripts/gates.sh site         # broken links, missing assets, sitemap/canonical mismatches
 ```
 
-Needs `python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdocs<2" mkdocs-material`. CI runs the same script (`.github/workflows/ci.yml`).
+Needs `python -m pip install -r api/requirements.txt -r scripts/docs-requirements.txt pytest ruff pip-audit`. CI runs the same script (`.github/workflows/ci.yml`).
 
 ## Traps
 
@@ -34,7 +34,7 @@ Needs `python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdo
 - **`build-changelog.py` rewrites `pika/changelog.html` in place.** The `build` gate deliberately doesn't run it; the `tests` gate covers the renderer.
 - **The chat rate limit isn't per visitor.** It keys on `request.remote_addr`, which behind Caddy is loopback, so all visitors share about 10 requests/min per gunicorn worker (P1.5).
 - **The chatbot learns from `sitemap.xml`.** `api/site_context.py` loads every sitemap page at API startup. A page missing from the sitemap is invisible to the bot, and a new page needs an API restart (any deploy restarts it).
-- **mkdocs-material is unpinned in deploy.** MkDocs 2.0 drops theme overrides, which `overrides/` relies on (P1.4).
+- **The docs build is pinned** in `scripts/docs-requirements.txt`, which both `ci.yml` and `deploy.yml` install. MkDocs 2.0 drops theme overrides, which `overrides/` relies on; bump the pins only in a PR so CI proves them first.
 - **Line endings.** Some files are CRLF (`deploy.yml`, `mkdocs.yml`); preserve them when editing.
 - The pages table below is incomplete; `sitemap.xml` plus the `privacy-*/` folders are the full list.
 
