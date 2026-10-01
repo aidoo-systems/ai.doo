@@ -1,34 +1,65 @@
+import ipaddress
 import os
 import time
 import threading
 from flask import Flask, request, jsonify
+from werkzeug.middleware.proxy_fix import ProxyFix
 from openai import OpenAI
 from site_context import load_site_context
 
 app = Flask(__name__)
+# Caddy is the one proxy in front of gunicorn (bound to 127.0.0.1), so without this
+# every visitor's remote_addr is loopback and they all share one rate limit. Trust
+# exactly one X-Forwarded-For hop: the value Caddy adds. Anything a client sent
+# before it is ignored, so a forged header can't buy a fresh limit.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
-# Simple in-memory rate limiter: max requests per IP per window
+# Simple in-memory rate limiter, per gunicorn worker: max requests per visitor per
+# window, plus a ceiling across all visitors so per-visitor keys can't remove the
+# cap on OpenAI spend (an attacker with many addresses gets the ceiling, no more).
 RATE_LIMIT = 10
+GLOBAL_RATE_LIMIT = 60
 RATE_WINDOW = 60
 _rate_store = {}
+_global_hits = []
 _rate_lock = threading.Lock()
+_last_sweep = 0.0
+
+
+def _visitor_key(ip):
+    """An IPv6 host can use any address in its /64, so that's the visitor."""
+    try:
+        addr = ipaddress.ip_address(ip)
+    except ValueError:
+        return str(ip)
+    if addr.version == 6:
+        return str(ipaddress.ip_network(f"{addr}/64", strict=False))
+    return str(addr)
 
 
 def _is_rate_limited(ip):
+    global _last_sweep, _global_hits
     now = time.monotonic()
+    ip = _visitor_key(ip)
     with _rate_lock:
-        if ip in _rate_store:
-            timestamps = _rate_store[ip]
-            timestamps = [t for t in timestamps if now - t < RATE_WINDOW]
-            if len(timestamps) >= RATE_LIMIT:
-                _rate_store[ip] = timestamps
-                return True
-            timestamps.append(now)
+        # One entry per visitor ever seen: drop the idle ones once per window.
+        if now - _last_sweep >= RATE_WINDOW:
+            for key in [
+                k for k, ts in _rate_store.items() if now - ts[-1] >= RATE_WINDOW
+            ]:
+                del _rate_store[key]
+            _last_sweep = now
+        timestamps = [t for t in _rate_store.get(ip, []) if now - t < RATE_WINDOW]
+        _global_hits = [t for t in _global_hits if now - t < RATE_WINDOW]
+        if timestamps:
             _rate_store[ip] = timestamps
-        else:
-            _rate_store[ip] = [now]
+        if len(timestamps) >= RATE_LIMIT or len(_global_hits) >= GLOBAL_RATE_LIMIT:
+            return True
+        timestamps.append(now)
+        _rate_store[ip] = timestamps
+        _global_hits.append(now)
     return False
 
 

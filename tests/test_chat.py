@@ -15,10 +15,15 @@ sys.path.insert(
 import chat
 
 
+@pytest.fixture(autouse=True)
+def fresh_rate_limits(monkeypatch):
+    chat._rate_store.clear()
+    monkeypatch.setattr(chat, "_global_hits", [])
+
+
 @pytest.fixture
 def client():
     chat.app.config["TESTING"] = True
-    chat._rate_store.clear()
     with chat.app.test_client() as c:
         yield c
 
@@ -171,6 +176,68 @@ class TestRateLimiting:
         assert resp.status_code == 429
         assert "Too many" in json.loads(resp.data)["error"]
 
+    def _fill(self, client, forwarded):
+        for _ in range(chat.RATE_LIMIT):
+            resp = client.post(
+                "/api/chat",
+                json={"message": "Hi"},
+                headers={"X-Forwarded-For": forwarded},
+            )
+            assert resp.status_code == 200
+
+    @patch.object(chat, "client")
+    def test_visitors_behind_the_proxy_are_limited_independently(
+        self, mock_openai, client
+    ):
+        # Every request arrives from Caddy on loopback; only X-Forwarded-For tells visitors apart.
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content="Hi"))]
+        )
+        self._fill(client, "203.0.113.1")
+        assert (
+            client.post(
+                "/api/chat",
+                json={"message": "Hi"},
+                headers={"X-Forwarded-For": "203.0.113.1"},
+            ).status_code
+            == 429
+        )
+        assert (
+            client.post(
+                "/api/chat",
+                json={"message": "Hi"},
+                headers={"X-Forwarded-For": "203.0.113.2"},
+            ).status_code
+            == 200
+        )
+
+    @patch.object(chat, "client")
+    def test_client_supplied_forwarded_values_cannot_dodge_the_limit(
+        self, mock_openai, client
+    ):
+        # Only the hop Caddy adds (the last value) is trusted; values a client prepends are ignored.
+        mock_openai.chat.completions.create.return_value = MagicMock(
+            choices=[MagicMock(message=MagicMock(content="Hi"))]
+        )
+        self._fill(client, "198.51.100.7")
+        spoofed = client.post(
+            "/api/chat",
+            json={"message": "Hi"},
+            headers={"X-Forwarded-For": "10.9.9.9, 198.51.100.7"},
+        )
+        assert spoofed.status_code == 429
+
+    def test_idle_visitors_are_evicted(self, monkeypatch):
+        # Keying per visitor means one entry per visitor ever seen; idle ones must not pile up.
+        now = [1000.0]
+        monkeypatch.setattr(chat.time, "monotonic", lambda: now[0])
+        monkeypatch.setattr(chat, "_last_sweep", 0.0)
+        for i in range(50):
+            chat._is_rate_limited(f"192.0.2.{i}")
+        now[0] += chat.RATE_WINDOW + 1
+        chat._is_rate_limited("192.0.2.200")
+        assert list(chat._rate_store) == ["192.0.2.200"]
+
 
 class TestCORS:
     def test_cors_allowed_origin(self, client):
@@ -180,3 +247,27 @@ class TestCORS:
     def test_cors_disallowed_origin(self, client):
         resp = client.options("/api/chat", headers={"Origin": "https://evil.com"})
         assert "Access-Control-Allow-Origin" not in resp.headers
+
+
+class TestRateLimitBounds:
+    def test_global_ceiling_caps_spend_across_visitors(self):
+        # Per-visitor keys must not remove the cap on total OpenAI calls.
+        results = [
+            chat._is_rate_limited(f"198.51.100.{i}")
+            for i in range(chat.GLOBAL_RATE_LIMIT + 1)
+        ]
+        assert results[:-1] == [False] * chat.GLOBAL_RATE_LIMIT
+        assert results[-1] is True
+
+    def test_ipv6_visitor_is_keyed_by_its_64(self):
+        # One IPv6 host can use any address in its /64; rotating within it mustn't reset the limit.
+        assert chat._visitor_key("2001:db8:1:2::1") == chat._visitor_key(
+            "2001:db8:1:2:ffff::9"
+        )
+        assert chat._visitor_key("2001:db8:1:2::1") != chat._visitor_key(
+            "2001:db8:1:3::1"
+        )
+
+    def test_ipv4_and_unparseable_keys_are_unchanged(self):
+        assert chat._visitor_key("203.0.113.9") == "203.0.113.9"
+        assert chat._visitor_key(None) == "None"
