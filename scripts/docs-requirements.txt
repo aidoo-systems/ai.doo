@@ -1,0 +1,5 @@
+# The docs build, pinned: ci.yml proves these and deploy.yml builds docs.aidoo.biz
+# with them (P1.4). MkDocs 2.0 drops theme overrides, which overrides/ relies on.
+# Bump both together, in a PR, so CI proves the pair before deploy uses it.
+mkdocs==1.6.1
+mkdocs-material==9.7.6
