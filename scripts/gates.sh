@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.." || exit 1
 
 ONLY="${1:-}"
 # The Python in this repo: the chat API, the changelog builder, their tests.
-PY_PATHS=(api build-changelog.py tests)
+PY_PATHS=(api build-changelog.py scripts tests)
 
 FAILED=()
 run_gate() {
@@ -52,6 +52,10 @@ check_build() {
   return $code
 }
 run_gate build check_build
+
+# Every local link and asset on the served site resolves, and every sitemap URL
+# maps to a page whose canonical matches it. See scripts/check_site.py.
+run_gate site    python scripts/check_site.py
 
 # Slow tier. There is no pyproject.toml: the chat API's requirements.txt is
 # the only dependency manifest that ships to production.
