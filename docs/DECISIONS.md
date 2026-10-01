@@ -79,3 +79,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** D-005 as written (claims, then commercial, then rework): accurate copy sooner, but the work is redone in the rework.
 - **Consequences:** Today's pages keep their current claims until the rework ships; the enterprise roadmap's stop-ship item on unsupported claims stays open that long. P2.1 may reopen D-003 and D-004.
 - **Revisit when:** A pilot conversation needs accurate claims or a price band before the rework ships: then do P1.2/P1.3 on the current pages.
+
+## D-009 — Chat limits: 10/min per visitor, 60/min site-wide, IPv6 by /64
+
+- **Status:** Accepted
+- **Date:** 2026-10-01
+- **Decision:** The chat API trusts one `X-Forwarded-For` hop (Caddy's) and limits each visitor to 10 requests a minute, with a ceiling of 60 a minute across all visitors. Both are per gunicorn worker, in memory. An IPv6 visitor is keyed by its /64.
+- **Why:** P1.5 made the limit per visitor. That removed the accidental cap on OpenAI spend the shared key gave, so a site-wide ceiling puts it back: a botnet or one IPv6 host rotating addresses gets 60/min per worker, no more. 60 is about six busy visitors at once, far above today's chat use.
+- **Alternatives:** Per-visitor only (unbounded spend under rotation). A shared store such as Redis (multi-worker accuracy; a new service for a marketing chatbot). Caddy's own rate limiting (needs a plugin build).
+- **Consequences:** Under a flood, real visitors are throttled with the attacker until the window clears. Limits multiply by the worker count.
+- **Revisit when:** A 429 reaches a real visitor in the logs, or the rework (P2.1) makes chat central to the site.

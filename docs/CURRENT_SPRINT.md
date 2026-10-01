@@ -15,14 +15,15 @@ and a gate proves it (P1.1).
 - Adoption merged (aidoo-systems/ai.doo#11, 02e7e38) and deployed: CI Gates and Deploy both green. Live check: `/privacy-tea-tower/` 200; `AGENTS.md`, `scripts/gates.sh`, `ruff.toml`, `.gitattributes` and docs.aidoo.biz `/ROADMAP/` all 404.
 - `bash scripts/gates.sh` on local `main` after the rebase: all six PASS.
 - P1.1 done on `item/P1.1-site-gate` (PR open, owner merges): `scripts/check_site.py` is the `site` gate. The live tree is clean: no broken local link or asset, and all six sitemap URLs have matching canonicals.
-- Known defects found at adoption, not yet worked: chat rate limit keyed on the proxy address (P1.5); unpinned mkdocs-material in deploy (P1.4).
+- P1.5 done (PR stacked on #15): chat limit is per visitor behind Caddy, with a 60/min site-wide ceiling (D-009). Still open from adoption: unpinned mkdocs-material in deploy (P1.4).
+- DNS, seen 2026-10-01 (owner's to fix): `aidoo.biz` has a second A record `162.255.119.207` that doesn't answer HTTPS, and `www.aidoo.biz` has an AAAA in Google's range (`2a00:1450:4009:c08::79`). Only `157.180.81.235` serves the site.
 - Owner's work on local `main`, not pushed: the enterprise-roadmap commit (rebased onto the merge) and uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`. `api/chat.py` passes `format` under `ruff.toml`.
 
 ## Execution order
 
 1. ~~P1.1~~ — merged (#14). Add a `site` gate to `scripts/gates.sh`: parse every `*.html` outside `.git/`, `_docs_build/`, `docs/`, `overrides/`; resolve each local `href`/`src` (root-relative against the repo root, relative against the page's directory, `/x/` → `x/index.html`, extensionless → `.html`); check every `sitemap.xml` `<loc>` maps to a file whose canonical matches. Prove it fails on a planted broken link.
-2. **P1.5** — chat rate limit per visitor (machine; high). Next.
-3. **P1.4** — pin mkdocs/mkdocs-material in deploy (machine; routine).
+2. ~~P1.5~~ — done; PR stacked on #15.
+3. **P1.4** — pin mkdocs/mkdocs-material in deploy (machine; routine). Next.
 4. **P2.1** — site rework design doc, carrying P1.2 (claims) and P1.3 (commercial) (owner gate; high). D-008.
 
 ## Acceptance
@@ -31,11 +32,12 @@ and a gate proves it (P1.1).
 
 ## Owner gates — waiting on a human
 
-- None blocking P1.5. P1.1 merged (aidoo-systems/ai.doo#14). (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
+- Merge #15, then the P1.5 PR (stacked on it). Fix the two stray DNS records. None blocking P1.4. P1.1 merged (aidoo-systems/ai.doo#14). (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
 
 ## Work log
 
 ### 2026-10-01
+- P1.5: `ProxyFix(x_for=1)`; per-visitor keys; own adversarial pass found that per-visitor keys removed the de facto cap on OpenAI spend, so added a 60/min site-wide ceiling, IPv6 /64 keying and idle eviction (D-009). Gate cycles: 1. Codex round 1 (high): no findings. Next: P1.4.
 - `/idea`: site rework captured as P2.1 (Phase 2, owner gate, high). P1.2 and P1.3 fold into it (D-008). New order: P1.5, P1.4, P2.1.
 - P1.1: `scripts/check_site.py` + `site` gate + 22 tests. Branched from `origin/main` plus the sprint commit, so the owner's unpushed enterprise-roadmap commit is not in the PR. Served set is read from `deploy.yml`'s rsync excludes, not duplicated. Gate cycles: 2 (cycle 1 failed `format` only). Codex round 1: no findings. Not checked (deliberately): `#fragment` targets, links built in JavaScript, external URLs. Next: owner merges the P1.1 PR; then P1.2 (claims audit, owner gate).
 
