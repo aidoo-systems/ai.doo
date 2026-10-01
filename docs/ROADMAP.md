@@ -48,8 +48,8 @@ Goal: a buyer and an operator can rely on what the site says.
 | ID | Outcome | Status | Gate | Stakes | Acceptance evidence |
 |---|---|---|---|---|---|
 | P1.1 | **Site integrity gate.** A visitor never hits a broken internal link or missing asset: every `href`/`src` to a local path in every HTML page resolves to a file, every `sitemap.xml` URL maps to a page, and every page in the sitemap has a matching `<link rel="canonical">`. Enforced as a new `site` gate in `scripts/gates.sh` | Complete | machine | routine | 2026-10-01, `item/P1.1-site-gate`: `bash scripts/gates.sh site` → `[PASS] site`; with `href="../privacy/"` in `vera/index.html` planted as `../privacy-nope/` → `[FAIL] site` / `vera/index.html: href '../privacy-nope/' -> no served file` / `GATES FAILED: site`, exit 1. `tests/test_check_site.py`: 22 passed (each rule, plus the real tree). Full run: lint, format, tests, build, site, audit, docs all PASS. Codex round 1: no findings |
-| P1.2 | **Claims audit.** Every security, audit, batch, citation, streaming, SSO and installer claim on `/`, `/pika/`, `/vera/` and docs.aidoo.biz is either backed by a shipped, tested feature or qualified/removed. A `claims` check greps a banned/qualified-phrase list the owner approves | Proposed | owner | high | Owner signs off a claim-by-claim table (claim → page → evidence in `.github/ROADMAP.md` or product tests → keep/qualify/remove); `bash scripts/gates.sh claims` passes |
-| P1.3 | **Commercial lite.** A buyer can self-qualify without a call: a published price band, a one-paragraph pilot definition, a demo path, and a feedback address. Needs a design doc (`docs/design/`) first | Proposed | owner | high | Owner approves the copy and numbers on the live page; `site` gate passes with the new anchors and links |
+| P1.2 | **Claims audit.** Every security, audit, batch, citation, streaming, SSO and installer claim on `/`, `/pika/`, `/vera/` and docs.aidoo.biz is either backed by a shipped, tested feature or qualified/removed. A `claims` check greps a banned/qualified-phrase list the owner approves | Proposed (delivered via P2.1, D-008) | owner | high | Owner signs off a claim-by-claim table (claim → page → evidence in `.github/ROADMAP.md` or product tests → keep/qualify/remove); `bash scripts/gates.sh claims` passes |
+| P1.3 | **Commercial lite.** A buyer can self-qualify without a call: a published price band, a one-paragraph pilot definition, a demo path, and a feedback address. Needs a design doc (`docs/design/`) first | Proposed (delivered via P2.1, D-008) | owner | high | Owner approves the copy and numbers on the live page; `site` gate passes with the new anchors and links |
 | P1.4 | Deploy's docs build can't be broken by an upstream major release: `mkdocs`/`mkdocs-material` pinned in `deploy.yml` to the versions `ci.yml` proves | Proposed | machine | routine | `grep` shows the pins in both workflows; CI green |
 | P1.5 | The chat rate limit applies per visitor, not per proxy: trust Caddy's `X-Forwarded-For` (one hop) and key the limiter on the real client IP | Proposed | machine | high | New test: two requests with different forwarded IPs from the same `remote_addr` are limited independently; `bash scripts/gates.sh tests` passes |
 
@@ -58,6 +58,15 @@ Goal: a buyer and an operator can rely on what the site says.
 - A light mode, a framework or build step, a CMS.
 - Anything that makes the chatbot collect details or act as support.
 - Changing the suite products themselves (their repos own that).
+
+## Phase 2 — Found and chosen
+
+Goal: more of the right people find aidoo.biz, and more of them start a
+conversation. Direction is open: P2.1 decides it before anything is built (D-008).
+
+| ID | Outcome | Status | Gate | Stakes | Acceptance evidence |
+|---|---|---|---|---|---|
+| P2.1 | **Site rework: direction and design.** The owner has an approved plan for a reworked aidoo.biz: who it is for and what it should make them do (reopens D-004), page structure, copy direction, visual refresh, and an SEO/content plan (blog, case studies). It also carries P1.2's claim-by-claim table and P1.3's price band, pilot definition and demo path, so they're designed once, into the new site. It says whether D-003 (hand-written HTML) still holds at the planned page count, and sets success measures with a baseline from the site's own Umami analytics. Build items (P2.2+) are written from it | Proposed | owner | high | Owner approves `docs/design/site-rework.md`; D-004 (and D-003 if it changes) updated or superseded in `DECISIONS.md`; P2.2+ rows written with acceptance; Umami baseline (visitors/month, top pages, contact clicks) recorded in the doc |
 
 ## Later, separately gated
 

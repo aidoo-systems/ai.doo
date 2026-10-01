@@ -20,10 +20,10 @@ and a gate proves it (P1.1).
 
 ## Execution order
 
-1. ~~P1.1~~ — done; PR waiting on the owner. Add a `site` gate to `scripts/gates.sh`: parse every `*.html` outside `.git/`, `_docs_build/`, `docs/`, `overrides/`; resolve each local `href`/`src` (root-relative against the repo root, relative against the page's directory, `/x/` → `x/index.html`, extensionless → `.html`); check every `sitemap.xml` `<loc>` maps to a file whose canonical matches. Prove it fails on a planted broken link.
-2. P1.2 — claims audit (owner gate; high).
-3. P1.3 — commercial lite (design doc first; owner gate; high).
-4. P1.4, P1.5 — slot in when convenient.
+1. ~~P1.1~~ — merged (#14). Add a `site` gate to `scripts/gates.sh`: parse every `*.html` outside `.git/`, `_docs_build/`, `docs/`, `overrides/`; resolve each local `href`/`src` (root-relative against the repo root, relative against the page's directory, `/x/` → `x/index.html`, extensionless → `.html`); check every `sitemap.xml` `<loc>` maps to a file whose canonical matches. Prove it fails on a planted broken link.
+2. **P1.5** — chat rate limit per visitor (machine; high). Next.
+3. **P1.4** — pin mkdocs/mkdocs-material in deploy (machine; routine).
+4. **P2.1** — site rework design doc, carrying P1.2 (claims) and P1.3 (commercial) (owner gate; high). D-008.
 
 ## Acceptance
 
@@ -31,11 +31,12 @@ and a gate proves it (P1.1).
 
 ## Owner gates — waiting on a human
 
-- Merge the P1.1 PR. (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
+- None blocking P1.5. P1.1 merged (aidoo-systems/ai.doo#14). (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
 
 ## Work log
 
 ### 2026-10-01
+- `/idea`: site rework captured as P2.1 (Phase 2, owner gate, high). P1.2 and P1.3 fold into it (D-008). New order: P1.5, P1.4, P2.1.
 - P1.1: `scripts/check_site.py` + `site` gate + 22 tests. Branched from `origin/main` plus the sprint commit, so the owner's unpushed enterprise-roadmap commit is not in the PR. Served set is read from `deploy.yml`'s rsync excludes, not duplicated. Gate cycles: 2 (cycle 1 failed `format` only). Codex round 1: no findings. Not checked (deliberately): `#fragment` targets, links built in JavaScript, external URLs. Next: owner merges the P1.1 PR; then P1.2 (claims audit, owner gate).
 
 ### 2026-09-30
