@@ -69,3 +69,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Decision:** Setup built in `C:/dev/worktrees/ai.doo-adopt` on `studio/adopt` off `origin/main`, landing as its own PR.
 - **Why:** The owner had uncommitted edits to `.github/ROADMAP.md` and two docs pages on `main`, plus one unpushed commit.
 - **Consequences:** Only one pre-existing file changed in content: `tests/test_chat.py`, reformatted by ruff so the `format` gate is green. The unpushed commit's `api/chat.py` also fails `ruff format`; it will go red on the first gate run after it merges.
+
+## D-008 — Site rework next; claims and commercial fold into it
+
+- **Status:** Accepted
+- **Date:** 2026-10-01
+- **Decision:** After P1.5 and P1.4, the next work is P2.1, a design doc for a full site rework (direction, structure, copy, visual, SEO/content). P1.2 (claims audit) and P1.3 (commercial lite) are delivered through that design rather than as separate edits to today's pages. Supersedes D-005's order for P1.2 and P1.3.
+- **Why:** The owner wants the site to do more for marketing. A rework rewrites the copy, so auditing and extending the current copy first would mean doing it twice. P1.5 (shared chat rate limit) and P1.4 (unpinned docs build) come first because more traffic makes P1.5 worse, and P1.4 can break deploy mid-rework. Claude recommended; the owner agreed.
+- **Alternatives:** D-005 as written (claims, then commercial, then rework): accurate copy sooner, but the work is redone in the rework.
+- **Consequences:** Today's pages keep their current claims until the rework ships; the enterprise roadmap's stop-ship item on unsupported claims stays open that long. P2.1 may reopen D-003 and D-004.
+- **Revisit when:** A pilot conversation needs accurate claims or a price band before the rework ships: then do P1.2/P1.3 on the current pages.
