@@ -1,37 +1,43 @@
 # Current Sprint
 
 Last updated: 2026-10-01
-Sprint: 1 — Trustworthy for buyers and operators (machine items done); next: P2.1 direction
+Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner
 
 ## Goal
 
-Decide the site's direction before redesigning it: is ai.doo pivoting towards a
-studio plus app-building services, or not? (P2.1, reopens D-004.)
+Find out with real numbers, before any redesign, whether ai.doo's own games and
+apps or fixed-price promo/event web games for Isle of Man businesses can earn.
+Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Current truth
 
 - Phase 1 machine items all merged and deployed: P1.1 site gate (#14), P1.5 chat limit per visitor + 60/min ceiling (#16, D-009), P1.4 docs build pinned (#17). Gates: lint, format, tests, build, site, audit, docs.
 - P2.1 captured (#15, D-008): site rework design, carrying P1.2 (claims) and P1.3 (commercial).
-- **Owner is considering a pivot** (2026-10-01): no corporate leads; two Labs games at 100+ downloads; idea "we create and host apps for you, concept to store". Claude's critical feedback, the recommended 8-week experiment and the open questions are banked in [the pivot brief](design/2026-10-01-pivot-brief.md).
+- **Pivot stress-tested** (2026-10-01): no pivot yet; Phase 0 experiment running (D-010). Background: no corporate leads; two Labs games at 100+ downloads; idea "we create and host apps for you, concept to store". Claude's critical feedback, the recommended 8-week experiment and the open questions are banked in [the pivot brief](design/2026-10-01-pivot-brief.md).
 - DNS, seen 2026-10-01 (owner's to fix): `aidoo.biz` has a second A record `162.255.119.207` that doesn't answer HTTPS, and `www.aidoo.biz` has an AAAA in Google's range (`2a00:1450:4009:c08::79`). Only `157.180.81.235` serves the site.
 - Owner's local `main`: rebased onto `origin/main` 2026-10-01; the enterprise-roadmap commit (`200b844`) is unpushed, with uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`.
 
 ## Execution order
 
-1. **Next action:** in a new chat, *"pick up the pivot brief"*. Run `/idea --test` on "pivot ai.doo to a studio plus app-building services": the inception A3 stress test, starting from the brief's open questions. Capture the cheapest falsifying experiment.
-2. P2.1 — site rework design doc in `docs/design/`, its direction set by step 1. Supersede or reaffirm D-004 (and D-003 if the page count grows).
-3. P1.2 / P1.3 — delivered inside P2.1 (D-008).
+1. **Next action:** owner sets the offer's price and names the 2 games to test; then Claude drafts the unlisted offer page (promo/event web games, fixed price) for the owner's approval. Excluded from `sitemap.xml` and marked `noindex`.
+2. Studio bet: retention analytics in the 2 games plus Pomodorable, as `/next` items in each game's own repo. Then the owner starts the Google App Campaigns.
+3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
+4. 2026-11-26: read the results against the bars; supersede or reaffirm D-004; then P2.1 (with P1.2 / P1.3 inside it, D-008).
+
+Held until then: new titles, the site redesign, and suite roadmap work (security fixes only).
 
 ## Owner gates — waiting on a human
 
-- Answer the pivot brief's open questions (next chat).
+- Offer price and copy; which 2 games to test.
+- Authorise about £300 of Google App Campaigns spend, and run the outreach (2–3 hours a week).
 - Fix the two stray DNS records.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
 
 ### 2026-10-01
+- Pivot brief picked up: owner answered the open questions; A3 stress test (business analyst, app-economics expert, project manager); owner said go on Phase 0 with the suite frozen and services reshaped to promo/event web games. Recorded as D-010 and P2.0. Next: offer price and the 2 test games.
 - #17 merged. Owner raised a possible pivot (studio + app-building services); Claude gave critical feedback; banked in `docs/design/2026-10-01-pivot-brief.md` for a new chat. Next: `/idea --test` on the pivot.
 - #15 and #16 merged; both Gates runs green. P1.4: docs build pinned in one file both workflows install; test-first. Gate cycles: 2 (format). Codex round 1: no findings. Next: P2.1 (site rework design: interview the owner on direction first).
 - P1.5: `ProxyFix(x_for=1)`; per-visitor keys; own adversarial pass found that per-visitor keys removed the de facto cap on OpenAI spend, so added a 60/min site-wide ceiling, IPv6 /64 keying and idle eviction (D-009). Gate cycles: 1. Codex round 1 (high): no findings. Next: P1.4.

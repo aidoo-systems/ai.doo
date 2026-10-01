@@ -62,11 +62,13 @@ Goal: a buyer and an operator can rely on what the site says.
 ## Phase 2 — Found and chosen
 
 Goal: more of the right people find aidoo.biz, and more of them start a
-conversation. Direction is open: P2.1 decides it before anything is built (D-008).
+conversation. Direction is open: P2.0 tests it with real numbers, then P2.1
+designs from the result before anything is built (D-008, D-010).
 
 | ID | Outcome | Status | Gate | Stakes | Acceptance evidence |
 |---|---|---|---|---|---|
-| P2.1 | **Site rework: direction and design.** The owner has an approved plan for a reworked aidoo.biz: who it is for and what it should make them do (reopens D-004), page structure, copy direction, visual refresh, and an SEO/content plan (blog, case studies). It also carries P1.2's claim-by-claim table and P1.3's price band, pilot definition and demo path, so they're designed once, into the new site. It says whether D-003 (hand-written HTML) still holds at the planned page count, and sets success measures with a baseline from the site's own Umami analytics. Build items (P2.2+) are written from it | Proposed | owner | high | Owner approves `docs/design/site-rework.md`; D-004 (and D-003 if it changes) updated or superseded in `DECISIONS.md`; P2.2+ rows written with acceptance; Umami baseline (visitors/month, top pages, contact clicks) recorded in the doc |
+| P2.0 | **Pivot experiment (D-010).** Eight weeks to 2026-11-26, about £300: (a) studio: retention analytics in the best 2 games plus Pomodorable, 500–1,000 paid installs each; (b) services: one unlisted fixed-price offer page for promo/event web games, taken directly to 40–60 Isle of Man businesses and event organisers. No new titles, no redesign, suite on security fixes only meanwhile. Plan and bars in `docs/design/2026-10-01-pivot-brief.md` | In progress | owner | high | Results table in the brief: per-title D1/D7, installs and spend; contacts, conversations, deposits, and the "we already use X" list; then pass/kill read against the bars and D-004 superseded or reaffirmed |
+| P2.1 | **Site rework: direction and design.** The owner has an approved plan for a reworked aidoo.biz: who it is for and what it should make them do (reopens D-004), page structure, copy direction, visual refresh, and an SEO/content plan (blog, case studies). It also carries P1.2's claim-by-claim table and P1.3's price band, pilot definition and demo path, so they're designed once, into the new site. It says whether D-003 (hand-written HTML) still holds at the planned page count, and sets success measures with a baseline from the site's own Umami analytics. Build items (P2.2+) are written from it | Proposed | owner | high | Owner approves `docs/design/site-rework.md`; D-004 (and D-003 if it changes) updated or superseded in `DECISIONS.md`; P2.2+ rows written with acceptance; Umami baseline (visitors/month, top pages, contact clicks) recorded in the doc. Waits for P2.0's result (D-010) |
 
 ## Later, separately gated
 
