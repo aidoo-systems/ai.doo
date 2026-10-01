@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - **Tea Tower privacy policy** at `/privacy-tea-tower/`, listing exactly what the optional leaderboard at ttsb.aidoo.biz receives (random player ID, name, score, cups, version, time), how to switch posting off, and how to have an entry removed
+- **Tea Tower on ai.doo Labs**: the in-development one-tap teacup stacker now appears in the games catalogue and footer, linked to its privacy policy; the Games intro now says Godot and Unity
 - **Thunee privacy policy** at `/privacy-thunee/`, documenting its fully local save data, zero network access, and absence of ads, analytics, accounts, and tracking
 - **Thunee on ai.doo Labs** — the in-development South African partnership card game now appears in the games catalogue
 - **Labs sitemap entry** — `/labs/` and the previously omitted VERA changelog are now included in `sitemap.xml`, with accurate `lastmod` dates across the public pages
@@ -20,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Tea Tower privacy policy uses the site palette**: it had shipped with a one-off brown and amber theme; it now matches every other privacy page
 - **Orbital Panic marked live** — its Labs card now links directly to the live Google Play and App Store listings
 - **Labs games introduction** broadened from portrait arcade survival to cover both the Panic series and Thunee's procedural card-table play
 - **Privacy policy** — rewritten sections 1 and 2 to honestly disclose Umami as our (self-hosted, cookieless, no-PII) analytics provider; removes the previous blanket "no analytics" claims that would be contradicted by the new integration. `lastUpdated` bumped to 7 April 2026
