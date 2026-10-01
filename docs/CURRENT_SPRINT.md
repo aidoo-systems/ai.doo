@@ -27,7 +27,7 @@ studio plus app-building services, or not? (P2.1, reopens D-004.)
 
 - Answer the pivot brief's open questions (next chat).
 - Fix the two stray DNS records.
-- `takeown` + delete `C:\dev\worktreesi.doo-P1.1` (two folders locked by Codex's sandbox).
+- `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
 
