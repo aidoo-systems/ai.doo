@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Chat rate limit is per visitor.** Behind the proxy every visitor shared one limit of about 10 messages a minute; now each visitor gets their own, with a site-wide ceiling to cap API spend
+
 - **Tea Tower privacy policy uses the site palette**: it had shipped with a one-off brown and amber theme; it now matches every other privacy page
 - **Orbital Panic marked live** — its Labs card now links directly to the live Google Play and App Store listings
 - **Labs games introduction** broadened from portrait arcade survival to cover both the Panic series and Thunee's procedural card-table play
