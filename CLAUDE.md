@@ -28,7 +28,7 @@ Needs `python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdo
 ## Traps
 
 - **`docs/` is two things.** It's the MkDocs source for docs.aidoo.biz *and* the studio's docs. Studio files are kept off the public site by `exclude_docs` in `mkdocs.yml`. A new internal file under `docs/` must be added there too, or it goes live.
-- **The deploy rsync is an exclude list.** Every new non-web file or folder at the repo root (like `AGENTS.md` and `scripts/`) must be added to the `--exclude` list in `deploy.yml`, or it's served publicly at aidoo.biz.
+- **The deploy rsync is an exclude list.** Every new non-web file or folder at the repo root (like `AGENTS.md` and `scripts/`) must be added to the `--exclude` list in `deploy.yml`, or it's served publicly at aidoo.biz. Excluding it later doesn't take it down: `rsync --delete` never removes an excluded path from the server, so remove it there by hand. The deploy's `check-served` job fails (without holding up the docs or API deploys) if a known internal path is served (`.git`, `CLAUDE.md`, `internal/`, 2026-10-01).
 - **`CHANGELOG.md` means two things.** Locally it's the site's changelog. In deploy, it's overwritten with PIKA's changelog before `build-changelog.py` runs. Running `python build-changelog.py` locally with no `--changelog` renders the *site's* changelog into `pika/changelog.html`. Don't commit that.
 - **`build-changelog.py` rewrites `pika/changelog.html` in place.** The `build` gate deliberately doesn't run it; the `tests` gate covers the renderer.
 - **The chat rate limit isn't per visitor.** It keys on `request.remote_addr`, which behind Caddy is loopback, so all visitors share about 10 requests/min per gunicorn worker (P1.5).

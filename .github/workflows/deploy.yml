@@ -49,6 +49,7 @@
               --exclude='ruff.toml' \
               --exclude='.gitattributes' \
               --exclude='tests/' \
+              --exclude='internal/' \
               --exclude='logo_designs.png' \
               --exclude='build-changelog.py' \
               --exclude='CHANGELOG.md' \
@@ -92,3 +93,19 @@
           run: |
             ssh -i ~/.ssh/deploy_key ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
               "/opt/aidoo-api/venv/bin/pip install -q -r /opt/aidoo-api/requirements.txt && sudo systemctl restart aidoo-api"
+
+    # rsync --delete never removes an excluded path from the server, so a file served before it was
+    # excluded stays served. Its own job, so a failure here never holds up the docs or API deploys.
+    check-served:
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - name: Check nothing internal is served
+          run: |
+            fail=0
+            for path in .git/HEAD .git/config CLAUDE.md AGENTS.md internal/email-templates/welcome.md scripts/gates.sh docs/CURRENT_SPRINT.md; do
+              code=$(curl -s -o /dev/null -w "%{http_code}" "https://aidoo.biz/$path")
+              echo "$path $code"
+              if [ "$code" = "200" ]; then fail=1; fi
+            done
+            if [ "$fail" = "1" ]; then echo "::error::internal files are publicly served at aidoo.biz"; exit 1; fi
