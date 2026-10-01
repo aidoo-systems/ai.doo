@@ -18,9 +18,10 @@ It is a studio project (adopted 2026-09-30).
 ## Gates
 
 ```bash
-bash scripts/gates.sh              # all: lint, format, tests, build, audit, docs (~70s)
+bash scripts/gates.sh              # all: lint, format, tests, build, site, audit, docs (~70s)
 SKIP_SLOW=1 bash scripts/gates.sh  # skip audit for the inner loop; never to land
 bash scripts/gates.sh tests        # one gate
+bash scripts/gates.sh site         # broken links, missing assets, sitemap/canonical mismatches
 ```
 
 Needs `python -m pip install -r api/requirements.txt pytest ruff pip-audit "mkdocs<2" mkdocs-material`. CI runs the same script (`.github/workflows/ci.yml`).

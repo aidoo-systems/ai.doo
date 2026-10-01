@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-01
 Sprint: 1 — Trustworthy for buyers and operators
-State: ready
+State: ready-for-owner
 
 ## Goal
 
@@ -11,15 +11,16 @@ and a gate proves it (P1.1).
 
 ## Current truth
 
-- Adopted into the studio 2026-09-30 (P0.1). Gates: lint, format, tests, build, audit, docs.
-- `bash scripts/gates.sh` on `studio/adopt`: all six PASS (34 tests; `mkdocs build --strict` clean; pip-audit clean).
-- Static HTML has no automated check: links, assets and the sitemap are unverified.
+- Adopted into the studio 2026-09-30 (P0.1). Gates: lint, format, tests, build, audit, docs; `site` added by P1.1.
+- Adoption merged (aidoo-systems/ai.doo#11, 02e7e38) and deployed: CI Gates and Deploy both green. Live check: `/privacy-tea-tower/` 200; `AGENTS.md`, `scripts/gates.sh`, `ruff.toml`, `.gitattributes` and docs.aidoo.biz `/ROADMAP/` all 404.
+- `bash scripts/gates.sh` on local `main` after the rebase: all six PASS.
+- P1.1 done on `item/P1.1-site-gate` (PR open, owner merges): `scripts/check_site.py` is the `site` gate. The live tree is clean: no broken local link or asset, and all six sitemap URLs have matching canonicals.
 - Known defects found at adoption, not yet worked: chat rate limit keyed on the proxy address (P1.5); unpinned mkdocs-material in deploy (P1.4).
-- Owner's in-flight edits on `main` (not in this branch): `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`, and unpushed commit 591c281, whose `api/chat.py` fails `ruff format`.
+- Owner's work on local `main`, not pushed: the enterprise-roadmap commit (rebased onto the merge) and uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`. `api/chat.py` passes `format` under `ruff.toml`.
 
 ## Execution order
 
-1. **P1.1** — add a `site` gate to `scripts/gates.sh`: parse every `*.html` outside `.git/`, `_docs_build/`, `docs/`, `overrides/`; resolve each local `href`/`src` (root-relative against the repo root, relative against the page's directory, `/x/` → `x/index.html`, extensionless → `.html`); check every `sitemap.xml` `<loc>` maps to a file whose canonical matches. Prove it fails on a planted broken link.
+1. ~~P1.1~~ — done; PR waiting on the owner. Add a `site` gate to `scripts/gates.sh`: parse every `*.html` outside `.git/`, `_docs_build/`, `docs/`, `overrides/`; resolve each local `href`/`src` (root-relative against the repo root, relative against the page's directory, `/x/` → `x/index.html`, extensionless → `.html`); check every `sitemap.xml` `<loc>` maps to a file whose canonical matches. Prove it fails on a planted broken link.
 2. P1.2 — claims audit (owner gate; high).
 3. P1.3 — commercial lite (design doc first; owner gate; high).
 4. P1.4, P1.5 — slot in when convenient.
@@ -30,10 +31,12 @@ and a gate proves it (P1.1).
 
 ## Owner gates — waiting on a human
 
-- Merge the adoption PR, then bring `main` into the primary checkout so the wiki can publish.
-- Rebase or reformat unpushed commit 591c281 (`python -m ruff format api/chat.py`) before pushing.
+- Merge the P1.1 PR. (Pushing `main` ships the enterprise-roadmap commit; that's the owner's call.)
 
 ## Work log
+
+### 2026-10-01
+- P1.1: `scripts/check_site.py` + `site` gate + 22 tests. Branched from `origin/main` plus the sprint commit, so the owner's unpushed enterprise-roadmap commit is not in the PR. Served set is read from `deploy.yml`'s rsync excludes, not duplicated. Gate cycles: 2 (cycle 1 failed `format` only). Codex round 1: no findings. Not checked (deliberately): `#fragment` targets, links built in JavaScript, external URLs. Next: owner merges the P1.1 PR; then P1.2 (claims audit, owner gate).
 
 ### 2026-09-30
 - Adopted: short interview; gate runner, CI, studio docs, settings written; `exclude_docs` added to `mkdocs.yml`; `AGENTS.md` and `scripts/` excluded from the deploy rsync; `.gitignore` narrowed so `.claude/settings.json` is committed. `tests/test_chat.py` reformatted by ruff. Gates green. Next: P1.1.
