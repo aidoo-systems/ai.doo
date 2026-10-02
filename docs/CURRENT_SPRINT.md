@@ -20,8 +20,8 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** owner sets the offer's price and names the 2 games to test; then Claude drafts the unlisted offer page (promo/event web games, fixed price) for the owner's approval. Excluded from `sitemap.xml` and marked `noindex`.
-2. Studio bet: retention analytics in the 2 games plus Pomodorable, as `/next` items in each game's own repo. Then the owner starts the Google App Campaigns.
+1. **Next action:** owner reviews and merges the offer page PR (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example), then starts outreach from [the prospect list](design/2026-10-02-promo-prospects.md).
+2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then the owner starts Google App Campaigns.
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. 2026-11-26: read the results against the bars; supersede or reaffirm D-004; then P2.1 (with P1.2 / P1.3 inside it, D-008).
 
@@ -29,12 +29,17 @@ Held until then: new titles, the site redesign, and suite roadmap work (security
 
 ## Owner gates — waiting on a human
 
-- Offer price and copy; which 2 games to test.
+- Approve the offer page copy (price set 2026-10-02: from £750, £300 deposit; test games: Reactor Panic, Submarine Panic, plus Pomodorable).
+- Firebase: add Android (and iOS) apps for the three games in the existing Firebase account; download `google-services.json` / `GoogleService-Info.plist` into each repo.
+- Set up the Google Ads account.
 - Authorise about £300 of Google App Campaigns spend, and run the outreach (2–3 hours a week).
 - Fix the two stray DNS records.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
+
+### 2026-10-02
+- Owner set the offer (from £750, £300 deposit, Tea Tower as the example, replies by email) and picked Reactor Panic and Submarine Panic plus Pomodorable for the studio bet. Analytics rows added to the three roadmaps; unlisted offer page and starter prospect list (41 organisations) drafted. Next: owner approves the page and starts outreach.
 
 ### 2026-10-01
 - Pivot brief picked up: owner answered the open questions; A3 stress test (business analyst, app-economics expert, project manager); owner said go on Phase 0 with the suite frozen and services reshaped to promo/event web games. Recorded as D-010 and P2.0. Next: offer price and the 2 test games.
