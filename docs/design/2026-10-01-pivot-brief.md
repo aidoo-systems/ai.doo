@@ -1,8 +1,8 @@
 # Pivot brief: ai.doo as a studio + app-building service?
 
-Status: **open — banked 2026-10-01, to be picked up in a new chat**
+Status: **decided 2026-10-01: no pivot yet; Phase 0 experiment running to 2026-11-26 (D-010, P2.0)**
 Feeds: P2.1 (site rework design). Reopens D-004 (promise and audience).
-Next step: `/idea --test` on the pivot (inception A3 stress test), then the P2.1 design doc.
+Next step: run Phase 0 (below); read the results against the bars on 2026-11-26, then P2.1.
 
 ## What the owner said (2026-10-01, paraphrased)
 
@@ -45,5 +45,48 @@ Next step: `/idea --test` on the pivot (inception A3 stress test), then the P2.1
 
 ## How to pick this up
 
-In a new chat in `C:\dev\repos\ai.doo`, say *"pick up the pivot brief"*. That means:
-`/idea --test` on "pivot ai.doo to a studio plus app-building services". Run the inception skill's **A3 stress test** with the questions above, and capture the cheapest falsifying experiment. Its outcome then sets the direction for the P2.1 design doc (`docs/design/`), and D-004 gets superseded or reaffirmed in `DECISIONS.md`.
+*Done 2026-10-01.* This section was the hand-off; the stress test and its outcome follow.
+
+## Owner's answers (2026-10-01, second chat)
+
+| Question | Answer |
+|---|---|
+| Earn what, by when? | Side income (a few hundred to ~£1k/month) within 12 months |
+| Selling hours a week | About 0–1. After pushback: 2–3 for a time-boxed 8 weeks |
+| Which business? | Both, studio leads; services are a side door |
+| PIKA, VERA, Hub? | First "keep developing, under 20%"; after the panel, frozen to security fixes for the 8 weeks |
+| First prospects | Isle of Man local businesses |
+| Real numbers | Revenue £0. Retention and site traffic not known; Phase 0 measures them |
+
+## Stress test (inception A3)
+
+Panel: business analyst (services demand), app-economics domain expert (studio), IT project manager (capacity). Each was asked for the strongest case against.
+
+- **All three: building was never the bottleneck; distribution was.** Nine products, £0 and zero enterprise leads say the same thing. A plan of more building, a redesign and 0–1 hours of selling is the shape that fails.
+- **Studio.** £500/month from ad-funded arcade games needs roughly 500–2,000 daily players, so about 150–400 new installs a day at typical arcade retention (D1 25–35%, D7 5–8%). Today: ~100 per game, lifetime. A 50–100x gap, which more titles don't close, because the stores don't surface unknown games without paid installs. No title has a measured D1 yet. The expert's view (opinion, not evidence): Pomodorable, a utility with search demand, may earn sooner than any arcade game. Figures quoted from memory, ±2x.
+- **Services.** Local businesses buy outcomes (bookings, footfall, repeat custom) that cheap tools already deliver. Apple guidelines 4.2 and 4.2.6 reject thin business apps. Hosting is an open-ended on-call commitment at a few hundred pounds. A better shape fits the real strength: short-lived web games and microsites for TT and other events, and branded promo games (a QR code at the till). Fixed price, no store review, a 3-month life.
+- **Capacity.** The plan added a business without stopping one. "Suite under 20%" can't be checked. Don't host by default; don't redesign before the evidence, or the redesign becomes the displacement activity.
+- **Fault lines.** Services bar: 20 contacts and 2 calls (project manager) or 60 contacts and 1 deposit (analyst). Taken: the deposit, because a conversation costs the prospect nothing. Suite: the owner's "keep developing" against the project manager's freeze. The owner chose the freeze.
+
+## Phase 0: the experiment (2026-10-01 to 2026-11-26)
+
+| Bet | Do | Pass | Kill |
+|---|---|---|---|
+| Studio | Firebase or GameAnalytics in the best 2 games plus Pomodorable (D1, D7, session length, ad revenue per daily user, store listing conversion). 500–1,000 installs each through Google App Campaigns, mostly cheap countries plus a small UK/US slice. About £300 in all | Any title: D1 ≥ 35% and D7 ≥ 10% (UK/US cost per install ≤ $0.50 is a bonus signal) | Every title under D1 25% or D7 5% |
+| Services | One unlisted offer page: fixed-price promo and event web games. 40–60 named Isle of Man businesses and event organisers, contacted directly. 2–3 hours a week | At least 1 deposit of £300 or more | 0 deposits, or every need heard is met by an existing tool |
+| Hold | No new titles. No site redesign (P2.1 waits). Suite on security fixes only | n/a | n/a |
+
+Between pass and kill on a studio title: iterate once on onboarding and the first 60 seconds of play, then retest.
+
+**What kills the pivot:** both bets fail. Then the site says honestly that ai.doo is a small studio, rather than being redesigned. If one passes, it leads P2.1, and D-004 is superseded from the data.
+
+**Keep the "we already use X" list.** Every need a prospect names that an existing tool already meets is part of the finding.
+
+## Results (fill in by 2026-11-26)
+
+| Measure | Value |
+|---|---|
+| Per title: installs bought, spend, D1, D7, session length | |
+| Contacts made / conversations / deposits | |
+| "We already use X" list | |
+| Verdict against the bars | |
