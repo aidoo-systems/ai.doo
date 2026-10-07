@@ -30,20 +30,25 @@ not leading.
   still holds).
 - Prices appear only where they're settled (promo games: from £750).
 
-## Look: crafted and calm
+## Look: colour per game on the original dark chrome (D-012)
 
-> **Superseded by D-012 (2026-10-07):** colour per game on the original dark chrome. This section is rewritten with the restyle.
-
-The frame stays quiet so the game art can be loud.
+The chrome stays the original site's, dark and slick. The colour comes from
+the games: each one owns a colour, and its card carries it.
 
 | Element | Decision |
 |---|---|
-| Palette | Keep the site tokens in `style.css`: `--bg0 #0b1020`, `--bg1 #111a33`, `--ink #eaf0ff`, `--accent #2a8bc9`, `--accent2 #4db8ff`. Colour comes from the game art, not the chrome |
+| Chrome | Kept from the original site: the sticky top bar, the navy gradient with the faint dotted texture and blue glow behind the hero, the outlined pill above the headline, blue gradient text on one phrase ("made with care."), the blue primary button with glow and hover lift, the outlined secondary button, and a dotted chip row (studio facts: Android, iOS, the web, Isle of Man) |
+| Palette | Site tokens in `style.css`: `--bg0 #0b1020`, `--bg1 #111a33`, `--ink #eaf0ff`, `--accent #2a8bc9`, `--accent2 #4db8ff`. The chrome's only colour is blue; every other colour belongs to a game |
+| Game colours | Bright-art games are solid cards: Thunee `#17533f`, Reactor Panic `#d9a03b`, Tea Tower `#6a4a3f`, Pomodorable `#ffd7b5`, Reality Check `#f3e7da`, SPICE `#e8562a`, Pipes 98 `#008080`. Dark-art games are dark cards that glow in their colour (edge, title, hover): Submarine Panic `#f5b544`, Orbital Panic `#4be08a`. Set per game as `.w-<name>` in `index.html` |
+| New games | Need a feature graphic, a chosen colour, and a glow colour if the art is dark, before they get a card |
+| Promo band | The page's one bright gradient, amber `#f5b544` to orange `#e8562a`, with dark text and the price as its big number |
+| Type | Inter (self-hosted). Hero headline 900 weight, up to 104px, tight tracking; section headings 900; card titles 900 at 28px |
+| Shape | Big rounded cards (28px radius, art inset with 16px corners); hover lifts and tilts slightly and glows in the game's colour; no motion under `prefers-reduced-motion` |
 | Labs palette | Purple `#a78bfa` and cyan `#22d3ee` retire from the main site. `/labs/` and `/promo-games/` keep them until P2.1b reworks those pages |
-| Type | Inter (self-hosted), headings 700 with negative tracking, as now |
-| Mark | Keep the head-and-brain mark and the `ai·doo` wordmark. The Labs stars-and-dots variant retires. A redraw for the new palette is optional; the current mark already fits it |
-| Imagery | Store feature graphics (1024×500) are the main tiles, served as WebP from `images/work/`. Every new game needs one before it gets a tile |
-| Light mode | None (product brief non-goal) |
+| Mark | Keep the head-and-brain mark and the `ai·doo` wordmark. The Labs stars-and-dots variant retires |
+| Light mode | None (D-004's non-goal holds) |
+
+If the blue hero glow ever mutes the cards, tone the glow down, not the cards.
 
 ## References (owner's picks)
 
@@ -56,7 +61,7 @@ the brief is "crafted and calm".
 ## Homepage structure (built in P2.1a)
 
 1. Hero: place pill, positioning line, supporting line, two CTAs (games;
-   promo), Orbital Panic art.
+   promo), chip row of studio facts. No hero image: the type carries it.
 2. Games: Submarine Panic, Thunee, Orbital Panic, Reactor Panic, plus Tea Tower
    marked "In development".
 3. Apps & web toys: Pomodorable, Reality Check, SPICE, Pipes 98.

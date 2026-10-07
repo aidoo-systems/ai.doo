@@ -41,6 +41,7 @@ body{
     linear-gradient(180deg, var(--bg0), var(--bg1));
   line-height:1.6;
   min-height:100vh;
+  overflow-x:clip; /* the hero glow drifts past the screen edge; never scroll sideways for it */
 }
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--max);margin:0 auto;padding:24px}
