@@ -37,7 +37,7 @@ the games: each one owns a colour, and its card carries it.
 
 | Element | Decision |
 |---|---|
-| Chrome | Kept from the original site: the sticky top bar, the navy gradient with the faint dotted texture and blue glow behind the hero, the outlined pill above the headline, blue gradient text on one phrase ("made with care."), the blue primary button with glow and hover lift, the outlined secondary button, and a dotted chip row (studio facts: Android, iOS, the web, Isle of Man) |
+| Chrome | Kept from the original site: the sticky top bar, the navy gradient with the faint dotted texture and blue glow behind the hero, the outlined pill above the headline, blue gradient text on one phrase ("made with care."), the blue primary button with glow and hover lift, the outlined secondary button, and a dotted chip row (Android, iOS, the web, from concept to launch) |
 | Palette | Site tokens in `style.css`: `--bg0 #0b1020`, `--bg1 #111a33`, `--ink #eaf0ff`, `--accent #2a8bc9`, `--accent2 #4db8ff`. The chrome's only colour is blue; every other colour belongs to a game |
 | Game colours | Bright-art games are solid cards: Thunee `#17533f`, Reactor Panic `#d9a03b`, Tea Tower `#6a4a3f`, Pomodorable `#ffd7b5`, Reality Check `#f3e7da`, SPICE `#e8562a`, Pipes 98 `#008080`. Dark-art games are dark cards that glow in their colour (edge, title, hover): Submarine Panic `#f5b544`, Orbital Panic `#4be08a`. Set per game as `.w-<name>` in `index.html` |
 | New games | Need a feature graphic, a chosen colour, and a glow colour if the art is dark, before they get a card |
@@ -60,14 +60,20 @@ the brief is "crafted and calm".
 
 ## Homepage structure (built in P2.1a)
 
-1. Hero: place pill, positioning line, supporting line, two CTAs (games;
-   promo), chip row of studio facts. No hero image: the type carries it.
+1. Hero: studio pill ("An independent games and apps studio"), positioning
+   line, supporting line, two CTAs (games; promo), chip row. No hero image:
+   the type carries it. The Isle of Man stays in the footer and the meta
+   description (local search for the promo outreach), not in the hero.
 2. Games: Submarine Panic, Thunee, Orbital Panic, Reactor Panic, plus Tea Tower
    marked "In development".
 3. Apps & web toys: Pomodorable, Reality Check, SPICE, Pipes 98.
 4. For businesses and events: the promo offer, linked to `/promo-games/`
    (owner's choice, 2026-10-07). This adds a second way in, alongside direct
    outreach, so P2.0's results should note where each enquiry came from.
+   Followed by "How a promo game gets made": six numbered tiles (concept
+   chat, the idea, build, you play it first, launch, three months live),
+   the original site's steps in the new look. It ends on the web, as the
+   offer does: client store apps aren't offered (D-010).
 5. One line for PIKA and VERA, with documentation.
 6. Contact band and footer.
 
