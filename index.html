@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ai.doo — Private AI products & bespoke solutions</title>
-  <meta name="description" content="ai.doo builds private, self-hosted AI products, and extends them into bespoke solutions for real environments." />
+  <title>ai.doo — Small games and apps, made with care</title>
+  <meta name="description" content="ai.doo is a small studio on the Isle of Man. We make mobile games, useful little apps and web toys, and branded mini-games for businesses and events." />
   <link rel="canonical" href="https://aidoo.biz/">
   <meta name="author" content="ai.doo">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="ai.doo — Private AI products & bespoke solutions">
-  <meta property="og:description" content="ai.doo builds private, self-hosted AI products, and extends them into bespoke solutions for real environments.">
+  <meta property="og:title" content="ai.doo — Small games and apps, made with care">
+  <meta property="og:description" content="ai.doo is a small studio on the Isle of Man. We make mobile games, useful little apps and web toys, and branded mini-games for businesses and events.">
   <meta property="og:url" content="https://aidoo.biz/">
   <meta property="og:site_name" content="ai.doo">
   <meta property="og:image" content="https://aidoo.biz/og-image.png">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ai.doo — Private AI products & bespoke solutions">
-  <meta name="twitter:description" content="Self-hosted AI tools, extended into bespoke private solutions.">
+  <meta name="twitter:title" content="ai.doo — Small games and apps, made with care">
+  <meta name="twitter:description" content="A small studio on the Isle of Man making games and apps.">
   <meta name="twitter:image" content="https://aidoo.biz/og-image.png">
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
@@ -129,6 +129,83 @@
     @media (max-width:920px){
       .chatPanel{bottom:72px}
     }
+
+    /* Studio homepage (D-012): colour per game on the original dark chrome */
+    .studioHero{padding-bottom:40px}
+    .studioHero h1{font-size:clamp(46px,7.4vw,104px);line-height:.98;letter-spacing:-3px;font-weight:900;max-width:12ch}
+    .studioHero .sub{font-size:clamp(17px,1.5vw,20px)}
+    .studioHero .chips{margin-top:28px}
+    .studioHero .chip .dot{box-shadow:0 0 10px currentColor}
+    #games .h2,#apps .h2,#promo .h2,#process .h2{font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:900}
+    .workGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:32px}
+    /* Bright games are solid blocks (--c, --t); dark-art games are .glow cards lit by --g */
+    .work{--c:#1a2340;--t:#fff;--g:var(--accent2);display:flex;flex-direction:column;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}
+    .work:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 24px 60px -24px var(--g)}
+    .work.glow{background:linear-gradient(160deg,color-mix(in srgb,var(--g) 22%,#0d1428),#0a0f1f 70%);border:1px solid color-mix(in srgb,var(--g) 45%,transparent);color:var(--ink)}
+    .work.glow h3{color:var(--g)}
+    .workArt{padding:20px 20px 0}
+    .work img{display:block;width:100%;height:auto;aspect-ratio:1024/500;object-fit:cover;border-radius:16px}
+    .workBody{padding:22px 26px 26px;display:flex;flex-direction:column;flex:1}
+    .work h3{margin:0 0 6px;font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1.1;color:inherit}
+    .work p{margin:0 0 18px;font-size:15px;line-height:1.6;opacity:.84}
+    .workLinks{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px}
+    .workLinks a{color:inherit;text-decoration:none;font-size:13px;font-weight:800;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);transition:background .15s ease}
+    .workLinks a:hover{background:rgba(255,255,255,.24)}
+    .work.light .workLinks a{background:rgba(0,0,0,.10)}
+    .work.light .workLinks a:hover{background:rgba(0,0,0,.18)}
+    .work.glow .workLinks a{background:color-mix(in srgb,var(--g) 18%,transparent)}
+    .work.glow .workLinks a:hover{background:color-mix(in srgb,var(--g) 30%,transparent)}
+    .workLinks a.quiet,.work.light .workLinks a.quiet,.work.glow .workLinks a.quiet{background:transparent;font-weight:600;opacity:.8}
+    .workLinks a.quiet:hover{opacity:1;text-decoration:underline}
+    .work a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+    .workWide{grid-column:1 / -1;display:grid;grid-template-columns:1.1fr 1fr;align-items:center}
+    .workWide .workArt{padding:20px}
+    .status{align-self:flex-start;margin:0 0 10px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-size:12px;font-weight:800}
+    /* Each game's colour; a new game needs one before it gets a card (D-012) */
+    .w-submarine{--g:#f5b544}
+    .w-orbital{--g:#4be08a}
+    .w-thunee{--c:#17533f;--t:#f3f0dc;--g:#3fbf8a}
+    .w-reactor{--c:#d9a03b;--t:#13181c;--g:#d9a03b}
+    .w-tea{--c:#6a4a3f;--t:#fbe9dc;--g:#c98a6a}
+    .w-pomodorable{--c:#ffd7b5;--t:#6b2417;--g:#ff9a6b}
+    .w-reality{--c:#f3e7da;--t:#2a2320;--g:#f3e7da}
+    .w-spice{--c:#e8562a;--t:#fff6ec;--g:#e8562a}
+    .w-pipes{--c:#008080;--t:#fff;--g:#00b3b3}
+    /* The page's one bright band */
+    .promoBand{display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:end;padding:56px;border-radius:40px;background:linear-gradient(135deg,#f5b544,#e8562a);color:#1a0f08}
+    .promoBand .kicker{color:#1a0f08}
+    .promoBand .kicker::before{background:linear-gradient(90deg,#1a0f08,transparent)}
+    #promo .promoBand .h2{color:#1a0f08}
+    .promoBand .lead{color:rgba(26,15,8,.82);font-size:16px}
+    .promoBand .ctaRow{margin:28px 0 0}
+    .promoBand .btn.primary{background:#1a0f08;color:#fff;box-shadow:0 8px 24px rgba(26,15,8,.25)}
+    .promoBand .btn.subtle{border-color:rgba(26,15,8,.25);color:#1a0f08}
+    .promoBand .btn:focus-visible{outline-color:#1a0f08}
+    .promoPrice{margin:0;font-size:clamp(44px,6vw,72px);font-weight:900;letter-spacing:-3px;line-height:1;white-space:nowrap}
+    /* Promo process: the original's numbered steps as tiles, numbers in game colours */
+    .processSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:32px}
+    .processSteps .step{padding:24px 24px 26px;border:1px solid var(--stroke);background:var(--card);border-radius:22px}
+    .processSteps .step::after{display:none}
+    .processSteps .step-num{font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:14px;color:var(--n)}
+    .processSteps .step h3{font-size:19px;font-weight:800;letter-spacing:-.3px}
+    .processSteps .step p{font-size:14.5px}
+    .alsoLine{padding:0 0 56px}
+    .alsoLine p{margin:0;max-width:72ch;color:var(--muted);font-size:14px;line-height:1.7}
+    .alsoLine a{color:var(--accent2)}
+    @media (max-width:920px){
+      .studioHero h1{letter-spacing:-2px}
+      .workGrid{grid-template-columns:1fr}
+      .workWide{display:flex}
+      .workArt,.workWide .workArt{padding:16px 16px 0}
+      .workBody{padding:20px 22px 22px}
+      .promoBand{grid-template-columns:1fr;gap:20px;padding:32px 24px;border-radius:28px}
+      .processSteps{grid-template-columns:1fr;gap:12px}
+      .processSteps .step{padding:20px 22px 22px;border-left:1px solid var(--stroke)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .work{transition:none}
+      .work:hover{transform:none}
+    }
   </style>
 
   <script type="application/ld+json">
@@ -138,12 +215,12 @@
     "name": "ai.doo",
     "url": "https://aidoo.biz",
     "logo": "https://aidoo.biz/favicon.svg",
-    "description": "ai.doo builds private, self-hosted AI products and bespoke solutions.",
+    "description": "A small studio on the Isle of Man making mobile games, apps and web toys.",
     "email": "hello@aidoo.biz",
     "contactPoint": {
       "@type": "ContactPoint",
       "email": "hello@aidoo.biz",
-      "contactType": "Sales"
+      "contactType": "General enquiries"
     }
   }
   </script>
@@ -165,28 +242,22 @@
     </a>
 
     <nav aria-label="Primary navigation">
-      <a href="#what">What we do</a>
-      <a href="#why">Why self-hosted</a>
-      <a href="#how">How we work</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#products">Products</a>
-      <a href="https://docs.aidoo.biz" target="_blank" rel="noopener">Docs</a>
+      <a href="#games">Games</a>
+      <a href="#apps">Apps</a>
+      <a href="#promo">For business</a>
       <a href="#contact">Contact</a>
     </nav>
 
     <div class="navRight">
       <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav">Menu</button>
-      <a class="btn primary" href="#contact">Talk to us</a>
+      <a class="btn primary" href="mailto:hello@aidoo.biz">Email us</a>
     </div>
   </div>
 
   <div class="mobileNav" id="mobileNav">
-    <a href="#what">What we do</a>
-    <a href="#why">Why self-hosted</a>
-    <a href="#how">How we work</a>
-    <a href="#pricing">Pricing</a>
-    <a href="#products">Products</a>
-    <a href="https://docs.aidoo.biz" target="_blank" rel="noopener">Docs</a>
+    <a href="#games">Games</a>
+    <a href="#apps">Apps</a>
+    <a href="#promo">For business</a>
     <a href="#contact">Contact</a>
   </div>
 </header>
@@ -194,322 +265,227 @@
 <main class="wrap" id="top">
 
   <!-- HERO -->
-  <section class="hero heroSplit">
-    <div class="heroText">
-      <div class="pill">Private-first AI</div>
+  <section class="hero studioHero">
+    <div class="pill">An independent games and apps studio</div>
 
-      <h1>AI you <span class="grad">own,</span> not AI you rent.</h1>
+    <h1>Small games and apps, <span class="grad">made with care.</span></h1>
 
-      <p class="sub">
-        PIKA, VERA, and Hub run entirely on your infrastructure. No per-token bills climbing every month, no data leaving your network, no cloud provider in your compliance scope. Bespoke extensions where a closer fit is needed.
-      </p>
+    <p class="sub">
+      We make mobile games, useful little apps and toys for the web. And if your business or event wants a game of its own, we'll make that too.
+    </p>
 
-      <div class="ctaRow">
-        <a class="btn primary" href="#contact">Discuss a pilot</a>
-        <a class="btn subtle" href="#what">What we do</a>
-      </div>
-
-      <div class="heroMeta">
-        <span><span class="dot"></span> Self-hosted by default</span>
-        <span><span class="dot"></span> No per-token pricing</span>
-        <span><span class="dot"></span> Air-gap capable</span>
-        <span><span class="dot"></span> GDPR-ready</span>
-      </div>
+    <div class="ctaRow">
+      <a class="btn primary" href="#games">See our games</a>
+      <a class="btn subtle" href="#promo">A game for your business</a>
     </div>
 
-    <div class="heroVisual" aria-hidden="true">
-      <div class="mock">
-        <div class="mockBar">
-          <span class="mockDot r"></span><span class="mockDot y"></span><span class="mockDot g"></span>
-          <span class="mockTitle">Hub</span>
-        </div>
-        <div class="mockBody">
-          <div class="mockRowHead">Local models</div>
-          <div class="mockRow"><span class="name">llama3.2:3b</span><span class="meta"><span class="statusDot"></span> running &middot; 2.0 GB</span></div>
-          <div class="mockRow"><span class="name">nomic-embed-text</span><span class="meta"><span class="statusDot"></span> running &middot; 274 MB</span></div>
-
-          <div class="mockRowHead">Services</div>
-          <div class="mockSplit">
-            <div class="mockRow"><span class="name">PIKA</span><span class="meta"><span class="statusDot"></span> healthy</span></div>
-            <div class="mockRow"><span class="name">VERA</span><span class="meta"><span class="statusDot"></span> healthy</span></div>
-          </div>
-
-          <div class="mockFoot"><span>18 users &middot; 3 admins</span><span class="mockBadge">&check; Licensed</span></div>
-        </div>
-      </div>
+    <div class="chips" aria-label="Studio facts">
+      <span class="chip"><span class="dot" style="background:#f5b544;color:#f5b544"></span>Android</span>
+      <span class="chip"><span class="dot" style="background:#4be08a;color:#4be08a"></span>iOS</span>
+      <span class="chip"><span class="dot" style="background:#00b3b3;color:#00b3b3"></span>The web</span>
+      <span class="chip"><span class="dot" style="background:#e8562a;color:#e8562a"></span>From concept to launch</span>
     </div>
   </section>
 
-  <!-- WHAT -->
-  <section class="section reveal" id="what">
-    <p class="kicker">What we do</p>
-    <h2 class="h2">Practical tools for private environments</h2>
-    <p class="lead">
-      Systems designed for privacy-first environments, and maintainable long after the demo.
-    </p>
+  <!-- GAMES -->
+  <section class="section reveal" id="games">
+    <div class="kicker">Games</div>
+    <h2 class="h2">Out now on Android and iOS.</h2>
+    <p class="lead">Short, replayable games to pick up in a spare minute and put down without guilt.</p>
 
-    <div class="grid">
-      <div class="card feature span7">
-        <h3>Document intelligence</h3>
-        <p>Index and query internal documents with local AI. Ask questions in plain language and get answers grounded in your own data, with citations, access control, and nothing ever leaving your infrastructure.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span> RAG</span>
-          <span class="chip"><span class="dot"></span> Citations</span>
-          <span class="chip"><span class="dot"></span> Access control</span>
-        </div>
-      </div>
-
-      <div class="span5 stackCol">
-        <div class="card">
-          <h3>Automation &amp; extraction</h3>
-          <p>Summarise, extract structured data, and build lightweight automations for operational needs.</p>
-        </div>
-
-        <div class="card">
-          <h3>Self-hosted delivery</h3>
-          <p>Containerised deployments with sensible defaults and practical performance guidance.</p>
-          <div class="chips">
-            <span class="chip"><span class="dot"></span> Docker</span>
-            <span class="chip"><span class="dot"></span> Local inference</span>
+    <div class="workGrid">
+      <article class="work glow w-submarine">
+        <div class="workArt"><img src="images/work/submarine-panic.webp" width="1024" height="500" loading="lazy" alt="Submarine Panic: a sonar scope with contacts on a dark control panel"></div>
+        <div class="workBody">
+          <h3>Submarine Panic</h3>
+          <p>Keep a failing Cold War submarine alive from a CRT control room of gauges, sonar, ballast and torpedo tubes.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener">Google Play</a>
+            <a href="https://apps.apple.com/us/app/submarine-panic/id6786455427" target="_blank" rel="noopener">App Store</a>
+            <a href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener">itch.io</a>
+            <a class="quiet" href="privacy-submarine-panic/">Privacy</a>
           </div>
         </div>
-      </div>
-    </div>
+      </article>
 
-    <div class="proof" aria-label="Positioning note">
-      <p class="title">Working software first.</p>
-      <p>
-        Every engagement starts from products that are already deployed and proven, rather than a discovery phase building from scratch. Bespoke work extends the foundation; it doesn't replace it.
-      </p>
-    </div>
-  </section>
-
-  <!-- WHY SELF-HOSTED -->
-  <section class="section reveal" id="why">
-    <p class="kicker">Why self-hosted</p>
-    <h2 class="h2">Your data stays where it belongs.</h2>
-    <p class="lead">
-      Self-hosted AI is more than a deployment detail. It changes the relationship between your organisation, its data, and its AI bill.
-    </p>
-    <div class="grid">
-
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">01</span>
-        <h3>Data never leaves</h3>
-        <p>No API calls to external AI providers. Documents, queries, and results stay within your network perimeter. Auditable by design.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>Private by default</span>
-          <span class="chip"><span class="dot"></span>No egress</span>
+      <article class="work w-thunee">
+        <div class="workArt"><img src="images/work/thunee.webp" width="1024" height="500" loading="lazy" alt="Thunee: three playing cards fanned on a green table"></div>
+        <div class="workBody">
+          <h3>Thunee</h3>
+          <p>South Africa's partnership trick-taking classic in 3D. Bid for trump, read the table and race to 12 balls. Plays offline.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.thunee" target="_blank" rel="noopener">Google Play</a>
+            <a href="https://apps.apple.com/gb/app/durbans-thunee/id6800611695" target="_blank" rel="noopener">App Store</a>
+            <a class="quiet" href="privacy-thunee/">Privacy</a>
+          </div>
         </div>
-      </div>
+      </article>
 
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">02</span>
-        <h3>Escape the meter</h3>
-        <p>Cloud AI bills you per token, so the cost of success is more cost. Self-hosting inverts that: hardware, licences, and the electricity to run them, all known upfront, with a marginal cost of zero for one more question.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>No meter</span>
-          <span class="chip"><span class="dot"></span>Known upfront</span>
+      <article class="work glow w-orbital">
+        <div class="workArt"><img src="images/work/orbital-panic.webp" width="1024" height="500" loading="lazy" alt="Orbital Panic: a small probe orbiting a planet near a sun"></div>
+        <div class="workBody">
+          <h3>Orbital Panic</h3>
+          <p>A one-tap arcade game. Break orbit, thread the capture ring around the next planet, dodge black holes and hold the chain.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener">Google Play</a>
+            <a href="https://apps.apple.com/us/app/orbital-panic/id6795683174" target="_blank" rel="noopener">App Store</a>
+            <a href="https://forcesensitivesaiyan.itch.io/orbital-panic" target="_blank" rel="noopener">itch.io</a>
+            <a class="quiet" href="privacy-orbital-panic/">Privacy</a>
+          </div>
         </div>
-      </div>
+      </article>
 
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">03</span>
-        <h3>Runs on your hardware</h3>
-        <p>A VPS, workstation, or dedicated GPU server. No cloud instances, no external runtime dependencies. You own the infrastructure.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>VPS</span>
-          <span class="chip"><span class="dot"></span>On-premise</span>
-          <span class="chip"><span class="dot"></span>GPU optional</span>
+      <article class="work light w-reactor">
+        <div class="workArt"><img src="images/work/reactor-panic.webp" width="1024" height="500" loading="lazy" alt="Reactor Panic: a glowing reactor core on a dark control panel"></div>
+        <div class="workBody">
+          <h3>Reactor Panic</h3>
+          <p>Sort plasma cores into containment tubes before instability triggers a meltdown, on a Soviet control-panel console.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener">Google Play</a>
+            <a href="https://apps.apple.com/us/app/reactor-panic/id6773935208" target="_blank" rel="noopener">App Store</a>
+            <a href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener">itch.io</a>
+            <a class="quiet" href="privacy-reactor-panic/">Privacy</a>
+          </div>
         </div>
-      </div>
+      </article>
 
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">04</span>
-        <h3>Air-gap capable</h3>
-        <p>Works fully offline after initial setup. No internet dependency for inference. Critical for classified, industrial, or disconnected environments.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>Offline</span>
-          <span class="chip"><span class="dot"></span>No cloud dependency</span>
+      <article class="work workWide w-tea">
+        <div class="workArt"><img src="images/work/tea-tower.webp" width="1024" height="500" loading="lazy" alt="Tea Tower: a swaying stack of teacups in a cosy room"></div>
+        <div class="workBody">
+          <div class="status">In development</div>
+          <h3>Tea Tower</h3>
+          <p>A one-tap physics stacker. A teacup swings above a growing tower; tap to drop it, and the stack either holds or comes down in slow motion.</p>
+          <div class="workLinks">
+            <a class="quiet" href="privacy-tea-tower/">Privacy</a>
+          </div>
         </div>
-      </div>
-
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">05</span>
-        <h3>Compliance-ready</h3>
-        <p>No third-party data processor under GDPR Article 28, because there is none. Simplifies DPIAs, ISO 27001 scoping, and regulatory sign-off.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>GDPR</span>
-          <span class="chip"><span class="dot"></span>ISO 27001</span>
-        </div>
-      </div>
-
-      <div class="card span4">
-        <span class="cardNum" aria-hidden="true">06</span>
-        <h3>Full auditability</h3>
-        <p>Every query, model version, and access event logged locally. You own the audit trail — no vendor dashboard required.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span>Audit log</span>
-          <span class="chip"><span class="dot"></span>Local storage</span>
-        </div>
-      </div>
-
+      </article>
     </div>
   </section>
 
-  <!-- HOW -->
-  <section class="section reveal" id="how">
-    <p class="kicker">How we work</p>
-    <h2 class="h2">Fast pilots. Clear scope. Honest delivery.</h2>
-    <p class="lead">
-      A working pilot early, with measurable outcomes and a clear path to production.
-    </p>
+  <!-- APPS -->
+  <section class="section reveal" id="apps">
+    <div class="kicker">Apps &amp; web toys</div>
+    <h2 class="h2">Small ideas, finished properly.</h2>
 
-    <div class="steps">
-      <div class="step">
+    <div class="workGrid">
+      <article class="work light w-pomodorable">
+        <div class="workArt"><img src="images/work/pomodorable.webp" width="1024" height="500" loading="lazy" alt="Pomodorable: a focus timer with a tomato garden"></div>
+        <div class="workBody">
+          <h3>Pomodorable</h3>
+          <p>A Pomodoro timer for Android that holds your notifications until your break, and grows a tomato garden the more you focus.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.pomodorable" target="_blank" rel="noopener">Google Play</a>
+            <a class="quiet" href="privacy-pomodorable/">Privacy</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="work light w-reality">
+        <div class="workArt"><img src="images/work/reality-check.webp" width="1024" height="500" loading="lazy" alt="Reality Check: News Bluff, three headlines and one lie"></div>
+        <div class="workBody">
+          <h3>Reality Check: News Bluff</h3>
+          <p>A daily news game: three headlines, one lie. Pick the fake, then read the explanation and the real sources.</p>
+          <div class="workLinks">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.realitycheck" target="_blank" rel="noopener">Google Play</a>
+            <a class="quiet" href="privacy-reality-check/">Privacy</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="work w-spice">
+        <div class="workBody">
+          <h3>SPICE</h3>
+          <p>Tell it what's in your kitchen and it plans a meal, with timings and a live cook mode. Built for the fifteen-minute weeknight.</p>
+          <div class="workLinks">
+            <a href="https://spice.aidoo.biz/" target="_blank" rel="noopener">Try SPICE</a>
+            <a class="quiet" href="privacy-spice/">Privacy</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="work w-pipes">
+        <div class="workBody">
+          <h3>Pipes 98</h3>
+          <p>A tribute to the classic 3D Pipes screensaver, with a turn-based routing game inside. Runs in your browser.</p>
+          <div class="workLinks">
+            <a href="https://pipes98.com/" target="_blank" rel="noopener">Visit Pipes 98</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROMO -->
+  <section class="section reveal" id="promo">
+    <div class="promoBand">
+      <div>
+        <div class="kicker">For businesses and events</div>
+        <h2 class="h2">A mini-game with your name on it.</h2>
+        <p class="lead">A short branded game for a launch, a festival or a shop window, made by the studio behind the games above. A 20-minute chat, about two weeks to build, three months live.</p>
+        <div class="ctaRow">
+          <a class="btn primary" href="promo-games/">How it works</a>
+          <a class="btn subtle" href="mailto:hello@aidoo.biz?subject=Promo%20game">Email us</a>
+        </div>
+      </div>
+      <p class="promoPrice">from £750</p>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section reveal" id="process">
+    <div class="kicker">How it works</div>
+    <h2 class="h2">How a promo game gets made.</h2>
+    <p class="lead">From a first chat to a game people play from a QR code.</p>
+
+    <div class="steps processSteps">
+      <div class="step" style="--n:#f5b544">
         <div class="step-num">01</div>
-        <h3>Discover &amp; define</h3>
-        <p>Agree on the use case, data sensitivity, and success criteria, all in plain language.</p>
+        <h3>Concept chat</h3>
+        <p>Twenty minutes about your business or event, and who you want to reach.</p>
       </div>
-      <div class="step">
+      <div class="step" style="--n:#4be08a">
         <div class="step-num">02</div>
-        <h3>Pilot in your environment</h3>
-        <p>Deploy where your data lives and see how it really behaves.</p>
+        <h3>The idea</h3>
+        <p>We suggest a simple game that fits. You say yes or no.</p>
       </div>
-      <div class="step">
+      <div class="step" style="--n:#00b3b3">
         <div class="step-num">03</div>
-        <h3>Harden for production</h3>
-        <p>Configuration, monitoring, performance tuning, and clear documentation.</p>
+        <h3>Build</h3>
+        <p>About two weeks. Your logo, colours and products, in a one-tap game anyone can pick up.</p>
       </div>
-      <div class="step">
+      <div class="step" style="--n:#ff9a6b">
         <div class="step-num">04</div>
-        <h3>Extend where needed</h3>
-        <p>Bespoke features and integrations on top of the product foundation.</p>
+        <h3>You play it first</h3>
+        <p>You try it before anyone else does, and get one round of changes.</p>
+      </div>
+      <div class="step" style="--n:#e8562a">
+        <div class="step-num">05</div>
+        <h3>Launch</h3>
+        <p>A link and QR code artwork for the till, your stand or a poster. Plays in any phone browser.</p>
+      </div>
+      <div class="step" style="--n:#3fbf8a">
+        <div class="step-num">06</div>
+        <h3>Three months live</h3>
+        <p>A leaderboard gives players a reason to come back. Then it switches off, unless you want to keep it running.</p>
       </div>
     </div>
   </section>
 
-  <!-- PRICING -->
-  <section class="section reveal" id="pricing">
-    <p class="kicker">Pricing</p>
-    <h2 class="h2">Simple, honest engagement models.</h2>
-    <p class="lead">
-      We work from discovery through to production. Scope is always agreed upfront.
-      See <a href="pika/#pricing">PIKA</a> and <a href="vera/#pricing">VERA</a> product pages for per-seat licence details.
-    </p>
-
-    <div class="grid">
-      <div class="card span4 pricingTier">
-        <div class="step-num">Discovery</div>
-        <h3>Free initial call</h3>
-        <p>No obligation. Understand your environment and goals. We'll tell you honestly if we're a good fit.</p>
-        <ul class="featureList">
-          <li>30–60 minute conversation</li>
-          <li>Your use case and constraints</li>
-          <li>Clear next-step recommendation</li>
-        </ul>
-        <div class="pricingBtnWrap">
-          <a class="btn" href="mailto:hello@aidoo.biz?subject=Discovery%20call">Email us</a>
-        </div>
-      </div>
-
-      <div class="card span4 pricingCard pricingTier">
-        <div class="step-num">Pilot</div>
-        <h3>Fixed-scope pilot</h3>
-        <p>A working system in your environment, with software and services costed separately. Product licences (Professional tier) from <strong>&pound;50/seat/year</strong>. Deployment assistance from <strong>&pound;3,000</strong>, with scope agreed upfront.</p>
-        <ul class="featureList">
-          <li>Deployed in your infrastructure</li>
-          <li>14-day free evaluation included</li>
-          <li>Defined success criteria</li>
-          <li>Handover documentation</li>
-        </ul>
-        <div class="pricingBtnWrap">
-          <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Pilot%20discussion">Start a pilot</a>
-        </div>
-      </div>
-
-      <div class="card span4 pricingTier">
-        <div class="step-num">Production</div>
-        <h3>Full build &amp; ongoing support</h3>
-        <p>Complete solution with documentation and ongoing support. Custom scope agreed after pilot.</p>
-        <ul class="featureList">
-          <li>Full production deployment</li>
-          <li>Monitoring and maintenance</li>
-          <li>Bespoke extensions</li>
-          <li>Ongoing support agreement</li>
-        </ul>
-        <div class="pricingBtnWrap">
-          <a class="btn" href="mailto:hello@aidoo.biz?subject=Production%20enquiry">Get in touch</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTS -->
-  <section class="section reveal" id="products">
-    <p class="kicker">Products</p>
-    <h2 class="h2">Privacy-first AI tools, ready to deploy.</h2>
-    <p class="lead">
-      Each product runs entirely on your infrastructure. No data leaves your network. All AI runs locally: LLM inference via Ollama, OCR via PaddleOCR.
-    </p>
-
-    <div class="grid">
-      <!-- PIKA -->
-      <div class="card span6">
-        <span class="cardMark" aria-hidden="true">PIKA</span>
-        <div class="step-num">PIKA</div>
-        <h3>Document Q&amp;A</h3>
-        <p>Upload documents, ask questions in plain language, get answers grounded in your data with citations. RAG-powered, self-hosted, multi-user.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span> RAG</span>
-          <span class="chip"><span class="dot"></span> Citations</span>
-          <span class="chip"><span class="dot"></span> Multi-user</span>
-          <span class="chip"><span class="dot"></span> Streaming</span>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
-          <a class="btn primary" href="pika/">Learn more</a>
-          <a class="btn subtle" href="https://docs.aidoo.biz/pika/overview" target="_blank" rel="noopener">Documentation</a>
-        </div>
-      </div>
-
-      <!-- VERA -->
-      <div class="card span6">
-        <span class="cardMark" aria-hidden="true">VERA</span>
-        <div class="step-num">VERA</div>
-        <h3>OCR Validation</h3>
-        <p>Upload scanned documents, review AI-extracted text token by token, correct errors with confidence scoring, then export validated data.</p>
-        <div class="chips">
-          <span class="chip"><span class="dot"></span> PaddleOCR</span>
-          <span class="chip"><span class="dot"></span> Human-in-the-loop</span>
-          <span class="chip"><span class="dot"></span> Multi-page PDF</span>
-          <span class="chip"><span class="dot"></span> AI summaries</span>
-        </div>
-        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
-          <a class="btn primary" href="vera/">Learn more</a>
-          <a class="btn subtle" href="https://docs.aidoo.biz/vera/overview" target="_blank" rel="noopener">Documentation</a>
-        </div>
-      </div>
-
-      <!-- Hub -->
-      <div class="card span12" style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
-        <div>
-          <h3 style="margin-bottom:6px;">Centralised management with Hub</h3>
-          <p>Manage Ollama models, user accounts, licensing, and audit logs from a single dashboard. PIKA and VERA delegate auth to Hub.</p>
-        </div>
-        <a class="btn subtle" href="https://docs.aidoo.biz/admin/hub" target="_blank" rel="noopener">Hub documentation</a>
-      </div>
-    </div>
+  <!-- ALSO -->
+  <section class="alsoLine reveal" id="also">
+    <p>We also make self-hosted AI tools for organisations that keep their documents in-house: <a href="pika/">PIKA</a> for document Q&amp;A and <a href="vera/">VERA</a> for OCR validation, with <a href="https://docs.aidoo.biz" target="_blank" rel="noopener">documentation</a>.</p>
   </section>
 
   <!-- CTA -->
   <section class="ctaBand" id="contact">
     <div>
-      <p class="title">Let's build something private.</p>
-      <p class="small">Email <strong>hello@aidoo.biz</strong> with your use case and environment.</p>
+      <p class="title">Got an idea, or a question?</p>
+      <p class="small">Email <strong>hello@aidoo.biz</strong>. A real person reads every message.</p>
     </div>
     <div class="ctaRow" style="margin:0;">
-      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=ai.doo%20Pilot%20Request">Email hello@aidoo.biz</a>
-      <a class="btn subtle" href="#what">What we do</a>
+      <a class="btn primary" href="mailto:hello@aidoo.biz">Email hello@aidoo.biz</a>
+      <a class="btn subtle" href="#games">See our games</a>
     </div>
   </section>
 
@@ -525,17 +501,16 @@
           </span>
         </div>
 
-        <p class="trustline">Self-hosted by default. No data leaves your infrastructure.</p>
+        <p class="trustline">A small studio on the Isle of Man.</p>
         <p style="margin:10px 0 0; font-size:13px;">&copy; <span id="year"></span> ai.doo</p>
       </div>
 
       <div class="footerCol" style="font-size:13px;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Navigate</div>
-        <div><a href="#what">What we do</a></div>
-        <div><a href="#how">How we work</a></div>
-        <div><a href="#pricing">Pricing</a></div>
-        <div><a href="#products">Products</a></div>
-        <div><a href="/labs/">Labs</a></div>
+        <div><a href="#games">Games</a></div>
+        <div><a href="#apps">Apps &amp; web toys</a></div>
+        <div><a href="promo-games/">Promo games</a></div>
+        <div><a href="pika/">PIKA</a> &bull; <a href="vera/">VERA</a></div>
         <div><a href="https://docs.aidoo.biz" target="_blank" rel="noopener">Documentation</a></div>
         <div><a href="/privacy/">Privacy policy</a></div>
         <div><a href="https://docs.aidoo.biz/eula/" target="_blank" rel="noopener">EULA</a></div>
@@ -566,7 +541,7 @@
     <button class="chatClose" id="chatClose" aria-label="Close chat">&#x2715;</button>
   </div>
   <div class="chatMessages" id="chatMessages" aria-live="polite" aria-atomic="false">
-    <div class="chatMsg assistant">Hi. Ask me anything about ai.doo, our products, or ai.doo Labs.</div>
+    <div class="chatMsg assistant">Hi. Ask me anything about ai.doo: our games and apps, promo games, or our AI tools.</div>
   </div>
   <div class="chatInputRow">
     <textarea class="chatInput" id="chatInput" placeholder="Type a message…" rows="1" aria-label="Your message"></textarea>

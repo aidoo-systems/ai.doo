@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **The homepage now leads with the studio** (P2.1a, D-011): "Small games and apps, made with care." Games and apps are shown with their store art, then the promo-games offer, then one line for PIKA and VERA. The enterprise sections (what, why, how, pricing) are gone from the homepage; `/pika/` and `/vera/` are unchanged. Brand recorded in `docs/design/brand.md`
+- The chatbot's opening facts now describe the studio first
+- PIKA's "engagement options" link and the PIKA changelog nav no longer point at homepage sections that no longer exist
+
+### Fixed
+
+- Phones no longer scroll sideways by 13px on the homepage and `/labs/`: the hero glow now stops at the screen edge
+
 ### Added
 
 - **Tea Tower privacy policy** at `/privacy-tea-tower/`, listing exactly what the optional leaderboard at ttsb.aidoo.biz receives (random player ID, name, score, cups, version, time), how to switch posting off, and how to have an entry removed
