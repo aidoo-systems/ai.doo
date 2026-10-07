@@ -116,13 +116,13 @@
   <a class="back" href="/">&#8592; ai.doo</a>
 
   <h1>Privacy Policy — Submarine Panic</h1>
-  <p class="updated">Last updated: September 2026</p>
+  <p class="updated">Last updated: October 2026</p>
 
   <p>
     Submarine Panic is a mobile game built in Godot. The whole game plays offline on your device.
-    It has one online feature, an optional fleet board, and you can switch it off. This policy
-    explains what the game keeps on your phone, what the board sends if you leave it on, and how to
-    have an entry removed. Our website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>.
+    It has one online feature, an optional fleet board, and you can switch it off. The Android version
+    also sends anonymous usage analytics to Google Firebase. This policy explains what the game keeps
+    on your phone, what the board and the analytics send, and how to have an entry removed. Our website: <a href="https://www.aidoo.biz">https://www.aidoo.biz</a>.
   </p>
 
   <hr class="divider">
@@ -130,8 +130,9 @@
   <h2>Data we collect</h2>
   <p>
     Submarine Panic does not create an account and never asks who you are. Everything the game needs
-    lives in a save file on your phone. The only thing that leaves your device is a fleet board entry,
-    and only while posting is switched on.
+    lives in a save file on your phone. Two things leave your device: a fleet board entry, only while
+    posting is switched on, and, on Android, the usage analytics described under &ldquo;Analytics
+    (Google Firebase)&rdquo; below.
   </p>
   <p>
     The game does keep a small save file on your device so it can remember your progress between sessions.
@@ -145,7 +146,8 @@
   </ul>
   <p>
     This information stays in local storage on your device. None of it is transmitted except the
-    handful of fields listed under &ldquo;The fleet board&rdquo; below.
+    handful of fields listed under &ldquo;The fleet board&rdquo; below. The analytics never include
+    your callsign or your player ID.
   </p>
 
   <hr class="divider">
@@ -153,8 +155,8 @@
   <h2>Network and online features</h2>
   <p>
     Every part of the game plays offline. The one network feature is the fleet board, described
-    below. The app requests the internet permission so the board can work, and nothing else in the
-    game uses it. There are no online accounts and no cloud saves, so your progress is never uploaded
+    below. The app requests the internet permission for the board and, on Android, for the analytics
+    described further down. There are no online accounts and no cloud saves, so your progress is never uploaded
     and never restored from anywhere.
   </p>
 
@@ -192,10 +194,26 @@
 
   <hr class="divider">
 
+  <h2>Analytics (Google Firebase)</h2>
+  <p>
+    The Android version uses Google Firebase Analytics to understand how many players come back and
+    how long sessions last. It records app opens and sessions, when a patrol starts and ends (score,
+    how long it lasted, which mode, and whether the patrol was completed), and when the
+    shakedown (the tutorial patrol) is finished. Firebase also collects device information (such as
+    model, operating system and country) and an app-instance identifier. It does not receive your
+    callsign or your player ID, and we do not use it for advertising. The POSTING switch controls the
+    fleet board only; it does not turn analytics off. Google processes this data under its
+    <a href="https://policies.google.com/privacy">privacy policy</a>; see also
+    <a href="https://firebase.google.com/support/privacy">Firebase privacy information</a>.
+    Firebase keeps event-level analytics data for no more than 14 months.
+  </p>
+
+  <hr class="divider">
+
   <h2>Data we do not collect</h2>
   <p>
     We do not collect location, contacts, photos, microphone, camera, or payment data. There are no
-    ads, no third-party analytics SDKs, and no tracking of any kind.
+    ads, and Firebase Analytics is the only third-party SDK that receives data.
   </p>
 
   <hr class="divider">
@@ -203,7 +221,8 @@
   <h2>Data sharing</h2>
   <p>
     We do not sell or rent your data, and we do not share it with advertisers. There are no
-    advertising or analytics SDKs in the game. The one thing that is public is the board itself. Your
+    advertising SDKs in the game. The only third party that receives data is Google, which processes
+    the analytics described above on our behalf. The one thing that is public is the board itself. Your
     callsign, score and rank are visible to other players, which is the point of a leaderboard. Your
     player ID is never shown to anyone.
   </p>
@@ -231,7 +250,8 @@
   <p>
     Submarine Panic is a general-audience game and is not directed at children under 13. The game
     asks for no personal information at any point. The fleet board carries only a random ID, a
-    callsign and the numbers from a patrol, and it can be switched off entirely.
+    callsign and the numbers from a patrol, and it can be switched off entirely. The Android analytics
+    carry no name, callsign or player ID.
   </p>
 
   <hr class="divider">
