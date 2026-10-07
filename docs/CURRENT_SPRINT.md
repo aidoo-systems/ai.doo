@@ -16,15 +16,15 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 - P2.1 captured (#15, D-008), split 2026-10-07 (D-011): P2.1a brand + studio-first homepage now; P2.1b the rest of the rework, carrying P1.2 (claims) and P1.3 (commercial), after P2.0.
 - **Pivot stress-tested** (2026-10-01): no pivot yet; Phase 0 experiment running (D-010). Background: no corporate leads; two Labs games at 100+ downloads; idea "we create and host apps for you, concept to store". Claude's critical feedback, the recommended 8-week experiment and the open questions are banked in [the pivot brief](design/2026-10-01-pivot-brief.md).
 - DNS, seen 2026-10-01 (owner's to fix): `aidoo.biz` has a second A record `162.255.119.207` that doesn't answer HTTPS, and `www.aidoo.biz` has an AAAA in Google's range (`2a00:1450:4009:c08::79`). Only `157.180.81.235` serves the site.
-- Owner's local `main`: rebased onto `origin/main` 2026-10-01; the enterprise-roadmap commit (`200b844`) is unpushed, with uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`.
+- Owner's local `main`: rebased onto `origin/main` 2026-10-07; the enterprise-roadmap commit (now `bc9af24`) is unpushed, with uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`.
 
 ## Execution order
 
-1. **Next action:** owner reviews and merges the offer page PR (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example), then starts outreach from [the prospect list](design/2026-10-02-promo-prospects.md).
+1. **Next action:** owner starts outreach. The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then the owner starts Google App Campaigns.
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. **P2.1a** (D-011): done. Homepage restyled per D-012 and merged (#22, #23); live on aidoo.biz. History in the work log.
-5. **P2.1c** (D-011): built, `Ready For Test`, PR stacked on #24. **Next action:** owner reviews `/promo-games/` on the PR (desktop and phone), taps a footer game link on a phone, then merges #24 and the P2.1c PR in that order.
+5. **P2.1c** (D-011, D-013): done. Labs retired; merged (#24, #25, #26) and live.
 6. 2026-11-26: read the results against the bars; supersede or reaffirm D-004; then P2.1b (with P1.2 / P1.3 inside it, D-008).
 
 Held until then: new titles, the rest of the site rework (P2.1b), and suite roadmap work (security fixes only).
