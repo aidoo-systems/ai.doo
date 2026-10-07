@@ -32,6 +32,8 @@ not leading.
 
 ## Look: crafted and calm
 
+> **Rejected by the owner, 2026-10-07:** the build below still reads as the old site. Choose from three mocked-up directions (see `CURRENT_SPRINT.md`); whether light mode returns is open.
+
 The frame stays quiet so the game art can be loud.
 
 | Element | Decision |
