@@ -23,7 +23,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 1. **Next action:** owner reviews and merges the offer page PR (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example), then starts outreach from [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then the owner starts Google App Campaigns.
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
-4. **P2.1a** (D-011), alongside: brand foundation and a studio-first homepage. Starts with a short owner interview on direction; outreach keeps priority for the owner's time.
+4. **P2.1a** (D-011), alongside: interview done, `docs/design/brand.md` drafted and the homepage rebuilt (PR stacked on the D-011 PR). **Next action:** owner reviews, merges both, then approves on the live site. Outreach keeps priority for the owner's time.
 5. 2026-11-26: read the results against the bars; supersede or reaffirm D-004; then P2.1b (with P1.2 / P1.3 inside it, D-008).
 
 Held until then: new titles, the rest of the site rework (P2.1b), and suite roadmap work (security fixes only).
@@ -41,6 +41,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ### 2026-10-07
 - `/idea`: owner wants the site reworked sooner, as the platform the brand derives from. Split P2.1: P2.1a (brand + studio-first homepage) starts now; P2.1b (the rest) still waits for P2.0 (D-011, amends D-010). Next: P2.1a owner interview.
+- P2.1a: interview (two batches + references); brand doc; homepage rebuilt studio-first from store feature graphics (WebP, 7–27 KB each); chatbot facts re-led; PIKA `#pricing` and changelog `#what`/`#pricing` links retargeted; fixed the 13px phone overflow (hero glow, `style.css`), which also fixes `/labs/`. Browser-checked at 1280 and 375. Gates all PASS. Next: owner review.
 
 ### 2026-10-02
 - Owner set the offer (from £750, £300 deposit, Tea Tower as the example, replies by email) and picked Reactor Panic and Submarine Panic plus Pomodorable for the studio bet. Analytics rows added to the three roadmaps; unlisted offer page and starter prospect list (41 organisations) drafted. Next: owner approves the page and starts outreach.

@@ -321,6 +321,7 @@ footer{border-top:1px solid var(--stroke);padding:32px 0 48px;color:var(--muted)
   .menuBtn{display:inline-flex}
   .span3,.span4,.span5,.span6,.span7{grid-column:span 12}
   .hero.heroSplit{grid-template-columns:1fr;gap:36px}
+  .hero::before{inset:-80px -20px auto -20px} /* stop the glow at the screen edge (wrap padding is 20px) */
   .steps{grid-template-columns:1fr;gap:24px}
   .step:not(:last-child)::after{display:none}
   .step{padding:0;border-left:2px solid var(--stroke);padding-left:20px}
