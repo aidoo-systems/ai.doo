@@ -92,10 +92,20 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 
 ## D-010 — No pivot yet: an eight-week, two-bet experiment decides it
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by D-011 (brand and homepage proceed now)
 - **Date:** 2026-10-01
 - **Decision:** ai.doo does not rebrand or redesign yet. Until 2026-11-26 it runs two bets (P2.0): **studio** (instrument the best 2 games plus Pomodorable, buy 500–1,000 installs each; pass at D1 ≥ 35% and D7 ≥ 10% on any title, kill if every title is under D1 25% or D7 5%) and **services, reshaped** to fixed-price promo and event web games for Isle of Man businesses and events (one unlisted offer page, 40–60 direct contacts; pass at one deposit of £300 or more, kill at none). Meanwhile: no new titles, no site redesign (P2.1 waits), and PIKA/VERA/Hub on security fixes only. If both bets fail, the site says honestly that ai.doo is a small studio, rather than being redesigned around a hope.
 - **Why:** The A3 stress test (pivot brief) found the same thing three ways: building was never the bottleneck, distribution was. ~100 lifetime installs per game against roughly 150–400 a day needed for £300–£1k/month; local businesses buy outcomes that cheap tools already deliver, and Apple rejects thin business apps; one person can't run studio, client hosting and the suite at once. The owner's goal is side income within 12 months, with 0–1 selling hours a week normally and 2–3 for these eight weeks; studio leads, services are a side door.
 - **Alternatives:** "Concept to store, we host it" for clients (rejected: store review risk, an open-ended maintenance tail, and it is a lead-dependent business like the one that failed). Keeping the suite in development at under 20% (owner's first answer; changed to a freeze on the panel's advice, because 20% of an undefined total can't be checked). The project manager's lighter bar of 20 contacts and 2 calls (rejected: conversations cost the prospect nothing, so they prove little).
 - **Consequences:** D-004's promise (buyers start a pilot conversation) is suspended, not yet superseded. Suite repos take security fixes only until the review. The offer page is unlisted and built only once the owner approves its price and copy. About £300 of ad spend is the owner's to authorise.
 - **Revisit when:** 2026-11-26, or earlier if a bet hits its pass bar. Further dates from the panel: stop new titles if no app passes £50/month by 2027-03-31; archive the suite if it has had no inbound interest by then.
+
+## D-011 — Brand and homepage now (P2.1a); the full rework still waits for P2.0
+
+- **Status:** Accepted
+- **Date:** 2026-10-07
+- **Decision:** Split P2.1. **P2.1a** starts now: the brand foundation (positioning line, voice, wordmark/logo, palette and type) and a homepage that leads with the studio, with Labs games first, the promo offer as a real way in, and the suite reduced to one honest line. **P2.1b** (the rest of P2.1: audience, pricing pages, SEO/content plan, D-003 at scale) still waits for the 2026-11-26 review. This amends D-010's "no site redesign" for P2.1a only.
+- **Why:** The owner sees the site as the platform the brand derives from. Outreach now sends prospects to aidoo.biz, and a homepage selling self-hosted AI pilots from £3,000 contradicts the promo offer mid-experiment. "A small studio that makes games and apps" is true whichever bet wins, and D-010 already names it as the fallback, so the brand can be settled without guessing the result.
+- **Alternatives:** The whole of P2.1 now (designs the audience-dependent parts before the data that decides them). Holding everything until 2026-11-26 (leaves the front door contradicting the offer during the experiment).
+- **Consequences:** D-004's pilot-conversation promise stays suspended; the homepage stops leading with it. The owner's outreach (2–3 hours a week) keeps priority over P2.1a review time. Linking `/promo-games/` from the homepage changes the services bet from direct outreach only, so it is an owner decision inside P2.1a. Suite copy that remains is still held to "no unproven claims".
+- **Revisit when:** P2.0's review on 2026-11-26; P2.1b builds on whatever P2.1a ships.
