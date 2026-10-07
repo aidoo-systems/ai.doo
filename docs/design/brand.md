@@ -82,9 +82,7 @@ facts kept for visitors who ask.
 
 ## Left for P2.1b
 
-- `/labs/` duplicates the homepage. Retire it (redirect to `/#games`) or make
-  it the full catalogue.
-- `/promo-games/` still says "ai.doo Labs" and uses the Labs palette.
+- ~~`/labs/` duplicates the homepage; `/promo-games/` still says "ai.doo Labs".~~ Settled by D-013: Labs retired (P2.1c).
 - `/pika/` and `/vera/` still sell pilots; whether they keep doing so waits for
   P2.0's result (D-004, D-010).
 - `og-image.png` still shows the AI positioning.

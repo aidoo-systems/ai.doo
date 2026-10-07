@@ -119,3 +119,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A (light editorial), B (art-led full-bleed dark), C (colour per game on off-white); all mocked with the same copy and art.
 - **Consequences:** Every new game needs a chosen colour (and a glow colour if its art is dark) as well as a feature graphic before it gets a card. Most chrome is already in `style.css`; the restyle mainly replaces the work tiles. If the blue glow mutes the cards, tone the glow down, not the cards.
 - **Revisit when:** P2.1b reworks the other pages.
+
+## D-013 — Labs is retired; game links land on homepage cards
+
+- **Status:** Accepted
+- **Date:** 2026-10-07 (owner)
+- **Decision:** "ai.doo Labs" is no longer a name or a page. `/labs/` leaves the sitemap and redirects to `/#games`; every internal link to a game or app goes to its card on the homepage (`/#<card>`); `/promo-games/` takes the homepage's look (D-012). Answers `brand.md`'s open question "retire `/labs/` or make it the full catalogue". Built as P2.1c.
+- **Why:** The owner doesn't want any link sending visitors to Labs. Since D-011 the homepage carries all nine titles, so `/labs/` was a second, older-looking catalogue to keep in step, and `/promo-games/`, where outreach sends prospects, still wore the Labs name.
+- **Alternatives:** Keep `/labs/` as the full catalogue (two lists of the same nine titles). Delete it outright (breaks old links).
+- **Consequences:** The `@aidoolabs` TikTok handle still says Labs (owner's call). If the catalogue outgrows the homepage, it comes back as `/games/` in the D-012 look, not as Labs.
+- **Revisit when:** The homepage can't hold every title.
