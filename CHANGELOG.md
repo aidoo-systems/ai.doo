@@ -11,9 +11,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **The homepage now leads with the studio** (P2.1a, D-011): "Small games and apps, made with care." Games and apps are shown with their store art, then the promo-games offer, then one line for PIKA and VERA. The enterprise sections (what, why, how, pricing) are gone from the homepage; `/pika/` and `/vera/` are unchanged. Brand recorded in `docs/design/brand.md`
 - The chatbot's opening facts now describe the studio first
 - PIKA's "engagement options" link and the PIKA changelog nav no longer point at homepage sections that no longer exist
+- **Labs is retired** (P2.1c): `/promo-games/` drops the "ai.doo Labs" name and colours for the homepage's look, and links each game and app to its own card on the homepage (`/#reactor-panic` and so on). `/labs/` is out of the sitemap and redirects to the homepage's games
 
 ### Fixed
 
+- VERA's "engagement options" link pointed at a homepage pricing section that no longer exists; it now goes to the homepage's contact band
 - Phones no longer scroll sideways by 13px on the homepage and `/labs/`: the hero glow now stops at the screen edge
 
 ### Added
