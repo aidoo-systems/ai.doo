@@ -24,7 +24,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then the owner starts Google App Campaigns.
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. **P2.1a** (D-011): done. Homepage restyled per D-012 and merged (#22, #23); live on aidoo.biz. History in the work log.
-5. **P2.1c** (next machine item): retire Labs. Internal links go to homepage cards, `/promo-games/` drops the Labs name and palette, `/labs/` redirects to `/#games`. `/promo-games/` is where outreach sends people, so it comes before P2.1b.
+5. **P2.1c** (D-011): built, `Ready For Test`, PR stacked on #24. **Next action:** owner reviews `/promo-games/` on the PR (desktop and phone), taps a footer game link on a phone, then merges #24 and the P2.1c PR in that order.
 6. 2026-11-26: read the results against the bars; supersede or reaffirm D-004; then P2.1b (with P1.2 / P1.3 inside it, D-008).
 
 Held until then: new titles, the rest of the site rework (P2.1b), and suite roadmap work (security fixes only).
@@ -41,6 +41,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-07
+- P2.1c: Labs retired. Card anchors on the homepage; `/promo-games/` in the D-012 look, footer links to `/#<card>`; `/labs/` a noindex redirect to `/#games`, out of the sitemap; chatbot prompt drops Labs; VERA's dead `/#pricing` link fixed. `tests/test_labs_retired.py` 7 red → 7 green. Gate cycles: 2 (format). Codex round 1: no findings. Next: owner review.
 - `/idea`: P2.1c, retire Labs (owner, 2026-10-07): no link should send a visitor to `/labs/`; game links land on their homepage card. #22 and #23 merged and live. Feature-graphic fixes for Reactor Panic, Pomodorable (P1.6 reopened, layout only) and Reality Check captured in their repos; ai.doo refreshes `images/work/*.webp` once the owner approves each.
 - P2.1a: owner liked the restyle; asked to ease off the Isle of Man and add a process section like the original's numbered steps. Isle of Man out of the hero pill and chips (kept in footer and meta description). New "How a promo game gets made" six tiles under the promo band, from `/promo-games/`'s steps; ends on the web, not the stores, because client store apps aren't offered (D-010; owner agreed). Browser-checked at 1280 and 375, no sideways scroll. Next: owner review, then merge #22 and #23.
 - P2.1a: homepage restyled per D-012: colour-per-game cards (solid for bright art; Submarine and Orbital glow), 900-weight headings, chip row of studio facts, amber-to-orange promo band with the price as its big number; hero image dropped. `brand.md` Look section rewritten. Also fixed sideways scroll at desktop widths on every page with a hero (the aurora glow's drift reached about 95px past a 1280px screen): `body{overflow-x:clip}`; sticky header unaffected. Browser-checked at 1280 and 375: `scrollWidth == clientWidth` on `/`, `/labs/`, `/pika/`, `/vera/`, `/promo-games/`; no console errors. Next: owner review.
