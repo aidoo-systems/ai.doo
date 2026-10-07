@@ -109,3 +109,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** The whole of P2.1 now (designs the audience-dependent parts before the data that decides them). Holding everything until 2026-11-26 (leaves the front door contradicting the offer during the experiment).
 - **Consequences:** D-004's pilot-conversation promise stays suspended; the homepage stops leading with it. The owner's outreach (2–3 hours a week) keeps priority over P2.1a review time. Linking `/promo-games/` from the homepage changes the services bet from direct outreach only, so it is an owner decision inside P2.1a. Suite copy that remains is still held to "no unproven claims".
 - **Revisit when:** P2.0's review on 2026-11-26; P2.1b builds on whatever P2.1a ships.
+
+## D-012 — Homepage look: colour per game on the original dark chrome
+
+- **Status:** Accepted (owner)
+- **Date:** 2026-10-07
+- **Decision:** The P2.1a homepage takes direction "C dark". Each game owns a colour: games with bright art are solid colour cards; games with dark art (Submarine Panic, Orbital Panic) get a dark card that glows in their colour (edge, title, hover). Heavy headline weight and big rounded cards, from C. The promo band is the page's one bright gradient (amber to orange). Kept from the original site: the sticky top bar, the faint dotted background and navy gradient, the outlined pill above the headline, blue gradient text on one phrase ("made with care."), the blue primary button with glow and hover lift, the outlined secondary button, and the dotted chip row, now carrying studio facts (Android, iOS, the web, Isle of Man) with game-coloured dots. No light mode: D-004's non-goal holds.
+- **Why:** The owner rejected the first P2.1a build as too like the old site, picked C from three mocks (https://claude.ai/artifact/BsH33LcsQCU5gsJLGUVe9H), and the family preferred the original's dark, slick look. What read as "the old site" was the uniform grey work tiles, not the chrome, so the chrome comes back and the cards carry the change.
+- **Alternatives:** A (light editorial), B (art-led full-bleed dark), C (colour per game on off-white); all mocked with the same copy and art.
+- **Consequences:** Every new game needs a chosen colour (and a glow colour if its art is dark) as well as a feature graphic before it gets a card. Most chrome is already in `style.css`; the restyle mainly replaces the work tiles. If the blue glow mutes the cards, tone the glow down, not the cards.
+- **Revisit when:** P2.1b reworks the other pages.
