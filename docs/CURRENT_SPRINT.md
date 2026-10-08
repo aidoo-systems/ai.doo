@@ -41,7 +41,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-08
-- Pomodorable card takes the new P1.6 feature graphic. Tea Tower is live on Google Play: Play link on its card (its "In development" pill dropped) and on `/promo-games/`. The Firebase owner gate was stale: the apps and configs exist since 2026-10-02. Next: owner starts outreach (step 1).
+- Pomodorable card takes the new P1.6 feature graphic; Reactor Panic's takes its redrawn one (from reactor-panic #18, open; card stays solid amber, checked in the browser). Tea Tower is live on Google Play: Play link on its card (its "In development" pill dropped) and on `/promo-games/`. The Firebase owner gate was stale: the apps and configs exist since 2026-10-02. Next: owner starts outreach (step 1).
 
 ### 2026-10-07
 - P2.1c: Labs retired. Card anchors on the homepage; `/promo-games/` in the D-012 look, footer links to `/#<card>`; `/labs/` a noindex redirect to `/#games`, out of the sitemap; chatbot prompt drops Labs; VERA's dead `/#pricing` link fixed. `tests/test_labs_retired.py` 7 red → 7 green. Gate cycles: 2 (format). Codex round 1: no findings. Next: owner review.
