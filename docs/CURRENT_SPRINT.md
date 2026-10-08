@@ -41,6 +41,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-08
+- Share card (`og-image.jpg`, was `og-image.png`) redrawn for the studio: homepage headline, Orbital, Tea Tower and Pomodorable art on the original dark chrome; rendered from HTML with the site's Inter. All `og:image`/`twitter:image` URLs point at the new file, which also beats share caches.
 - Pomodorable card takes the new P1.6 feature graphic; Reactor Panic's takes its redrawn one (from reactor-panic #18, open; card stays solid amber, checked in the browser). Tea Tower is live on Google Play: Play link on its card (its "In development" pill dropped) and on `/promo-games/`. The Firebase owner gate was stale: the apps and configs exist since 2026-10-02. Next: owner starts outreach (step 1).
 
 ### 2026-10-07
