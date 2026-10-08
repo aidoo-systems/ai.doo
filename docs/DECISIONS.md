@@ -129,3 +129,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Keep `/labs/` as the full catalogue (two lists of the same nine titles). Delete it outright (breaks old links).
 - **Consequences:** The `@aidoolabs` TikTok handle still says Labs (owner's call). If the catalogue outgrows the homepage, it comes back as `/games/` in the D-012 look, not as Labs.
 - **Revisit when:** The homepage can't hold every title.
+
+## D-014 — Custom apps for businesses are on offer, priced by email
+
+- **Status:** Accepted
+- **Date:** 2026-10-08 (owner)
+- **Decision:** ai.doo builds apps for businesses as well as promo games. The homepage says so in its supporting line ("a game or app of its own") and meta descriptions, and the chatbot says so, with no fixed price: scoping and pricing start with an email to hello@aidoo.biz. No apps page and no starting price until the P2.0 review.
+- **Why:** Asked "can you make an app instead?", the chatbot led with the promo-game pitch and only half-offered apps, improvising because nothing on the site said client apps were on offer. The owner would gladly build them.
+- **Alternatives:** A starting price like the promo games' £750 (premature before the experiment reads out). Leave the site games-only (turns away work the owner wants).
+- **Consequences:** Amends D-010's held commercial changes for this one line. P2.0 still measures the promo-game bet only; app enquiries that come in are noted in the brief's Results table but aren't one of its bars.
+- **Revisit when:** The 2026-11-26 review, or P2.1b's pricing pages.
