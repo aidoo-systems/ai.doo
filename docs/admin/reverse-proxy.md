@@ -12,7 +12,7 @@ A reverse proxy terminates TLS and routes traffic to the ai.doo services. **Cadd
 | Hub | 8000 | `hub` | `hub.example.com` |
 | PIKA | 8000 | `pika` / `pika-app` | `pika.example.com` |
 | VERA frontend | 3000 | `vera-frontend` | `vera.example.com` |
-| VERA backend | 8000 | `vera-backend` | `vera.example.com/api/*` |
+| VERA backend | 8000 | `vera-backend` | VERA's `/api`, `/documents`, `/directory`, `/files`, `/llm` paths and `/health` |
 
 !!! danger
     **Never expose Ollama (port 11434) to the public internet.** It has no authentication. Only the Docker bridge network (`ollama_network`) should be able to reach it. See the [firewall guide](https://github.com/aidoo-biz/ollama/blob/master/deploy/reference/firewall.md) for details.
@@ -26,6 +26,8 @@ A reverse proxy terminates TLS and routes traffic to the ai.doo services. **Cadd
 ## Caddy (Recommended)
 
 Caddy obtains and renews TLS certificates automatically via Let's Encrypt.
+
+For this same-origin VERA layout, use a runtime-capable frontend image with `VERA_PUBLIC_API_URL=/`, set backend `SECURE_COOKIES=true`, and set `CORS_ORIGINS=https://vera.example.com`. The installer/reference routes have been tested with a privately trusted certificate; public ACME and the full generated installation remain release checks. The repo-root proxy in the Ollama repository uses a different, separate-API-host layout.
 
 ### Caddyfile
 
@@ -75,16 +77,18 @@ pika.example.com {
 
 vera.example.com {
     import security_headers
-    header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://vera.example.com"
+    header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'"
 
-    handle /api/* {
+    @vera_api path /api /api/* /documents /documents/* /directory /directory/* /files /files/* /llm /llm/* /health
+    handle @vera_api {
         reverse_proxy vera-backend:8000 {
             flush_interval -1    # required for SSE status streaming
             header_up X-Forwarded-Proto {scheme}
         }
     }
 
-    handle /internal/* {
+    @private path /internal /internal/* /metrics /metrics/*
+    handle @private {
         respond "Not Found" 404  # block internal endpoints
     }
 
