@@ -24,7 +24,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 1. **Next action:** build P2.0a, the playable showcase (D-015), then the owner starts outreach the day it's live; meanwhile the owner can tidy the prospect list and draft the email.
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
-2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (no paid campaigns, D-015; at most about £50 for one promising title).
+2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. **P2.1a** (D-011): done. Homepage restyled per D-012 and merged (#22, #23); live on aidoo.biz. History in the work log.
 5. **P2.1c** (D-011, D-013): done. Labs retired; merged (#24, #25, #26) and live.
@@ -36,7 +36,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 - Approve the offer page copy (price set 2026-10-02: from £750, £300 deposit; test games: Reactor Panic, Submarine Panic, plus Pomodorable).
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Run the outreach (2–3 hours a week) once P2.0a is live. A Google Ads account only if one title earns the single campaign.
+- Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
