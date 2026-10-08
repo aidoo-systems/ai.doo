@@ -14,6 +14,8 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 - Phase 1 machine items all merged and deployed: P1.1 site gate (#14), P1.5 chat limit per visitor + 60/min ceiling (#16, D-009), P1.4 docs build pinned (#17). Gates: lint, format, tests, build, site, audit, docs.
 - P2.1 captured (#15, D-008), split 2026-10-07 (D-011): P2.1a brand + studio-first homepage now; P2.1b the rest of the rework, carrying P1.2 (claims) and P1.3 (commercial), after P2.0.
+- 2026-10-08: the promo offer leads with the waiting moment ("something for your customers to play while they wait"), on `/promo-games/` and the homepage's business band. Custom apps for businesses are on offer, priced by email (D-014, #32). Websites stay off the menu: case by case if a prospect asks, decided at the review. Personal data stays out of promo games (the page's "not a data grab" promise).
+- P2.0a captured (#33): a browser promo showcase game to replace Tea Tower as the offer page's example (pour-the-pint; a made-up pub skin and an ai.doo skin with a real discount). Proposed, not scheduled: outreach comes first.
 - **Pivot stress-tested** (2026-10-01): no pivot yet; Phase 0 experiment running (D-010). Background: no corporate leads; two Labs games at 100+ downloads; idea "we create and host apps for you, concept to store". Claude's critical feedback, the recommended 8-week experiment and the open questions are banked in [the pivot brief](design/2026-10-01-pivot-brief.md).
 - DNS, seen 2026-10-01 (owner's to fix): `aidoo.biz` has a second A record `162.255.119.207` that doesn't answer HTTPS, and `www.aidoo.biz` has an AAAA in Google's range (`2a00:1450:4009:c08::79`). Only `157.180.81.235` serves the site.
 - Owner's local `main`: rebased onto `origin/main` 2026-10-07; the enterprise-roadmap commit (now `bc9af24`) is unpushed, with uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`.
@@ -36,6 +38,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Set up the Google Ads account.
 - Authorise about £300 of Google App Campaigns spend, and run the outreach (2–3 hours a week).
 - Fix the two stray DNS records.
+- Before P2.0a is built: the ai.doo showcase discount and its terms (D-015), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
