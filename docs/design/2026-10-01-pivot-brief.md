@@ -82,6 +82,8 @@ Between pass and kill on a studio title: iterate once on onboarding and the firs
 
 **Keep the "we already use X" list.** Every need a prospect names that an existing tool already meets is part of the finding.
 
+> **2026-10-08 (D-015):** the studio bet runs on organic and free traffic, with no £300 campaign; at most about £50 for one promising title. Bars count only at roughly 100+ players per title. Outreach starts once the P2.0a showcase is live.
+
 ## Results (fill in by 2026-11-26)
 
 | Measure | Value |

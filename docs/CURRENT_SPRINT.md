@@ -15,15 +15,16 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 - Phase 1 machine items all merged and deployed: P1.1 site gate (#14), P1.5 chat limit per visitor + 60/min ceiling (#16, D-009), P1.4 docs build pinned (#17). Gates: lint, format, tests, build, site, audit, docs.
 - P2.1 captured (#15, D-008), split 2026-10-07 (D-011): P2.1a brand + studio-first homepage now; P2.1b the rest of the rework, carrying P1.2 (claims) and P1.3 (commercial), after P2.0.
 - 2026-10-08: the promo offer leads with the waiting moment ("something for your customers to play while they wait"), on `/promo-games/` and the homepage's business band. Custom apps for businesses are on offer, priced by email (D-014, #32). Websites stay off the menu: case by case if a prospect asks, decided at the review. Personal data stays out of promo games (the page's "not a data grab" promise).
-- P2.0a captured (#33): a browser promo showcase game to replace Tea Tower as the offer page's example (pour-the-pint; a made-up pub skin and an ai.doo skin with a real discount). Proposed, not scheduled: outreach comes first.
+- Promo showcase captured (#33), split 2026-10-08 (D-015): **P2.0a** a playable pour-the-pint browser game for a made-up pub, to replace Tea Tower as the offer page's example, built before outreach; **P2.0b** the leaderboard, target mode, claim screen and an ai.doo skin with a real discount, alongside outreach.
 - **Pivot stress-tested** (2026-10-01): no pivot yet; Phase 0 experiment running (D-010). Background: no corporate leads; two Labs games at 100+ downloads; idea "we create and host apps for you, concept to store". Claude's critical feedback, the recommended 8-week experiment and the open questions are banked in [the pivot brief](design/2026-10-01-pivot-brief.md).
 - DNS, seen 2026-10-01 (owner's to fix): `aidoo.biz` has a second A record `162.255.119.207` that doesn't answer HTTPS, and `www.aidoo.biz` has an AAAA in Google's range (`2a00:1450:4009:c08::79`). Only `157.180.81.235` serves the site.
-- Owner's local `main`: rebased onto `origin/main` 2026-10-07; the enterprise-roadmap commit (now `bc9af24`) is unpushed, with uncommitted edits to `.github/ROADMAP.md`, `docs/admin/reverse-proxy.md`, `docs/installation/installer.md`.
+- The enterprise-roadmap commit and the docs edits landed in #28 (2026-10-08).
 
 ## Execution order
 
-1. **Next action:** owner starts outreach. The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
-2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then the owner starts Google App Campaigns.
+1. **Next action:** build P2.0a, the playable showcase (D-015), then the owner starts outreach the day it's live; meanwhile the owner can tidy the prospect list and draft the email.
+   The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
+2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (no paid campaigns, D-015; at most about £50 for one promising title).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. **P2.1a** (D-011): done. Homepage restyled per D-012 and merged (#22, #23); live on aidoo.biz. History in the work log.
 5. **P2.1c** (D-011, D-013): done. Labs retired; merged (#24, #25, #26) and live.
@@ -35,10 +36,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 - Approve the offer page copy (price set 2026-10-02: from £750, £300 deposit; test games: Reactor Panic, Submarine Panic, plus Pomodorable).
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Set up the Google Ads account.
-- Authorise about £300 of Google App Campaigns spend, and run the outreach (2–3 hours a week).
+- Run the outreach (2–3 hours a week) once P2.0a is live. A Google Ads account only if one title earns the single campaign.
 - Fix the two stray DNS records.
-- Before P2.0a is built: the ai.doo showcase discount and its terms (D-015), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
+- Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
