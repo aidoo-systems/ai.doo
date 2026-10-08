@@ -85,5 +85,5 @@ facts kept for visitors who ask.
 - ~~`/labs/` duplicates the homepage; `/promo-games/` still says "ai.doo Labs".~~ Settled by D-013: Labs retired (P2.1c).
 - `/pika/` and `/vera/` still sell pilots; whether they keep doing so waits for
   P2.0's result (D-004, D-010).
-- `og-image.png` still shows the AI positioning.
+- ~~`og-image.png` still shows the AI positioning.~~ Redrawn 2026-10-08 in the D-012 look (studio headline, game cards); now `og-image.jpg` (a new URL, so share caches refetch; under WhatsApp's ~300 KB limit).
 - Success measures and the Umami baseline.
