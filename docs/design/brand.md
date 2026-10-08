@@ -15,8 +15,8 @@ not leading.
 
 - **Positioning line:** "Small games and apps, made with care."
 - **Supporting line:** "We make mobile games, useful little apps and toys for
-  the web. And if your business or event wants a game of its own, we'll make
-  that too."
+  the web. And if your business or event wants a game or app of its own,
+  we'll make that too." (apps added 2026-10-08, D-014)
 - **Place:** "A small studio on the Isle of Man" sits above the headline and
   in the footer. Being local supports the promo outreach; it is not the lead.
 
