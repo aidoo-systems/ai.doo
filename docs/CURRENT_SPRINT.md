@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-07
+Last updated: 2026-10-08
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner
 
@@ -32,13 +32,16 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Owner gates — waiting on a human
 
 - Approve the offer page copy (price set 2026-10-02: from £750, £300 deposit; test games: Reactor Panic, Submarine Panic, plus Pomodorable).
-- Firebase: add Android (and iOS) apps for the three games in the existing Firebase account; download `google-services.json` / `GoogleService-Info.plist` into each repo.
+- Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
 - Set up the Google Ads account.
 - Authorise about £300 of Google App Campaigns spend, and run the outreach (2–3 hours a week).
 - Fix the two stray DNS records.
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
+
+### 2026-10-08
+- Pomodorable card takes the new P1.6 feature graphic. Tea Tower is live on Google Play: Play link on its card (its "In development" pill dropped) and on `/promo-games/`. The Firebase owner gate was stale: the apps and configs exist since 2026-10-02. Next: owner starts outreach (step 1).
 
 ### 2026-10-07
 - P2.1c: Labs retired. Card anchors on the homepage; `/promo-games/` in the D-012 look, footer links to `/#<card>`; `/labs/` a noindex redirect to `/#games`, out of the sitemap; chatbot prompt drops Labs; VERA's dead `/#pricing` link fixed. `tests/test_labs_retired.py` 7 red → 7 green. Gate cycles: 2 (format). Codex round 1: no findings. Next: owner review.
