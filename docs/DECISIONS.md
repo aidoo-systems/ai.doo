@@ -139,3 +139,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A starting price like the promo games' £750 (premature before the experiment reads out). Leave the site games-only (turns away work the owner wants).
 - **Consequences:** Amends D-010's held commercial changes for this one line. P2.0 still measures the promo-game bet only; app enquiries that come in are noted in the brief's Results table but aren't one of its bars.
 - **Revisit when:** The 2026-11-26 review, or P2.1b's pricing pages.
+
+## D-015 — Studio bet runs on free traffic; the showcase game comes before outreach
+
+- **Status:** Accepted
+- **Date:** 2026-10-08 (owner)
+- **Decision:** Amends D-010 in two ways. **(1)** The studio bet drops the ~£300 of Google App Campaigns. Reactor Panic, Submarine Panic and Pomodorable ship their analytics releases and are read on organic installs plus free promotion (TikTok @aidoolabs, Reddit, itch.io). The owner may run one small campaign (about £50) for one game only: **Submarine Panic**, chosen 2026-10-08 because it has had the most traffic. It runs after its analytics release is live, so the paid installs are measured. **(2)** Outreach waits for P2.0a, a playable browser showcase, because the offer page sells a no-download phone game and its only example is an Android app. P2.0a is kept to days; the leaderboard, claim screen and ai.doo discount follow in P2.0b alongside outreach.
+- **Why:** The owner won't spend £300 on campaigns without a signal first. A prospect who is told "no app to download" and then shown a Play Store link sees the contradiction at once.
+- **Alternatives:** Keep the £300 (rejected by the owner). Drop the studio bet entirely (no numbers on 26 November). Start outreach with Tea Tower (contradicts the offer).
+- **Consequences:** Fewer studio installs, so the D1/D7 bars only count on roughly 100 or more players per title; below that the reading is a hint, not a pass or fail. Outreach starts about a week later, inside the same eight weeks. The ai.doo discount becomes D-016 when the owner sets it.
+- **Revisit when:** The 2026-11-26 review, or as soon as one title's free numbers justify the one campaign.
