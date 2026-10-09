@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-08
+Last updated: 2026-10-09
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner
 
@@ -42,6 +42,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
+
+### 2026-10-09
+- `/privacy-pomodorable/` declares Firebase Analytics for Pomodorable 1.3.0 (pomodorable-android P0.1, D-020): usage events, approximate location from IP, no advertising ID, automatic expiry (2 months analytics, 90 days crashes). PR #36.
 
 ### 2026-10-08
 - Share card (`og-image.jpg`, was `og-image.png`) redrawn for the studio: homepage headline, Orbital, Tea Tower and Pomodorable art on the original dark chrome; rendered from HTML with the site's Inter. All `og:image`/`twitter:image` URLs point at the new file, which also beats share caches.
