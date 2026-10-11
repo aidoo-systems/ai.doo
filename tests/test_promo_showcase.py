@@ -25,10 +25,13 @@ import check_site  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 GAME = REPO_ROOT / "play" / "pint"
-SKIN = GAME / "skins" / "wobbly-gull.json"
+SKINS = sorted((GAME / "skins").glob("*.json"))
 DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
-# What the shipped code may not know about: the first skin's venue and drink.
-SKIN_WORDS = re.compile(r"wobbly|gull|pint|\bpub\b|beer|lager", re.IGNORECASE)
+# What the shipped code may not know about: any shipped skin's venue or drink.
+SKIN_WORDS = re.compile(
+    r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]",
+    re.IGNORECASE,
+)
 
 # A second venue, written the way a real reskin would be: a file of data.
 LATTE = {
@@ -36,6 +39,7 @@ LATTE = {
     "venue": "Test Kitchen Café",
     "tagline": "Pour the perfect latte",
     "fictional": "Test Kitchen Café is made up.",
+    "switchLabel": "See it as a test",
     "theme": {
         "bg": "#2b1d16",
         "panel": "#3a281f",
@@ -61,8 +65,11 @@ LATTE = {
         "hold": "Hold to pour",
         "release": "Let go",
         "hint": "Let go at the line.",
-        "next": "Next latte",
-        "finish": "See the board",
+        "falseStart": "Keep holding",
+        "rival": "{gap} to pass {name}",
+        "top": "Top",
+        "best": "Best {score}",
+        "newBest": "New best",
         "again": "Pour again",
         "perfect": "Perfect latte",
         "good": "Good pour",
@@ -117,12 +124,28 @@ def _text(rel):
 # --- the rules -----------------------------------------------------------------
 
 
-def test_the_shipped_skin_is_valid_and_three_perfect_pours_score_300():
-    result = run(SKIN, ["line", "line", "line"])
+def test_two_skins_ship():
+    assert [p.stem for p in SKINS] == ["dozy-otter", "wobbly-gull"]
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_skin_is_valid_and_perfect_pours_score_full_marks(path):
+    rounds = len(json.loads(path.read_text(encoding="utf-8"))["rounds"])
+    result = run(path, ["line"] * rounds)
     assert result["problems"] == []
-    assert [r["verdict"] for r in result["rounds"]] == ["perfect"] * 3
-    assert result["total"] == 300
+    assert [r["verdict"] for r in result["rounds"]] == ["perfect"] * rounds
+    assert result["total"] == rounds * 100
+    assert result["stars"] == 3
+    assert result["rival"] is None
     assert result["phase"] == "done"
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_skin_forgives_a_tap(path):
+    rounds = len(json.loads(path.read_text(encoding="utf-8"))["rounds"])
+    result = run(path, [0.02] + ["line"] * rounds)
+    assert result["falseStarts"] == 1
+    assert result["total"] == rounds * 100
 
 
 def test_a_second_skin_is_data_alone(latte):
@@ -152,6 +175,34 @@ def test_a_tap_is_a_short_measure_and_scores_nothing(latte):
     result = run(latte(), [0.01, 0.01])
     assert [r["verdict"] for r in result["rounds"]] == ["short", "short"]
     assert result["total"] == 0
+
+
+def test_a_false_start_empties_the_glass_and_keeps_the_round(latte):
+    forgiving = latte(lambda s: s["scoring"].update(falseStart=0.08))
+    # 0.1s at 0.5 a second is 0.05 of the glass: under the bar, so not a pour.
+    result = run(forgiving, [0.1, "line", "line"])
+    assert result["falseStarts"] == 1
+    assert [r["verdict"] for r in result["rounds"]] == ["perfect", "perfect"]
+    assert result["total"] == 200
+    # 0.2s is 0.1 of the glass: over the bar, so it counts, and scores nothing.
+    counted = run(forgiving, [0.2, "line"])
+    assert counted["falseStarts"] == 0
+    assert counted["rounds"][0]["verdict"] == "short"
+
+
+def test_the_rival_is_the_next_sample_score_up(latte):
+    assert run(latte(), ["line", 0.01])["rival"] == {"name": "Bean", "gap": 50}
+    assert run(latte(), [0.01, 0.01])["rival"] == {"name": "Milo", "gap": 90}
+    assert run(latte(), ["line", "line"])["rival"] is None
+
+
+def test_a_slower_surge_changes_how_the_same_hold_pours(latte):
+    # Round 2 surges. Held for the same 0.5s, a different pulse rate pours a different amount.
+    def poured(hz):
+        skin = latte(lambda s: s["rounds"][1].update(surgeHz=hz))
+        return run(skin, ["line", 0.5])["rounds"][1]["level"]
+
+    assert poured(0.5) != pytest.approx(poured(2), abs=0.005)
 
 
 def test_the_score_falls_the_further_the_pour_stops_from_the_line(latte):
@@ -195,6 +246,9 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
         lambda s: s["theme"].pop("counter"),
+        lambda s: s.pop("switchLabel"),
+        lambda s: s["rounds"][1].update(surgeHz=9),
+        lambda s: s["scoring"].update(falseStart=0.5),
         # Five hex digits is no CSS colour: the canvas would throw on it mid-game.
         lambda s: s["theme"].update(counter="#12345"),
         lambda s: s["drink"].update(liquid="#1234567"),
@@ -238,8 +292,9 @@ def test_the_game_keeps_and_sends_nothing():
     assert "/^[a-z0-9-]+$/" in js
 
 
-def test_the_shipped_skin_names_a_made_up_venue_and_no_drink_as_a_prize():
-    skin = json.loads(SKIN.read_text(encoding="utf-8"))
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_skin_names_a_made_up_venue_and_no_drink_as_a_prize(path):
+    skin = json.loads(path.read_text(encoding="utf-8"))
     assert "made up" in skin["fictional"].lower() or "made-up" in skin["fictional"]
     assert not re.search(
         r"free (pint|drink|beer)|wins? a (pint|drink|beer)", json.dumps(skin), re.I
@@ -252,7 +307,9 @@ def test_deploy_serves_the_game_and_its_skin():
         "play/pint/index.html",
         "play/pint/engine.js",
         "play/pint/game.js",
+        "play/pint/skins/default.js",
         "play/pint/skins/wobbly-gull.json",
+        "play/pint/skins/dozy-otter.json",
         "images/promo/pint-qr.svg",
     ):
         assert rel in served, rel
@@ -264,6 +321,7 @@ def test_deploy_serves_the_game_and_its_skin():
 def test_the_offer_page_leads_with_the_playable_example():
     html = _text("promo-games/index.html")
     assert 'href="/play/pint/"' in html
+    assert 'href="/play/pint/?skin=dozy-otter"' in html
     assert 'src="../images/promo/pint-qr.svg"' in html
     # "No app to download" and a store link can't share a page.
     assert "play.google.com" not in html

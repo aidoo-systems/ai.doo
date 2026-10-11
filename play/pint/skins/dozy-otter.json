@@ -1,0 +1,68 @@
+{
+  "id": "dozy-otter",
+  "venue": "The Dozy Otter",
+  "tagline": "Pour the perfect latte",
+  "fictional": "The Dozy Otter is a made-up café.",
+  "switchLabel": "See it as a café",
+  "theme": {
+    "bg": "#2a1c17",
+    "panel": "#3d2a22",
+    "ink": "#fff3e4",
+    "muted": "#d6bfae",
+    "accent": "#ef8f5a",
+    "accentInk": "#2a1509",
+    "counter": "#d8c7b4",
+    "counterEdge": "#a8937e",
+    "metal": "#cfd3d6"
+  },
+  "emblem": {
+    "width": 76,
+    "height": 60,
+    "path": "M8 12 H56 V34 A20 20 0 0 1 36 54 H28 A20 20 0 0 1 8 34 Z M56 18 H62 A10 10 0 0 1 62 38 H55 V32 H61 A4 4 0 0 0 61 24 H56 Z"
+  },
+  "drink": {
+    "liquid": "#c99a72",
+    "liquidDeep": "#9a6d49",
+    "head": "#fffaf0",
+    "headDepth": 0.16,
+    "glass": [[7, 0], [93, 0], [85, 100], [15, 100]]
+  },
+  "copy": {
+    "start": "Start pouring",
+    "beat": "Beat {score} to top the board",
+    "round": "Latte {n} of {total}",
+    "hold": "Hold to pour",
+    "release": "Let go at the line",
+    "hint": "Hold to pour. Let go as the foam hits the line.",
+    "falseStart": "Keep holding to pour. Have another go.",
+    "again": "Pour again",
+    "perfect": "A perfect latte",
+    "good": "A good latte",
+    "short": "A bit short",
+    "over": "A bit full",
+    "spill": "All over the counter",
+    "total": "Your score",
+    "boardTitle": "This week at the Otter",
+    "you": "You",
+    "prize": "Top on Sunday wins a slice of cake.",
+    "rival": "{gap} more to pass {name}",
+    "top": "Top of the board. The cake is yours.",
+    "best": "Your best today: {score}",
+    "newBest": "A new best for you today"
+  },
+  "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
+  "rounds": [
+    { "line": 0.8, "speed": 0.5 },
+    { "line": 0.62, "speed": 0.62 },
+    { "line": 0.86, "speed": 0.52, "surge": 0.45, "surgeHz": 1 },
+    { "line": 0.74, "speed": 0.85 },
+    { "line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2 }
+  ],
+  "sampleScores": [
+    { "name": "Aalin", "score": 441 },
+    { "name": "Orry", "score": 412 },
+    { "name": "Mrs K", "score": 380 },
+    { "name": "Illiam", "score": 344 },
+    { "name": "Paaie", "score": 297 }
+  ]
+}

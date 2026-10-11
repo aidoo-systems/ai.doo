@@ -7,15 +7,16 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  var SURGE_HZ = 1.5; // how fast a round's surge pulses the flow
+  var SURGE_HZ = 1; // how fast a round's surge pulses the flow, unless the round says
   var MAX_STEP = 0.05; // a tick never pours more than this many seconds' worth
   var COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i; // #rgb or #rrggbb, the two forms game.js draws with
   var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
   var COPY = [
-    "start", "beat", "round", "hold", "release", "hint", "next", "finish", "again",
+    "start", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
+    "rival", "top", "best", "newBest",
   ];
 
   function isText(v, max) {
@@ -34,7 +35,7 @@
     if (!isObj(skin)) return ["the skin is not an object"];
 
     if (typeof skin.id !== "string" || !/^[a-z0-9-]+$/.test(skin.id)) problems.push("id must be lower-case letters, digits and hyphens");
-    ["venue", "tagline", "fictional"].forEach(function (key) {
+    ["venue", "tagline", "fictional", "switchLabel"].forEach(function (key) {
       if (!isText(skin[key], 160)) problems.push(key + " is missing");
     });
 
@@ -69,6 +70,7 @@
     var scoring = isObj(skin.scoring) ? skin.scoring : {};
     if (!isNum(scoring.window, 0.01, 1)) problems.push("scoring.window must be between 0.01 and 1");
     if (!isNum(scoring.perfect, 0, 1) || scoring.perfect >= scoring.window) problems.push("scoring.perfect must be smaller than scoring.window");
+    if (scoring.falseStart !== undefined && !isNum(scoring.falseStart, 0, 0.3)) problems.push("scoring.falseStart must be between 0 and 0.3");
 
     var rounds = skin.rounds;
     if (!Array.isArray(rounds) || rounds.length < 1 || rounds.length > 10) {
@@ -81,6 +83,7 @@
       if (!isNum(r.line, 0.1, 0.97)) problems.push(at + "line must be between 0.1 and 0.97");
       if (!isNum(r.speed, 0.05, 5)) problems.push(at + "speed must be between 0.05 and 5");
       if (r.surge !== undefined && !isNum(r.surge, 0, 0.9)) problems.push(at + "surge must be between 0 and 0.9");
+      if (r.surgeHz !== undefined && !isNum(r.surgeHz, 0.2, 4)) problems.push(at + "surgeHz must be between 0.2 and 4");
     });
 
     var samples = skin.sampleScores;
@@ -108,6 +111,12 @@
     return { level: level, line: line, score: score, verdict: verdict };
   }
 
+  // How hard the tap is running, as a multiple of the round's speed: 1 without a surge.
+  function flowAt(skin, round, held) {
+    var r = skin.rounds[round];
+    return 1 + (r.surge || 0) * Math.sin(2 * Math.PI * (r.surgeHz || SURGE_HZ) * held);
+  }
+
   function roundLabel(skin, round) {
     return skin.copy.round.replace("{n}", String(round + 1)).replace("{total}", String(skin.rounds.length));
   }
@@ -123,6 +132,15 @@
     return skin.sampleScores.reduce(function (best, s) {
       return Math.max(best, s.score);
     }, 0);
+  }
+
+  // The sample score just above the player's, and how far off it is; null at the top.
+  function nextRival(skin, score) {
+    var rival = null;
+    skin.sampleScores.forEach(function (s) {
+      if (s.score > score && (!rival || s.score < rival.score)) rival = s;
+    });
+    return rival ? { name: rival.name, gap: rival.score - score } : null;
   }
 
   // The sample board with the player's score ranked into it. The player wins a tie.
@@ -162,17 +180,25 @@
     game.tick = function (seconds) {
       if (game.phase !== "pouring" || !(seconds > 0)) return;
       var dt = Math.min(seconds, MAX_STEP);
-      var r = skin.rounds[game.round];
-      var flow = 1 + (r.surge || 0) * Math.sin(2 * Math.PI * SURGE_HZ * game.held);
-      game.level += r.speed * flow * dt;
+      game.level += skin.rounds[game.round].speed * flowAt(skin, game.round, game.held) * dt;
       game.held += dt;
       if (game.level >= 1) {
         game.level = 1;
         finish();
       }
     };
+    // Letting go ends the pour. A touch that barely poured is a false start, not a
+    // score: the glass empties and the round is still to play.
     game.release = function () {
-      if (game.phase === "pouring") finish();
+      if (game.phase !== "pouring") return null;
+      if (game.level < (skin.scoring.falseStart || 0)) {
+        game.level = 0;
+        game.held = 0;
+        game.phase = "ready";
+        return "falseStart";
+      }
+      finish();
+      return "poured";
     };
     game.next = function () {
       if (game.phase !== "poured") return;
@@ -202,6 +228,8 @@
     roundLabel: roundLabel,
     board: board,
     stars: stars,
+    flowAt: flowAt,
+    nextRival: nextRival,
     topScore: topScore,
     createGame: createGame,
   };
