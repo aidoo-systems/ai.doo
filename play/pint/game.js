@@ -895,7 +895,7 @@
     var againBtn = $("again");
     var startBtn = $("start");
     var muteBtn = $("mute");
-    var holder = null; // what is holding the pour: a pointer's id, or "key"; null when nothing is
+    var holder = null; // what is holding the pour: a pointer's id, or "key:" and the key; null when nothing is
     var waiting = []; // what fell due while the page was hidden, run when it is back
     var running = false;
     var last = 0;
@@ -1181,11 +1181,11 @@
     pourBtn.addEventListener("keydown", function (e) {
       if ((e.key === " " || e.key === "Enter") && !e.repeat) {
         e.preventDefault();
-        press("key");
+        press("key:" + e.key);
       }
     });
     window.addEventListener("keyup", function (e) {
-      if (e.key === " " || e.key === "Enter") release("key");
+      if (e.key === " " || e.key === "Enter") release("key:" + e.key);
     });
     // Leaving the page mid-pour ends the pour where it is, silently, and the game then
     // waits: no sound and no moving on until the player is looking again.

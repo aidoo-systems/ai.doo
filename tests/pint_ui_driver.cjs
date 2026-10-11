@@ -165,6 +165,15 @@ async function started(search) {
   page.up(1);
   out.afterOwnFinger = page.get("say").textContent;
 
+  // Poured with the space bar: another key let go while it is still down.
+  page = await started();
+  page.get("pour").fire("keydown", { key: " ", repeat: false });
+  page.advance(500);
+  page.window.fire("keyup", { key: "Enter" });
+  out.afterOtherKey = page.get("pour").textContent;
+  page.window.fire("keyup", { key: " " });
+  out.afterOwnKey = page.get("say").textContent;
+
   // The page is hidden mid-pour, then shown again a while later.
   page = await started();
   out.roundAtStart = page.get("round").textContent;

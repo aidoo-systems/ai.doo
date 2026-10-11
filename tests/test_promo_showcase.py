@@ -450,6 +450,9 @@ def test_only_the_pouring_finger_can_end_the_pour(ui):
     assert ui["afterSecondFinger"] == ui["release"]
     assert ui["afterStrayKey"] == ui["release"]
     assert ui["afterStrayCancel"] == ui["release"]
+    # Likewise at a keyboard: only the key that started the pour ends it.
+    assert ui["afterOtherKey"] == ui["release"]
+    assert re.search(r"\+\d+$", ui["afterOwnKey"])
     # Lifting the finger that is pouring ends it and scores it.
     assert re.search(r"\+\d+$", ui["afterOwnFinger"])
 
