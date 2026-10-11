@@ -35,17 +35,17 @@
     "you": "You",
     "prize": "Top of the board on Sunday gets their name on the wall."
   },
-  "scoring": { "window": 0.22, "perfect": 0.012 },
+  "scoring": { "window": 0.16, "perfect": 0.008 },
   "rounds": [
-    { "line": 0.82, "speed": 0.42 },
-    { "line": 0.9, "speed": 0.62 },
-    { "line": 0.74, "speed": 0.8, "surge": 0.55 }
+    { "line": 0.84, "speed": 0.5 },
+    { "line": 0.72, "speed": 0.72, "surge": 0.3 },
+    { "line": 0.88, "speed": 0.9, "surge": 0.6 }
   ],
   "sampleScores": [
-    { "name": "Juan", "score": 287 },
-    { "name": "Voirrey", "score": 274 },
-    { "name": "Big Dave", "score": 251 },
-    { "name": "Finlo", "score": 233 },
-    { "name": "Breesha", "score": 198 }
+    { "name": "Juan", "score": 279 },
+    { "name": "Voirrey", "score": 262 },
+    { "name": "Big Dave", "score": 240 },
+    { "name": "Finlo", "score": 221 },
+    { "name": "Breesha", "score": 187 }
   ]
 }

@@ -33,9 +33,23 @@
     .glass,.inside{position:absolute;inset:0}
     .glass{background:var(--muted);opacity:.55}
     .inside{inset:4px 5px 5px;background:var(--panel);overflow:hidden}
-    .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(var(--liquid),var(--liquidDeep))}
+    .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(var(--liquid),var(--liquidDeep));overflow:hidden}
+    .fill::after{content:"";position:absolute;inset:0;opacity:.35;background-image:radial-gradient(circle,var(--head) 1.2px,transparent 1.6px),radial-gradient(circle,var(--head) 1px,transparent 1.4px);background-size:34px 46px,52px 38px;background-position:6px 0,22px 14px;animation:fizz 2.4s linear infinite}
     .foam{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--head)}
-    .mark{position:absolute;left:0;right:0;height:0;border-top:3px dashed var(--ink);opacity:.9}
+    .foam::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:7px;background:radial-gradient(circle at 50% 100%,var(--head) 6.5px,transparent 7px) 0 0/15px 7px repeat-x}
+    .shine{position:absolute;top:6%;bottom:8%;left:17%;width:7%;border-radius:99px;background:linear-gradient(rgba(255,255,255,.34),rgba(255,255,255,.05));transform:rotate(4.5deg);pointer-events:none}
+    .mark{position:absolute;left:0;right:0;height:0;border-top:3px dashed var(--ink);opacity:.9;margin-bottom:-1.5px}
+    .v-perfect .mark{border-top-style:solid;border-color:var(--accent);animation:flash .5s 2}
+    .run{position:absolute;top:2px;width:9px;height:0;border-radius:0 0 6px 6px;background:var(--head);opacity:0}
+    .run.l{left:1px;transform:rotate(1deg)}
+    .run.r{right:1px;transform:rotate(-1deg)}
+    .spilled .run{opacity:.95;height:46%;transition:height .7s ease-in}
+    .spilled .run.r{height:30%;transition-duration:.9s}
+    .rise .vessel{animation:rise .28s ease-out}
+    @keyframes fizz{to{background-position:6px -46px,22px -24px}}
+    @keyframes flash{50%{opacity:.25}}
+    @keyframes rise{from{opacity:0;transform:translateY(14px)}}
+    @keyframes pop{from{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}}
     .tick{position:absolute;width:0;height:0;border:8px solid transparent;margin-bottom:-8px}
     .tick.l{left:-20px;border-left-color:var(--accent)}
     .tick.r{right:-20px;border-right-color:var(--accent)}
@@ -45,6 +59,8 @@
     .say{min-height:56px;text-align:center}
     .say strong{display:block;font-size:22px;font-weight:900;letter-spacing:-.5px}
     .say span{color:var(--muted);font-size:15px}
+    .say.result strong{animation:pop .3s ease-out}
+    .say.result span{color:var(--accent);font-size:20px;font-weight:900}
 
     .btn{display:block;width:100%;min-height:68px;padding:14px 18px;border:0;border-radius:20px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
     .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
@@ -68,7 +84,7 @@
     .credit{margin:auto 0 0;padding-top:6px;text-align:center;color:var(--muted);font-size:12.5px}
     .credit a{font-weight:700;color:var(--ink)}
 
-    @media (prefers-reduced-motion:reduce){.spilled .vessel{animation:none}.stream{transition:none}}
+    @media (prefers-reduced-motion:reduce){.spilled .vessel,.fill::after,.v-perfect .mark,.rise .vessel,.say.result strong{animation:none}.stream,.spilled .run{transition:none}}
   </style>
 </head>
 <body>
@@ -91,7 +107,10 @@
         <div class="fill" id="fill"></div>
         <div class="foam" id="foam"></div>
         <div class="mark" id="mark"></div>
+        <div class="shine"></div>
       </div>
+      <div class="run l"></div>
+      <div class="run r"></div>
       <div class="tick l" id="tickL"></div>
       <div class="tick r" id="tickR"></div>
     </div>
@@ -121,8 +140,9 @@
   </p>
 </main>
 
-<script src="skins/default.js"></script>
-<script src="engine.js"></script>
-<script src="game.js"></script>
+<!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
+<script src="skins/default.js?v=2"></script>
+<script src="engine.js?v=2"></script>
+<script src="game.js?v=2"></script>
 </body>
 </html>

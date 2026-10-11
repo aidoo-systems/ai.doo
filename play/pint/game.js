@@ -21,7 +21,7 @@
     $("tagline").textContent = "Sorry, this game couldn't load. Please try again.";
   }
 
-  fetch("skins/" + skinId() + ".json")
+  fetch("skins/" + skinId() + ".json", { cache: "no-cache" })
     .then(function (res) {
       if (!res.ok) throw new Error("skin " + res.status);
       return res.json();
@@ -79,6 +79,14 @@
       el.appendChild(s);
     }
 
+    // A short buzz on phones that have one: a tick for a perfect pour, a rumble for a spill.
+    function buzz(verdict) {
+      if (!navigator.vibrate) return;
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+      if (verdict === "perfect") navigator.vibrate(25);
+      else if (verdict === "spill") navigator.vibrate([70, 40, 70]);
+    }
+
     function show(el, on) {
       el.hidden = !on;
     }
@@ -99,7 +107,8 @@
       $("tickL").style.bottom = $("tickR").style.bottom = line + "%";
       $("round").textContent = PourEngine.roundLabel(skin, game.round);
       $("points").textContent = String(game.score);
-      $("stage").classList.remove("spilled");
+      $("stage").className = "stage rise";
+      $("say").classList.remove("result");
       drawLevel();
       say("", skin.copy.hint);
       show($("play"), true);
@@ -114,7 +123,9 @@
     function drawResult() {
       var result = game.results[game.results.length - 1];
       app.classList.remove("pouring");
-      $("stage").classList.toggle("spilled", result.verdict === "spill");
+      $("stage").className = "stage v-" + result.verdict + (result.verdict === "spill" ? " spilled" : "");
+      $("say").classList.add("result");
+      buzz(result.verdict);
       $("points").textContent = String(game.score);
       say(skin.copy[result.verdict], "+" + result.score);
       show(pourBtn, false);
