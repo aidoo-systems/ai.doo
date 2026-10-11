@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A promo game you can play** (P2.0a): `/promo-games/` now leads its example with "Pour the perfect pint" for The Wobbly Gull, a made-up pub, at `/play/pint/`. Scan the QR code or tap the link and it plays in the phone's browser: three pours, a score out of 300 and a board of clearly labelled sample scores. It stores and sends nothing. Tea Tower's Google Play link leaves the offer page, which promises no download
 - **Tea Tower privacy policy** at `/privacy-tea-tower/`, listing exactly what the optional leaderboard at ttsb.aidoo.biz receives (random player ID, name, score, cups, version, time), how to switch posting off, and how to have an entry removed
 - **Tea Tower on ai.doo Labs**: the in-development one-tap teacup stacker now appears in the games catalogue and footer, linked to its privacy policy; the Games intro now says Godot and Unity
 - **Thunee privacy policy** at `/privacy-thunee/`, documenting its fully local save data, zero network access, and absence of ads, analytics, accounts, and tracking

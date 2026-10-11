@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-10-09
+Last updated: 2026-10-11
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner
+State: ready-for-owner (P2.0a: play it on a phone)
 
 ## Goal
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** build P2.0a, the playable showcase (D-015), then the owner starts outreach the day it's live; meanwhile the owner can tidy the prospect list and draft the email.
+1. **Next action:** the owner plays P2.0a on a real phone from its PR and approves it or sends changes; merging puts it live, and outreach starts that day. (Built 2026-10-11: `/play/pint/`, QR code and link on `/promo-games/`.) Meanwhile the owner can tidy the prospect list and draft the email.
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -34,14 +34,17 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- Approve the offer page copy (price set 2026-10-02: from £750, £300 deposit; test games: Reactor Panic, Submarine Panic, plus Pomodorable).
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
+- **Play P2.0a on a real phone** and approve it: does the pour feel right, is three pints the right length, is The Wobbly Gull the right made-up pub? `main` is production, so before merging it is played from the PR's branch on the home network; the QR code only works once it's live.
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
-- `takeown` + delete `C:\dev\worktrees\ai.doo-P1.1` (two folders locked by Codex's sandbox).
 
 ## Work log
+
+### 2026-10-11
+- P2.0a: built the playable showcase. `/play/pint/` is a hold-to-pour game for The Wobbly Gull (made up; no pub of that name found in a web search): three pints, 100 points each for stopping at the line, a spill scores nothing, then a board of sample scores marked as samples. The rules are in `engine.js` and run under Node in the tests; the venue, colours, words, glass shape and rounds are one JSON file, and a test plays a café skin the code has never seen. `/promo-games/` swaps the Tea Tower card and its Play link for the QR code and a link; Tea Tower moves to a line of text. Noindex, out of the sitemap (P2.0b's call). `tests/test_promo_showcase.py` 20 red → 20 green. Gate cycles: 1. The tests gate now needs Node (preinstalled on the CI runner). Next: owner plays it on a phone.
+- Owner approved the `/promo-games/` offer page copy as live (from £750, £300 deposit). That owner gate is closed, and so is the locked `C:\dev\worktrees\ai.doo-P1.1` folder (owner deleted it). Analytics releases for Reactor Panic and Submarine Panic are being worked in their own repos. Next: P2.0a.
 
 ### 2026-10-09
 - `/privacy-pomodorable/` declares Firebase Analytics for Pomodorable 1.3.0 (pomodorable-android P0.1, D-020): usage events, approximate location from IP, no advertising ID, automatic expiry (2 months analytics, 90 days crashes). PR #36.

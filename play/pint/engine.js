@@ -1,0 +1,185 @@
+// The rules of the pour game. No DOM in here: game.js draws it, and the tests run
+// it under Node (the driver in tests/). A venue is a skin: a JSON file in skins/.
+// Nothing about any one venue or drink belongs in this file.
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.PourEngine = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  var SURGE_HZ = 1.5; // how fast a round's surge pulses the flow
+  var MAX_STEP = 0.05; // a tick never pours more than this many seconds' worth
+  var COLOUR = /^#[0-9a-f]{3,8}$/i;
+  var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk"];
+  var DRINK = ["liquid", "liquidDeep", "head"];
+  var COPY = [
+    "round", "hold", "hint", "next", "finish", "again", "perfect", "good", "short",
+    "over", "spill", "total", "boardTitle", "you", "prize",
+  ];
+
+  function isText(v, max) {
+    return typeof v === "string" && v.trim().length > 0 && v.length <= max;
+  }
+  function isNum(v, min, max) {
+    return typeof v === "number" && isFinite(v) && v >= min && v <= max;
+  }
+  function isObj(v) {
+    return v !== null && typeof v === "object" && !Array.isArray(v);
+  }
+
+  // Every problem with a skin, as plain sentences. An empty list means it can be played.
+  function validateSkin(skin) {
+    var problems = [];
+    if (!isObj(skin)) return ["the skin is not an object"];
+
+    if (typeof skin.id !== "string" || !/^[a-z0-9-]+$/.test(skin.id)) problems.push("id must be lower-case letters, digits and hyphens");
+    ["venue", "tagline", "fictional"].forEach(function (key) {
+      if (!isText(skin[key], 160)) problems.push(key + " is missing");
+    });
+
+    var theme = isObj(skin.theme) ? skin.theme : {};
+    THEME.forEach(function (key) {
+      if (!COLOUR.test(theme[key])) problems.push("theme." + key + " must be a hex colour");
+    });
+
+    var drink = isObj(skin.drink) ? skin.drink : {};
+    DRINK.forEach(function (key) {
+      if (!COLOUR.test(drink[key])) problems.push("drink." + key + " must be a hex colour");
+    });
+    if (!isNum(drink.headDepth, 0, 0.3)) problems.push("drink.headDepth must be between 0 and 0.3");
+    var glass = drink.glass;
+    var glassOk = Array.isArray(glass) && glass.length >= 3 && glass.length <= 24 && glass.every(function (p) {
+      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, 100);
+    });
+    if (!glassOk) problems.push("drink.glass must be 3 to 24 points, each [x, y] from 0 to 100");
+
+    var copy = isObj(skin.copy) ? skin.copy : {};
+    COPY.forEach(function (key) {
+      if (!isText(copy[key], 120)) problems.push("copy." + key + " is missing");
+    });
+
+    var scoring = isObj(skin.scoring) ? skin.scoring : {};
+    if (!isNum(scoring.window, 0.01, 1)) problems.push("scoring.window must be between 0.01 and 1");
+    if (!isNum(scoring.perfect, 0, 1) || scoring.perfect >= scoring.window) problems.push("scoring.perfect must be smaller than scoring.window");
+
+    var rounds = skin.rounds;
+    if (!Array.isArray(rounds) || rounds.length < 1 || rounds.length > 10) {
+      problems.push("rounds must hold 1 to 10 rounds");
+      rounds = [];
+    }
+    rounds.forEach(function (r, i) {
+      var at = "rounds[" + i + "].";
+      if (!isObj(r)) return problems.push("rounds[" + i + "] is not an object");
+      if (!isNum(r.line, 0.1, 0.97)) problems.push(at + "line must be between 0.1 and 0.97");
+      if (!isNum(r.speed, 0.05, 5)) problems.push(at + "speed must be between 0.05 and 5");
+      if (r.surge !== undefined && !isNum(r.surge, 0, 0.9)) problems.push(at + "surge must be between 0 and 0.9");
+    });
+
+    var samples = skin.sampleScores;
+    if (!Array.isArray(samples) || samples.length > 20) {
+      problems.push("sampleScores must be a list of up to 20 scores");
+      samples = [];
+    }
+    var best = rounds.length * 100;
+    samples.forEach(function (s, i) {
+      var ok = isObj(s) && isText(s.name, 16) && isNum(s.score, 0, best) && Math.floor(s.score) === s.score;
+      if (!ok) problems.push("sampleScores[" + i + "] needs a name and a whole score no higher than " + best);
+    });
+
+    return problems;
+  }
+
+  // One pour's result. level and the line both run from 0 (empty) to 1 (the rim).
+  function scorePour(skin, round, level) {
+    var line = skin.rounds[round].line;
+    if (level >= 1) return { level: 1, line: line, score: 0, verdict: "spill" };
+    var diff = Math.abs(level - line);
+    if (diff <= skin.scoring.perfect) return { level: level, line: line, score: 100, verdict: "perfect" };
+    var score = Math.min(99, Math.max(0, Math.round(100 * (1 - diff / skin.scoring.window))));
+    var verdict = score >= 70 ? "good" : level < line ? "short" : "over";
+    return { level: level, line: line, score: score, verdict: verdict };
+  }
+
+  function roundLabel(skin, round) {
+    return skin.copy.round.replace("{n}", String(round + 1)).replace("{total}", String(skin.rounds.length));
+  }
+
+  // The sample board with the player's score ranked into it. The player wins a tie.
+  function board(skin, score) {
+    var rows = [{ name: skin.copy.you, score: score, you: true }];
+    skin.sampleScores.forEach(function (s) {
+      rows.push({ name: s.name, score: s.score });
+    });
+    return rows.sort(function (a, b) {
+      return b.score - a.score;
+    });
+  }
+
+  // phase: ready -> pouring -> poured -> (next round: ready) ... -> done
+  function createGame(skin) {
+    var game = {
+      skin: skin,
+      total: skin.rounds.length,
+      round: 0,
+      level: 0,
+      held: 0,
+      score: 0,
+      results: [],
+      phase: "ready",
+    };
+
+    function finish() {
+      var result = scorePour(skin, game.round, game.level);
+      game.results.push(result);
+      game.score += result.score;
+      game.phase = "poured";
+    }
+
+    game.press = function () {
+      if (game.phase === "ready") game.phase = "pouring";
+    };
+    game.tick = function (seconds) {
+      if (game.phase !== "pouring" || !(seconds > 0)) return;
+      var dt = Math.min(seconds, MAX_STEP);
+      var r = skin.rounds[game.round];
+      var flow = 1 + (r.surge || 0) * Math.sin(2 * Math.PI * SURGE_HZ * game.held);
+      game.level += r.speed * flow * dt;
+      game.held += dt;
+      if (game.level >= 1) {
+        game.level = 1;
+        finish();
+      }
+    };
+    game.release = function () {
+      if (game.phase === "pouring") finish();
+    };
+    game.next = function () {
+      if (game.phase !== "poured") return;
+      if (game.round + 1 >= game.total) {
+        game.phase = "done";
+        return;
+      }
+      game.round += 1;
+      game.level = 0;
+      game.held = 0;
+      game.phase = "ready";
+    };
+    game.reset = function () {
+      game.round = 0;
+      game.level = 0;
+      game.held = 0;
+      game.score = 0;
+      game.results = [];
+      game.phase = "ready";
+    };
+    return game;
+  }
+
+  return {
+    validateSkin: validateSkin,
+    scorePour: scorePour,
+    roundLabel: roundLabel,
+    board: board,
+    createGame: createGame,
+  };
+});

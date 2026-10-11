@@ -24,7 +24,7 @@ bash scripts/gates.sh tests        # one gate
 bash scripts/gates.sh site         # broken links, missing assets, sitemap/canonical mismatches
 ```
 
-Needs `python -m pip install -r api/requirements.txt -r scripts/docs-requirements.txt pytest ruff pip-audit`. CI runs the same script (`.github/workflows/ci.yml`).
+Needs Node (any current version) and `python -m pip install -r api/requirements.txt -r scripts/docs-requirements.txt pytest ruff pip-audit`. CI runs the same script (`.github/workflows/ci.yml`).
 
 ## Traps
 
@@ -35,6 +35,7 @@ Needs `python -m pip install -r api/requirements.txt -r scripts/docs-requirement
 - **The chat rate limit isn't per visitor.** It keys on `request.remote_addr`, which behind Caddy is loopback, so all visitors share about 10 requests/min per gunicorn worker (P1.5).
 - **The chatbot learns from `sitemap.xml`.** `api/site_context.py` loads every sitemap page at API startup. A page missing from the sitemap is invisible to the bot, and a new page needs an API restart (any deploy restarts it).
 - **The docs build is pinned** in `scripts/docs-requirements.txt`, which both `ci.yml` and `deploy.yml` install. MkDocs 2.0 drops theme overrides, which `overrides/` relies on; bump the pins only in a PR so CI proves them first.
+- **The promo showcase (`play/pint/`) is one engine and a skin.** `engine.js` holds the rules and runs under Node in `tests/test_promo_showcase.py`, so the `tests` gate needs Node on the PATH. A venue is a JSON file in `play/pint/skins/`; no venue or drink word belongs in `engine.js`, `game.js` or `index.html` (a test checks). The page is noindex and out of the sitemap, so the chatbot doesn't know it.
 - **Line endings.** Some files are CRLF (`deploy.yml`, `mkdocs.yml`); preserve them when editing.
 - The pages table below is incomplete; `sitemap.xml` plus the `privacy-*/` folders are the full list.
 
@@ -46,6 +47,8 @@ Needs `python -m pip install -r api/requirements.txt -r scripts/docs-requirement
 | `/pika/` | `pika/index.html` |
 | `/pika/changelog` | `pika/changelog.html` |
 | `/vera/` | `vera/index.html` |
+| `/promo-games/` | `promo-games/index.html` |
+| `/play/pint/` | `play/pint/index.html` (promo showcase game) |
 | `/privacy/` | `privacy/index.html` |
 | `/privacy-pomodorable/` | `privacy-pomodorable/index.html` |
 

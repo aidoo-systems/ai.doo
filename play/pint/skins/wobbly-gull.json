@@ -1,0 +1,51 @@
+{
+  "id": "wobbly-gull",
+  "venue": "The Wobbly Gull",
+  "tagline": "Pour the perfect pint",
+  "fictional": "The Wobbly Gull is a made-up pub.",
+  "theme": {
+    "bg": "#10231f",
+    "panel": "#1a352e",
+    "ink": "#fdf3dc",
+    "muted": "#b9c9bd",
+    "accent": "#f5b544",
+    "accentInk": "#1a0f08"
+  },
+  "drink": {
+    "liquid": "#e09a1f",
+    "liquidDeep": "#b4650c",
+    "head": "#fff6dc",
+    "headDepth": 0.1,
+    "glass": [[2, 0], [98, 0], [100, 22], [84, 100], [16, 100], [0, 22]]
+  },
+  "copy": {
+    "round": "Pint {n} of {total}",
+    "hold": "Hold to pour",
+    "hint": "Hold the button to pour. Let go at the line.",
+    "next": "Next pint",
+    "finish": "See the board",
+    "again": "Pour again",
+    "perfect": "A perfect pint",
+    "good": "A decent pint",
+    "short": "Short measure",
+    "over": "A bit full",
+    "spill": "All over the bar",
+    "total": "Your score",
+    "boardTitle": "This week at the Gull",
+    "you": "You",
+    "prize": "Top of the board on Sunday gets their name on the wall."
+  },
+  "scoring": { "window": 0.22, "perfect": 0.012 },
+  "rounds": [
+    { "line": 0.82, "speed": 0.42 },
+    { "line": 0.9, "speed": 0.62 },
+    { "line": 0.74, "speed": 0.8, "surge": 0.55 }
+  ],
+  "sampleScores": [
+    { "name": "Juan", "score": 287 },
+    { "name": "Voirrey", "score": 274 },
+    { "name": "Big Dave", "score": 251 },
+    { "name": "Finlo", "score": 233 },
+    { "name": "Breesha", "score": 198 }
+  ]
+}
