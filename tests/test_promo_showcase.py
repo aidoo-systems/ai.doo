@@ -395,7 +395,7 @@ def test_the_offer_page_puts_the_demo_first_and_answers_the_buyers_questions():
     html = _text("promo-games/index.html")
     order = [
         html.index(f'id="{name}"')
-        for name in ("try", "why", "how", "price", "questions", "contact")
+        for name in ("try", "why", "price", "how", "questions", "contact")
     ]
     assert order == sorted(order)
     assert "wa.me/447624396325" in html
@@ -476,3 +476,30 @@ def test_an_unknown_skin_falls_back_to_the_default_one(ui):
 
 def test_a_skin_name_cannot_leave_the_skins_folder(ui):
     assert ui["unsafeSkin"]["fetched"] == ["skins/wobbly-gull.json"]
+
+
+def test_the_offer_page_stays_short_enough_to_read():
+    # It was 989 words in eight sections before it was cut down. Questions sit closed.
+    html = _text("promo-games/index.html")
+    main = html[html.index("<main") : html.index("<footer>")]
+    assert main.count("<section") <= 6
+    closed = re.sub(r"<details.*?</details>", " ", main, flags=re.DOTALL)
+    words = re.sub(r"<[^>]+>", " ", closed).split()
+    assert len(words) <= 420, len(words)
+    assert main.count("<details") >= 4
+
+
+def test_the_chatbot_knows_the_promo_offer_and_keeps_pilot_prices_to_the_ai_tools():
+    prompt = _text("api/chat.py")
+    for fact in (
+        "aidoo.biz/play/pint/",
+        "£300 deposit",
+        "+44 7624 396325",
+        "From £750",
+    ):
+        assert fact in prompt, fact
+    assert "Never claim or estimate" in prompt
+    # The £3,000 pilot belongs to PIKA and VERA: it must sit under a heading that says so.
+    pricing = prompt.index("Engagement models / pricing for PIKA and VERA only")
+    assert pricing < prompt.index("£3,000")
+    assert prompt.count("£3,000") == 1
