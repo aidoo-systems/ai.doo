@@ -831,7 +831,7 @@
     document.title = skin.tagline + " | " + skin.venue;
     $("venue").textContent = skin.venue;
     $("tagline").textContent = skin.tagline;
-    $("how").textContent = skin.copy.hint;
+    $("offer").textContent = skin.copy.offer;
     $("fictional").textContent = skin.fictional;
     $("start").textContent = skin.copy.start;
     $("again").textContent = skin.copy.again;
@@ -1027,7 +1027,7 @@
       // What to play again for: the next name up the board, and this visit's own best.
       var rival = E.nextRival(skin, game.score);
       $("goal").textContent = rival
-        ? skin.copy.rival.replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
+        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
         : skin.copy.top;
       if (best === null) $("mine").textContent = "";
       else if (game.score > best) {

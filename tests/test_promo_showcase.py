@@ -60,6 +60,7 @@ LATTE = {
     },
     "copy": {
         "start": "Start",
+        "offer": "Top score wins a test",
         "beat": "Beat {score}",
         "round": "Latte {n} of {total}",
         "hold": "Hold to pour",
@@ -67,6 +68,7 @@ LATTE = {
         "hint": "Let go at the line.",
         "falseStart": "Keep holding",
         "rival": "{gap} to pass {name}",
+        "rivalTop": "{gap} to pass {name} and win",
         "top": "Top",
         "best": "Best {score}",
         "newBest": "New best",
@@ -191,8 +193,9 @@ def test_a_false_start_empties_the_glass_and_keeps_the_round(latte):
 
 
 def test_the_rival_is_the_next_sample_score_up(latte):
-    assert run(latte(), ["line", 0.01])["rival"] == {"name": "Bean", "gap": 50}
-    assert run(latte(), [0.01, 0.01])["rival"] == {"name": "Milo", "gap": 90}
+    # Bean holds the top score, so passing Bean is what wins the prize.
+    assert run(latte(), ["line", 0.01])["rival"] == {"name": "Bean", "gap": 50, "top": True}
+    assert run(latte(), [0.01, 0.01])["rival"] == {"name": "Milo", "gap": 90, "top": False}
     assert run(latte(), ["line", "line"])["rival"] is None
 
 
@@ -247,6 +250,8 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
         lambda s: s["theme"].pop("counter"),
         lambda s: s.pop("switchLabel"),
+        lambda s: s["copy"].pop("offer"),
+        lambda s: s["copy"].pop("rivalTop"),
         lambda s: s["rounds"][1].update(surgeHz=9),
         lambda s: s["scoring"].update(falseStart=0.5),
         # Five hex digits is no CSS colour: the canvas would throw on it mid-game.
@@ -328,3 +333,25 @@ def test_the_offer_page_leads_with_the_playable_example():
     assert "tea-tower.webp" not in html
     assert 'href="/#tea-tower"' in html
     assert "made-up pub" in html
+
+
+def test_the_offer_page_walks_through_the_customers_side_and_claims_no_results():
+    html = _text("promo-games/index.html")
+    assert 'id="why"' in html
+    # The prize it quotes is the one the café demo actually shows.
+    cafe = json.loads((GAME / "skins" / "dozy-otter.json").read_text(encoding="utf-8"))
+    assert cafe["copy"]["offer"] in html
+    # No numbers we don't have: no percentages, no "increase", no "proven".
+    why = html[html.index('id="why"') : html.index('id="how"')]
+    assert not re.search(r"\d\s*%|increase|boost|proven|guarantee", why, re.IGNORECASE)
+    assert "won't make them up" in why
+
+
+def test_the_title_screen_leads_with_the_prize_and_labels_it_an_example():
+    html = _text("play/pint/index.html")
+    assert 'id="offer"' in html
+    assert "The names and the prize are examples" in html
+    for path in SKINS:
+        skin = json.loads(path.read_text(encoding="utf-8"))
+        assert skin["copy"]["rivalTop"].count("{gap}") == 1, path.stem
+        assert skin["copy"]["offer"], path.stem

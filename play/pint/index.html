@@ -42,8 +42,9 @@
     .venue{margin:0;font-size:clamp(34px,11vw,50px);font-weight:900;letter-spacing:-1.8px;line-height:.98;text-wrap:balance}
     .attract{position:relative;flex:1 1 0;min-height:0;margin:0 -20px}
     .attract canvas,.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .offer{margin:0 auto;max-width:28ch;color:var(--accent);font-size:17px;font-weight:900;letter-spacing:-.2px;line-height:1.25;text-wrap:balance}
     .how{margin:0 auto;color:var(--muted);font-size:15.5px}
-    .beat{margin:0 0 8px;font-weight:800;font-size:15px}
+    .beat{margin:0 0 8px;color:var(--muted);font-weight:700;font-size:14.5px}
 
     /* The one big control: a button with some travel in it */
     .btn{position:relative;flex:none;display:block;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -103,8 +104,8 @@
     .credit a{font-weight:700;color:var(--ink)}
 
     /* A phone on its side: everything shrinks, and a screen that still doesn't fit can scroll. */
-    @media (max-height:620px){.emblem{display:none}.kicker{padding:0 36px}.venue{font-size:32px}.how{font-size:14.5px}.beat{margin-bottom:4px}.stars{margin-top:4px}.big{font-size:52px}}
-    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.how{font-size:14px}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
+    @media (max-height:620px){.emblem{display:none}.kicker{padding:0 36px}.venue{font-size:32px}.offer{font-size:15.5px}.beat{margin-bottom:4px}.stars{margin-top:4px}.big{font-size:52px}}
+    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.offer{font-size:15px;max-width:none}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
     /* A phone: the pills already say which round it is, so the label is for screen readers
        and the row is pills then score. Five pills of "100" and "500" fit down to 320px. */
     @media (max-width:430px){.hud .round{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.pips{flex:1}}
@@ -126,7 +127,7 @@
     <p class="kicker" id="tagline">Loading…</p>
     <h1 class="venue" id="venue">A promo game demo</h1>
     <div class="attract"><canvas id="attract" aria-hidden="true"></canvas></div>
-    <p class="how" id="how"></p>
+    <p class="offer" id="offer"></p>
     <p class="beat" id="beat"></p>
     <button class="btn" id="start" type="button" hidden></button>
     <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
@@ -159,7 +160,7 @@
       <div class="panel">
         <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
         <ol class="board" id="board"></ol>
-        <p class="small"><span id="prize"></span> These names are examples: a live game has a real board.</p>
+        <p class="small"><span id="prize"></span> The names and the prize are examples: a live game has a real board, and the prize is yours to set.</p>
       </div>
     </div>
     <button class="btn" id="again" type="button"></button>
@@ -170,8 +171,8 @@
 </main>
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
-<script src="skins/default.js?v=8"></script>
-<script src="engine.js?v=8"></script>
-<script src="game.js?v=11"></script>
+<script src="skins/default.js?v=9"></script>
+<script src="engine.js?v=9"></script>
+<script src="game.js?v=12"></script>
 </body>
 </html>

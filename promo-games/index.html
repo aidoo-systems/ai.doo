@@ -22,6 +22,8 @@
     .offerSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:32px}
     .offerSteps .step{padding:24px 24px 26px;border:1px solid var(--stroke);background:var(--card);border-radius:22px}
     .offerSteps .stepNo{font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:14px;color:var(--n)}
+    .offerSteps.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .lede{max-width:62ch;margin:14px 0 0;color:var(--muted);font-size:17px;line-height:1.6}
     .offerSteps h3{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:0 0 8px}
     .offerSteps p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.6}
 
@@ -51,11 +53,12 @@
 
     @media (max-width:920px){
       .promoHero h1{letter-spacing:-2px}
-      .offerSteps{grid-template-columns:1fr}
+      .offerSteps,.offerSteps.four{grid-template-columns:1fr}
       .workArt{padding:16px 16px 0}
       .workBody{padding:20px 22px 22px}
       .priceCard{padding:26px 22px}
     }
+    @media (min-width:921px) and (max-width:1100px){.offerSteps.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
     @media (max-width:560px){
       .navRight > .btn.primary{display:none}
       .ctaRow .btn{flex:1 1 calc(50% - 6px)}
@@ -121,6 +124,18 @@
       <span><span class="dot"></span> From £750, fixed</span>
       <span><span class="dot"></span> Made on the Isle of Man</span>
     </div>
+  </section>
+
+  <section class="section" id="why">
+    <h2 class="h2">Why your customers play</h2>
+    <p class="lede">A promo game is a reason to pick up the phone while they wait, and a reason to come back. Here is how it goes from their side of the counter.</p>
+    <div class="offerSteps four">
+      <div class="step" style="--n:#f5b544"><div class="stepNo">01</div><h3>They scan</h3><p>A QR code on the table, the till or the menu. The game opens in their phone's browser: nothing to download, no sign-up.</p></div>
+      <div class="step" style="--n:#4be08a"><div class="stepNo">02</div><h3>They see what's on offer</h3><p>Your prize is on the first screen, in your words: “Top score this week: coffee and cake on us.”</p></div>
+      <div class="step" style="--n:#ff9a6b"><div class="stepNo">03</div><h3>They play while they wait</h3><p>About half a minute a go, with one thumb. Your name, your colours and your product are on screen the whole time.</p></div>
+      <div class="step" style="--n:#4db8ff"><div class="stepNo">04</div><h3>They come back for it</h3><p>The board shows how close they got: “12 more to pass Big Dave.” Beating a friend, or the name at the top, takes another go.</p></div>
+    </div>
+    <p class="note" style="margin-top:18px">You choose the prize and you run it. We can't tell you what it does for your takings: we don't have those numbers yet, and we won't make them up. <a href="#try">Play the demo</a> and judge the pull for yourself.</p>
   </section>
 
   <section class="section" id="how">

@@ -29,6 +29,7 @@
   },
   "copy": {
     "start": "Start pouring",
+    "offer": "Top score this week: crisps on us, and your name on the wall",
     "beat": "Beat {score} to top the board",
     "round": "Pint {n} of {total}",
     "hold": "Hold to pour",
@@ -44,9 +45,10 @@
     "total": "Your score",
     "boardTitle": "This week at the Gull",
     "you": "You",
-    "prize": "Top on Sunday gets their name on the wall.",
+    "prize": "Top on Sunday wins the crisps and their name on the wall.",
     "rival": "{gap} more to pass {name}",
-    "top": "Top of the board. The wall is yours.",
+    "rivalTop": "{gap} more to pass {name} and win the crisps",
+    "top": "Top of the board. The crisps are on us.",
     "best": "Your best today: {score}",
     "newBest": "A new best for you today"
   },

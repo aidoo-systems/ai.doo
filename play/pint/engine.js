@@ -14,9 +14,9 @@
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
   var COPY = [
-    "start", "beat", "round", "hold", "release", "hint", "falseStart", "again",
+    "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
-    "rival", "top", "best", "newBest",
+    "rival", "rivalTop", "top", "best", "newBest",
   ];
 
   function isText(v, max) {
@@ -134,13 +134,14 @@
     }, 0);
   }
 
-  // The sample score just above the player's, and how far off it is; null at the top.
+  // The sample score just above the player's, how far off it is, and whether passing
+  // it would put the player top of the board; null when they already are.
   function nextRival(skin, score) {
     var rival = null;
     skin.sampleScores.forEach(function (s) {
       if (s.score > score && (!rival || s.score < rival.score)) rival = s;
     });
-    return rival ? { name: rival.name, gap: rival.score - score } : null;
+    return rival ? { name: rival.name, gap: rival.score - score, top: rival.score === topScore(skin) } : null;
   }
 
   // The sample board with the player's score ranked into it. The player wins a tie.
