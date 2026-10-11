@@ -35,7 +35,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Owner gates — waiting on a human
 
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Merge #37 (P2.0a, approved) and scan the live QR code once. Delete the locked `C:\dev\worktreesi.doo-P2.0a\.review-tmp` (Codex's sandbox again) so the worktree can be tidied.
+- Merge #37 (P2.0a, approved) and scan the live QR code once. Delete the locked `C:\dev\worktrees\ai.doo-P2.0a\.review-tmp` (Codex's sandbox again) so the worktree can be tidied.
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
