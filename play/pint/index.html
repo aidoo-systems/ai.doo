@@ -58,8 +58,8 @@
     .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-y:auto}
     .hud{flex:none;display:flex;align-items:center;gap:10px;padding-right:42px;font-weight:800}
     .hud .round{flex:1;font-size:14.5px;white-space:nowrap}
-    .pips,.chips{display:flex;gap:5px;list-style:none;margin:0;padding:0}
-    .pips li,.chips li{min-width:28px;height:24px;padding:0 4px;display:grid;place-items:center;border-radius:12px;border:2px solid var(--muted);font-size:12px;font-weight:900;color:var(--muted);opacity:.5;font-variant-numeric:tabular-nums}
+    .pips,.chips{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
+    .pips li,.chips li{width:34px;height:24px;padding:0;display:grid;place-items:center;border-radius:12px;border:2px solid var(--muted);font-size:12px;font-weight:900;color:var(--muted);opacity:.5;font-variant-numeric:tabular-nums}
     .pips li.now{border-color:var(--accent);opacity:1}
     .pips li.got,.chips li{border-color:var(--ink);color:var(--ink);opacity:1}
     .pips li.got{animation:pop .3s ease-out}
@@ -105,10 +105,13 @@
     /* A phone on its side: everything shrinks, and a screen that still doesn't fit can scroll. */
     @media (max-height:620px){.emblem{display:none}.kicker{padding:0 36px}.venue{font-size:32px}.how{font-size:14.5px}.beat{margin-bottom:4px}.stars{margin-top:4px}.big{font-size:52px}}
     @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.how{font-size:14px}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
-    /* A narrow phone: the pills already say which round it is, so the label gives way to the score. */
-    @media (max-width:350px){.hud .round{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.pips{flex:1}.btn.second{font-size:15px;padding:9px 8px}}
+    /* A phone: the pills already say which round it is, so the label is for screen readers
+       and the row is pills then score. Five pills of "100" and "500" fit down to 320px. */
+    @media (max-width:430px){.hud .round{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.pips{flex:1}}
+    @media (max-width:350px){.hud{gap:6px}.pips{gap:3px}.pips li{width:30px;font-size:11px}.score{font-size:20px}.btn.second{font-size:15px;padding:9px 8px}}
     @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
   </style>
+  <noscript><style>.app{opacity:1}</style></noscript>
 </head>
 <body>
 <main class="app" id="app">
@@ -169,6 +172,6 @@
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=8"></script>
 <script src="engine.js?v=8"></script>
-<script src="game.js?v=10"></script>
+<script src="game.js?v=11"></script>
 </body>
 </html>
