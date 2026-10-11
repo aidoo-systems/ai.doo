@@ -72,6 +72,7 @@ LATTE = {
         "top": "Top",
         "best": "Best {score}",
         "newBest": "New best",
+        "claim": "A test prize",
         "again": "Pour again",
         "perfect": "Perfect latte",
         "good": "Good pour",
@@ -128,6 +129,18 @@ def _text(rel):
 
 def test_two_skins_ship():
     assert [p.stem for p in SKINS] == ["dozy-otter", "wobbly-gull"]
+
+
+def test_the_skin_list_names_files_that_exist_and_ids_match_file_names():
+    listing = _text("play/pint/skins/default.js")
+    default = re.search(r'POUR_SKIN = "([^"]+)"', listing).group(1)
+    listed = re.findall(
+        r'"([a-z0-9-]+)"', re.search(r"POUR_SKINS = \[(.*?)\]", listing).group(1)
+    )
+    assert sorted(listed) == [p.stem for p in SKINS]
+    assert default in listed
+    for path in SKINS:
+        assert json.loads(path.read_text(encoding="utf-8"))["id"] == path.stem
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
@@ -259,6 +272,16 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["theme"].pop("counter"),
         lambda s: s.pop("switchLabel"),
         lambda s: s["copy"].pop("offer"),
+        lambda s: s["copy"].pop("claim"),
+        # A glass drawn with headroom above its rim, and one that is a flat line: both
+        # would leave the canvas with nothing to mark the line against.
+        lambda s: s["drink"].update(glass=[[10, 20], [90, 20], [80, 100], [20, 100]]),
+        lambda s: s["drink"].update(glass=[[0, 50], [50, 50], [100, 50]]),
+        # A line a false start can reach could never be scored on.
+        lambda s: (
+            s["scoring"].update(falseStart=0.3),
+            s["rounds"][0].update(line=0.35),
+        ),
         lambda s: s["copy"].pop("rivalTop"),
         lambda s: s["rounds"][1].update(surgeHz=9),
         lambda s: s["scoring"].update(falseStart=0.5),
@@ -355,6 +378,45 @@ def test_the_offer_page_walks_through_the_customers_side_and_claims_no_results()
     assert "won't make them up" in why
 
 
+def test_the_offer_page_is_measured_and_the_game_is_not():
+    # "Nothing is stored or sent" is printed on the game: no analytics may load there.
+    for rel in ("play/pint/index.html", "play/pint/game.js", "play/pint/engine.js"):
+        assert "analytics" not in _text(rel), rel
+    offer = _text("promo-games/index.html")
+    assert "analytics.aidoo.biz/script.js" in offer
+    for event in ("play-demo-hero", "play-demo-pub", "play-demo-cafe", "email-contact"):
+        assert f'data-umami-event="{event}"' in offer, event
+    assert 'data-umami-event="whatsapp-contact"' in offer
+    # Coming back from the game is visible as its own page view.
+    assert 'href="/promo-games/?from=demo#price"' in _text("play/pint/index.html")
+
+
+def test_the_offer_page_puts_the_demo_first_and_answers_the_buyers_questions():
+    html = _text("promo-games/index.html")
+    order = [
+        html.index(f'id="{name}"')
+        for name in ("try", "why", "how", "price", "questions", "contact")
+    ]
+    assert order == sorted(order)
+    assert "wa.me/447624396325" in html
+    # Claims the review found untrue or unproven stay out.
+    for phrase in (
+        "built the same way",
+        "any phone",
+        "compete and come back",
+        "one of skill",
+    ):
+        assert phrase not in html, phrase
+
+
+def test_the_demo_shows_an_example_winners_screen_labelled_as_one():
+    html = _text("play/pint/index.html")
+    assert 'id="claimOpen"' in html and 'id="claim"' in html
+    assert "An example." in html
+    for path in SKINS:
+        assert json.loads(path.read_text(encoding="utf-8"))["copy"]["claim"], path.stem
+
+
 def test_the_title_screen_leads_with_the_prize_and_labels_it_an_example():
     html = _text("play/pint/index.html")
     assert 'id="offer"' in html
@@ -363,3 +425,51 @@ def test_the_title_screen_leads_with_the_prize_and_labels_it_an_example():
         skin = json.loads(path.read_text(encoding="utf-8"))
         assert skin["copy"]["rivalTop"].count("{gap}") == 1, path.stem
         assert skin["copy"]["offer"], path.stem
+
+
+# --- the screen code itself, run against a stand-in page ----------------------------
+
+
+@pytest.fixture(scope="module")
+def ui():
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run play/pint/game.js in the tests"
+    done = subprocess.run(
+        [node, str(REPO_ROOT / "tests" / "pint_ui_driver.cjs")],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_only_the_pouring_finger_can_end_the_pour(ui):
+    # Another finger lifting, a stray key or a cancelled touch elsewhere changes nothing.
+    assert ui["afterSecondFinger"] == ui["release"]
+    assert ui["afterStrayKey"] == ui["release"]
+    assert ui["afterStrayCancel"] == ui["release"]
+    # Lifting the finger that is pouring ends it and scores it.
+    assert re.search(r"\+\d+$", ui["afterOwnFinger"])
+
+
+def test_a_hidden_page_makes_no_sound_and_waits_for_the_player(ui):
+    assert ui["soundsWhileHidden"] == 0
+    # The pour was ended and scored, but the game did not move on unseen.
+    assert re.search(r"\+\d+$", ui["sayWhileHidden"])
+    assert ui["roundWhileHidden"] == ui["roundAtStart"]
+    assert ui["roundAfterReturn"] != ui["roundAtStart"]
+
+
+def test_an_unknown_skin_falls_back_to_the_default_one(ui):
+    assert ui["unknownSkin"]["fetched"] == [
+        "skins/nope.json",
+        "skins/wobbly-gull.json",
+    ]
+    assert ui["unknownSkin"]["venue"] == "The Wobbly Gull"
+    assert ui["unknownSkin"]["start"] is False
+
+
+def test_a_skin_name_cannot_leave_the_skins_folder(ui):
+    assert ui["unsafeSkin"]["fetched"] == ["skins/wobbly-gull.json"]

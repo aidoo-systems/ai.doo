@@ -16,7 +16,7 @@
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
-    "rival", "rivalTop", "top", "best", "newBest",
+    "rival", "rivalTop", "top", "best", "newBest", "claim",
   ];
 
   function isText(v, max) {
@@ -27,6 +27,23 @@
   }
   function isObj(v) {
     return v !== null && typeof v === "object" && !Array.isArray(v);
+  }
+
+  // How wide a glass outline is at a height, both in its own 0 to 100 units; 0 where
+  // the outline doesn't reach.
+  function glassWidth(glass, y) {
+    var lo = Infinity;
+    var hi = -Infinity;
+    for (var i = 0; i < glass.length; i++) {
+      var a = glass[i];
+      var b = glass[(i + 1) % glass.length];
+      if ((a[1] <= y && b[1] >= y) || (b[1] <= y && a[1] >= y)) {
+        var xs = a[1] === b[1] ? [a[0], b[0]] : [a[0] + ((y - a[1]) / (b[1] - a[1])) * (b[0] - a[0])];
+        lo = Math.min.apply(null, xs.concat(lo));
+        hi = Math.max.apply(null, xs.concat(hi));
+      }
+    }
+    return hi >= lo ? hi - lo : 0;
   }
 
   // Every problem with a skin, as plain sentences. An empty list means it can be played.
@@ -84,7 +101,22 @@
       if (!isNum(r.speed, 0.05, 5)) problems.push(at + "speed must be between 0.05 and 5");
       if (r.surge !== undefined && !isNum(r.surge, 0, 0.9)) problems.push(at + "surge must be between 0 and 0.9");
       if (r.surgeHz !== undefined && !isNum(r.surgeHz, 0.2, 4)) problems.push(at + "surgeHz must be between 0.2 and 4");
+      // A line a false start can reach could never be scored on.
+      if (isNum(r.line, 0, 1) && isNum(scoring.falseStart, 0, 1) && r.line - scoring.falseStart < 0.1) problems.push(at + "line must sit at least 0.1 above scoring.falseStart");
     });
+
+    // The glass is drawn from its rim (y 0) to its base (y 100) and marked at every
+    // round's line: it has to be a real, open shape at each of those heights.
+    if (glassOk) {
+      var heights = [0.5, 25, 50, 75, 99.5];
+      rounds.forEach(function (r) {
+        if (isObj(r) && isNum(r.line, 0, 1)) heights.push(100 * (1 - r.line));
+      });
+      var thin = heights.some(function (y) {
+        return glassWidth(glass, y) < 20;
+      });
+      if (thin) problems.push("drink.glass must run from its rim at y 0 to its base at y 100 and be at least 20 wide all the way down");
+    }
 
     var samples = skin.sampleScores;
     if (!Array.isArray(samples) || samples.length > 20) {

@@ -56,7 +56,13 @@
       });
   }
 
-  loadSkin(skinId())
+  // A name nobody has (a typo, a retired skin on old artwork) plays the default skin.
+  var asked = skinId();
+  loadSkin(asked)
+    .catch(function (err) {
+      if (asked === window.POUR_SKIN) throw err;
+      return loadSkin(window.POUR_SKIN);
+    })
     .then(start)
     .catch(function () {
       $("tagline").textContent = "Sorry, this game couldn't load. Please try again.";
@@ -70,10 +76,11 @@
     var on = true;
     var noise = null;
     var pour = null;
+    var asleep = false; // the page is hidden: nothing may sound until it is back
 
     // Browsers only allow sound after a tap, so this is first called from one.
     function ready() {
-      if (!on) return null;
+      if (!on || asleep) return null;
       if (!ctx) {
         var AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return null;
@@ -82,7 +89,7 @@
         var data = noise.getChannelData(0);
         for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
       }
-      if (ctx.state === "suspended") ctx.resume();
+      if (ctx.state !== "running") ctx.resume(); // "suspended", or iOS's "interrupted"
       return ctx;
     }
 
@@ -198,8 +205,14 @@
         if (ctx) on ? ctx.resume() : ctx.suspend();
         return on;
       },
-      quiet: function () {
+      sleep: function () {
         if (pour) this.stopPour();
+        asleep = true;
+        if (ctx) ctx.suspend();
+      },
+      wake: function () {
+        asleep = false;
+        if (ctx && on) ctx.resume();
       },
     };
   }
@@ -572,6 +585,10 @@
       if (line !== null) {
         var yy = yAt(line);
         var edge = xRange(g.outer, yy);
+        if (!edge) {
+          ctx.restore();
+          return;
+        }
         var bob = live && !pouring && level === 0 && !calm ? Math.sin(fx.t * 4) * 2.5 : 0;
         ctx.fillStyle = th.accent;
         [-1, 1].forEach(function (side) {
@@ -841,11 +858,15 @@
     $("outOf").textContent = "/ " + skin.rounds.length * 100;
     var top = E.topScore(skin);
     $("beat").textContent = top > 0 ? skin.copy.beat.replace("{score}", String(top)) : "";
+    $("claimVenue").textContent = skin.venue;
+    $("claimPrize").textContent = skin.copy.claim;
     if (skin.emblem) {
-      var svg = $("emblem");
-      svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
-      svg.firstElementChild.setAttribute("d", skin.emblem.path);
-      svg.removeAttribute("hidden");
+      ["emblem", "claimEmblem"].forEach(function (id) {
+        var svg = $(id);
+        svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
+        svg.firstElementChild.setAttribute("d", skin.emblem.path);
+        svg.removeAttribute("hidden");
+      });
     }
     document.documentElement.classList.add("ready");
   }
@@ -874,7 +895,8 @@
     var againBtn = $("again");
     var startBtn = $("start");
     var muteBtn = $("mute");
-    var holding = false;
+    var holder = null; // what is holding the pour: a pointer's id, or "key"; null when nothing is
+    var waiting = []; // what fell due while the page was hidden, run when it is back
     var running = false;
     var last = 0;
     var shown = 0; // the score the HUD is showing, on its way to the real one
@@ -886,16 +908,21 @@
     startBtn.hidden = false;
     muteBtn.hidden = false;
 
+    // Nothing moves on while the page is hidden: what falls due then waits for the player.
     function later(ms, fn) {
       var mine = turn;
-      setTimeout(function () {
+      var run = function () {
         if (mine === turn) fn();
+      };
+      setTimeout(function () {
+        if (document.hidden) waiting.push(run);
+        else run();
       }, ms);
     }
 
     function screen(id) {
       turn++;
-      ["title", "play", "done"].forEach(function (name) {
+      ["title", "play", "done", "claim"].forEach(function (name) {
         $(name).hidden = name !== id;
       });
     }
@@ -1105,8 +1132,11 @@
       requestAnimationFrame(loop);
     }
 
-    function press() {
-      holding = true;
+    // One thing holds the pour at a time, and only that thing can end it: a second
+    // finger, a brushing palm or a stray key changes nothing.
+    function press(by) {
+      if (holder !== null) return;
+      holder = by;
       if (game.phase !== "ready") return;
       game.press();
       scene.press();
@@ -1116,9 +1146,10 @@
       pourBtn.textContent = skin.copy.release;
     }
 
-    function release() {
-      if (!holding) return;
-      holding = false;
+    // by: what let go. Left out when the page itself takes the pour away (hidden, blurred).
+    function release(by) {
+      if (holder === null || (by !== undefined && by !== holder)) return;
+      holder = null;
       if (game.phase !== "pouring") return;
       // Pour right up to the moment of letting go, not just to the last frame drawn.
       var now = performance.now();
@@ -1137,10 +1168,12 @@
       } catch (err) {
         /* an old browser without pointer capture still gets pointerup on the window */
       }
-      press();
+      press(e.pointerId);
     });
     ["pointerup", "pointercancel"].forEach(function (type) {
-      window.addEventListener(type, release);
+      window.addEventListener(type, function (e) {
+        release(e.pointerId);
+      });
     });
     pourBtn.addEventListener("contextmenu", function (e) {
       e.preventDefault();
@@ -1148,20 +1181,31 @@
     pourBtn.addEventListener("keydown", function (e) {
       if ((e.key === " " || e.key === "Enter") && !e.repeat) {
         e.preventDefault();
-        press();
+        press("key");
       }
     });
     window.addEventListener("keyup", function (e) {
-      if (e.key === " " || e.key === "Enter") release();
+      if (e.key === " " || e.key === "Enter") release("key");
     });
-    // Leaving the page mid-pour ends the pour where it is, rather than pouring unseen.
+    // Leaving the page mid-pour ends the pour where it is, silently, and the game then
+    // waits: no sound and no moving on until the player is looking again.
     document.addEventListener("visibilitychange", function () {
       if (document.hidden) {
+        sound.sleep();
         release();
-        sound.quiet();
+      } else {
+        sound.wake();
+        last = performance.now();
+        var due = waiting;
+        waiting = [];
+        due.forEach(function (run) {
+          run();
+        });
       }
     });
-    window.addEventListener("blur", release);
+    window.addEventListener("blur", function () {
+      release();
+    });
 
     startBtn.addEventListener("click", function () {
       sound.unlock();
@@ -1175,6 +1219,38 @@
     });
     muteBtn.addEventListener("click", function () {
       muteBtn.setAttribute("aria-pressed", String(sound.toggle()));
+    });
+
+    // ---- an example of what a winner shows the staff. The clock keeps moving, which a
+    // screenshot can't. A live game would only give this screen to the real winner.
+
+    var markBtn = $("claimMark");
+    var markText = markBtn.textContent;
+
+    function clockTime() {
+      return new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+    function tickClock() {
+      $("claimClock").textContent = clockTime();
+      later(500, tickClock);
+    }
+    $("claimOpen").addEventListener("click", function () {
+      sound.click();
+      screen("claim");
+      markBtn.textContent = markText;
+      markBtn.disabled = false;
+      tickClock();
+      markBtn.focus({ preventScroll: true });
+    });
+    markBtn.addEventListener("click", function () {
+      sound.verdict("good");
+      markBtn.textContent = "Handed over · " + clockTime();
+      markBtn.disabled = true;
+    });
+    $("claimBack").addEventListener("click", function () {
+      sound.click();
+      screen("done");
+      againBtn.focus({ preventScroll: true });
     });
 
     // ---- the title screen plays itself: one silent pour to the line, over and over

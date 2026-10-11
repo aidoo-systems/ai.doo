@@ -50,7 +50,8 @@
     "rivalTop": "{gap} more to pass {name} and win coffee and cake",
     "top": "Top of the board. Coffee and cake are on us.",
     "best": "Your best today: {score}",
-    "newBest": "A new best for you today"
+    "newBest": "A new best for you today",
+    "claim": "Coffee and cake on us"
   },
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [

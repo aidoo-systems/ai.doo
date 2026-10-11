@@ -149,3 +149,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Keep the £300 (rejected by the owner). Drop the studio bet entirely (no numbers on 26 November). Start outreach with Tea Tower (contradicts the offer).
 - **Consequences:** Fewer studio installs, so the D1/D7 bars only count on roughly 100 or more players per title; below that the reading is a hint, not a pass or fail. Outreach starts about a week later, inside the same eight weeks. The ai.doo discount becomes D-016 when the owner sets it.
 - **Revisit when:** The 2026-11-26 review, or as soon as one title's free numbers justify the one campaign.
+
+## D-017 — The offer page is measured; the demo game is not
+
+- **Status:** Accepted
+- **Date:** 2026-10-11 (owner)
+- **Decision:** `/promo-games/` loads the site's own Umami (cookieless, self-hosted, already on the homepage and in the privacy policy) and names its buttons as events: playing the demo, email, WhatsApp. A return from the game arrives as `?from=demo`, and outreach links carry `?for=cafe`, `?for=pub` or `?for=event`: the kind of venue, never a business's name. `/play/pint/` loads no analytics at all, and a test keeps it that way. WhatsApp (+44 7624 396325) joins email as a way to reply, and the page names Keith.
+- **Why:** Without it the 26 November read can't tell an unopened email from a prospect who played and left. The game prints "Nothing is stored or sent", and a promo game's own promise is "not a data grab", so the measuring stops at the page that sells it. Island cafés and pubs answer WhatsApp more readily than a mail link, which often does nothing on a laptop with webmail.
+- **Alternatives:** Analytics in the game too (breaks its printed promise). A per-prospect tag (identifies named businesses for no decision it would change). A contact form (D-004: no lead capture).
+- **Consequences:** The owner's mobile number is public on the offer page. Play counts for a client's own game, promised in the page's Questions block, are a separate thing to build with the first sale and must count plays without identifying players.
+- **Revisit when:** The 2026-11-26 review.

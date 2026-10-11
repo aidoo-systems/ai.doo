@@ -50,7 +50,8 @@
     "rivalTop": "{gap} more to pass {name} and win the crisps",
     "top": "Top of the board. The crisps are on us.",
     "best": "Your best today: {score}",
-    "newBest": "A new best for you today"
+    "newBest": "A new best for you today",
+    "claim": "Crisps on us, and your name on the wall"
   },
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [

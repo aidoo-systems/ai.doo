@@ -4,12 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Promo games for your business or event | ai.doo</title>
-  <meta name="description" content="A branded mini-game for your business or event, played in any phone browser from a QR code. Fixed price from £750, live in about two weeks, runs for three months." />
+  <meta name="description" content="A branded mini-game for your business or event, played in the phone's browser from a QR code. Fixed price from £750, live in about two weeks, runs for three months." />
   <meta name="robots" content="noindex">
   <meta name="author" content="ai.doo">
 
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
   <meta name="theme-color" content="#0b1020">
+
+  <script defer src="https://analytics.aidoo.biz/script.js" data-website-id="bc0dc6af-ac24-4d29-ab68-3b19be32c468"></script>
 
   <link rel="stylesheet" href="../style.css">
   <style>
@@ -32,16 +34,26 @@
     .note a{color:var(--accent2)}
 
     /* The playable example: a made-up venue's game, in that venue's colours, with the QR code to it */
-    .work{--c:#10231f;--t:#fdf3dc;--g:#f5b544;display:flex;flex-direction:column;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(245,181,68,.35)}
-    .workBody{padding:26px}
-    .work h3{margin:0 0 6px;font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1.1;color:var(--g)}
-    .work p{margin:0 0 14px;font-size:15px;line-height:1.6;opacity:.88}
-    .work a{color:inherit;font-weight:800}
+    .work{--c:#10231f;--t:#fdf3dc;--g:#f5b544;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(245,181,68,.35)}
+    .workBody{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:36px;align-items:center;padding:36px}
+    .work h2{margin:0 0 10px;font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:900;color:var(--g)}
+    .work p{margin:0 0 14px;max-width:56ch;font-size:16px;line-height:1.6;opacity:.9}
     .work a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
-    .tryRow{display:flex;align-items:center;gap:20px;margin:18px 0}
-    .tryRow img{flex:none;display:block;width:132px;height:132px;border-radius:12px}
-    .tryRow p{margin:0;font-size:14px}
-    .work .playBtn{display:inline-block;padding:13px 20px;border-radius:14px;background:var(--g);color:#1a0f08;text-decoration:none}
+    .playRow{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 14px}
+    .playBtn{display:inline-block;padding:14px 22px;border-radius:14px;background:var(--g);color:#1a0f08;font-weight:800;text-decoration:none}
+    .playBtn.alt{background:transparent;color:var(--t);box-shadow:inset 0 0 0 2px rgba(253,243,220,.55)}
+    .work .fine{margin:0;font-size:13px;opacity:.75}
+    .tryQr{margin:0;text-align:center}
+    .tryQr img{display:block;width:156px;height:156px;margin:0 auto 10px;border-radius:14px}
+    .tryQr figcaption{max-width:20ch;margin:0 auto;font-size:13px;line-height:1.4;opacity:.85}
+
+    .ideaList.two{columns:2;column-gap:40px}
+    .ideaList.two li{break-inside:avoid}
+    .qaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px}
+    .qa{padding:22px 24px;border:1px solid var(--stroke);background:var(--card);border-radius:22px}
+    .qa h3{margin:0 0 8px;font-size:18px;font-weight:800;letter-spacing:-.3px}
+    .qa p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.6}
+    .qa p + p{margin-top:8px}
 
     /* The price: the homepage's promo band */
     .priceCard{padding:32px;border-radius:28px;background:linear-gradient(135deg,#f5b544,#e8562a);color:#1a0f08}
@@ -54,8 +66,9 @@
     @media (max-width:920px){
       .promoHero h1{letter-spacing:-2px}
       .offerSteps,.offerSteps.four{grid-template-columns:1fr}
-      .workArt{padding:16px 16px 0}
-      .workBody{padding:20px 22px 22px}
+      .workBody{grid-template-columns:1fr;gap:22px;padding:24px 22px}
+      .ideaList.two{columns:1}
+      .qaGrid{grid-template-columns:1fr}
       .priceCard{padding:26px 22px}
     }
     @media (min-width:921px) and (max-width:1100px){.offerSteps.four{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -63,6 +76,9 @@
       .navRight > .btn.primary{display:none}
       .ctaRow .btn{flex:1 1 calc(50% - 6px)}
       .ctaRow .btn:last-child{flex-basis:100%}
+      /* a phone can't scan its own screen: the buttons are the way in */
+      .tryQr{display:none}
+      .playBtn{flex:1 1 100%;text-align:center}
     }
   </style>
 </head>
@@ -80,22 +96,24 @@
     </a>
 
     <nav aria-label="Primary navigation">
-      <a href="/#games">Our games</a>
+      <a href="#try">Try it</a>
       <a href="#how">How it works</a>
       <a href="#price">Price</a>
+      <a href="#questions">Questions</a>
       <a href="#contact">Contact</a>
     </nav>
 
     <div class="navRight">
       <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav">Menu</button>
-      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Promo%20game">Email us</a>
+      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Promo%20game" data-umami-event="email-nav">Email us</a>
     </div>
   </div>
 
   <div class="mobileNav" id="mobileNav">
-    <a href="/#games">Our games</a>
+    <a href="#try">Try it</a>
     <a href="#how">How it works</a>
     <a href="#price">Price</a>
+    <a href="#questions">Questions</a>
     <a href="#contact">Contact</a>
   </div>
 </header>
@@ -110,30 +128,57 @@
     <p class="sub">
       Something for your customers to play while they wait: in the queue, at the table, at your stand.
       We build a short, branded game that people play in their phone's browser, straight from a QR code.
-      No app to download. Put the code on your counter, your menus or your event programme, and people play,
-      compete and come back. Fixed price, live in about two weeks, and it runs for three months.
+      No app to download. Put the code on your counter, your menus or your event programme, with a prize
+      of your choosing for the top score. Fixed price, live in about two weeks, and it runs for three months.
     </p>
 
     <div class="ctaRow">
-      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Promo%20game">Email hello@aidoo.biz</a>
+      <a class="btn primary" href="/play/pint/" data-umami-event="play-demo-hero">Play the demo</a>
       <a class="btn subtle" href="#price">See the price</a>
     </div>
 
     <div class="heroMeta">
-      <span><span class="dot"></span> Plays in any phone browser</span>
-      <span><span class="dot"></span> From £750, fixed</span>
+      <span><span class="dot"></span> Plays in the phone's browser</span>
+      <span><span class="dot"></span> From £750</span>
       <span><span class="dot"></span> Made on the Isle of Man</span>
     </div>
   </section>
 
+  <section class="section" id="try">
+    <article class="work">
+      <div class="workBody">
+        <div>
+          <h2>Try one now</h2>
+          <p>
+            Pour the perfect pint at The Wobbly Gull, a made-up pub, or the perfect latte at The Dozy Otter,
+            a made-up café. It's one game in two sets of clothes, and a go takes half a minute.
+          </p>
+          <p>
+            Yours would carry your name, your colours and your product, with a real board of your
+            customers' nicknames and a winner's screen for your staff.
+          </p>
+          <div class="playRow">
+            <a class="playBtn" href="/play/pint/" data-umami-event="play-demo-pub">Play it as a pub</a>
+            <a class="playBtn alt" href="/play/pint/?skin=dozy-otter" data-umami-event="play-demo-cafe">Play it as a café</a>
+          </div>
+          <p class="fine">The scores on the demo's board are samples.</p>
+        </div>
+        <figure class="tryQr">
+          <img src="../images/promo/pint-qr.svg" width="156" height="156" alt="QR code for the demo game at aidoo.biz/play/pint/">
+          <figcaption>On a laptop? Point your phone's camera at the code.</figcaption>
+        </figure>
+      </div>
+    </article>
+  </section>
+
   <section class="section" id="why">
-    <h2 class="h2">Why your customers play</h2>
-    <p class="lede">A promo game is a reason to pick up the phone while they wait, and a reason to come back. Here is how it goes from their side of the counter.</p>
+    <h2 class="h2">From your customer's side</h2>
+    <p class="lede">A promo game gives people something to do while they wait, and a reason to have another go. Here is how it goes from their side of the counter.</p>
     <div class="offerSteps four">
       <div class="step" style="--n:#f5b544"><div class="stepNo">01</div><h3>They scan</h3><p>A QR code on the table, the till or the menu. The game opens in their phone's browser: nothing to download, no sign-up.</p></div>
       <div class="step" style="--n:#4be08a"><div class="stepNo">02</div><h3>They see what's on offer</h3><p>Your prize is on the first screen, in your words: “Top score this week: coffee and cake on us.”</p></div>
       <div class="step" style="--n:#ff9a6b"><div class="stepNo">03</div><h3>They play while they wait</h3><p>About half a minute a go, with one thumb. Your name, your colours and your product are on screen the whole time.</p></div>
-      <div class="step" style="--n:#4db8ff"><div class="stepNo">04</div><h3>They come back for it</h3><p>The board shows how close they got: “12 more to pass Big Dave.” Beating a friend, or the name at the top, takes another go.</p></div>
+      <div class="step" style="--n:#4db8ff"><div class="stepNo">04</div><h3>A reason to try again</h3><p>The board shows how close they got: “12 more to pass Big Dave.” Beating a friend, or the name at the top, takes another go.</p></div>
     </div>
     <p class="note" style="margin-top:18px">You choose the prize and you run it. We can't tell you what it does for your takings: we don't have those numbers yet, and we won't make them up. <a href="#try">Play the demo</a> and judge the pull for yourself.</p>
   </section>
@@ -143,43 +188,22 @@
     <div class="offerSteps">
       <div class="step" style="--n:#f5b544"><div class="stepNo">01</div><h3>A 20-minute chat</h3><p>You tell us about your business or event and who you want to reach. We suggest a simple game idea that fits, and you say yes or no.</p></div>
       <div class="step" style="--n:#4be08a"><div class="stepNo">02</div><h3>About two weeks to build</h3><p>Your logo, colours and products, in a one-tap game anyone can pick up in seconds. You play it before it goes live and ask for changes.</p></div>
-      <div class="step" style="--n:#ff9a6b"><div class="stepNo">03</div><h3>Three months live</h3><p>You get a link and QR code artwork for print. A leaderboard gives players a reason to come back. Then it switches off, unless you want to keep it running.</p></div>
+      <div class="step" style="--n:#ff9a6b"><div class="stepNo">03</div><h3>Three months live</h3><p>You get a link and QR code artwork for print, and a board that gives players something to beat. Then it switches off, unless you want to keep it running.</p></div>
     </div>
   </section>
 
   <section class="section" id="ideas">
     <h2 class="h2">Good for</h2>
-    <div class="grid">
-      <div class="card span6">
-        <ul class="ideaList">
-          <li>A café or shop: “top score this week wins a free coffee”, with a QR code at the till.</li>
-          <li>A restaurant or takeaway: something to play between ordering and eating, with the code on the menu or the table.</li>
-          <li>A pub or bar: a weekly top score for the regulars, played in the queue at the bar.</li>
-          <li>Race weeks and festivals: something for visitors to play in the queue or at your stand.</li>
-          <li>A charity fundraiser: a leaderboard people share with friends.</li>
-          <li>A launch or anniversary: something people actually play, rather than another leaflet.</li>
-        </ul>
-        <p class="note">If you offer a prize, it's yours to run; we keep the game one of skill.</p>
-      </div>
-      <article class="work span6" id="try">
-        <div class="workBody">
-          <h3>Try one now</h3>
-          <p>
-            Pour the perfect pint at The Wobbly Gull, a made-up pub. It takes half a minute, and it's
-            what your customers would get, with your name and your colours on it.
-            <a href="/play/pint/?skin=dozy-otter">Here's the same game as a café's.</a>
-          </p>
-          <div class="tryRow">
-            <img src="../images/promo/pint-qr.svg" width="132" height="132" alt="QR code for the demo game at aidoo.biz/play/pint/">
-            <p>Point your phone's camera at the code and the game opens in the browser. Nothing to download.</p>
-          </div>
-          <p><a class="playBtn" href="/play/pint/">Play it here</a></p>
-          <p style="margin:0">
-            The scores on its board are samples. Our own games are built the same way:
-            see <a href="/#tea-tower">Tea Tower</a> and <a href="/#games">more of our games</a>.
-          </p>
-        </div>
-      </article>
+    <div class="card" style="margin-top:24px">
+      <ul class="ideaList two">
+        <li>A café or shop: “top score this week wins a free coffee”, with a QR code at the till.</li>
+        <li>A restaurant or takeaway: something to play between ordering and eating, with the code on the menu or the table.</li>
+        <li>A pub or bar: a weekly top score for the regulars, played in the queue at the bar.</li>
+        <li>Race weeks and festivals: something for visitors to play in the queue or at your stand.</li>
+        <li>A charity fundraiser: a leaderboard people share with friends.</li>
+        <li>A launch or anniversary: something people actually play, rather than another leaflet.</li>
+      </ul>
+      <p class="note">If you offer a prize, it's yours to choose and to run.</p>
     </div>
   </section>
 
@@ -187,12 +211,13 @@
     <h2 class="h2">The price</h2>
     <div class="grid">
       <div class="priceCard span6">
-        <p class="priceBig">£750 <small>fixed, from</small></p>
+        <p class="priceBig">£750 <small>from, and agreed before you pay</small></p>
         <p class="note">£300 deposit to start; the rest when it goes live.</p>
         <ul class="featureList">
           <li>A one-tap game themed to your brand</li>
-          <li>Plays in the browser on any phone; nothing to install</li>
+          <li>Plays in the phone's browser; nothing to install</li>
           <li>A leaderboard with nicknames, no sign-up</li>
+          <li>A winner's screen your staff can check at a glance</li>
           <li>Hosting for three months</li>
           <li>QR code artwork for print</li>
           <li>One round of changes before launch</li>
@@ -202,7 +227,7 @@
         <h3 style="margin-top:0">What it isn't</h3>
         <ul class="ideaList">
           <li>Not an app store app: no store review, and nothing for your customers to download.</li>
-          <li>Not a data grab. Players enter a nickname at most: no emails, no tracking.</li>
+          <li>Not a data grab. Players enter a nickname at most: no emails, no personal data.</li>
           <li>Not open-ended. It runs for three months, and you decide whether to keep it after that.</li>
         </ul>
         <p class="note">Bigger or longer than this, or an app of your own? Tell us what you have in mind.</p>
@@ -210,11 +235,46 @@
     </div>
   </section>
 
+  <section class="section" id="questions">
+    <h2 class="h2">Questions</h2>
+    <div class="qaGrid">
+      <div class="qa">
+        <h3>Who am I dealing with?</h3>
+        <p>Keith, who runs ai.doo on the Isle of Man and builds the games. Email or WhatsApp, and it's him who answers.</p>
+      </div>
+      <div class="qa">
+        <h3>How do I pay, and when?</h3>
+        <p>Nothing until you've said yes to a game idea. Then a £300 deposit by bank transfer starts the build, and the rest is due when your game goes live.</p>
+        <p>The deposit pays for the build, so it isn't refunded once work starts. If you play your game before launch and decide not to go live, you owe nothing more.</p>
+      </div>
+      <div class="qa">
+        <h3>How does a winner get the prize?</h3>
+        <p>They show the winner's screen on their phone at the counter. It has a moving clock, so it can't be a screenshot, and your staff tap it once when the prize is handed over.</p>
+        <p>The demo has an example: finish a game and tap “See the winner's screen”. In your game, only the real winner would get it.</p>
+      </div>
+      <div class="qa">
+        <h3>How will I know anyone played?</h3>
+        <p>We'll send you the number of plays each week. Players stay anonymous: a nickname at most.</p>
+      </div>
+      <div class="qa">
+        <h3>What makes it more than £750?</h3>
+        <p>£750 is one of our simple one-tap games, themed to you, for one location. A brand-new game idea, separate boards for several locations or a longer run costs more. You get the price in writing before you pay anything.</p>
+      </div>
+      <div class="qa">
+        <h3>What happens after three months?</h3>
+        <p>It switches off. If you'd like to keep it, say so before then and we'll agree a monthly price.</p>
+      </div>
+    </div>
+  </section>
+
   <section class="section" id="contact">
     <div class="card" style="text-align:center">
       <h2 class="h2" style="margin-top:0">Want one?</h2>
-      <p class="sub" style="margin:8px auto 18px">Email us with your business or event and when you'd want it live.</p>
-      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Promo%20game">hello@aidoo.biz</a>
+      <p class="sub" style="margin:8px auto 18px">Tell Keith about your business or event, and when you'd want it live.</p>
+      <div class="ctaRow" style="justify-content:center">
+        <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Promo%20game" data-umami-event="email-contact">hello@aidoo.biz</a>
+        <a class="btn subtle" href="https://wa.me/447624396325?text=Hi%20Keith%2C%20I%27d%20like%20to%20talk%20about%20a%20promo%20game" target="_blank" rel="noopener" data-umami-event="whatsapp-contact">WhatsApp +44 7624 396325</a>
+      </div>
     </div>
   </section>
 
