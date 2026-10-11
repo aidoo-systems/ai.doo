@@ -10,11 +10,12 @@
   var SURGE_HZ = 1.5; // how fast a round's surge pulses the flow
   var MAX_STEP = 0.05; // a tick never pours more than this many seconds' worth
   var COLOUR = /^#[0-9a-f]{3,8}$/i;
-  var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk"];
+  var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
+  var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
   var COPY = [
-    "round", "hold", "hint", "next", "finish", "again", "perfect", "good", "short",
-    "over", "spill", "total", "boardTitle", "you", "prize",
+    "start", "beat", "round", "hold", "release", "hint", "next", "finish", "again",
+    "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
   ];
 
   function isText(v, max) {
@@ -36,6 +37,13 @@
     ["venue", "tagline", "fictional"].forEach(function (key) {
       if (!isText(skin[key], 160)) problems.push(key + " is missing");
     });
+
+    // The emblem is optional: one SVG path, drawn above the venue's name.
+    if (skin.emblem !== undefined) {
+      var em = isObj(skin.emblem) ? skin.emblem : {};
+      var emOk = isNum(em.width, 1, 512) && isNum(em.height, 1, 512) && typeof em.path === "string" && em.path.length <= 1200 && EMBLEM.test(em.path);
+      if (!emOk) problems.push("emblem needs a width, a height and an SVG path of drawing commands only");
+    }
 
     var theme = isObj(skin.theme) ? skin.theme : {};
     THEME.forEach(function (key) {
@@ -102,6 +110,19 @@
 
   function roundLabel(skin, round) {
     return skin.copy.round.replace("{n}", String(round + 1)).replace("{total}", String(skin.rounds.length));
+  }
+
+  // 0 to 3 stars for a finished game: 90%, 70% and 40% of the best possible score.
+  function stars(skin, score) {
+    var share = score / (skin.rounds.length * 100);
+    return share >= 0.9 ? 3 : share >= 0.7 ? 2 : share >= 0.4 ? 1 : 0;
+  }
+
+  // The score to beat: the best of the samples, or 0 when the skin has none.
+  function topScore(skin) {
+    return skin.sampleScores.reduce(function (best, s) {
+      return Math.max(best, s.score);
+    }, 0);
   }
 
   // The sample board with the player's score ranked into it. The player wins a tie.
@@ -180,6 +201,8 @@
     scorePour: scorePour,
     roundLabel: roundLabel,
     board: board,
+    stars: stars,
+    topScore: topScore,
     createGame: createGame,
   };
 });

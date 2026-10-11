@@ -10,139 +10,152 @@
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml" sizes="any">
   <style>
     /* A promo game wears the venue's colours, not ai.doo's: game.js sets these from the skin. */
-    :root{--bg:#0b1020;--panel:#111a33;--ink:#eaf0ff;--muted:#b6c0d8;--accent:#2a8bc9;--accentInk:#fff;--liquid:#888;--liquidDeep:#666;--head:#fff}
+    :root{--bg:#0b1020;--panel:#111a33;--ink:#eaf0ff;--muted:#b6c0d8;--accent:#2a8bc9;--accentInk:#fff}
     @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2')}
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%}
-    body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%}
+    html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
+    body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     a{color:inherit}
     [hidden]{display:none !important}
+    .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-    .app{min-height:100vh;min-height:100dvh;max-width:440px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 20px max(16px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px}
-    .venue{margin:0;font-size:clamp(26px,8vw,34px);font-weight:900;letter-spacing:-1px;line-height:1.05}
-    .tagline{margin:4px 0 0;color:var(--muted);font-size:15px}
-    .status{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;font-size:15px}
-    .status .points{color:var(--accent)}
+    /* One phone-shaped column, with the venue's light falling from above. */
+    .app{position:relative;height:100vh;height:100dvh;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:linear-gradient(var(--panel),var(--bg) 62%)}
+    .app::before{content:"";position:absolute;inset:0 0 40%;background:radial-gradient(70% 100% at 50% 0%,var(--accent),transparent 72%);opacity:.14;pointer-events:none}
+    .screen{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 20px max(16px,env(safe-area-inset-bottom));animation:enter .32s ease-out}
+    @keyframes enter{from{opacity:0;transform:translateY(10px)}}
 
-    /* The glass. Its outline is a polygon from the skin; the fill rises with the pour. */
-    .stage{position:relative;flex:none;margin:auto 0;display:flex;justify-content:center;padding-top:22px}
-    .spout{position:absolute;top:0;left:50%;width:34px;height:22px;margin-left:-17px;border-radius:0 0 8px 8px;background:var(--panel);border:2px solid var(--muted);border-top:0}
-    .stream{position:absolute;top:20px;left:50%;width:10px;margin-left:-5px;bottom:0;background:linear-gradient(var(--liquid),var(--liquidDeep));border-radius:0 0 5px 5px;opacity:0;transition:opacity .08s}
-    .pouring .stream{opacity:.9}
-    .vessel{position:relative;height:clamp(140px,38vh,340px);height:clamp(140px,38dvh,340px);aspect-ratio:3/4.3}
-    .glass,.inside{position:absolute;inset:0}
-    .glass{background:var(--muted);opacity:.55}
-    .inside{inset:4px 5px 5px;background:var(--panel);overflow:hidden}
-    .fill{position:absolute;left:0;right:0;bottom:0;height:0;background:linear-gradient(var(--liquid),var(--liquidDeep));overflow:hidden}
-    .fill::after{content:"";position:absolute;inset:0;opacity:.35;background-image:radial-gradient(circle,var(--head) 1.2px,transparent 1.6px),radial-gradient(circle,var(--head) 1px,transparent 1.4px);background-size:34px 46px,52px 38px;background-position:6px 0,22px 14px;animation:fizz 2.4s linear infinite}
-    .foam{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--head)}
-    .foam::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:7px;background:radial-gradient(circle at 50% 100%,var(--head) 6.5px,transparent 7px) 0 0/15px 7px repeat-x}
-    .shine{position:absolute;top:6%;bottom:8%;left:17%;width:7%;border-radius:99px;background:linear-gradient(rgba(255,255,255,.34),rgba(255,255,255,.05));transform:rotate(4.5deg);pointer-events:none}
-    .mark{position:absolute;left:0;right:0;height:0;border-top:3px dashed var(--ink);opacity:.9;margin-bottom:-1.5px}
-    .v-perfect .mark{border-top-style:solid;border-color:var(--accent);animation:flash .5s 2}
-    .run{position:absolute;top:2px;width:9px;height:0;border-radius:0 0 6px 6px;background:var(--head);opacity:0}
-    .run.l{left:1px;transform:rotate(1deg)}
-    .run.r{right:1px;transform:rotate(-1deg)}
-    .spilled .run{opacity:.95;height:46%;transition:height .7s ease-in}
-    .spilled .run.r{height:30%;transition-duration:.9s}
-    .rise .vessel{animation:rise .28s ease-out}
-    @keyframes fizz{to{background-position:6px -46px,22px -24px}}
-    @keyframes flash{50%{opacity:.25}}
-    @keyframes rise{from{opacity:0;transform:translateY(14px)}}
-    @keyframes pop{from{transform:scale(.6);opacity:0}60%{transform:scale(1.12)}}
-    .tick{position:absolute;width:0;height:0;border:8px solid transparent;margin-bottom:-8px}
-    .tick.l{left:-20px;border-left-color:var(--accent)}
-    .tick.r{right:-20px;border-right-color:var(--accent)}
-    .spilled .vessel{animation:wobble .45s}
-    @keyframes wobble{25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+    .mute{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));right:12px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--muted);cursor:pointer}
+    .mute svg{width:22px;height:22px}
+    .mute .off{display:none}
+    .mute[aria-pressed="false"] .on{display:none}
+    .mute[aria-pressed="false"] .off{display:block}
+    .mute:focus-visible,.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 
-    .say{min-height:56px;text-align:center}
-    .say strong{display:block;font-size:22px;font-weight:900;letter-spacing:-.5px}
-    .say span{color:var(--muted);font-size:15px}
-    .say.result strong{animation:pop .3s ease-out}
-    .say.result span{color:var(--accent);font-size:20px;font-weight:900}
+    /* Title */
+    .title{justify-content:center;text-align:center;gap:10px}
+    .emblem{display:block;width:96px;height:auto;margin:auto auto 6px;color:var(--accent);animation:sway 3.2s ease-in-out infinite;transform-origin:50% 100%}
+    @keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+    .emblem[hidden] + .kicker{margin-top:auto}
+    .kicker{margin:0;color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    .venue{margin:0;font-size:clamp(40px,13vw,58px);font-weight:900;letter-spacing:-2px;line-height:.96;text-wrap:balance}
+    .rule{flex:none;width:56px;height:4px;margin:10px auto;border-radius:4px;background:var(--accent)}
+    .how{margin:0 auto;max-width:26ch;color:var(--muted);font-size:17px}
+    .beat{margin:0 0 14px;font-weight:800;font-size:15px}
 
-    .btn{display:block;width:100%;min-height:68px;padding:14px 18px;border:0;border-radius:20px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-    .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-    .btn:disabled{opacity:.6}
-    .pouring .btn{transform:scale(.98);filter:brightness(.92)}
+    /* The one big control: a button with some travel in it */
+    .btn{position:relative;flex:none;display:block;width:100%;min-height:68px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+    .btn:active,.btn.down{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.3)}
+    .btn:disabled{opacity:.55}
 
-    .panel{background:var(--panel);border-radius:22px;padding:20px}
-    .big{margin:0;font-size:56px;font-weight:900;letter-spacing:-2px;line-height:1}
+    /* Play */
+    .play{gap:10px;user-select:none;-webkit-user-select:none}
+    .hud{display:flex;align-items:center;gap:12px;padding-right:40px;font-weight:800}
+    .hud .round{flex:1;font-size:15px;white-space:nowrap}
+    .pips{display:flex;gap:6px;list-style:none;margin:0;padding:0}
+    .pips li{min-width:38px;height:26px;padding:0 6px;display:grid;place-items:center;border-radius:13px;border:2px solid var(--muted);font-size:12.5px;font-weight:900;color:var(--muted);opacity:.5}
+    .pips li.now{border-color:var(--accent);opacity:1}
+    .pips li.got{border-color:var(--ink);color:var(--ink);opacity:1;animation:pop .3s ease-out}
+    .pips li.best{border-color:var(--accent);background:var(--accent);color:var(--accentInk)}
+    .score{min-width:3ch;text-align:right;font-size:24px;font-weight:900;letter-spacing:-.5px;color:var(--accent);font-variant-numeric:tabular-nums}
+
+    .stage{position:relative;flex:1 1 auto;min-height:150px;margin:0 -20px}
+    .stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .say{flex:none;margin:0;min-height:54px;display:flex;flex-direction:column;justify-content:center;text-align:center;color:var(--muted);font-size:15px;line-height:1.3}
+    .say strong{display:block;color:var(--ink);font-size:24px;font-weight:900;letter-spacing:-.6px}
+    .say.result strong{animation:pop .32s ease-out}
+    .say.result span{color:var(--accent);font-size:17px;font-weight:900}
+    @keyframes pop{from{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}}
+
+    /* Results */
+    .done{gap:12px;overflow-y:auto;text-align:center}
+    .stars{flex:none;display:flex;justify-content:center;gap:8px;margin-top:22px;color:var(--muted)}
+    .stars svg{width:44px;height:44px;opacity:.3}
+    .stars svg:nth-child(2){width:56px;height:56px;margin-top:-10px}
+    .stars svg.lit{opacity:1;color:var(--accent);animation:star .45s cubic-bezier(.2,1.6,.4,1) backwards}
+    @keyframes star{from{transform:scale(0) rotate(-40deg)}}
+    .totalLabel{margin:0;color:var(--muted);font-size:14px;font-weight:700}
+    .big{margin:-8px 0 0;font-size:72px;font-weight:900;letter-spacing:-3px;line-height:1;font-variant-numeric:tabular-nums}
     .big small{font-size:18px;letter-spacing:0;color:var(--muted);font-weight:700}
-    .boardHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 8px}
+    .chips{flex:none;display:flex;justify-content:center;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0}
+    .chips li{padding:4px 12px;border-radius:999px;border:1px solid var(--muted);font-size:13px;font-weight:800}
+    .chips li b{color:var(--accent)}
+    .panel{flex:none;background:rgba(255,255,255,.06);border-radius:22px;padding:16px;text-align:left}
+    .boardHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 8px}
     .boardHead h2{margin:0;font-size:17px;font-weight:900}
     .sample{flex:none;padding:3px 10px;border:1px solid var(--muted);border-radius:999px;color:var(--muted);font-size:12px;font-weight:700}
     .board{list-style:none;margin:0;padding:0;counter-reset:rank}
-    .board li{display:flex;justify-content:space-between;gap:12px;padding:8px 10px;border-radius:10px;counter-increment:rank;font-weight:700}
+    .board li{display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-radius:10px;counter-increment:rank;font-weight:700;font-variant-numeric:tabular-nums;animation:enter .3s ease-out backwards}
     .board li::before{content:counter(rank) ".";width:24px;color:var(--muted)}
     .board li span:first-of-type{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .board li.you{background:var(--accent);color:var(--accentInk)}
     .board li.you::before{color:inherit}
     .small{margin:10px 0 0;color:var(--muted);font-size:13px}
-
-    .credit{margin:auto 0 0;padding-top:6px;text-align:center;color:var(--muted);font-size:12.5px}
+    .credit{flex:none;margin:auto 0 0;padding-top:8px;text-align:center;color:var(--muted);font-size:12.5px}
     .credit a{font-weight:700;color:var(--ink)}
 
-    @media (prefers-reduced-motion:reduce){.spilled .vessel,.fill::after,.v-perfect .mark,.rise .vessel,.say.result strong{animation:none}.stream,.spilled .run{transition:none}}
+    @media (max-width:350px){.hud{gap:8px}.hud .round{font-size:14px}.pips{gap:4px}.pips li{min-width:30px;padding:0 3px}.score{font-size:21px}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
   </style>
 </head>
 <body>
 <main class="app" id="app">
-  <header>
+  <button class="mute" id="mute" type="button" aria-pressed="true" hidden>
+    <span class="sr">Sound</span>
+    <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>
+  </button>
+
+  <section class="screen title" id="title">
+    <svg class="emblem" id="emblem" aria-hidden="true" hidden><path fill="currentColor"/></svg>
+    <p class="kicker" id="tagline">Loading…</p>
     <h1 class="venue" id="venue">A promo game demo</h1>
-    <p class="tagline" id="tagline">Loading…</p>
-  </header>
-
-  <section id="play" hidden>
-    <div class="status"><span id="round"></span><span class="points" id="points"></span></div>
+    <div class="rule"></div>
+    <p class="how" id="how"></p>
+    <p class="beat" id="beat"></p>
+    <button class="btn" id="start" type="button" hidden></button>
+    <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
+    <p class="credit">
+      <span id="fictional"></span>
+      This is a demo of a promo game by <a href="/">ai.doo</a>. Nothing is stored or sent.
+      <a href="/promo-games/">Want one with your name on it?</a>
+    </p>
   </section>
 
-  <div class="stage" id="stage" hidden aria-hidden="true">
-    <div class="spout"></div>
-    <div class="stream" id="stream"></div>
-    <div class="vessel">
-      <div class="glass" id="glass"></div>
-      <div class="inside" id="inside">
-        <div class="fill" id="fill"></div>
-        <div class="foam" id="foam"></div>
-        <div class="mark" id="mark"></div>
-        <div class="shine"></div>
-      </div>
-      <div class="run l"></div>
-      <div class="run r"></div>
-      <div class="tick l" id="tickL"></div>
-      <div class="tick r" id="tickR"></div>
+  <section class="screen play" id="play" hidden>
+    <div class="hud">
+      <span class="round" id="round"></span>
+      <ol class="pips" id="pips" aria-hidden="true"></ol>
+      <span class="score" id="points">0</span>
     </div>
-  </div>
-
-  <p class="say" id="say" role="status" aria-live="polite" hidden></p>
-
-  <button class="btn" id="pour" type="button" hidden></button>
-  <button class="btn" id="next" type="button" hidden></button>
-
-  <section class="panel" id="done" hidden>
-    <p class="small" id="totalLabel" style="margin:0 0 4px"></p>
-    <p class="big"><span id="total"></span> <small id="outOf"></small></p>
-    <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
-    <ol class="board" id="board"></ol>
-    <p class="small" id="prize"></p>
-    <p class="small">The names on this board are examples. A live game has a real board, and players add a nickname.</p>
+    <div class="stage" id="stage"><canvas id="scene" aria-hidden="true"></canvas></div>
+    <p class="say" id="say" role="status" aria-live="polite"></p>
+    <button class="btn" id="pour" type="button"></button>
+    <button class="btn" id="next" type="button" hidden></button>
   </section>
-  <button class="btn" id="again" type="button" hidden></button>
 
-  <noscript><p class="say">This game needs JavaScript turned on.</p></noscript>
-
-  <p class="credit">
-    <span id="fictional"></span>
-    This is a demo of a promo game by <a href="/">ai.doo</a>. Nothing is stored or sent.
-    <a href="/promo-games/">Want one with your name on it?</a>
-  </p>
+  <section class="screen done" id="done" hidden>
+    <div class="stars" id="stars" role="img"></div>
+    <p class="totalLabel" id="totalLabel"></p>
+    <p class="big"><span id="total">0</span> <small id="outOf"></small></p>
+    <ol class="chips" id="chips"></ol>
+    <div class="panel">
+      <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
+      <ol class="board" id="board"></ol>
+      <p class="small" id="prize"></p>
+      <p class="small">The names on this board are examples. A live game has a real board, and players add a nickname.</p>
+    </div>
+    <button class="btn" id="again" type="button"></button>
+    <p class="credit">
+      A demo of a promo game by <a href="/">ai.doo</a>.
+      <a href="/promo-games/">Want one with your name on it?</a>
+    </p>
+  </section>
 </main>
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
-<script src="skins/default.js?v=2"></script>
-<script src="engine.js?v=2"></script>
-<script src="game.js?v=2"></script>
+<script src="skins/default.js?v=3"></script>
+<script src="engine.js?v=3"></script>
+<script src="game.js?v=6"></script>
 </body>
 </html>

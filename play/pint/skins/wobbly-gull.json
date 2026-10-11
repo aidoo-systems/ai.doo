@@ -9,7 +9,15 @@
     "ink": "#fdf3dc",
     "muted": "#b9c9bd",
     "accent": "#f5b544",
-    "accentInk": "#1a0f08"
+    "accentInk": "#1a0f08",
+    "counter": "#6b4226",
+    "counterEdge": "#3d2413",
+    "metal": "#c9b27a"
+  },
+  "emblem": {
+    "width": 96,
+    "height": 44,
+    "path": "M4 26 Q24 0 48 22 Q72 0 92 26 Q72 14 48 34 Q24 14 4 26 Z"
   },
   "drink": {
     "liquid": "#e09a1f",
@@ -19,9 +27,12 @@
     "glass": [[2, 0], [98, 0], [100, 22], [84, 100], [16, 100], [0, 22]]
   },
   "copy": {
+    "start": "Start pouring",
+    "beat": "Beat {score} to top the board",
     "round": "Pint {n} of {total}",
     "hold": "Hold to pour",
-    "hint": "Hold the button to pour. Let go at the line.",
+    "release": "Let go at the line",
+    "hint": "Hold to pour. Let go as the head hits the line.",
     "next": "Next pint",
     "finish": "See the board",
     "again": "Pour again",

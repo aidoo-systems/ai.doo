@@ -36,5 +36,7 @@ if (out.problems.length === 0) {
   out.phase = game.phase;
   out.total = game.score;
   out.board = engine.board(skin, game.score);
+  out.stars = engine.stars(skin, game.score);
+  out.topScore = engine.topScore(skin);
 }
 process.stdout.write(JSON.stringify(out));

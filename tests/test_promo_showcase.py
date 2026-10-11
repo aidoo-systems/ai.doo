@@ -43,6 +43,9 @@ LATTE = {
         "muted": "#d9c3ad",
         "accent": "#e8a15a",
         "accentInk": "#2b1d16",
+        "counter": "#8a5a3a",
+        "counterEdge": "#5a3824",
+        "metal": "#d8d8d8",
     },
     "drink": {
         "liquid": "#c9a27e",
@@ -52,8 +55,11 @@ LATTE = {
         "glass": [[0, 0], [100, 0], [90, 100], [10, 100]],
     },
     "copy": {
+        "start": "Start",
+        "beat": "Beat {score}",
         "round": "Latte {n} of {total}",
         "hold": "Hold to pour",
+        "release": "Let go",
         "hint": "Let go at the line.",
         "next": "Next latte",
         "finish": "See the board",
@@ -168,6 +174,14 @@ def test_the_board_ranks_the_player_among_the_samples(latte):
     assert [row.get("you", False) for row in board] == [False, True, False]
 
 
+def test_stars_follow_the_share_of_the_best_score(latte):
+    # Two rounds: 200 is the best. One perfect pour is half of it, so one star.
+    assert run(latte(), ["line", "line"])["stars"] == 3
+    assert run(latte(), ["line", 0.01])["stars"] == 1
+    assert run(latte(), [0.01, 0.01])["stars"] == 0
+    assert run(latte(), ["line", "line"])["topScore"] == 150
+
+
 @pytest.mark.parametrize(
     "change",
     [
@@ -179,6 +193,8 @@ def test_the_board_ranks_the_player_among_the_samples(latte):
         lambda s: s["theme"].update(bg="url(https://example.com/x)"),
         lambda s: s["drink"].update(glass=[[0, 0], [100, 0]]),
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
+        lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
+        lambda s: s["theme"].pop("counter"),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
