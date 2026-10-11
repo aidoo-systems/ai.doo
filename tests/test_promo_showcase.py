@@ -194,8 +194,16 @@ def test_a_false_start_empties_the_glass_and_keeps_the_round(latte):
 
 def test_the_rival_is_the_next_sample_score_up(latte):
     # Bean holds the top score, so passing Bean is what wins the prize.
-    assert run(latte(), ["line", 0.01])["rival"] == {"name": "Bean", "gap": 50, "top": True}
-    assert run(latte(), [0.01, 0.01])["rival"] == {"name": "Milo", "gap": 90, "top": False}
+    assert run(latte(), ["line", 0.01])["rival"] == {
+        "name": "Bean",
+        "gap": 50,
+        "top": True,
+    }
+    assert run(latte(), [0.01, 0.01])["rival"] == {
+        "name": "Milo",
+        "gap": 90,
+        "top": False,
+    }
     assert run(latte(), ["line", "line"])["rival"] is None
 
 
