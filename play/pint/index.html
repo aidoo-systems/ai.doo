@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>A promo game demo | ai.doo</title>
+  <meta name="description" content="A demo of an ai.doo promo game: a short branded game played in the phone's browser." />
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#101214">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml" sizes="any">
+  <style>
+    /* A promo game wears the venue's colours from its first frame: the page stays a plain
+       dark until game.js has set these from the skin, then fades in. */
+    :root{--bg:#101214;--panel:#16191d;--ink:#f2f2f2;--muted:#a9adb3;--accent:#f2f2f2;--accentInk:#101214}
+    @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2')}
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
+    body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    a{color:inherit}
+    [hidden]{display:none !important}
+    .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+    /* One phone-shaped column, with the venue's light falling from above. */
+    .app{position:relative;height:100vh;height:100dvh;max-width:460px;margin:0 auto;display:flex;flex-direction:column;background:linear-gradient(var(--panel),var(--bg) 62%);opacity:0;transition:opacity .25s}
+    .ready .app{opacity:1}
+    .app::before{content:"";position:absolute;inset:0 0 40%;background:radial-gradient(70% 100% at 50% 0%,var(--accent),transparent 72%);opacity:.14;pointer-events:none}
+    .screen{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 20px max(14px,env(safe-area-inset-bottom));animation:enter .32s ease-out}
+    @keyframes enter{from{opacity:0;transform:translateY(10px)}}
+
+    .mute{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));right:12px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--muted);cursor:pointer}
+    .mute svg{width:22px;height:22px}
+    .mute .off{display:none}
+    .mute[aria-pressed="false"] .on{display:none}
+    .mute[aria-pressed="false"] .off{display:block}
+    .mute:focus-visible,.btn:focus-visible,.other:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+    /* Title: the name, then the game playing itself, then one button */
+    .title{text-align:center;gap:6px;overflow-y:auto}
+    .emblem{flex:none;display:block;width:72px;height:auto;margin:6px auto 2px;color:var(--accent);animation:sway 3.2s ease-in-out infinite;transform-origin:50% 100%}
+    @keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+    .kicker{margin:0;color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
+    .venue{margin:0;font-size:clamp(34px,11vw,50px);font-weight:900;letter-spacing:-1.8px;line-height:.98;text-wrap:balance}
+    .attract{position:relative;flex:1 1 0;min-height:0;margin:0 -20px}
+    .attract canvas,.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .offer{margin:0 auto;max-width:28ch;color:var(--accent);font-size:17px;font-weight:900;letter-spacing:-.2px;line-height:1.25;text-wrap:balance}
+    .how{margin:0 auto;color:var(--muted);font-size:15.5px}
+    .beat{margin:0 0 8px;color:var(--muted);font-weight:700;font-size:14.5px}
+
+    /* The one big control: a button with some travel in it */
+    .btn{position:relative;flex:none;display:block;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+    .btn:active,.btn.down{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.3)}
+    .btn.wait{opacity:.45}
+    .btn.second{min-height:52px;padding:11px 18px;background:transparent;color:var(--ink);font-size:16.5px;box-shadow:inset 0 0 0 2px var(--muted);touch-action:manipulation}
+    .btn.second:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--ink)}
+    .others{flex:none;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;min-height:0}
+    .other{padding:6px 4px;border:0;background:none;color:var(--ink);font:inherit;font-size:14px;font-weight:800;text-decoration:underline;cursor:pointer}
+
+    /* The winner's screen: big, plain, and moving, so staff can trust it at a glance */
+    .claim{justify-content:center;text-align:center;gap:10px;overflow-y:auto}
+    .claim .emblem{margin-top:auto}
+    .claim .btn.second{margin-bottom:auto}
+    .claimPrize{margin:6px auto 0;max-width:20ch;font-size:clamp(24px,7.5vw,32px);font-weight:900;letter-spacing:-.8px;line-height:1.1;color:var(--accent);text-wrap:balance}
+    .claimClock{margin:8px 0 0;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+    .shimmer{flex:none;height:10px;margin:4px 0 14px;border-radius:999px;background:linear-gradient(90deg,transparent,var(--accent),transparent) 0 0/50% 100% no-repeat,rgba(255,255,255,.1);animation:shimmer 1.6s linear infinite}
+    @keyframes shimmer{from{background-position:-100% 0,0 0}to{background-position:300% 0,0 0}}
+    .claim .small{margin:0 auto 8px;max-width:34ch}
+    .claim .btn:disabled{opacity:1;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--accent)}
+
+    /* Play */
+    .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-y:auto}
+    .hud{flex:none;display:flex;align-items:center;gap:10px;padding-right:42px;font-weight:800}
+    .hud .round{flex:1;font-size:14.5px;white-space:nowrap}
+    .pips,.chips{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
+    .pips li,.chips li{width:34px;height:24px;padding:0;display:grid;place-items:center;border-radius:12px;border:2px solid var(--muted);font-size:12px;font-weight:900;color:var(--muted);opacity:.5;font-variant-numeric:tabular-nums}
+    .pips li.now{border-color:var(--accent);opacity:1}
+    .pips li.got,.chips li{border-color:var(--ink);color:var(--ink);opacity:1}
+    .pips li.got{animation:pop .3s ease-out}
+    .pips li.best,.chips li.best{border-color:var(--accent);background:var(--accent);color:var(--accentInk)}
+    .score{min-width:3ch;text-align:right;font-size:23px;font-weight:900;letter-spacing:-.5px;color:var(--accent);font-variant-numeric:tabular-nums}
+
+    .stage{position:relative;flex:1 1 auto;min-height:150px;margin:0 -20px}
+    .say{flex:none;margin:0;min-height:54px;display:flex;flex-direction:column;justify-content:center;text-align:center;color:var(--muted);font-size:15px;line-height:1.3}
+    .say strong{display:block;color:var(--ink);font-size:24px;font-weight:900;letter-spacing:-.6px}
+    .say.result strong{animation:pop .32s ease-out}
+    .say.result span{font-size:17px;font-weight:900}
+    .say.win strong,.say.win span{color:var(--accent)}
+    @keyframes pop{from{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}}
+
+    /* Results: the score and the board scroll if they must; the buttons never leave the screen */
+    .done{gap:10px;text-align:center}
+    .doneBody{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+    .stars{flex:none;display:flex;justify-content:center;gap:6px;margin-top:14px;color:var(--muted)}
+    .stars svg{width:36px;height:36px;opacity:.3}
+    .stars svg:nth-child(2){width:46px;height:46px;margin-top:-8px}
+    .stars svg.lit{opacity:1;color:var(--accent);animation:star .45s cubic-bezier(.2,1.6,.4,1) backwards}
+    @keyframes star{from{transform:scale(0) rotate(-40deg)}}
+    .big{flex:none;margin:-4px 0 0;font-size:64px;font-weight:900;letter-spacing:-3px;line-height:1;font-variant-numeric:tabular-nums}
+    .big small{font-size:17px;letter-spacing:0;color:var(--muted);font-weight:700}
+    .chips{flex:none;justify-content:center}
+    .goal{flex:none;margin:2px 0 0;font-size:17px;font-weight:900;letter-spacing:-.2px;color:var(--accent)}
+    .mine{flex:none;margin:-4px 0 0;color:var(--muted);font-size:13.5px;font-weight:700;min-height:0}
+    .panel{flex:none;background:rgba(255,255,255,.06);border-radius:20px;padding:12px 14px;text-align:left}
+    .boardHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 4px}
+    .boardHead h2{margin:0;font-size:16px;font-weight:900}
+    .sample{flex:none;padding:2px 9px;border:1px solid var(--muted);border-radius:999px;color:var(--muted);font-size:11.5px;font-weight:700}
+    .board{list-style:none;margin:0;padding:0}
+    .board li{display:flex;gap:10px;padding:5px 10px;border-radius:10px;font-weight:700;font-variant-numeric:tabular-nums;animation:enter .3s ease-out backwards}
+    .board li .rank{width:22px;color:var(--muted)}
+    .board li .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .board li.you{background:var(--accent);color:var(--accentInk)}
+    .board li.you .rank{color:inherit}
+    .board li.gap{padding:0 10px;line-height:.9;color:var(--muted)}
+    .small{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.4}
+    .credit{flex:none;margin:0;text-align:center;color:var(--muted);font-size:12px}
+    .credit a{font-weight:700;color:var(--ink)}
+
+    /* A phone on its side: everything shrinks, and a screen that still doesn't fit can scroll. */
+    @media (max-height:620px){.emblem{display:none}.kicker{padding:0 36px}.venue{font-size:32px}.offer{font-size:15.5px}.beat{margin-bottom:4px}.stars{margin-top:4px}.big{font-size:52px}}
+    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.offer{font-size:15px;max-width:none}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
+    /* A phone: the pills already say which round it is, so the label is for screen readers
+       and the row is pills then score. Five pills of "100" and "500" fit down to 320px. */
+    @media (max-width:430px){.hud .round{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.pips{flex:1}}
+    @media (max-width:350px){.hud{gap:6px}.pips{gap:3px}.pips li{width:30px;font-size:11px}.score{font-size:20px}.btn.second{font-size:15px;padding:9px 8px}}
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+  </style>
+  <noscript><style>.app{opacity:1}#tagline{display:none}</style></noscript>
+</head>
+<body>
+<main class="app" id="app">
+  <button class="mute" id="mute" type="button" aria-pressed="true" hidden>
+    <span class="sr">Sound</span>
+    <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>
+    <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M17 9.5l5 5M22 9.5l-5 5"/></svg>
+  </button>
+
+  <section class="screen title" id="title">
+    <svg class="emblem" id="emblem" aria-hidden="true" hidden><path fill="currentColor"/></svg>
+    <p class="kicker" id="tagline">Loading…</p>
+    <h1 class="venue" id="venue">A promo game demo</h1>
+    <div class="attract"><canvas id="attract" aria-hidden="true"></canvas></div>
+    <p class="offer" id="offer"></p>
+    <p class="beat" id="beat"></p>
+    <button class="btn" id="start" type="button" hidden></button>
+    <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
+    <div class="others" id="othersTitle"></div>
+    <p class="credit">
+      <span id="fictional"></span>
+      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Nothing is stored or sent.
+      <a href="/promo-games/?from=demo#price">Want one with your name on it?</a>
+    </p>
+  </section>
+
+  <section class="screen play" id="play" hidden>
+    <div class="hud">
+      <span class="round" id="round"></span>
+      <ol class="pips" id="pips" aria-hidden="true"></ol>
+      <span class="score" id="points">0</span>
+    </div>
+    <div class="stage" id="stage"><canvas id="scene" aria-hidden="true"></canvas></div>
+    <p class="say" id="say" role="status" aria-live="polite"></p>
+    <button class="btn" id="pour" type="button"></button>
+  </section>
+
+  <section class="screen done" id="done" hidden>
+    <div class="doneBody" id="doneBody">
+      <div class="stars" id="stars" role="img"></div>
+      <p class="big"><span class="sr" id="totalLabel"></span><span id="total">0</span> <small id="outOf"></small></p>
+      <ol class="chips" id="chips" aria-hidden="true"></ol>
+      <p class="goal" id="goal"></p>
+      <p class="mine" id="mine"></p>
+      <div class="panel">
+        <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
+        <ol class="board" id="board"></ol>
+        <p class="small"><span id="prize"></span> The names and the prize are examples: a live game would have a real board, and the prize is yours to set.</p>
+      </div>
+    </div>
+    <button class="btn" id="again" type="button"></button>
+    <a class="btn second" href="/promo-games/?from=demo#price">Want one with your name on it?</a>
+    <div class="others" id="othersDone"><button class="other" id="claimOpen" type="button">See the winner's screen</button></div>
+    <p class="credit">A demo of a promo game by <a href="/promo-games/">ai.doo</a>. <a href="mailto:hello@aidoo.biz?subject=Promo%20game">Email us</a></p>
+  </section>
+
+  <section class="screen claim" id="claim" hidden>
+    <svg class="emblem" id="claimEmblem" aria-hidden="true" hidden><path fill="currentColor"/></svg>
+    <p class="kicker">This week's winner</p>
+    <h2 class="venue" id="claimVenue"></h2>
+    <p class="claimPrize" id="claimPrize"></p>
+    <p class="claimClock" id="claimClock"></p>
+    <div class="shimmer" aria-hidden="true"></div>
+    <button class="btn" id="claimMark" type="button">Staff: tap when handed over</button>
+    <p class="small">An example. In a live game only the real winner would get this screen. The moving clock shows it isn't a screenshot.</p>
+    <button class="btn second" id="claimBack" type="button">Back to the board</button>
+  </section>
+</main>
+
+<!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
+<script src="skins/default.js?v=9"></script>
+<script src="engine.js?v=10"></script>
+<script src="game.js?v=15"></script>
+</body>
+</html>

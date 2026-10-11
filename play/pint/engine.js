@@ -1,0 +1,269 @@
+// The rules of the pour game. No DOM in here: game.js draws it, and the tests run
+// it under Node (the driver in tests/). A venue is a skin: a JSON file in skins/.
+// Nothing about any one venue or drink belongs in this file.
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.PourEngine = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  var SURGE_HZ = 1; // how fast a round's surge pulses the flow, unless the round says
+  var MAX_STEP = 0.05; // a tick never pours more than this many seconds' worth
+  var COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i; // #rgb or #rrggbb, the two forms game.js draws with
+  var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
+  var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
+  var DRINK = ["liquid", "liquidDeep", "head"];
+  var COPY = [
+    "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
+    "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
+    "rival", "rivalTop", "top", "best", "newBest", "claim",
+  ];
+
+  function isText(v, max) {
+    return typeof v === "string" && v.trim().length > 0 && v.length <= max;
+  }
+  function isNum(v, min, max) {
+    return typeof v === "number" && isFinite(v) && v >= min && v <= max;
+  }
+  function isObj(v) {
+    return v !== null && typeof v === "object" && !Array.isArray(v);
+  }
+
+  // How wide a glass outline is at a height, both in its own 0 to 100 units; 0 where
+  // the outline doesn't reach.
+  function glassWidth(glass, y) {
+    var lo = Infinity;
+    var hi = -Infinity;
+    for (var i = 0; i < glass.length; i++) {
+      var a = glass[i];
+      var b = glass[(i + 1) % glass.length];
+      if ((a[1] <= y && b[1] >= y) || (b[1] <= y && a[1] >= y)) {
+        var xs = a[1] === b[1] ? [a[0], b[0]] : [a[0] + ((y - a[1]) / (b[1] - a[1])) * (b[0] - a[0])];
+        lo = Math.min.apply(null, xs.concat(lo));
+        hi = Math.max.apply(null, xs.concat(hi));
+      }
+    }
+    return hi >= lo ? hi - lo : 0;
+  }
+
+  // Every problem with a skin, as plain sentences. An empty list means it can be played.
+  function validateSkin(skin) {
+    var problems = [];
+    if (!isObj(skin)) return ["the skin is not an object"];
+
+    if (typeof skin.id !== "string" || !/^[a-z0-9-]+$/.test(skin.id)) problems.push("id must be lower-case letters, digits and hyphens");
+    ["venue", "tagline", "fictional", "switchLabel"].forEach(function (key) {
+      if (!isText(skin[key], 160)) problems.push(key + " is missing");
+    });
+
+    // The emblem is optional: one SVG path, drawn above the venue's name.
+    if (skin.emblem !== undefined) {
+      var em = isObj(skin.emblem) ? skin.emblem : {};
+      var emOk = isNum(em.width, 1, 512) && isNum(em.height, 1, 512) && typeof em.path === "string" && em.path.length <= 1200 && EMBLEM.test(em.path);
+      if (!emOk) problems.push("emblem needs a width, a height and an SVG path of drawing commands only");
+    }
+
+    var theme = isObj(skin.theme) ? skin.theme : {};
+    THEME.forEach(function (key) {
+      if (!COLOUR.test(theme[key])) problems.push("theme." + key + " must be a hex colour");
+    });
+
+    var drink = isObj(skin.drink) ? skin.drink : {};
+    DRINK.forEach(function (key) {
+      if (!COLOUR.test(drink[key])) problems.push("drink." + key + " must be a hex colour");
+    });
+    if (!isNum(drink.headDepth, 0, 0.3)) problems.push("drink.headDepth must be between 0 and 0.3");
+    var glass = drink.glass;
+    var glassOk = Array.isArray(glass) && glass.length >= 3 && glass.length <= 24 && glass.every(function (p) {
+      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, 100);
+    });
+    if (!glassOk) problems.push("drink.glass must be 3 to 24 points, each [x, y] from 0 to 100");
+
+    var copy = isObj(skin.copy) ? skin.copy : {};
+    COPY.forEach(function (key) {
+      if (!isText(copy[key], 120)) problems.push("copy." + key + " is missing");
+    });
+
+    var scoring = isObj(skin.scoring) ? skin.scoring : {};
+    if (!isNum(scoring.window, 0.01, 1)) problems.push("scoring.window must be between 0.01 and 1");
+    if (!isNum(scoring.perfect, 0, 1) || scoring.perfect >= scoring.window) problems.push("scoring.perfect must be smaller than scoring.window");
+    if (scoring.falseStart !== undefined && !isNum(scoring.falseStart, 0, 0.3)) problems.push("scoring.falseStart must be between 0 and 0.3");
+
+    var rounds = skin.rounds;
+    if (!Array.isArray(rounds) || rounds.length < 1 || rounds.length > 10) {
+      problems.push("rounds must hold 1 to 10 rounds");
+      rounds = [];
+    }
+    rounds.forEach(function (r, i) {
+      var at = "rounds[" + i + "].";
+      if (!isObj(r)) return problems.push("rounds[" + i + "] is not an object");
+      if (!isNum(r.line, 0.1, 0.97)) problems.push(at + "line must be between 0.1 and 0.97");
+      if (!isNum(r.speed, 0.05, 5)) problems.push(at + "speed must be between 0.05 and 5");
+      if (r.surge !== undefined && !isNum(r.surge, 0, 0.9)) problems.push(at + "surge must be between 0 and 0.9");
+      if (r.surgeHz !== undefined && !isNum(r.surgeHz, 0.2, 4)) problems.push(at + "surgeHz must be between 0.2 and 4");
+      // A line a false start can reach could never be scored on.
+      if (isNum(r.line, 0, 1) && isNum(scoring.falseStart, 0, 1) && r.line - scoring.falseStart < 0.1) problems.push(at + "line must sit at least 0.1 above scoring.falseStart");
+    });
+
+    // The glass is drawn from its rim (y 0) to its base (y 100) and marked at every
+    // round's line: it has to be a real, open shape at each of those heights.
+    if (glassOk) {
+      var heights = [0.5, 25, 50, 75, 99.5];
+      rounds.forEach(function (r) {
+        if (isObj(r) && isNum(r.line, 0, 1)) heights.push(100 * (1 - r.line));
+      });
+      var thin = heights.some(function (y) {
+        return glassWidth(glass, y) < 20;
+      });
+      if (thin) problems.push("drink.glass must run from its rim at y 0 to its base at y 100 and be at least 20 wide all the way down");
+    }
+
+    var samples = skin.sampleScores;
+    if (!Array.isArray(samples) || samples.length > 20) {
+      problems.push("sampleScores must be a list of up to 20 scores");
+      samples = [];
+    }
+    var best = rounds.length * 100;
+    samples.forEach(function (s, i) {
+      var ok = isObj(s) && isText(s.name, 16) && isNum(s.score, 0, best) && Math.floor(s.score) === s.score;
+      if (!ok) problems.push("sampleScores[" + i + "] needs a name and a whole score no higher than " + best);
+    });
+
+    return problems;
+  }
+
+  // One pour's result. level and the line both run from 0 (empty) to 1 (the rim).
+  function scorePour(skin, round, level) {
+    var line = skin.rounds[round].line;
+    if (level >= 1) return { level: 1, line: line, score: 0, verdict: "spill" };
+    var diff = Math.abs(level - line);
+    if (diff <= skin.scoring.perfect) return { level: level, line: line, score: 100, verdict: "perfect" };
+    var score = Math.min(99, Math.max(0, Math.round(100 * (1 - diff / skin.scoring.window))));
+    var verdict = score >= 70 ? "good" : level < line ? "short" : "over";
+    return { level: level, line: line, score: score, verdict: verdict };
+  }
+
+  // How hard the tap is running, as a multiple of the round's speed: 1 without a surge.
+  function flowAt(skin, round, held) {
+    var r = skin.rounds[round];
+    return 1 + (r.surge || 0) * Math.sin(2 * Math.PI * (r.surgeHz || SURGE_HZ) * held);
+  }
+
+  function roundLabel(skin, round) {
+    return skin.copy.round.replace("{n}", String(round + 1)).replace("{total}", String(skin.rounds.length));
+  }
+
+  // 0 to 3 stars for a finished game: 90%, 70% and 40% of the best possible score.
+  function stars(skin, score) {
+    var share = score / (skin.rounds.length * 100);
+    return share >= 0.9 ? 3 : share >= 0.7 ? 2 : share >= 0.4 ? 1 : 0;
+  }
+
+  // The score to beat: the best of the samples, or 0 when the skin has none.
+  function topScore(skin) {
+    return skin.sampleScores.reduce(function (best, s) {
+      return Math.max(best, s.score);
+    }, 0);
+  }
+
+  // The sample score just above the player's, how far off it is, and whether passing
+  // it would put the player top of the board; null when they already are.
+  function nextRival(skin, score) {
+    var rival = null;
+    skin.sampleScores.forEach(function (s) {
+      if (s.score > score && (!rival || s.score < rival.score)) rival = s;
+    });
+    return rival ? { name: rival.name, gap: rival.score - score, top: rival.score === topScore(skin) } : null;
+  }
+
+  // The sample board with the player's score ranked into it. The player wins a tie.
+  function board(skin, score) {
+    var rows = [{ name: skin.copy.you, score: score, you: true }];
+    skin.sampleScores.forEach(function (s) {
+      rows.push({ name: s.name, score: s.score });
+    });
+    return rows.sort(function (a, b) {
+      return b.score - a.score;
+    });
+  }
+
+  // phase: ready -> pouring -> poured -> (next round: ready) ... -> done
+  function createGame(skin) {
+    var game = {
+      skin: skin,
+      total: skin.rounds.length,
+      round: 0,
+      level: 0,
+      held: 0,
+      score: 0,
+      results: [],
+      phase: "ready",
+    };
+
+    function finish() {
+      var result = scorePour(skin, game.round, game.level);
+      game.results.push(result);
+      game.score += result.score;
+      game.phase = "poured";
+    }
+
+    game.press = function () {
+      if (game.phase === "ready") game.phase = "pouring";
+    };
+    game.tick = function (seconds) {
+      if (game.phase !== "pouring" || !(seconds > 0)) return;
+      var dt = Math.min(seconds, MAX_STEP);
+      game.level += skin.rounds[game.round].speed * flowAt(skin, game.round, game.held) * dt;
+      game.held += dt;
+      if (game.level >= 1) {
+        game.level = 1;
+        finish();
+      }
+    };
+    // Letting go ends the pour. A touch that barely poured is a false start, not a
+    // score: the glass empties and the round is still to play.
+    game.release = function () {
+      if (game.phase !== "pouring") return null;
+      if (game.level < (skin.scoring.falseStart || 0)) {
+        game.level = 0;
+        game.held = 0;
+        game.phase = "ready";
+        return "falseStart";
+      }
+      finish();
+      return "poured";
+    };
+    game.next = function () {
+      if (game.phase !== "poured") return;
+      if (game.round + 1 >= game.total) {
+        game.phase = "done";
+        return;
+      }
+      game.round += 1;
+      game.level = 0;
+      game.held = 0;
+      game.phase = "ready";
+    };
+    game.reset = function () {
+      game.round = 0;
+      game.level = 0;
+      game.held = 0;
+      game.score = 0;
+      game.results = [];
+      game.phase = "ready";
+    };
+    return game;
+  }
+
+  return {
+    validateSkin: validateSkin,
+    scorePour: scorePour,
+    roundLabel: roundLabel,
+    board: board,
+    stars: stars,
+    flowAt: flowAt,
+    nextRival: nextRival,
+    topScore: topScore,
+    createGame: createGame,
+  };
+});

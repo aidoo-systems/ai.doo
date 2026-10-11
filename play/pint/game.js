@@ -1,0 +1,1315 @@
+// Everything the player sees and hears. The rules are in engine.js; the venue, its
+// colours, its words, its glass and its rounds all come from a skin file in skins/.
+// Three parts: makeSound (synthesised, no audio files), makeScene (the canvas: counter,
+// tap, glass, liquid, foam and particles) and start (the screens and the one control).
+(function () {
+  "use strict";
+
+  var E = PourEngine;
+  var $ = function (id) {
+    return document.getElementById(id);
+  };
+  var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var HOLD = 1150; // ms a result stays up before the next glass slides in
+  var HOLD_SPILL = 1600;
+  var STAR = "M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z";
+
+  function clamp(v, lo, hi) {
+    return Math.max(lo, Math.min(hi, v));
+  }
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+  function smooth(t) {
+    t = clamp(t, 0, 1);
+    return t * t * (3 - 2 * t);
+  }
+  function toward(a, b, k) {
+    return a + (b - a) * Math.min(1, k);
+  }
+  function rand(lo, hi) {
+    return lo + Math.random() * (hi - lo);
+  }
+  // A skin colour (#rgb or #rrggbb, already validated) at an opacity.
+  function rgba(hex, a) {
+    var h = hex.slice(1);
+    if (h.length < 6) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h.slice(0, 6), 16);
+    return "rgba(" + (n >> 16) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
+  }
+
+  function skinId() {
+    var asked = new URLSearchParams(location.search).get("skin");
+    return asked && /^[a-z0-9-]+$/.test(asked) ? asked : window.POUR_SKIN;
+  }
+
+  // A skin by name, or a rejection if it is missing or not playable.
+  function loadSkin(id) {
+    return fetch("skins/" + id + ".json", { cache: "no-cache" })
+      .then(function (res) {
+        if (!res.ok) throw new Error("skin " + res.status);
+        return res.json();
+      })
+      .then(function (skin) {
+        if (E.validateSkin(skin).length) throw new Error("skin invalid");
+        return skin;
+      });
+  }
+
+  // A name nobody has (a typo, a retired skin on old artwork) plays the default skin.
+  var asked = skinId();
+  loadSkin(asked)
+    .catch(function (err) {
+      if (asked === window.POUR_SKIN) throw err;
+      return loadSkin(window.POUR_SKIN);
+    })
+    .then(start)
+    .catch(function () {
+      $("tagline").textContent = "Sorry, this game couldn't load. Please try again.";
+      document.documentElement.classList.add("ready");
+    });
+
+  // ---------------------------------------------------------------- sound
+
+  function makeSound() {
+    var ctx = null;
+    var on = true;
+    var noise = null;
+    var pour = null;
+    var asleep = false; // the page is hidden: nothing may sound until it is back
+
+    // Browsers only allow sound after a tap, so this is first called from one.
+    function ready() {
+      if (!on || asleep) return null;
+      if (!ctx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        ctx = new AC();
+        noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+        var data = noise.getChannelData(0);
+        for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      }
+      if (ctx.state !== "running") ctx.resume(); // "suspended", or iOS's "interrupted"
+      return ctx;
+    }
+
+    function tone(freq, dur, vol, opts) {
+      var c = ready();
+      if (!c) return;
+      opts = opts || {};
+      var t = c.currentTime + (opts.delay || 0);
+      var osc = c.createOscillator();
+      var gain = c.createGain();
+      osc.type = opts.type || "sine";
+      osc.frequency.setValueAtTime(freq, t);
+      if (opts.to) osc.frequency.exponentialRampToValueAtTime(opts.to, t + dur);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t);
+      osc.stop(t + dur + 0.05);
+    }
+
+    function splash(dur, vol, cutoff) {
+      var c = ready();
+      if (!c) return;
+      var t = c.currentTime;
+      var src = c.createBufferSource();
+      var filter = c.createBiquadFilter();
+      var gain = c.createGain();
+      src.buffer = noise;
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(cutoff, t);
+      filter.frequency.exponentialRampToValueAtTime(cutoff / 4, t + dur);
+      gain.gain.setValueAtTime(vol, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      src.connect(filter);
+      filter.connect(gain);
+      gain.connect(c.destination);
+      src.start(t);
+      src.stop(t + dur + 0.05);
+    }
+
+    return {
+      unlock: ready,
+      // Filtered noise: its pitch climbs as the glass fills, the way a real one does,
+      // and it gets louder and quieter with the flow, so a surge can be heard coming.
+      startPour: function () {
+        var c = ready();
+        if (!c || pour) return;
+        var src = c.createBufferSource();
+        var band = c.createBiquadFilter();
+        var gain = c.createGain();
+        src.buffer = noise;
+        src.loop = true;
+        band.type = "bandpass";
+        band.Q.value = 0.9;
+        band.frequency.value = 420;
+        gain.gain.setValueAtTime(0.0001, c.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.19, c.currentTime + 0.07);
+        src.connect(band);
+        band.connect(gain);
+        gain.connect(c.destination);
+        src.start();
+        pour = { src: src, band: band, gain: gain, from: c.currentTime + 0.08 };
+      },
+      setPour: function (level, flow) {
+        if (!pour) return;
+        pour.band.frequency.setTargetAtTime(420 + 1900 * level, ctx.currentTime, 0.06);
+        if (ctx.currentTime > pour.from) pour.gain.gain.setTargetAtTime(0.19 * Math.pow(clamp(flow, 0.3, 1.8), 1.5), ctx.currentTime, 0.04);
+      },
+      stopPour: function () {
+        if (!pour) return;
+        var p = pour;
+        pour = null;
+        p.gain.gain.cancelScheduledValues(ctx.currentTime);
+        p.gain.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.035);
+        p.src.stop(ctx.currentTime + 0.3);
+      },
+      click: function () {
+        tone(620, 0.06, 0.05, { type: "triangle" });
+      },
+      tick: function () {
+        tone(1500, 0.03, 0.025, { type: "square" });
+      },
+      nudge: function () {
+        tone(440, 0.12, 0.07, { type: "triangle", to: 330 });
+      },
+      best: function () {
+        tone(1319, 0.25, 0.1, { delay: 1.15 });
+        tone(1760, 0.5, 0.1, { delay: 1.27 });
+      },
+      star: function (i, delay) {
+        tone([784, 988, 1319][i] || 1319, 0.5, 0.13, { delay: delay });
+      },
+      verdict: function (verdict) {
+        if (verdict === "perfect") {
+          tone(1046.5, 0.5, 0.16);
+          tone(1568, 0.7, 0.11, { delay: 0.09 });
+          tone(2093, 0.9, 0.07, { delay: 0.18 });
+        } else if (verdict === "good") {
+          tone(880, 0.3, 0.13);
+          tone(1174.7, 0.4, 0.09, { delay: 0.08 });
+        } else if (verdict === "spill") {
+          splash(0.55, 0.32, 1400);
+          tone(300, 0.45, 0.07, { type: "sawtooth", to: 80 });
+        } else {
+          tone(330, 0.28, 0.13, { type: "triangle", to: 196 });
+        }
+      },
+      toggle: function () {
+        on = !on;
+        if (!on && pour) this.stopPour();
+        if (ctx) on ? ctx.resume() : ctx.suspend();
+        return on;
+      },
+      sleep: function () {
+        if (pour) this.stopPour();
+        asleep = true;
+        if (ctx) ctx.suspend();
+      },
+      wake: function () {
+        asleep = false;
+        if (ctx && on) ctx.resume();
+      },
+    };
+  }
+
+  // ---------------------------------------------------------------- scene
+
+  function makeScene(canvas, skin) {
+    var ctx = canvas.getContext("2d");
+    var th = skin.theme;
+    var dr = skin.drink;
+    var W = 0;
+    var H = 0;
+    var g = null; // geometry, rebuilt by layout()
+    var fx;
+    var bubbles = [];
+    var parts = [];
+    var floats = [];
+    // The foam's top edge: fixed bump sizes, so it doesn't boil from frame to frame.
+    var bumps = [];
+    for (var i = 0; i < 64; i++) bumps.push(3.4 + 3.2 * Math.abs((Math.sin(i * 12.9898) * 43758.5453) % 1));
+    var BUMP_MAX = 6.6;
+
+    function reset() {
+      fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null };
+      bubbles = [];
+      parts = [];
+      floats = [];
+    }
+    reset();
+
+    function layout() {
+      var box = canvas.getBoundingClientRect();
+      if (box.width < 60 || box.height < 90) {
+        g = null;
+        return;
+      }
+      var dpr = Math.min(window.devicePixelRatio || 1, 3);
+      W = box.width;
+      H = box.height;
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var counterH = clamp(H * 0.13, 22, 60);
+      var counterY = H - counterH;
+      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330); // the room above is the tap's
+      var gw = gh * 0.66;
+      if (gw > W * 0.58) {
+        gw = W * 0.58;
+        gh = gw / 0.66;
+      }
+      var gx = (W - gw) / 2;
+      var gy = counterY - gh + 4;
+      var wall = Math.max(3, gw * 0.022);
+      var base = Math.max(6, gh * 0.045);
+      var cx = W / 2;
+      g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
+      g.outer = dr.glass.map(function (p) {
+        return [gx + (p[0] / 100) * gw, gy + (p[1] / 100) * gh];
+      });
+      g.inner = g.outer.map(function (p) {
+        return [cx + (p[0] - cx) * (1 - (2 * wall) / gw), gy + (p[1] - gy) * (1 - base / gh)];
+      });
+      g.top = gy;
+      g.bottom = gy + gh - base;
+    }
+
+    // Where a level (0 empty, 1 the rim) sits on the canvas.
+    function yAt(level) {
+      return g.bottom - level * (g.bottom - g.top);
+    }
+
+    // The left and right edges of a polygon at a height, or null above and below it.
+    function xRange(pts, y) {
+      var lo = Infinity;
+      var hi = -Infinity;
+      for (var i = 0; i < pts.length; i++) {
+        var a = pts[i];
+        var b = pts[(i + 1) % pts.length];
+        if ((a[1] <= y && b[1] >= y) || (b[1] <= y && a[1] >= y)) {
+          if (a[1] === b[1]) {
+            lo = Math.min(lo, a[0], b[0]);
+            hi = Math.max(hi, a[0], b[0]);
+          } else {
+            var x = a[0] + ((y - a[1]) / (b[1] - a[1])) * (b[0] - a[0]);
+            lo = Math.min(lo, x);
+            hi = Math.max(hi, x);
+          }
+        }
+      }
+      return hi >= lo ? [lo, hi] : null;
+    }
+
+    function poly(pts, r) {
+      var n = pts.length;
+      ctx.beginPath();
+      ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+      for (var i = 0; i < n; i++) {
+        var b = pts[(i + 1) % n];
+        ctx.arcTo(pts[i][0], pts[i][1], b[0], b[1], r);
+      }
+      ctx.closePath();
+    }
+
+    function box(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function wave(x) {
+      return fx.wave * (Math.sin(x * 0.06 + fx.t * 9) + 0.5 * Math.sin(x * 0.13 - fx.t * 6)) +
+        fx.slosh * ((x - g.cx) / g.gw) * Math.sin(fx.t * 13);
+    }
+
+    function drawCounter() {
+      var shade = ctx.createLinearGradient(0, g.counterY - 22, 0, g.counterY);
+      shade.addColorStop(0, "rgba(0,0,0,0)");
+      shade.addColorStop(1, "rgba(0,0,0,.28)");
+      ctx.fillStyle = shade;
+      ctx.fillRect(0, g.counterY - 22, W, 22);
+      var top = ctx.createLinearGradient(0, g.counterY, 0, H);
+      top.addColorStop(0, th.counter);
+      top.addColorStop(1, th.counterEdge);
+      ctx.fillStyle = top;
+      ctx.fillRect(0, g.counterY, W, g.counterH);
+      ctx.fillStyle = "rgba(255,255,255,.2)";
+      ctx.fillRect(0, g.counterY, W, 2);
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      ctx.fillRect(0, g.counterY + 10, W, 2);
+    }
+
+    function drawTap() {
+      var cx = g.cx;
+      var tip = g.tip;
+      // the handle, behind the pipe: pulled down while pouring, and it judders with the flow
+      ctx.save();
+      ctx.translate(cx + 12, tip - 30);
+      ctx.rotate(lerp(0.28, 1.1, smooth(fx.handle)) + (fx.flow - 1) * 0.24 * fx.handle);
+      ctx.fillStyle = th.metal;
+      box(-4, -24, 8, 28, 3);
+      ctx.fill();
+      ctx.fillStyle = th.accent;
+      box(-11, -84, 22, 64, 11);
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.16)";
+      box(3, -80, 6, 56, 3);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.3)";
+      box(-7, -78, 4, 46, 2);
+      ctx.fill();
+      ctx.fillStyle = rgba(th.accentInk, 0.82);
+      ctx.beginPath();
+      ctx.arc(0, -54, 6, 0, 6.3);
+      ctx.fill();
+      ctx.restore();
+      // the pipe, its collar and the nozzle
+      ctx.fillStyle = th.metal;
+      ctx.fillRect(cx - 11, -4, 22, tip - 14);
+      box(cx - 17, tip - 38, 34, 13, 5);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(cx - 9, tip - 20);
+      ctx.lineTo(cx + 9, tip - 20);
+      ctx.lineTo(cx + 5.5, tip);
+      ctx.lineTo(cx - 5.5, tip);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.4)";
+      ctx.fillRect(cx - 7, -4, 4, tip - 36);
+      ctx.fillRect(cx - 13, tip - 35, 7, 3);
+      ctx.fillStyle = "rgba(0,0,0,.24)";
+      ctx.fillRect(cx + 4, -4, 7, tip - 16);
+      ctx.fillRect(cx - 17, tip - 28, 34, 3);
+    }
+
+    // The stream is as wide as the flow is strong: a surge is a visibly fatter pour.
+    function drawStream(level) {
+      if (fx.head <= 0) return;
+      var target = level > 0.01 ? yAt(level) + 3 : g.bottom;
+      var y0 = lerp(g.tip, target, fx.tail);
+      var y1 = lerp(g.tip, target, fx.head);
+      if (y1 - y0 < 2) return;
+      var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5);
+      var left = [];
+      var right = [];
+      for (var y = y0; ; y += 6) {
+        if (y > y1) y = y1;
+        var k = (y - g.tip) / Math.max(1, target - g.tip);
+        var mid = g.cx + Math.sin(y * 0.045 + fx.t * 11) * 1.3 * k;
+        var half = lerp(5.4, 3.4, k) * fat;
+        left.push([mid - half, y]);
+        right.push([mid + half, y]);
+        if (y === y1) break;
+      }
+      ctx.beginPath();
+      left.forEach(function (p, i) {
+        if (i) ctx.lineTo(p[0], p[1]);
+        else ctx.moveTo(p[0], p[1]);
+      });
+      right.reverse().forEach(function (p) {
+        ctx.lineTo(p[0], p[1]);
+      });
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(0, g.tip, 0, target);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,.3)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      left.forEach(function (p, i) {
+        if (i) ctx.lineTo(p[0] + 1.6, p[1]);
+        else ctx.moveTo(p[0] + 1.6, p[1]);
+      });
+      ctx.stroke();
+    }
+
+    // One glass at a sideways offset. live: the one being poured (bubbles, churn, marks).
+    function drawGlass(ox, level, line, live, pouring) {
+      var span = g.bottom - g.top;
+      ctx.save();
+      ctx.translate(ox, 0);
+
+      ctx.fillStyle = "rgba(0,0,0,.3)";
+      ctx.beginPath();
+      ctx.ellipse(g.cx, g.counterY + 7, g.gw * 0.46, 6, 0, 0, 6.3);
+      ctx.fill();
+
+      poly(g.inner, 3);
+      ctx.fillStyle = "rgba(255,255,255,.05)";
+      ctx.fill();
+
+      ctx.save();
+      poly(g.inner, 3);
+      ctx.clip();
+      if (level > 0.004) {
+        var ys = yAt(level);
+        var headH = dr.headDepth * level * span;
+        var bodyTop = ys + headH;
+        var x0 = g.gx - 4;
+        var x1 = g.gx + g.gw + 4;
+        var x;
+
+        // the drink
+        var grad = ctx.createLinearGradient(0, bodyTop, 0, g.bottom);
+        grad.addColorStop(0, dr.liquid);
+        grad.addColorStop(1, dr.liquidDeep);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(x0, g.bottom + g.base);
+        for (x = x0; x <= x1; x += 6) ctx.lineTo(x, bodyTop + wave(x) * 0.5);
+        ctx.lineTo(x1, g.bottom + g.base);
+        ctx.closePath();
+        ctx.fill();
+        var lit = ctx.createLinearGradient(0, bodyTop, 0, bodyTop + 30);
+        lit.addColorStop(0, "rgba(255,255,255,.2)");
+        lit.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = lit;
+        ctx.fillRect(x0, bodyTop - 3, x1 - x0, 34);
+
+        if (live) {
+          ctx.fillStyle = rgba(dr.head, 0.55);
+          bubbles.forEach(function (b) {
+            if (b.y > bodyTop + 3) {
+              ctx.beginPath();
+              ctx.arc(b.x, b.y, b.r, 0, 6.3);
+              ctx.fill();
+            }
+          });
+          if (pouring && level > 0.03) {
+            // churn where the stream lands, more of it the harder the tap runs
+            for (var c = 0; c < Math.round(7 * fx.flow); c++) {
+              ctx.beginPath();
+              ctx.arc(g.cx + rand(-13, 13), bodyTop + rand(0, 26), rand(1.5, 4.5), 0, 6.3);
+              ctx.fill();
+            }
+          }
+        }
+
+        // the head: its bumps all top out on the level, so what you see is what is scored
+        if (headH > 1.2) {
+          ctx.fillStyle = dr.head;
+          ctx.beginPath();
+          ctx.moveTo(x0, bodyTop + 1);
+          for (x = x0; x <= x1; x += 6) ctx.lineTo(x, ys + wave(x) + 3);
+          for (x = x1; x >= x0; x -= 6) ctx.lineTo(x, bodyTop + wave(x) * 0.5 + 1.5);
+          ctx.closePath();
+          ctx.fill();
+          var n = 0;
+          for (x = g.gx; x <= g.gx + g.gw; x += 9) {
+            var r = Math.min(bumps[n++ % bumps.length], headH * 0.8 + 1.5);
+            ctx.beginPath();
+            ctx.arc(x, ys + wave(x) + r + (BUMP_MAX - r) * 0.22, r, 0, 6.3);
+            ctx.fill();
+          }
+          var under = ctx.createLinearGradient(0, ys, 0, bodyTop + 2);
+          under.addColorStop(0, "rgba(0,0,0,0)");
+          under.addColorStop(1, "rgba(0,0,0,.1)");
+          ctx.fillStyle = under;
+          ctx.fillRect(x0, ys, x1 - x0, headH + 2);
+        }
+      }
+
+      if (line !== null) {
+        // dark under light, so the line shows against the glass, the drink and a pale head
+        var yl = yAt(line);
+        ctx.setLineDash([7, 6]);
+        ctx.lineCap = "butt";
+        ctx.strokeStyle = "rgba(0,0,0,.6)";
+        ctx.lineWidth = 5.5;
+        ctx.beginPath();
+        ctx.moveTo(g.gx, yl);
+        ctx.lineTo(g.gx + g.gw, yl);
+        ctx.stroke();
+        ctx.strokeStyle = th.ink;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        if (live && fx.glow > 0) {
+          ctx.strokeStyle = rgba(th.accent, fx.glow);
+          ctx.shadowColor = th.accent;
+          ctx.shadowBlur = 16 * fx.glow;
+          ctx.lineWidth = 4;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      // light on the glass
+      var top = g.gy + g.gh * 0.07;
+      var bot = g.gy + g.gh * 0.7;
+      var a = xRange(g.inner, top);
+      var b = xRange(g.inner, bot);
+      if (a && b) {
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(255,255,255,.15)";
+        ctx.lineWidth = g.gw * 0.05;
+        ctx.beginPath();
+        ctx.moveTo(a[0] + g.gw * 0.12, top);
+        ctx.lineTo(b[0] + g.gw * 0.12, bot);
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(255,255,255,.14)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(a[1] - g.gw * 0.08, top + 10);
+        ctx.lineTo(b[1] - g.gw * 0.08, bot - 30);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // the glass itself: a thick base and a bright edge
+      ctx.save();
+      poly(g.outer, 5);
+      ctx.clip();
+      ctx.fillStyle = "rgba(255,255,255,.2)";
+      ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
+      ctx.restore();
+      poly(g.outer, 5);
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(255,255,255,.62)";
+      ctx.lineWidth = Math.max(2.5, g.wall);
+      ctx.stroke();
+
+      if (line !== null) {
+        var yy = yAt(line);
+        var edge = xRange(g.outer, yy);
+        if (!edge) {
+          ctx.restore();
+          return;
+        }
+        var bob = live && !pouring && level === 0 && !calm ? Math.sin(fx.t * 4) * 2.5 : 0;
+        ctx.fillStyle = th.accent;
+        [-1, 1].forEach(function (side) {
+          var tipX = (side < 0 ? edge[0] - 7 : edge[1] + 7) + side * bob;
+          ctx.beginPath();
+          ctx.moveTo(tipX, yy);
+          ctx.lineTo(tipX + side * 11, yy - 7.5);
+          ctx.lineTo(tipX + side * 11, yy + 7.5);
+          ctx.closePath();
+          ctx.fill();
+        });
+        if (live && fx.measure) drawMeasure(edge[1] + 30);
+      }
+      ctx.restore();
+    }
+
+    // After a pour: a bracket from where the head stopped to the line. The miss, drawn.
+    function drawMeasure(x) {
+      var m = fx.measure;
+      var a = smooth(m.t / 0.18);
+      var yh = yAt(m.level);
+      var yl = yAt(m.line);
+      var win = m.verdict === "perfect" || m.verdict === "good";
+      ctx.globalAlpha = a;
+      ctx.strokeStyle = win ? th.accent : th.ink;
+      ctx.fillStyle = ctx.strokeStyle;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 3.5;
+      if (Math.abs(yh - yl) < 3.5) {
+        // on the line: a tick
+        ctx.beginPath();
+        ctx.moveTo(x - 7, yl);
+        ctx.lineTo(x - 2, yl + 6);
+        ctx.lineTo(x + 8, yl - 7);
+        ctx.stroke();
+      } else {
+        var end = lerp(yl, yh, a);
+        ctx.beginPath();
+        ctx.moveTo(x - 8, yl);
+        ctx.lineTo(x, yl);
+        ctx.lineTo(x, end);
+        ctx.lineTo(x - 8, end);
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawSpill() {
+      if (fx.spill <= 0) return;
+      ctx.fillStyle = rgba(dr.head, 0.9);
+      ctx.beginPath();
+      ctx.ellipse(g.cx, g.counterY + 8, g.gw * (0.3 + 0.36 * fx.spill), 5.5, 0, 0, 6.3);
+      ctx.fill();
+      ctx.strokeStyle = dr.head;
+      ctx.fillStyle = dr.head;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = 7;
+      [0, 1].forEach(function (side) {
+        var len = fx.spill * g.gh * (side ? 0.36 : 0.55);
+        var end = null;
+        ctx.beginPath();
+        for (var y = g.gy; y <= g.gy + len; y += 6) {
+          var edge = xRange(g.outer, y);
+          if (!edge) break;
+          end = [side ? edge[1] + 2 : edge[0] - 2, y];
+          if (y === g.gy) ctx.moveTo(end[0], end[1]);
+          else ctx.lineTo(end[0], end[1]);
+        }
+        ctx.stroke();
+        if (end) {
+          ctx.beginPath();
+          ctx.arc(end[0], end[1] + 2, 5, 0, 6.3);
+          ctx.fill();
+        }
+      });
+      box(g.gx - 3, g.gy - 6, g.gw + 6, 10, 5);
+      ctx.fill();
+    }
+
+    function drawParts(dt) {
+      parts = parts.filter(function (p) {
+        p.life -= dt;
+        if (p.life <= 0) return false;
+        p.vy += p.gravity * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (p.y > g.counterY + 6) return false;
+        var s = p.r * Math.min(1, p.life / 0.25);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        if (p.star) {
+          // a four-point glint
+          ctx.moveTo(p.x, p.y - s * 2);
+          ctx.quadraticCurveTo(p.x, p.y, p.x + s * 2, p.y);
+          ctx.quadraticCurveTo(p.x, p.y, p.x, p.y + s * 2);
+          ctx.quadraticCurveTo(p.x, p.y, p.x - s * 2, p.y);
+          ctx.quadraticCurveTo(p.x, p.y, p.x, p.y - s * 2);
+        } else {
+          ctx.arc(p.x, p.y, s, 0, 6.3);
+        }
+        ctx.fill();
+        return true;
+      });
+      floats = floats.filter(function (f) {
+        f.life -= dt / 1.1;
+        if (f.life <= 0) return false;
+        var y = f.y - (1 - f.life) * f.size * 1.4;
+        ctx.globalAlpha = Math.min(1, f.life * 2.4);
+        ctx.font = "900 " + f.size + "px Inter, system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.lineJoin = "round";
+        ctx.lineWidth = f.size * 0.18;
+        ctx.strokeStyle = "rgba(0,0,0,.5)";
+        ctx.strokeText(f.text, f.x, y);
+        ctx.fillStyle = th.accent;
+        ctx.fillText(f.text, f.x, y);
+        ctx.globalAlpha = 1;
+        return true;
+      });
+    }
+
+    function burst(count, x, y, opts) {
+      if (calm) return;
+      for (var i = 0; i < count; i++) {
+        parts.push({
+          x: x + rand(-opts.spread, opts.spread),
+          y: y,
+          vx: rand(-opts.vx, opts.vx),
+          vy: rand(opts.vy[0], opts.vy[1]),
+          gravity: opts.gravity,
+          r: rand(opts.r[0], opts.r[1]),
+          life: rand(0.6, 1.1),
+          color: opts.colors[i % opts.colors.length],
+          star: !!opts.star,
+        });
+      }
+    }
+
+    // What a result sets off, once the beat of stillness after letting go is over.
+    function celebrate(result) {
+      var yl = yAt(result.line);
+      fx.slosh = calm ? 0 : 3;
+      fx.measure = { level: result.level, line: result.line, verdict: result.verdict, t: 0 };
+      var size = clamp(g.gh * 0.13, 15, 34); // smaller on the title screen's little scene
+      floats.push({ text: "+" + result.score, x: g.cx, y: Math.max(size * 2.4, yAt(result.level) - size * 0.8), size: size, life: 1 });
+      if (result.verdict === "perfect") {
+        fx.glow = 1;
+        burst(24, g.cx, yl, { spread: g.gw * 0.4, vx: 190, vy: [-260, -60], gravity: 420, r: [2, 4.2], colors: [th.accent, dr.head, th.ink], star: true });
+      } else if (result.verdict === "good") {
+        burst(8, g.cx, yl, { spread: g.gw * 0.35, vx: 120, vy: [-180, -50], gravity: 420, r: [1.6, 3], colors: [th.accent, dr.head], star: true });
+      } else if (result.verdict === "spill") {
+        fx.spilling = true;
+        fx.shake = calm ? 0 : 1;
+        burst(26, g.cx, g.gy, { spread: g.gw * 0.5, vx: 210, vy: [-230, -40], gravity: 900, r: [2, 4.5], colors: [dr.head, dr.liquid, dr.head] });
+      }
+    }
+
+    return {
+      layout: layout,
+      reset: reset,
+      press: function () {
+        fx.head = 0;
+        fx.tail = 0;
+      },
+      // Everything holds still for a moment, then the result lands.
+      result: function (result) {
+        if (!g) return;
+        fx.pending = result;
+        fx.freeze = calm ? 0.001 : 0.1;
+        fx.wave = 0;
+      },
+      // The finished glass slides off along the counter as an empty one slides in.
+      nextRound: function (level) {
+        fx.ghost = calm ? null : { level: level };
+        fx.slide = calm ? 0 : 1;
+        fx.spilling = false;
+        fx.spill = 0;
+        fx.glow = 0;
+        fx.head = 0;
+        fx.measure = null;
+        fx.pending = null;
+        fx.freeze = 0;
+        bubbles = [];
+        parts = [];
+        floats = [];
+      },
+      frame: function (dt, s) {
+        if (!g) layout();
+        if (!g) return;
+        if (fx.freeze > 0) {
+          fx.freeze -= dt;
+          dt = 0;
+          if (fx.freeze <= 0 && fx.pending) {
+            celebrate(fx.pending);
+            fx.pending = null;
+          }
+        }
+        fx.t += dt;
+        fx.wave = toward(fx.wave, s.pouring ? (calm ? 0.5 : 1.6) : 0, dt * 9);
+        fx.flow = toward(fx.flow, s.pouring ? s.flow : 1, dt * 16);
+        fx.slosh *= Math.exp(-dt * 5);
+        fx.handle = toward(fx.handle, s.pouring ? 1 : 0, dt * 10);
+        fx.glow = Math.max(0, fx.glow - dt / 0.9);
+        fx.shake = Math.max(0, fx.shake - dt / 0.4);
+        if (fx.measure) fx.measure.t += dt;
+        if (fx.spilling) fx.spill = Math.min(1, fx.spill + dt / 0.8);
+        if (fx.slide > 0) fx.slide = Math.max(0, fx.slide - dt / 0.42);
+        if (s.pouring) {
+          fx.head = Math.min(1, fx.head + dt / 0.11);
+          fx.tail = 0;
+        } else if (fx.head > 0) {
+          fx.tail += dt / 0.13;
+          if (fx.tail >= 1) fx.head = 0;
+        }
+
+        var span = g.bottom - g.top;
+        var bodyTop = yAt(s.level) + dr.headDepth * s.level * span;
+        if (s.level > 0.06 && bubbles.length < 20 && Math.random() < dt * 16) {
+          var by = g.bottom - rand(0, 10);
+          var edge = xRange(g.inner, by - 4);
+          if (edge) bubbles.push({ x: rand(edge[0] + 6, edge[1] - 6), y: by, r: rand(0.8, 2.3), v: rand(24, 56), ph: rand(0, 6) });
+        }
+        bubbles = bubbles.filter(function (b) {
+          b.y -= b.v * dt;
+          b.x += Math.sin(fx.t * 5 + b.ph) * 7 * dt;
+          return b.y > bodyTop + 2;
+        });
+
+        ctx.clearRect(0, 0, W, H);
+        ctx.save();
+        if (fx.shake > 0) ctx.translate(Math.sin(fx.t * 70) * 5 * fx.shake, Math.cos(fx.t * 55) * 3 * fx.shake);
+        drawCounter();
+        drawTap();
+        var e = smooth(1 - fx.slide);
+        if (fx.slide > 0 && fx.ghost) drawGlass(e * W * 0.95, fx.ghost.level, null, false, false);
+        else fx.ghost = null;
+        var ox = fx.slide > 0 ? -(1 - e) * W * 0.95 : 0;
+        if (ox === 0) drawStream(s.level);
+        drawGlass(ox, s.level, s.line, true, s.pouring);
+        drawSpill();
+        drawParts(dt);
+        ctx.restore();
+      },
+    };
+  }
+
+  // ---------------------------------------------------------------- the game
+
+  function dress(skin) {
+    var style = document.documentElement.style;
+    Object.keys(skin.theme).forEach(function (key) {
+      style.setProperty("--" + key, skin.theme[key]);
+    });
+    document.querySelector('meta[name="theme-color"]').setAttribute("content", skin.theme.panel);
+    document.title = skin.tagline + " | " + skin.venue;
+    $("venue").textContent = skin.venue;
+    $("tagline").textContent = skin.tagline;
+    $("offer").textContent = skin.copy.offer;
+    $("fictional").textContent = skin.fictional;
+    $("start").textContent = skin.copy.start;
+    $("again").textContent = skin.copy.again;
+    $("totalLabel").textContent = skin.copy.total + " ";
+    $("boardTitle").textContent = skin.copy.boardTitle;
+    $("prize").textContent = skin.copy.prize;
+    $("outOf").textContent = "/ " + skin.rounds.length * 100;
+    var top = E.topScore(skin);
+    $("beat").textContent = top > 0 ? skin.copy.beat.replace("{score}", String(top)) : "";
+    $("claimVenue").textContent = skin.venue;
+    $("claimPrize").textContent = skin.copy.claim;
+    if (skin.emblem) {
+      ["emblem", "claimEmblem"].forEach(function (id) {
+        var svg = $(id);
+        svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
+        svg.firstElementChild.setAttribute("d", skin.emblem.path);
+        svg.removeAttribute("hidden");
+      });
+    }
+    document.documentElement.classList.add("ready");
+  }
+
+  // Links to the same game in its other skins, each labelled by the skin it leads to.
+  function offerOthers(current) {
+    (window.POUR_SKINS || []).forEach(function (id) {
+      if (id === current.id || !/^[a-z0-9-]+$/.test(id)) return;
+      loadSkin(id).then(function (other) {
+        ["othersTitle", "othersDone"].forEach(function (where) {
+          var a = document.createElement("a");
+          a.className = "other";
+          a.href = "?skin=" + id;
+          a.textContent = other.switchLabel;
+          $(where).appendChild(a);
+        });
+      }, function () {});
+    });
+  }
+
+  function start(skin) {
+    var game = E.createGame(skin);
+    var sound = makeSound();
+    var scene = makeScene($("scene"), skin);
+    var pourBtn = $("pour");
+    var againBtn = $("again");
+    var startBtn = $("start");
+    var muteBtn = $("mute");
+    var holder = null; // what is holding the pour: a pointer's id, or "key:" and the key; null when nothing is
+    var waiting = []; // what fell due while the page was hidden, run when it is back
+    var running = false;
+    var last = 0;
+    var shown = 0; // the score the HUD is showing, on its way to the real one
+    var best = null; // this visit's best score: a variable, gone when the page is
+    var turn = 0; // goes up whenever the screen changes, so a late timer does nothing
+
+    dress(skin);
+    offerOthers(skin);
+    startBtn.hidden = false;
+    muteBtn.hidden = false;
+
+    // Nothing moves on while the page is hidden: what falls due then waits for the player.
+    function later(ms, fn) {
+      var mine = turn;
+      var run = function () {
+        if (mine === turn) fn();
+      };
+      setTimeout(function () {
+        if (document.hidden) waiting.push(run);
+        else run();
+      }, ms);
+    }
+
+    function screen(id) {
+      turn++;
+      ["title", "play", "done", "claim"].forEach(function (name) {
+        $(name).hidden = name !== id;
+      });
+    }
+
+    function say(strong, rest, verdict) {
+      var el = $("say");
+      el.textContent = "";
+      el.className = "say" + (verdict ? " result" : "") + (verdict === "perfect" || verdict === "good" ? " win" : "");
+      if (strong) {
+        var b = document.createElement("strong");
+        b.textContent = strong;
+        el.appendChild(b);
+      }
+      var s = document.createElement("span");
+      s.textContent = rest;
+      el.appendChild(s);
+    }
+
+    // Counts a number on screen from one value to another.
+    function count(el, from, to, ms, each) {
+      if (calm || from === to) {
+        el.textContent = String(to);
+        return;
+      }
+      var t0 = performance.now();
+      var seen = from;
+      (function step(now) {
+        var k = clamp((now - t0) / ms, 0, 1);
+        var v = Math.round(lerp(from, to, 1 - Math.pow(1 - k, 3)));
+        if (v !== seen) {
+          seen = v;
+          el.textContent = String(v);
+          if (each) each(v);
+        }
+        if (k < 1) requestAnimationFrame(step);
+      })(t0);
+    }
+
+    function buzz(verdict) {
+      if (!navigator.vibrate) return;
+      if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+      if (verdict === "perfect") navigator.vibrate(25);
+      else if (verdict === "spill") navigator.vibrate([70, 40, 70]);
+    }
+
+    // One pill per round: its score once poured, an outline while it is the one to play.
+    function pills(list, current) {
+      list.textContent = "";
+      for (var i = 0; i < game.total; i++) {
+        var li = document.createElement("li");
+        var r = game.results[i];
+        if (r) {
+          li.textContent = String(r.score);
+          li.className = r.verdict === "perfect" ? "got best" : "got";
+        } else if (i === current) {
+          li.className = "now";
+        }
+        list.appendChild(li);
+      }
+    }
+
+    function beginRound() {
+      $("round").textContent = E.roundLabel(skin, game.round);
+      pills($("pips"), game.round);
+      say("", skin.copy.hint);
+      pourBtn.textContent = skin.copy.hold;
+      pourBtn.classList.remove("down", "wait");
+    }
+
+    function result() {
+      var r = game.results[game.results.length - 1];
+      sound.stopPour();
+      sound.verdict(r.verdict);
+      buzz(r.verdict);
+      scene.result(r);
+      say(skin.copy[r.verdict], "+" + r.score, r.verdict);
+      pills($("pips"), -1);
+      count($("points"), shown, game.score, 450);
+      shown = game.score;
+      pourBtn.textContent = skin.copy.hold;
+      pourBtn.classList.remove("down");
+      pourBtn.classList.add("wait");
+      // No button between rounds: the result holds for a beat, then the game moves on.
+      later(r.verdict === "spill" ? HOLD_SPILL : HOLD, function () {
+        var level = game.level;
+        game.next();
+        if (game.phase === "done") results();
+        else {
+          scene.nextRound(level);
+          beginRound();
+        }
+      });
+    }
+
+    function falseStart() {
+      sound.stopPour();
+      sound.nudge();
+      say("", skin.copy.falseStart);
+      pourBtn.textContent = skin.copy.hold;
+      pourBtn.classList.remove("down");
+    }
+
+    function results() {
+      running = false;
+      screen("done");
+      var earned = E.stars(skin, game.score);
+      var stars = $("stars");
+      stars.textContent = "";
+      stars.setAttribute("aria-label", earned + " of 3 stars");
+      for (var i = 0; i < 3; i++) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        path.setAttribute("d", STAR);
+        path.setAttribute("fill", "currentColor");
+        svg.appendChild(path);
+        if (i < earned) {
+          svg.setAttribute("class", "lit");
+          svg.style.animationDelay = 0.35 + i * 0.22 + "s";
+          sound.star(i, 0.35 + i * 0.22);
+        }
+        stars.appendChild(svg);
+      }
+      count($("total"), 0, game.score, 900, function (v) {
+        if (v % 9 === 0) sound.tick();
+      });
+      pills($("chips"), -1);
+
+      // What to play again for: the next name up the board, and this visit's own best.
+      var rival = E.nextRival(skin, game.score);
+      $("goal").textContent = rival
+        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
+        : skin.copy.top;
+      if (best === null) $("mine").textContent = "";
+      else if (game.score > best) {
+        $("mine").textContent = skin.copy.newBest;
+        sound.best();
+      } else $("mine").textContent = skin.copy.best.replace("{score}", String(best));
+      best = best === null ? game.score : Math.max(best, game.score);
+
+      // The top three, then the player and whoever is just ahead of them.
+      var rows = E.board(skin, game.score);
+      var me = rows.findIndex(function (row) {
+        return row.you;
+      });
+      var list = $("board");
+      var shownRows = 0;
+      var prev = -1;
+      list.textContent = "";
+      rows.forEach(function (row, n) {
+        if (n > 2 && n !== me && n !== me - 1) return;
+        var li;
+        if (n > prev + 1) {
+          li = document.createElement("li");
+          li.className = "gap";
+          li.textContent = "⋮";
+          li.setAttribute("aria-hidden", "true");
+          list.appendChild(li);
+        }
+        prev = n;
+        li = document.createElement("li");
+        [["rank", n + 1 + "."], ["name", row.name], ["pts", String(row.score)]].forEach(function (cell) {
+          var span = document.createElement("span");
+          span.className = cell[0];
+          span.textContent = cell[1];
+          li.appendChild(span);
+        });
+        if (row.you) li.className = "you";
+        li.style.animationDelay = 0.5 + shownRows++ * 0.06 + "s";
+        list.appendChild(li);
+      });
+      $("doneBody").scrollTop = 0;
+      againBtn.focus({ preventScroll: true });
+    }
+
+    function loop(now) {
+      if (!running) return;
+      var dt = clamp((now - last) / 1000, 0, 0.05);
+      last = now;
+      var pouring = game.phase === "pouring";
+      var flow = pouring ? E.flowAt(skin, game.round, game.held) : 1;
+      if (pouring) {
+        game.tick(dt);
+        sound.setPour(game.level, flow);
+        if (game.phase === "poured") result();
+      }
+      scene.frame(dt, {
+        level: game.level,
+        line: skin.rounds[game.round].line,
+        pouring: game.phase === "pouring",
+        flow: flow,
+      });
+      requestAnimationFrame(loop);
+    }
+
+    function play() {
+      demoOn = false;
+      screen("play");
+      shown = 0;
+      $("points").textContent = "0";
+      scene.reset();
+      scene.layout();
+      beginRound();
+      pourBtn.focus({ preventScroll: true });
+      running = true;
+      last = performance.now();
+      requestAnimationFrame(loop);
+    }
+
+    // One thing holds the pour at a time, and only that thing can end it: a second
+    // finger, a brushing palm or a stray key changes nothing.
+    function press(by) {
+      if (holder !== null) return;
+      holder = by;
+      if (game.phase !== "ready") return;
+      game.press();
+      scene.press();
+      sound.startPour();
+      last = performance.now();
+      pourBtn.classList.add("down");
+      pourBtn.textContent = skin.copy.release;
+    }
+
+    // by: what let go. Left out when the page itself takes the pour away (hidden, blurred).
+    function release(by) {
+      if (holder === null || (by !== undefined && by !== holder)) return;
+      holder = null;
+      if (game.phase !== "pouring") return;
+      // Pour right up to the moment of letting go, not just to the last frame drawn.
+      var now = performance.now();
+      game.tick((now - last) / 1000);
+      last = now;
+      if (game.phase === "poured") result();
+      else if (game.release() === "falseStart") falseStart();
+      else result();
+    }
+
+    pourBtn.addEventListener("pointerdown", function (e) {
+      if (e.button) return;
+      e.preventDefault();
+      try {
+        pourBtn.setPointerCapture(e.pointerId);
+      } catch (err) {
+        /* an old browser without pointer capture still gets pointerup on the window */
+      }
+      press(e.pointerId);
+    });
+    ["pointerup", "pointercancel"].forEach(function (type) {
+      window.addEventListener(type, function (e) {
+        release(e.pointerId);
+      });
+    });
+    pourBtn.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
+    pourBtn.addEventListener("keydown", function (e) {
+      if ((e.key === " " || e.key === "Enter") && !e.repeat) {
+        e.preventDefault();
+        press("key:" + e.key);
+      }
+    });
+    window.addEventListener("keyup", function (e) {
+      if (e.key === " " || e.key === "Enter") release("key:" + e.key);
+    });
+    // Leaving the page mid-pour ends the pour where it is, silently, and the game then
+    // waits: no sound and no moving on until the player is looking again.
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        sound.sleep();
+        release();
+      } else {
+        sound.wake();
+        last = performance.now();
+        var due = waiting;
+        waiting = [];
+        due.forEach(function (run) {
+          run();
+        });
+      }
+    });
+    window.addEventListener("blur", function () {
+      release();
+    });
+
+    startBtn.addEventListener("click", function () {
+      sound.unlock();
+      sound.click();
+      play();
+    });
+    againBtn.addEventListener("click", function () {
+      sound.click();
+      game.reset();
+      play();
+    });
+    muteBtn.addEventListener("click", function () {
+      muteBtn.setAttribute("aria-pressed", String(sound.toggle()));
+    });
+
+    // ---- an example of what a winner shows the staff. The clock keeps moving, which a
+    // screenshot can't. A live game would only give this screen to the real winner.
+
+    var markBtn = $("claimMark");
+    var markText = markBtn.textContent;
+
+    function clockTime() {
+      return new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    }
+    function tickClock() {
+      $("claimClock").textContent = clockTime();
+      later(500, tickClock);
+    }
+    $("claimOpen").addEventListener("click", function () {
+      sound.click();
+      screen("claim");
+      markBtn.textContent = markText;
+      markBtn.disabled = false;
+      tickClock();
+      markBtn.focus({ preventScroll: true });
+    });
+    markBtn.addEventListener("click", function () {
+      sound.verdict("good");
+      markBtn.textContent = "Handed over · " + clockTime();
+      markBtn.disabled = true;
+    });
+    $("claimBack").addEventListener("click", function () {
+      sound.click();
+      screen("done");
+      againBtn.focus({ preventScroll: true });
+    });
+
+    // ---- the title screen plays itself: one silent pour to the line, over and over
+
+    var demo = E.createGame(skin);
+    var attract = makeScene($("attract"), skin);
+    var demoOn = true;
+    var demoWait = 0.7;
+    var demoLast = performance.now();
+    var demoLine = skin.rounds[0].line;
+
+    function demoLoop(now) {
+      if (!demoOn) return;
+      var dt = clamp((now - demoLast) / 1000, 0, 0.05);
+      demoLast = now;
+      var flow = 1;
+      if (calm) {
+        // no motion wanted: show the finished pour, still
+        attract.frame(0, { level: demoLine, line: demoLine, pouring: false, flow: 1 });
+        return;
+      }
+      if (demo.phase === "ready") {
+        demoWait -= dt;
+        if (demoWait <= 0) {
+          demo.press();
+          attract.press();
+        }
+      } else if (demo.phase === "pouring") {
+        flow = E.flowAt(skin, 0, demo.held);
+        demo.tick(dt);
+        if (demo.phase === "pouring" && demo.level >= demoLine - 0.004) demo.release();
+        if (demo.phase === "poured") {
+          attract.result(demo.results[0]);
+          demoWait = 1.9;
+        }
+      } else {
+        demoWait -= dt;
+        if (demoWait <= 0) {
+          var level = demo.level;
+          demo.reset();
+          attract.nextRound(level);
+          demoWait = 0.9;
+        }
+      }
+      attract.frame(dt, { level: demo.level, line: demoLine, pouring: demo.phase === "pouring", flow: flow });
+      requestAnimationFrame(demoLoop);
+    }
+    requestAnimationFrame(demoLoop);
+
+    function relayout() {
+      scene.layout();
+      attract.layout();
+      if (calm && demoOn) requestAnimationFrame(demoLoop);
+    }
+    window.addEventListener("resize", relayout);
+    if (window.ResizeObserver) {
+      var watch = new ResizeObserver(relayout);
+      watch.observe($("stage"));
+      watch.observe($("attract").parentNode);
+    }
+  }
+})();

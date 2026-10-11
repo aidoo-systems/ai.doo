@@ -1,0 +1,71 @@
+{
+  "id": "wobbly-gull",
+  "venue": "The Wobbly Gull",
+  "tagline": "Pour the perfect pint",
+  "fictional": "The Wobbly Gull is a made-up pub.",
+  "switchLabel": "See it as a pub",
+  "theme": {
+    "bg": "#10231f",
+    "panel": "#1a352e",
+    "ink": "#fdf3dc",
+    "muted": "#b9c9bd",
+    "accent": "#f5b544",
+    "accentInk": "#1a0f08",
+    "counter": "#6b4226",
+    "counterEdge": "#3d2413",
+    "metal": "#c9b27a"
+  },
+  "emblem": {
+    "width": 96,
+    "height": 44,
+    "path": "M4 26 Q24 0 48 22 Q72 0 92 26 Q72 14 48 34 Q24 14 4 26 Z"
+  },
+  "drink": {
+    "liquid": "#e09a1f",
+    "liquidDeep": "#b4650c",
+    "head": "#fff6dc",
+    "headDepth": 0.1,
+    "glass": [[2, 0], [98, 0], [100, 22], [84, 100], [16, 100], [0, 22]]
+  },
+  "copy": {
+    "start": "Start pouring",
+    "offer": "Top score this week: crisps on us, and your name on the wall",
+    "beat": "Beat {score} to top the board",
+    "round": "Pint {n} of {total}",
+    "hold": "Hold to pour",
+    "release": "Let go at the line",
+    "hint": "Hold to pour. Let go as the head hits the line.",
+    "falseStart": "Keep holding to pour. Have another go.",
+    "again": "Pour again",
+    "perfect": "A perfect pint",
+    "good": "A decent pint",
+    "short": "Short measure",
+    "over": "A bit full",
+    "spill": "All over the bar",
+    "total": "Your score",
+    "boardTitle": "This week at the Gull",
+    "you": "You",
+    "prize": "Top on Sunday wins the crisps and their name on the wall.",
+    "rival": "{gap} more to pass {name}",
+    "rivalTop": "{gap} more to pass {name} and win the crisps",
+    "top": "Top of the board. The crisps are on us.",
+    "best": "Your best today: {score}",
+    "newBest": "A new best for you today",
+    "claim": "Crisps on us, and your name on the wall"
+  },
+  "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
+  "rounds": [
+    { "line": 0.84, "speed": 0.5 },
+    { "line": 0.66, "speed": 0.62 },
+    { "line": 0.88, "speed": 0.52, "surge": 0.45, "surgeHz": 1 },
+    { "line": 0.78, "speed": 0.85 },
+    { "line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2 }
+  ],
+  "sampleScores": [
+    { "name": "Juan", "score": 446 },
+    { "name": "Voirrey", "score": 418 },
+    { "name": "Big Dave", "score": 389 },
+    { "name": "Finlo", "score": 351 },
+    { "name": "Breesha", "score": 302 }
+  ]
+}

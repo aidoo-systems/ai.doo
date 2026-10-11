@@ -69,9 +69,19 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 
 ## The message (send it yourself, adjust per prospect)
 
-> Hi <name>, I'm Keith from ai.doo, a small games studio on the Isle of Man. We make short branded games that people play on their phone straight from a QR code, with no app to download. For <business/event>, I'm thinking of <one-line idea, e.g. "a stack-the-cups game with a weekly leaderboard; top score wins a coffee">. It's a fixed £750, live in about two weeks, and it runs for three months. Here's what it looks like: aidoo.biz/promo-games/. Would a 20-minute chat be useful?
+> Hi <name>, I'm Keith from ai.doo, a small games studio on the Isle of Man. We make short branded games that people play on their phone straight from a QR code, with no app to download. For <business/event>, I'm thinking of <one-line idea, e.g. "a pour-the-perfect-latte game with a weekly board; top score wins coffee and cake">. It's from £750, live in about two weeks, and it runs for three months. Here's one you can play in half a minute: <demo link>. How it works and the price: <offer link>. Would a 20-minute chat be useful?
 
 Open with a specific idea for them, not "we do games". One follow-up after a week, then stop.
+
+Links to paste (added 2026-10-11). Send the skin nearest their trade, and tag both links with the kind of venue, never the business's name, so Umami shows which kind responds:
+
+| For | Demo link | Offer link |
+|---|---|---|
+| A café, shop or restaurant | `aidoo.biz/play/pint/?skin=dozy-otter` | `aidoo.biz/promo-games/?for=cafe` |
+| A pub or bar | `aidoo.biz/play/pint/` | `aidoo.biz/promo-games/?for=pub` |
+| An event, charity or attraction | `aidoo.biz/play/pint/` | `aidoo.biz/promo-games/?for=event` |
+
+The game itself is not tracked ("Nothing is stored or sent" is printed on it), so a demo link shows nothing in Umami until they come back to the offer page, which arrives as `?from=demo`. The offer page's buttons report `play-demo-hero`, `play-demo-pub`, `play-demo-cafe`, `email-nav`, `email-contact` and `whatsapp-contact`.
 
 ## Contact log
 
