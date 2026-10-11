@@ -223,7 +223,7 @@
 
       var counterH = clamp(H * 0.13, 28, 60);
       var counterY = H - counterH;
-      var gh = Math.min(counterY - 78, 330);
+      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330); // the room above is the tap's
       var gw = gh * 0.66;
       if (gw > W * 0.6) {
         gw = W * 0.6;
@@ -234,7 +234,7 @@
       var wall = Math.max(3, gw * 0.022);
       var base = Math.max(8, gh * 0.045);
       var cx = W / 2;
-      g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(30, gy - 18) };
+      g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
       g.outer = dr.glass.map(function (p) {
         return [gx + (p[0] / 100) * gw, gy + (p[1] / 100) * gh];
       });

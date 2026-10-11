@@ -94,6 +94,9 @@
     .credit{flex:none;margin:auto 0 0;padding-top:8px;text-align:center;color:var(--muted);font-size:12.5px}
     .credit a{font-weight:700;color:var(--ink)}
 
+    /* A phone on its side: everything shrinks, and a screen that still doesn't fit can scroll. */
+    .title,.play{overflow-y:auto}
+    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.emblem{width:56px}.venue{font-size:34px}.rule{margin:4px auto}.how{max-width:none;font-size:15px}.beat{margin-bottom:6px}.stars{margin-top:4px}.big{font-size:52px}}
     @media (max-width:350px){.hud{gap:8px}.hud .round{font-size:14px}.pips{gap:4px}.pips li{min-width:30px;padding:0 3px}.score{font-size:21px}}
     @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
   </style>
@@ -155,7 +158,7 @@
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=3"></script>
-<script src="engine.js?v=3"></script>
-<script src="game.js?v=6"></script>
+<script src="engine.js?v=4"></script>
+<script src="game.js?v=7"></script>
 </body>
 </html>

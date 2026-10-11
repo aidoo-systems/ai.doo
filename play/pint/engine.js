@@ -9,7 +9,7 @@
 
   var SURGE_HZ = 1.5; // how fast a round's surge pulses the flow
   var MAX_STEP = 0.05; // a tick never pours more than this many seconds' worth
-  var COLOUR = /^#[0-9a-f]{3,8}$/i;
+  var COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i; // #rgb or #rrggbb, the two forms game.js draws with
   var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];

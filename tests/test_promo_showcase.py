@@ -195,6 +195,9 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
         lambda s: s["theme"].pop("counter"),
+        # Five hex digits is no CSS colour: the canvas would throw on it mid-game.
+        lambda s: s["theme"].update(counter="#12345"),
+        lambda s: s["drink"].update(liquid="#1234567"),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
