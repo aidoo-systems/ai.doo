@@ -192,6 +192,16 @@ def test_a_hidden_play_button_is_really_hidden():
         )
 
 
+def test_the_dots_ring_fades_out_and_is_not_pulled_back_in():
+    css = _text("style.css")
+    loop = css[css.index("@keyframes comeHither{") :]
+    rest = re.search(r"0%,62%,100%\{[^}]*\}", loop).group(0)
+    # The ring ends wide and faded to nothing. If the dot rested with a visible ring, the
+    # last frames of each loop would shrink it back in at speed: a second, quick pulse.
+    assert "box-shadow:0 0 0 0 rgba(244,241,234,0)" in rest
+    assert "98%{box-shadow:0 0 0 .9em rgba(244,241,234,0)}" in loop
+
+
 # --- D-021: the ball gets a paddle ----------------------------------------------------
 
 

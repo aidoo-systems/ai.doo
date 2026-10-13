@@ -485,12 +485,12 @@ body.studio .linkBtn:hover{color:var(--ink)}
 body.studio .nav{position:relative}
 /* The dot asks to be pressed: lit like a little ball, it hops and sends out a ring every few seconds, until it has been flicked. */
 body.studio .wm-dot.toy{
-  box-shadow:0 0 0 0 rgba(244,241,234,.55);
+  box-shadow:0 0 0 0 rgba(244,241,234,0);
   animation:comeHither 4.2s ease-in-out 1.2s infinite;
 }
 body.studio .wm-dot.toy.flicked{animation:none}
 @keyframes comeHither{
-  0%,62%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 0 rgba(244,241,234,.55)}
+  0%,62%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 0 rgba(244,241,234,0)} /* at rest the ring is clear, so the loop's end can't pull it back in */
   68%{transform:translateY(-.5em) scale(1.2)}
   74%{transform:translateY(0) scale(1)}
   79%{transform:translateY(-.28em) scale(1.1);box-shadow:0 0 0 0 rgba(244,241,234,.55)}
