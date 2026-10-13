@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- The VERA changelog page's header was unstyled, with the logo and the "Visit VERA" button stacked in the corner; it now has the same bar as every other page
 - VERA's "engagement options" link pointed at a homepage pricing section that no longer exists; it now goes to the homepage's contact band
 - Phones no longer scroll sideways by 13px on the homepage and `/labs/`: the hero glow now stops at the screen edge
 
