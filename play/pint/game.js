@@ -234,6 +234,8 @@
     var bumps = [];
     for (var i = 0; i < 64; i++) bumps.push(3.4 + 3.2 * Math.abs((Math.sin(i * 12.9898) * 43758.5453) % 1));
     var BUMP_MAX = 6.6;
+    // The venue's emblem, to go on whatever pours the drink.
+    var mark = skin.emblem && typeof Path2D === "function" ? new Path2D(skin.emblem.path) : null;
 
     function reset() {
       fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null };
@@ -327,6 +329,17 @@
       ctx.closePath();
     }
 
+    // The emblem, fitted into a square of this size around a point.
+    function drawMark(x, y, size, colour) {
+      var k = size / Math.max(skin.emblem.width, skin.emblem.height);
+      ctx.save();
+      ctx.translate(x - (skin.emblem.width * k) / 2, y - (skin.emblem.height * k) / 2);
+      ctx.scale(k, k);
+      ctx.fillStyle = colour;
+      ctx.fill(mark);
+      ctx.restore();
+    }
+
     function wave(x) {
       return fx.wave * (Math.sin(x * 0.06 + fx.t * 9) + 0.5 * Math.sin(x * 0.13 - fx.t * 6)) +
         fx.slosh * ((x - g.cx) / g.gw) * Math.sin(fx.t * 13);
@@ -391,6 +404,19 @@
       ctx.fillStyle = "rgba(0,0,0,.24)";
       ctx.fillRect(cx + 4, -4, 7, tip - 16);
       ctx.fillRect(cx - 17, tip - 28, 34, 3);
+      // a badge over the collar with the emblem on it, as big as the room above it allows
+      var by = tip - 32;
+      var r = Math.min(15, by - 2);
+      if (mark && r >= 9) {
+        ctx.beginPath();
+        ctx.arc(cx, by, r, 0, 6.3);
+        ctx.fillStyle = th.accentInk;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = th.accent;
+        ctx.stroke();
+        drawMark(cx, by, r * 1.4, th.accent);
+      }
     }
 
     // A jug held over the glass: upright and clear of the rim until the pour, then it
@@ -422,6 +448,7 @@
       ctx.clip();
       ctx.fillStyle = th.accent;
       ctx.fillRect(-4, h * 0.56, w + 12, h * 0.17);
+      if (mark) drawMark(w * 0.58, h * 0.28, h * 0.36, th.accent);
       ctx.fillStyle = "rgba(255,255,255,.42)";
       ctx.fillRect(w * 0.26, -h * 0.1, w * 0.11, h * 1.2);
       ctx.fillStyle = "rgba(0,0,0,.2)";
@@ -891,7 +918,9 @@
     });
     document.querySelector('meta[name="theme-color"]').setAttribute("content", skin.theme.panel);
     document.title = skin.tagline + " | " + skin.venue;
-    $("venue").textContent = skin.venue;
+    ["venue", "playVenue", "doneVenue", "claimVenue"].forEach(function (id) {
+      $(id).textContent = skin.venue;
+    });
     $("tagline").textContent = skin.tagline;
     $("offer").textContent = skin.copy.offer;
     $("fictional").textContent = skin.fictional;
@@ -903,10 +932,9 @@
     $("outOf").textContent = "/ " + skin.rounds.length * 100;
     var top = E.topScore(skin);
     $("beat").textContent = top > 0 ? skin.copy.beat.replace("{score}", String(top)) : "";
-    $("claimVenue").textContent = skin.venue;
     $("claimPrize").textContent = skin.copy.claim;
     if (skin.emblem) {
-      ["emblem", "claimEmblem"].forEach(function (id) {
+      ["emblem", "playEmblem", "doneEmblem", "claimEmblem"].forEach(function (id) {
         var svg = $(id);
         svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
         svg.firstElementChild.setAttribute("d", skin.emblem.path);

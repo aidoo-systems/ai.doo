@@ -66,6 +66,11 @@
     .claim .small{margin:0 auto 8px;max-width:34ch}
     .claim .btn:disabled{opacity:1;background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--accent)}
 
+    /* The venue, kept in sight after the title screen */
+    .brand{flex:none;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;margin:0;padding:0 44px;font-size:15px;font-weight:900;letter-spacing:-.2px;line-height:1.2}
+    .brand svg{flex:none;width:26px;height:20px;color:var(--accent)}
+    .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
     /* Play */
     .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-y:auto}
     .hud{flex:none;display:flex;align-items:center;gap:10px;padding-right:42px;font-weight:800}
@@ -116,7 +121,7 @@
 
     /* A phone on its side: everything shrinks, and a screen that still doesn't fit can scroll. */
     @media (max-height:620px){.emblem{display:none}.kicker{padding:0 36px}.venue{font-size:32px}.offer{font-size:15.5px}.beat{margin-bottom:4px}.stars{margin-top:4px}.big{font-size:52px}}
-    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.offer{font-size:15px;max-width:none}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
+    @media (max-height:460px){.screen{padding-top:8px;padding-bottom:8px}.play{gap:4px}.stage{min-height:110px}.play .brand{display:none}.say{min-height:28px;flex-direction:row;align-items:baseline;gap:8px}.say strong{font-size:18px}.btn{min-height:50px;padding:8px 18px;font-size:18px}.btn.second{min-height:42px;padding:7px 18px}.emblem{display:none}.venue{font-size:30px}.attract{min-height:90px}.offer{font-size:15px;max-width:none}.beat{margin-bottom:2px}.stars{margin-top:2px}.big{font-size:44px}}
     /* A phone: the pills already say which round it is, so the label is for screen readers
        and the row is pills then score. Five pills of "100" and "500" fit down to 320px. */
     @media (max-width:430px){.hud .round{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.pips{flex:1}}
@@ -151,6 +156,7 @@
   </section>
 
   <section class="screen play" id="play" hidden>
+    <p class="brand"><svg id="playEmblem" aria-hidden="true" hidden><path fill="currentColor"/></svg><span id="playVenue"></span></p>
     <div class="hud">
       <span class="round" id="round"></span>
       <ol class="pips" id="pips" aria-hidden="true"></ol>
@@ -163,6 +169,7 @@
 
   <section class="screen done" id="done" hidden>
     <div class="doneBody" id="doneBody">
+      <p class="brand"><svg id="doneEmblem" aria-hidden="true" hidden><path fill="currentColor"/></svg><span id="doneVenue"></span></p>
       <div class="stars" id="stars" role="img"></div>
       <p class="big"><span class="sr" id="totalLabel"></span><span id="total">0</span> <small id="outOf"></small></p>
       <ol class="chips" id="chips" aria-hidden="true"></ol>
@@ -196,6 +203,6 @@
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=9"></script>
 <script src="engine.js?v=11"></script>
-<script src="game.js?v=16"></script>
+<script src="game.js?v=19"></script>
 </body>
 </html>

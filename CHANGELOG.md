@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The venue's name stays in sight in the promo game** (P2.0f): the pub's and the café's name and emblem now show while you play and on the results, and the emblem is on the tap's handle and the milk jug
 - **The café demo pours like a café** (P2.0c): the made-up café in the promo game now pours milk from a steel jug that tips as you hold, where the pub has its beer tap. What pours the drink is part of a venue's skin
 - **A calmer frame for the homepage and the promo-games page** (P2.1d, D-018): a flat dark background with no glow, the games as the only colour, plain buttons and links, quieter headings, and the chat opened from a link in the footer. PIKA and VERA pages are unchanged
 - **Play on the homepage** (D-019): a floating Play button that starts something playable, a background that takes the colour of the game you're looking at, a dot in the logo you can flick, and a new typeface for headings
