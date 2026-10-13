@@ -525,6 +525,11 @@ def test_the_venues_emblem_is_on_what_pours_the_drink(ui):
         assert marked["drawn"] != plain["drawn"], pourer
         # No emblem, nothing built for one: the pourer is drawn as it always was.
         assert plain["paths"] == [], pourer
+    # The tap's badge is a disc on the pipe, and all of it is on the canvas at rest: on
+    # the handle it sat above the top of a phone-sized stage (Codex, round 1).
+    discs = [a for a in ui["marks"]["tap with"]["arcs"] if a[2] >= 10]
+    assert discs and all(y - r >= 0 for x, y, r in discs), discs
+    assert not [a for a in ui["marks"]["tap without"]["arcs"] if a[2] >= 10]
 
 
 def test_the_offer_page_stays_short_enough_to_read():

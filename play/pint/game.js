@@ -383,19 +383,8 @@
       ctx.fill();
       ctx.fillStyle = rgba(th.accentInk, 0.82);
       ctx.beginPath();
-      if (mark) {
-        // a badge on the handle, with the emblem on it
-        ctx.arc(0, -56, 15, 0, 6.3);
-        ctx.fillStyle = th.accentInk;
-        ctx.fill();
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = th.accent;
-        ctx.stroke();
-        drawMark(0, -56, 21, th.accent);
-      } else {
-        ctx.arc(0, -54, 6, 0, 6.3);
-        ctx.fill();
-      }
+      ctx.arc(0, -54, 6, 0, 6.3);
+      ctx.fill();
       ctx.restore();
       // the pipe, its collar and the nozzle
       ctx.fillStyle = th.metal;
@@ -415,6 +404,19 @@
       ctx.fillStyle = "rgba(0,0,0,.24)";
       ctx.fillRect(cx + 4, -4, 7, tip - 16);
       ctx.fillRect(cx - 17, tip - 28, 34, 3);
+      // a badge over the collar with the emblem on it, as big as the room above it allows
+      var by = tip - 32;
+      var r = Math.min(15, by - 2);
+      if (mark && r >= 9) {
+        ctx.beginPath();
+        ctx.arc(cx, by, r, 0, 6.3);
+        ctx.fillStyle = th.accentInk;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = th.accent;
+        ctx.stroke();
+        drawMark(cx, by, r * 1.4, th.accent);
+      }
     }
 
     // A jug held over the glass: upright and clear of the rim until the pour, then it

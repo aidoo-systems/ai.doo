@@ -24,9 +24,10 @@ function boot(search, tweak) {
   const drawn = []; // every canvas call, by name, in order
   const stops = []; // every colour a gradient was given
   const paths = []; // every SVG path the canvas was asked to build
+  const arcs = []; // every circle drawn: x, y and radius
 
   const paint = new Proxy({}, {
-    get: (t, p) => (p in t ? t[p] : () => (drawn.push(p), { addColorStop: (at, colour) => stops.push(colour) })),
+    get: (t, p) => (p in t ? t[p] : (...args) => (drawn.push(p), p === "arc" && arcs.push(args.slice(0, 3)), { addColorStop: (at, colour) => stops.push(colour) })),
     set: (t, p, v) => ((t[p] = v), true),
   });
 
@@ -126,6 +127,7 @@ function boot(search, tweak) {
     drawn,
     stops,
     paths,
+    arcs,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -235,8 +237,9 @@ async function started(search, tweak) {
     for (const mark of ["with", "without"]) {
       page = await started("", (s) => ((s.drink.pourer = pourer), mark === "without" && delete s.emblem));
       page.drawn.length = 0;
+      page.arcs.length = 0;
       page.advance(16);
-      out.marks[pourer + " " + mark] = { paths: page.paths.slice(), drawn: page.drawn.join(" ") };
+      out.marks[pourer + " " + mark] = { paths: page.paths.slice(), drawn: page.drawn.join(" "), arcs: page.arcs.slice() };
     }
   }
   page = await started();
