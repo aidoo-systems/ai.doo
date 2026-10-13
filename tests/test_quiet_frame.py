@@ -1,6 +1,7 @@
 """D-018: the studio pages sit on a flat, quiet frame; PIKA and VERA keep the old chrome."""
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -189,6 +190,105 @@ def test_a_hidden_play_button_is_really_hidden():
         assert re.search(r'<a class="playFab" id="playFab"[^>]*hidden>', _text(rel)), (
             rel
         )
+
+
+def test_the_dots_ring_fades_out_and_is_not_pulled_back_in():
+    css = _text("style.css")
+    loop = css[css.index("@keyframes comeHither{") :]
+    rest = re.search(r"0%,62%,100%\{[^}]*\}", loop).group(0)
+    # The ring ends wide and faded to nothing. If the dot rested with a visible ring, the
+    # last frames of each loop would shrink it back in at speed: a second, quick pulse.
+    assert "box-shadow:0 0 0 0 rgba(244,241,234,0)" in rest
+    assert "98%{box-shadow:0 0 0 .9em rgba(244,241,234,0)}" in loop
+
+
+# --- D-021: the ball gets a paddle ----------------------------------------------------
+
+
+ASKS = "drag to keep it up"  # what the paddle says on a phone until it is first hit
+
+
+def _rally(how):
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run studio.js in the tests"
+    done = subprocess.run(
+        [node, str(REPO_ROOT / "tests" / "studio_driver.cjs")],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+        env={**os.environ, "RALLY": how},
+    )
+    assert done.returncode == 0, done.stderr
+    ran = json.loads(done.stdout)
+    assert ran["error"] is None
+    return ran["rally"]
+
+
+def test_six_keep_ups_end_the_rally_and_hand_over_to_a_real_game():
+    ran = _rally("keepup")
+    assert ran["paddleShown"] and ran["courtShown"] and ran["dockSteppedAside"]
+    # the paddle counts every hit and stops at six: the ball goes home by itself
+    assert ran["paddleSaid"][1:] == [f"{n} / 6" for n in range(1, 7)]
+    # once the rally is on, the whole screen steers and nothing scrolls under the thumb
+    assert ran["courtTookTheWholeScreen"]
+    assert ran["seconds"] < 25
+    assert ran["buttonSaysAfter"] == "Play a real one"
+    assert ran["leftBehind"] == [] and ran["dockBack"] and ran["dotBack"]
+    assert ran["listenersLeft"] == 0
+
+
+def test_a_missed_ball_drops_out_and_comes_home_with_no_game_over():
+    # one hit starts the rally; after that a miss lets the ball fall out of the bottom
+    ran = _rally("miss")
+    assert ran["paddleSaid"] == [ASKS, "1 / 6"]
+    assert ran["seconds"] < 8
+    assert ran["buttonSaysAfter"] == "Play Pipes 98"
+    assert ran["leftBehind"] == [] and ran["dockBack"] and ran["dotBack"]
+    assert ran["listenersLeft"] == 0
+
+
+def test_a_ball_nobody_plays_still_bounces_about_as_it_did():
+    # until the paddle first touches it the bottom of the screen is a floor, so a visitor
+    # who only flicks the dot (or needs a moment to get a thumb down there) loses nothing
+    ran = _rally("idle")
+    assert ran["paddleSaid"] == [ASKS]
+    assert 3 < ran["seconds"] < 9
+    # the top half of the page still scrolls for someone who isn't playing
+    assert not ran["courtTookTheWholeScreen"]
+    assert ran["buttonSaysAfter"] == "Play Pipes 98"
+    assert ran["leftBehind"] == [] and ran["dockBack"] and ran["dotBack"]
+
+
+def test_the_arrow_keys_and_a_finger_on_the_strip_move_the_paddle():
+    ran = _rally("keys")
+    assert ran["arrowsMoved"] > 60
+    # the paddle is 90 wide on a 375 screen, so a finger at 60 centres it there
+    assert ran["fingerPutPaddleAt"] == 15
+    # and a finger anywhere else steers it too: at 300, so the paddle's left edge is at 255
+    assert ran["strayFingerMoved"] == 240
+
+
+def test_the_paddle_is_drawn_where_the_ball_will_meet_it_after_the_screen_turns():
+    # 500 high, 92 above the bottom on a phone, 14 thick
+    assert _rally("turn")["paddleTopAfterTurn"] == 500 - 92 - 14
+
+
+def test_reduced_motion_gets_no_ball_and_no_paddle():
+    ran = _rally("calm")
+    assert not ran["ballMade"] and not ran["paddleShown"]
+    assert ran["dockBack"] and ran["dotBack"]
+
+
+def test_the_rally_keeps_the_page_scrollable_and_the_dock_out_of_the_way():
+    css = _text("style.css")
+    court = css[css.index("body.studio .wmCourt{") :].split("}")[0]
+    # the bottom half of the screen takes the finger; the top half still scrolls until the rally is on
+    assert "touch-action:none" in court and "height:50%" in court
+    assert "body.studio .wmCourt.all{height:100%}" in css
+    # and it is there on every device: a touchscreen laptop has a mouse and a finger
+    assert "body.studio .wmCourt{display:none}" not in css
+    assert "body.studio.rally .playDock{" in css
 
 
 # --- the privacy pages and the share card join the frame ------------------------------
