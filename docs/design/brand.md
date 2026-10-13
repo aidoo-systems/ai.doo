@@ -42,8 +42,9 @@ the games: each one owns a colour, and its card carries it.
 | Game colours | Bright-art games are solid cards: Thunee `#17533f`, Reactor Panic `#d9a03b`, Tea Tower `#6a4a3f`, Pomodorable `#ffd7b5`, Reality Check `#f3e7da`, SPICE `#e8562a`, Pipes 98 `#008080`. Dark-art games are dark cards that glow in their colour (edge, title, hover): Submarine Panic `#f5b544`, Orbital Panic `#4be08a`. Set per game as `.w-<name>` in `index.html` |
 | New games | Need a feature graphic, a chosen colour, and a glow colour if the art is dark, before they get a card |
 | Promo band | The page's one bright gradient, amber `#f5b544` to orange `#e8562a`, with dark text and the price as its big number |
-| Type | Inter (self-hosted). Headings at 800 at most: H1 up to 68px, H2 up to 38px, card titles 26px at 750. Labels are sentence case, 13px, muted. A heading typeface (Bricolage Grotesque, SIL OFL 1.1, was mocked on 2026-10-13) is a stage 2 decision |
+| Type | Headings in Bricolage Grotesque (self-hosted, SIL OFL 1.1): H1 700 up to 72px, H2 650 up to 40px, card titles 26px. Inter for body and labels. Labels are sentence case, 13px, muted |
 | Shape | Big rounded cards (28px radius, art inset with 16px corners). Dark-art games are a solid deep tone of their colour with the title in the bright one. Store links are underlined text, not pills. Nothing moves on hover |
+| Play (D-019) | The frame is quiet so three things can be loud: a floating Play button in the colour of the game it starts (the chat is the "?" beside it); the page's background washes to the colour of the game in view; the wordmark's dot is a ball you can flick. All from `studio.js`. Fun comes from play and the games' colours, never from effects |
 | Labs palette | Purple `#a78bfa` and cyan `#22d3ee` retire from the main site. `/labs/` and `/promo-games/` keep them until P2.1b reworks those pages |
 | Mark | Keep the head-and-brain mark and the `ai·doo` wordmark. The Labs stars-and-dots variant retires |
 | Light mode | None (D-004's non-goal holds) |

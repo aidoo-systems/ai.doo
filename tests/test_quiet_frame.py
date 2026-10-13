@@ -50,14 +50,22 @@ def test_the_quiet_frame_is_flat_and_scoped():
             part.strip().startswith("body.studio") for part in selector.split(",")
         ), selector
     assert "gradient" not in frame.replace("-webkit-background-clip", "")
-    assert "box-shadow:0 " not in frame
+    # no glow: the only shadow is the Play button's hard edge, and none of it is blue
+    assert "rgba(42,139,201" not in frame and "rgba(77,184,255" not in frame
 
 
 def test_the_chat_opens_from_a_footer_link_not_a_floating_button():
     html = _text("index.html")
     footer = html[html.index("<footer>") : html.index("</footer>")]
-    assert 'id="chatFab"' in footer
+    assert "data-open-chat" in footer
     assert "Ask the site a question" in footer
+    # what floats is the Play button; the chat is the small "?" beside it
+    dock = html[
+        html.index('<div class="playDock">') : html.index("<!-- CHAT")
+        if "<!-- CHAT" in html
+        else None
+    ]
+    assert 'id="playFab"' in dock and 'id="chatFab"' in dock
     assert html.count('id="chatFab"') == 1
     assert ".chatFab{" not in html
 
@@ -78,3 +86,65 @@ def test_text_on_every_game_card_meets_aa_contrast():
         ink = t.group(1) if t else ("#ffffff" if name == "pipes" else "#f4f1ea")
         hi, lo = sorted((lum(back), lum(ink)), reverse=True)
         assert (hi + 0.05) / (lo + 0.05) >= 4.5, name
+
+
+# --- D-019: play on the studio pages -------------------------------------------------
+
+
+def test_both_studio_pages_load_the_play_script_and_the_suite_pages_do_not():
+    assert '<script defer src="studio.js"></script>' in _text("index.html")
+    assert '<script defer src="../studio.js"></script>' in _text(
+        "promo-games/index.html"
+    )
+    for rel in SUITE_PAGES + ("play/pint/index.html",):
+        assert "studio.js" not in _text(rel), rel
+
+
+def test_the_play_button_only_offers_things_that_play_in_a_browser():
+    html = _text("index.html")
+    plays = dict(re.findall(r'href="([^"]+)"[^>]*data-play="([^"]+)"', html))
+    assert plays == {
+        "https://forcesensitivesaiyan.itch.io/submarine-panic": "Play Submarine Panic",
+        "https://forcesensitivesaiyan.itch.io/orbital-panic": "Play Orbital Panic",
+        "https://forcesensitivesaiyan.itch.io/reactor-panic": "Play Reactor Panic",
+        "https://pipes98.com/": "Play Pipes 98",
+        "play/pint/": "Pour a pint",
+    }
+    # on the offer page it is the demo and nothing that leads a buyer away
+    offer = dict(
+        re.findall(
+            r'href="([^"]+)"[^>]*data-play="([^"]+)"', _text("promo-games/index.html")
+        )
+    )
+    assert offer == {"/play/pint/": "Play the demo"}
+
+
+def test_the_play_script_stores_and_fetches_nothing_and_respects_reduced_motion():
+    js = _text("studio.js")
+    for api in (
+        "localStorage",
+        "sessionStorage",
+        "document.cookie",
+        "fetch(",
+        "XMLHttpRequest",
+        "sendBeacon",
+    ):
+        assert api not in js, api
+    assert "prefers-reduced-motion" in js
+    served = (REPO_ROOT / ".github" / "workflows" / "deploy.yml").read_text(
+        encoding="utf-8"
+    )
+    assert "studio.js" not in served  # not excluded from the deploy
+
+
+def test_the_heading_typeface_is_self_hosted_with_its_licence():
+    css = _text("style.css")
+    assert "url('/fonts/bricolage-grotesque-latin.woff2')" in css
+    assert (
+        REPO_ROOT / "fonts" / "bricolage-grotesque-latin.woff2"
+    ).stat().st_size > 20_000
+    licence = (REPO_ROOT / "fonts" / "OFL-Bricolage-Grotesque.txt").read_text(
+        encoding="utf-8"
+    )
+    assert "SIL Open Font License" in licence
+    assert "fonts.googleapis" not in css and "fonts.gstatic" not in css

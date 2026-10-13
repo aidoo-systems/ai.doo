@@ -138,7 +138,7 @@
     </p>
 
     <div class="ctaRow">
-      <a class="btn primary" href="/play/pint/" data-umami-event="play-demo-hero">Play the demo</a>
+      <a class="btn primary" href="/play/pint/" data-umami-event="play-demo-hero" data-play="Play the demo" data-play-back="#f5b544" data-play-ink="#1a0f08">Play the demo</a>
       <a class="btn subtle" href="#price">See the price</a>
     </div>
 
@@ -146,7 +146,7 @@
   </section>
 
   <section class="section" id="try">
-    <article class="work">
+    <article class="work" data-tint="#3fbf8a">
       <div class="workBody">
         <div>
           <h2>Try one now</h2>
@@ -182,7 +182,7 @@
   <section class="section" id="price">
     <h2 class="h2">The price</h2>
     <div class="grid">
-      <div class="priceCard span6">
+      <div class="priceCard span6" data-tint="#f5b544">
         <p class="priceBig">£750 <small>from, and agreed before you pay</small></p>
         <p class="note">£300 deposit to start; the rest when it goes live.</p>
         <ul class="featureList">
@@ -313,5 +313,10 @@
     }
   });
 </script>
+
+<div class="playDock">
+  <a class="playFab" id="playFab" data-umami-event="play-fab" hidden><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1.2v11.6a.8.8 0 0 0 1.2.7l9.4-5.8a.8.8 0 0 0 0-1.4L2.2.5A.8.8 0 0 0 1 1.2z" fill="currentColor"/></svg><span></span></a>
+</div>
+<script defer src="../studio.js"></script>
 </body>
 </html>

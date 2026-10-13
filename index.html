@@ -27,9 +27,9 @@
 
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Chat (homepage only): opened from "Ask the site a question" in the footer (D-018) */
+    /* Chat (homepage only): opened by the "?" beside the Play button, or from the footer */
     .chatPanel{
-      position:fixed;bottom:24px;right:24px;z-index:200;
+      position:fixed;bottom:84px;right:20px;z-index:200;
       width:360px;max-width:calc(100vw - 32px);
       border-radius:16px;
       border:1px solid var(--stroke);
@@ -114,7 +114,7 @@
     .chatSend:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 
     @media (max-width:920px){
-      .chatPanel{bottom:16px;right:16px}
+      .chatPanel{bottom:84px;right:16px}
     }
 
     /* Studio homepage (D-018): colour per game on a flat, quiet frame (body.studio in style.css) */
@@ -263,7 +263,7 @@
           <div class="workLinks">
             <a href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener">Google Play</a>
             <a href="https://apps.apple.com/us/app/submarine-panic/id6786455427" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener">itch.io</a>
+            <a href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener" data-play="Play Submarine Panic">itch.io</a>
             <a class="quiet" href="privacy-submarine-panic/">Privacy</a>
           </div>
         </div>
@@ -290,7 +290,7 @@
           <div class="workLinks">
             <a href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener">Google Play</a>
             <a href="https://apps.apple.com/us/app/orbital-panic/id6795683174" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/orbital-panic" target="_blank" rel="noopener">itch.io</a>
+            <a href="https://forcesensitivesaiyan.itch.io/orbital-panic" target="_blank" rel="noopener" data-play="Play Orbital Panic">itch.io</a>
             <a class="quiet" href="privacy-orbital-panic/">Privacy</a>
           </div>
         </div>
@@ -304,7 +304,7 @@
           <div class="workLinks">
             <a href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener">Google Play</a>
             <a href="https://apps.apple.com/us/app/reactor-panic/id6773935208" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener">itch.io</a>
+            <a href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener" data-play="Play Reactor Panic">itch.io</a>
             <a class="quiet" href="privacy-reactor-panic/">Privacy</a>
           </div>
         </div>
@@ -370,7 +370,7 @@
           <h3>Pipes 98</h3>
           <p>A tribute to the classic 3D Pipes screensaver, with a turn-based routing game inside. Runs in your browser.</p>
           <div class="workLinks">
-            <a href="https://pipes98.com/" target="_blank" rel="noopener">Visit Pipes 98</a>
+            <a href="https://pipes98.com/" target="_blank" rel="noopener" data-play="Play Pipes 98">Visit Pipes 98</a>
           </div>
         </div>
       </article>
@@ -379,13 +379,13 @@
 
   <!-- PROMO -->
   <section class="section reveal" id="promo">
-    <div class="promoBand">
+    <div class="promoBand" data-tint="#f5b544">
       <div>
         <div class="kicker">For businesses and events</div>
         <h2 class="h2">A mini-game with your name on it.</h2>
         <p class="lead">A short branded game for your customers to play while they wait: in the queue, at the table, at your stand. Made by the studio behind the games above. A 20-minute chat, about two weeks to build, three months live.</p>
         <div class="ctaRow">
-          <a class="btn primary" href="play/pint/" data-umami-event="play-demo-home">Play the demo</a>
+          <a class="btn primary" href="play/pint/" data-umami-event="play-demo-home" data-play="Pour a pint" data-play-back="#f5b544" data-play-ink="#1a0f08">Play the demo</a>
           <a class="btn subtle" href="promo-games/">How it works and the price</a>
         </div>
       </div>
@@ -434,7 +434,7 @@
   </section>
 
   <!-- ALSO -->
-  <section class="alsoLine reveal" id="also">
+  <section class="alsoLine reveal" id="also" data-tint="#4db8ff">
     <p>We also make self-hosted AI tools for organisations that keep their documents in-house: <a href="pika/">PIKA</a> for document Q&amp;A and <a href="vera/">VERA</a> for OCR validation, with <a href="https://docs.aidoo.biz" target="_blank" rel="noopener">documentation</a>.</p>
   </section>
 
@@ -475,7 +475,7 @@
       <div class="footerCol" style="font-size:13px;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Contact</div>
         <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
-        <div><button class="linkBtn" id="chatFab" type="button" aria-expanded="false" aria-controls="chatPanel">Ask the site a question</button></div>
+        <div><button class="linkBtn" type="button" data-open-chat>Ask the site a question</button></div>
         <div style="margin-top:6px;">
           <a href="https://www.linkedin.com/company/ai-doo/" target="_blank" rel="noopener">LinkedIn</a> &bull;
           <a href="https://github.com/aidoo-systems" target="_blank" rel="noopener">GitHub</a>
@@ -486,7 +486,12 @@
 
 </main>
 
-<!-- CHAT: opened by "Ask the site a question" in the footer -->
+<!-- PLAY: straight into something playable; studio.js picks which. The "?" opens the chat. -->
+<div class="playDock">
+  <a class="playFab" id="playFab" data-umami-event="play-fab" hidden><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1.2v11.6a.8.8 0 0 0 1.2.7l9.4-5.8a.8.8 0 0 0 0-1.4L2.2.5A.8.8 0 0 0 1 1.2z" fill="currentColor"/></svg><span></span></a>
+  <button class="askFab" id="chatFab" type="button" aria-label="Ask the site a question" aria-expanded="false" aria-controls="chatPanel">?</button>
+</div>
+
 <div class="chatPanel" id="chatPanel" role="dialog" aria-modal="true" aria-label="Chat with ai.doo">
   <div class="chatHead">
     <strong>Ask ai.doo</strong>
@@ -621,5 +626,6 @@
     });
   })();
 </script>
+<script defer src="studio.js"></script>
 </body>
 </html>
