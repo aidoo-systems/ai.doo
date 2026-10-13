@@ -550,8 +550,12 @@ def test_the_chatbot_knows_the_promo_offer_and_keeps_pilot_prices_to_the_ai_tool
         "£300 deposit",
         "+44 7624 396325",
         "From £750",
+        "£25 a month",
     ):
         assert fact in prompt, fact
+    # The owner set the price to keep a game live (2026-10-13); the page and the bot agree.
+    assert "£25 a month" in _text("promo-games/index.html")
+    assert "monthly price" not in prompt + _text("promo-games/index.html")
     assert "Never claim or estimate" in prompt
     # The £3,000 pilot belongs to PIKA and VERA: it must sit under a heading that says so.
     pricing = prompt.index("Engagement models / pricing for PIKA and VERA only")

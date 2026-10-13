@@ -199,3 +199,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** The paddle as the floor from the start (built first: a visitor who only flicks the dot saw the ball for one second, and a phone thumb had under a second to get from the logo to the bottom of the screen). A score or a best (needs storage, which `studio.js` promises not to use). A finger steering only from a 150px strip under the paddle, so the rest of the page kept scrolling (built second: the owner's first go on a phone was "do I not get to move the paddle?", because nothing showed where to touch).
 - **Consequences:** `studio.js` still stores and fetches nothing, and no analytics event was added, so whether anyone plays is not measured. The bottom half of the screen takes no taps or clicks while the ball is out, and none of it does during a rally (about ten seconds at most; a miss ends it in one): the court is there on every device, because a touchscreen laptop has both a mouse and a finger. Someone who only flicks the dot can still scroll with the top half. On a phone the paddle rides 92px above the bottom so a thumb doesn't cover it. Reduced-motion visitors get no ball, so no paddle. It landed inside D-018 to D-020's week of living with the look, which muddies that read a little.
 - **Revisit when:** The owner has played it on a phone; and at the 2026-11-26 review with the rest of the play.
+
+## D-022 — Keeping a promo game live costs £25 a month
+
+- **Status:** Accepted (owner, 2026-10-13: "Yes, 25 sounds good")
+- **Date:** 2026-10-13
+- **Decision:** After the three months in the fixed price, a promo game switches off or stays live for £25 a month. The offer page and the chatbot say the number.
+- **Why:** "A monthly price we agree first" left a prospect with an open cost and one more thing to negotiate. Claude suggested £25; the owner agreed.
+- **Alternatives:** Leaving it to be agreed per client (the wording until now).
+- **Consequences:** It is a published price, so it holds for anyone who has seen it. It covers keeping the game live as it is; anything more is priced in writing first, as the page's Questions say.
+- **Revisit when:** The first client reaches month three, or at the 2026-11-26 review.
