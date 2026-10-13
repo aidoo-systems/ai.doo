@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-10-11
+Last updated: 2026-10-13
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (set the monthly price, merge #37, then outreach)
+State: ready-for-owner (P2.1d: compare the quiet frame with the live site on a phone)
 
 ## Goal
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** the owner sets the monthly price to keep a game live after three months (Claude suggested £25 a month; the page says "a monthly price we agree first" until he does), then merges #37, scans the live QR code once, and starts outreach that day with the tagged links in the prospect list.
+1. **Next action:** the owner compares the P2.1d branch with the live site on a phone (and the heading-typeface mock beside it), then merges its PR or sends changes. #37 (P2.0a) merged and went live on 2026-10-11; outreach is the owner's to start, with the tagged links in the prospect list. Still open from P2.0a: the keep-it-live monthly price (suggested £25) and one scan of the live QR code.
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -35,12 +35,15 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Owner gates — waiting on a human
 
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Set the keep-it-live monthly price (suggested £25). Then merge #37 and scan the live QR code once. Delete the locked `C:\dev\worktrees\ai.doo-P2.0a\.review-tmp` (Codex's sandbox again) so the worktree can be tidied.
+- Approve P2.1d (the quiet frame) on a phone and merge its PR. Decide on the heading typeface from the mock (stage 2). Set the keep-it-live monthly price (suggested £25) and scan the live QR code on `/promo-games/` once. Start outreach.
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 
 ## Work log
+
+### 2026-10-13
+- P2.1d: the owner said the original chrome ("blue background and info pills etc.") reads as a vibe-coded template and asked for designers' views. An art-director review and a benchmark of ten small-studio sites agreed and named the same tells; the owner said go on stage 1. Done on a branch (D-018): flat warm near-black frame scoped to `body.studio` on the homepage and `/promo-games/`; pill, gradient phrase, glow, dots, chips, label rules, scroll reveal and hover tilt removed; one plain button and underlined links; headings 800 at most; the hero is a statement and one sentence, so the first game card shows in the first screen on a phone; dark-art cards are solid deep tones; store links are text; the contact panel is one line and the address; the chat opens from a footer link (the owner hasn't ruled on the floating button; this is the designers' recommendation and one line to undo). SPICE's card text went dark for contrast. PIKA and VERA untouched. A mock of the homepage with headings in Bricolage Grotesque was built outside the repo (the site gate rightly failed when it sat in the worktree). Tests 130/130. Gate cycles: 2 (the mock folder failed the site gate). Not reviewed by Codex yet. Next: owner compares on a phone.
 
 ### 2026-10-11
 - P2.0a: owner agreed the deposit terms (nothing until the idea is approved; £300 not refunded once the build starts; nothing more owed if they don't go live) and the weekly play count, asked for the chatbot to be updated, and asked whether the offer page was too busy. It was: 989 words, eight sections and 10.4 phone screens. Cut to five sections, 366 words showing and 5.8 screens: "Good for" and "What it isn't" are gone, "How it works" is three lines beside the price, the four customer steps are compact rows on a phone, and Questions are closed until tapped. A test holds the page to six sections and 420 visible words. The chatbot's prompt now carries the promo offer (demo links, deposit terms, what's included, WhatsApp, no claims about takings, no advice on prize law) and keeps the four pilot steps and £3,000 to PIKA and VERA. Tests 125/125. Next: owner sets the monthly price.

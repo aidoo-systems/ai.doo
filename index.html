@@ -23,30 +23,17 @@
   <meta name="twitter:image" content="https://aidoo.biz/og-image.jpg">
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml" sizes="any">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#141312">
 
   <link rel="stylesheet" href="style.css">
   <style>
-    /* Chat widget (homepage only) */
-    .chatFab{
-      position:fixed;bottom:24px;right:24px;z-index:200;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:12px 20px;border-radius:999px;
-      border:none;background:var(--accent);
-      color:#fff;font-weight:600;font-size:14px;
-      cursor:pointer;
-      box-shadow:0 8px 24px rgba(42,139,201,.35);
-      transition:transform .16s ease-out,box-shadow .16s ease-out;
-      font-family:inherit;
-    }
-    .chatFab:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(42,139,201,.45)}
-    .chatFab:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+    /* Chat (homepage only): opened from "Ask the site a question" in the footer (D-018) */
     .chatPanel{
-      position:fixed;bottom:80px;right:24px;z-index:200;
+      position:fixed;bottom:24px;right:24px;z-index:200;
       width:360px;max-width:calc(100vw - 32px);
       border-radius:16px;
       border:1px solid var(--stroke);
-      background:#111a33;
+      background:var(--card);
       box-shadow:0 20px 60px rgba(0,0,0,.5);
       display:flex;flex-direction:column;
       overflow:hidden;
@@ -88,7 +75,7 @@
     }
     .chatMsg.user{
       background:var(--accent);
-      color:#fff;
+      color:var(--bg0);
       align-self:flex-end;
       border-radius:12px 4px 12px 12px;
     }
@@ -113,98 +100,85 @@
       line-height:1.4;
       transition:border-color .15s ease;
     }
-    .chatInput:focus{border-color:rgba(42,139,201,.45)}
+    .chatInput:focus{border-color:var(--ink)}
     .chatSend{
       background:var(--accent);border:none;
-      color:#fff;font-weight:600;font-size:13px;
+      color:var(--bg0);font-weight:600;font-size:13px;
       padding:9px 14px;border-radius:8px;
       cursor:pointer;white-space:nowrap;
       font-family:inherit;
       transition:background .15s ease;
     }
-    .chatSend:hover{background:#2070a8}
+    .chatSend:hover{background:#fff}
     .chatSend:disabled{opacity:.5;cursor:not-allowed}
     .chatSend:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
 
     @media (max-width:920px){
-      .chatPanel{bottom:72px}
+      .chatPanel{bottom:16px;right:16px}
     }
 
-    /* Studio homepage (D-012): colour per game on the original dark chrome */
-    .studioHero{padding-bottom:40px}
-    .studioHero h1{font-size:clamp(46px,7.4vw,104px);line-height:.98;letter-spacing:-3px;font-weight:900;max-width:12ch}
-    .studioHero .sub{font-size:clamp(17px,1.5vw,20px)}
-    .studioHero .chips{margin-top:28px}
-    .studioHero .chip .dot{box-shadow:0 0 10px currentColor}
-    #games .h2,#apps .h2,#promo .h2,#process .h2{font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:900}
+    /* Studio homepage (D-018): colour per game on a flat, quiet frame (body.studio in style.css) */
+    .studioHero .sub{max-width:52ch}
+    #games{padding-top:40px}
     .workGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:32px}
-    /* Bright games are solid blocks (--c, --t); dark-art games are .glow cards lit by --g */
-    .work{--c:#1a2340;--t:#fff;--g:var(--accent2);scroll-margin-top:96px;display:flex;flex-direction:column;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden;transition:transform .2s ease,box-shadow .2s ease}
-    .work:hover{transform:translateY(-4px) rotate(-.4deg);box-shadow:0 24px 60px -24px var(--g)}
-    .work.glow{background:linear-gradient(160deg,color-mix(in srgb,var(--g) 22%,#0d1428),#0a0f1f 70%);border:1px solid color-mix(in srgb,var(--g) 45%,transparent);color:var(--ink)}
+    /* Every game is a solid block in its own colour (--c, --t). Dark-art games (.glow) take a
+       deep tone of theirs, with the title in the bright one (--g). Nothing moves on hover. */
+    .work{--c:#1d1b1a;--t:#f4f1ea;--g:var(--ink);scroll-margin-top:96px;display:flex;flex-direction:column;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden}
     .work.glow h3{color:var(--g)}
     .workArt{padding:20px 20px 0}
     .work img{display:block;width:100%;height:auto;aspect-ratio:1024/500;object-fit:cover;border-radius:16px}
     .workBody{padding:22px 26px 26px;display:flex;flex-direction:column;flex:1}
-    .work h3{margin:0 0 6px;font-size:28px;font-weight:900;letter-spacing:-1px;line-height:1.1;color:inherit}
-    .work p{margin:0 0 18px;font-size:15px;line-height:1.6;opacity:.84}
-    .workLinks{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px}
-    .workLinks a{color:inherit;text-decoration:none;font-size:13px;font-weight:800;padding:8px 14px;border-radius:999px;background:rgba(255,255,255,.14);transition:background .15s ease}
-    .workLinks a:hover{background:rgba(255,255,255,.24)}
-    .work.light .workLinks a{background:rgba(0,0,0,.10)}
-    .work.light .workLinks a:hover{background:rgba(0,0,0,.18)}
-    .work.glow .workLinks a{background:color-mix(in srgb,var(--g) 18%,transparent)}
-    .work.glow .workLinks a:hover{background:color-mix(in srgb,var(--g) 30%,transparent)}
-    .workLinks a.quiet,.work.light .workLinks a.quiet,.work.glow .workLinks a.quiet{background:transparent;font-weight:600;opacity:.8}
-    .workLinks a.quiet:hover{opacity:1;text-decoration:underline}
+    .work h3{margin:0 0 6px;font-size:26px;font-weight:750;letter-spacing:-.02em;line-height:1.1;color:inherit}
+    .work p{margin:0 0 18px;font-size:15px;line-height:1.55}
+    /* store links are links, not pills */
+    .workLinks{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px 20px}
+    .workLinks a{color:inherit;font-size:14px;font-weight:700;padding:4px 0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+    .workLinks a:hover{text-decoration-thickness:2px}
+    .workLinks a.quiet{font-weight:500;text-decoration:none}
+    .workLinks a.quiet:hover{text-decoration:underline}
     .work a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
     .workWide{grid-column:1 / -1;display:grid;grid-template-columns:1.1fr 1fr;align-items:center}
     .workWide .workArt{padding:20px}
     .status{align-self:flex-start;margin:0 0 10px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.18);font-size:12px;font-weight:800}
     /* Each game's colour; a new game needs one before it gets a card (D-012) */
-    .w-submarine{--g:#f5b544}
-    .w-orbital{--g:#4be08a}
+    .w-submarine{--c:#2b2212;--g:#f5b544}
+    .w-orbital{--c:#10261c;--g:#4be08a}
     .w-thunee{--c:#17533f;--t:#f3f0dc;--g:#3fbf8a}
     .w-reactor{--c:#d9a03b;--t:#13181c;--g:#d9a03b}
     .w-tea{--c:#6a4a3f;--t:#fbe9dc;--g:#c98a6a}
     .w-pomodorable{--c:#ffd7b5;--t:#6b2417;--g:#ff9a6b}
     .w-reality{--c:#f3e7da;--t:#2a2320;--g:#f3e7da}
-    .w-spice{--c:#e8562a;--t:#fff6ec;--g:#e8562a}
+    .w-spice{--c:#e8562a;--t:#2a0f05;--g:#e8562a}
     .w-pipes{--c:#008080;--t:#fff;--g:#00b3b3}
     /* The page's one bright band */
     .promoBand{display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:end;padding:56px;border-radius:40px;background:linear-gradient(135deg,#f5b544,#e8562a);color:#1a0f08}
-    .promoBand .kicker{color:#1a0f08}
-    .promoBand .kicker::before{background:linear-gradient(90deg,#1a0f08,transparent)}
+    body.studio .promoBand .kicker{color:rgba(26,15,8,.82)}
     #promo .promoBand .h2{color:#1a0f08}
     .promoBand .lead{color:rgba(26,15,8,.82);font-size:16px}
     .promoBand .ctaRow{margin:28px 0 0}
-    .promoBand .btn.primary{background:#1a0f08;color:#fff;box-shadow:0 8px 24px rgba(26,15,8,.25)}
-    .promoBand .btn.subtle{border-color:rgba(26,15,8,.25);color:#1a0f08}
+    body.studio .promoBand .btn.primary{background:#1a0f08;color:#fff}
+    body.studio .promoBand .btn.primary:hover{background:#000}
+    body.studio .promoBand .btn.subtle,body.studio .promoBand .btn.subtle:hover{color:#1a0f08}
     .promoBand .btn:focus-visible{outline-color:#1a0f08}
-    .promoPrice{margin:0;font-size:clamp(44px,6vw,72px);font-weight:900;letter-spacing:-3px;line-height:1;white-space:nowrap}
+    .promoPrice{margin:0;font-size:clamp(44px,6vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1;white-space:nowrap}
     /* Promo process: the original's numbered steps as tiles, numbers in game colours */
     .processSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:32px}
-    .processSteps .step{padding:24px 24px 26px;border:1px solid var(--stroke);background:var(--card);border-radius:22px}
+    .processSteps .step{padding:24px 24px 26px;background:var(--card);border-radius:22px}
     .processSteps .step::after{display:none}
-    .processSteps .step-num{font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:14px;color:var(--n)}
-    .processSteps .step h3{font-size:19px;font-weight:800;letter-spacing:-.3px}
+    .processSteps .step-num{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:14px;color:var(--n)}
+    .processSteps .step h3{font-size:19px;font-weight:750;letter-spacing:-.01em}
     .processSteps .step p{font-size:14.5px}
     .alsoLine{padding:0 0 56px}
     .alsoLine p{margin:0;max-width:72ch;color:var(--muted);font-size:14px;line-height:1.7}
-    .alsoLine a{color:var(--accent2)}
+    .alsoLine a{color:var(--suite);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
     @media (max-width:920px){
-      .studioHero h1{letter-spacing:-2px}
       .workGrid{grid-template-columns:1fr}
       .workWide{display:flex}
       .workArt,.workWide .workArt{padding:16px 16px 0}
       .workBody{padding:20px 22px 22px}
       .promoBand{grid-template-columns:1fr;gap:20px;padding:32px 24px;border-radius:28px}
       .processSteps{grid-template-columns:1fr;gap:12px}
-      .processSteps .step{padding:20px 22px 22px;border-left:1px solid var(--stroke)}
-    }
-    @media (prefers-reduced-motion:reduce){
-      .work{transition:none}
-      .work:hover{transform:none}
+      .processSteps .step{padding:20px 22px 22px;border-left:0}
     }
   </style>
 
@@ -227,7 +201,7 @@
   <script defer src="https://analytics.aidoo.biz/script.js" data-website-id="bc0dc6af-ac24-4d29-ab68-3b19be32c468"></script>
 </head>
 
-<body>
+<body class="studio">
 <a href="#top" class="skip-link">Skip to content</a>
 <header>
   <div class="nav">
@@ -266,25 +240,12 @@
 
   <!-- HERO -->
   <section class="hero studioHero">
-    <div class="pill">An independent games and apps studio</div>
-
-    <h1>Small games and apps, <span class="grad">made with care.</span></h1>
+    <h1>Small games and apps, made with care.</h1>
 
     <p class="sub">
-      We make mobile games, useful little apps and toys for the web. And if your business or event wants a game or app of its own, we'll make that too.
+      We're a small studio on the Isle of Man. We make games for Android and iOS, useful little apps and toys for the web.
+      And if your business or event wants a game of its own, <a class="textLink" href="#promo">we'll make that too</a>.
     </p>
-
-    <div class="ctaRow">
-      <a class="btn primary" href="#games">See our games</a>
-      <a class="btn subtle" href="#promo">A game for your business</a>
-    </div>
-
-    <div class="chips" aria-label="Studio facts">
-      <span class="chip"><span class="dot" style="background:#f5b544;color:#f5b544"></span>Android</span>
-      <span class="chip"><span class="dot" style="background:#4be08a;color:#4be08a"></span>iOS</span>
-      <span class="chip"><span class="dot" style="background:#00b3b3;color:#00b3b3"></span>The web</span>
-      <span class="chip"><span class="dot" style="background:#e8562a;color:#e8562a"></span>From concept to launch</span>
-    </div>
   </section>
 
   <!-- GAMES -->
@@ -478,15 +439,10 @@
   </section>
 
   <!-- CTA -->
-  <section class="ctaBand" id="contact">
-    <div>
-      <p class="title">Got an idea, or a question?</p>
-      <p class="small">Email <strong>hello@aidoo.biz</strong>. A real person reads every message.</p>
-    </div>
-    <div class="ctaRow" style="margin:0;">
-      <a class="btn primary" href="mailto:hello@aidoo.biz">Email hello@aidoo.biz</a>
-      <a class="btn subtle" href="#games">See our games</a>
-    </div>
+  <section class="contactLine" id="contact">
+    <p>Got an idea, or a question?</p>
+    <a class="bigLink" href="mailto:hello@aidoo.biz">hello@aidoo.biz</a>
+    <p>A real person reads every message.</p>
   </section>
 
   <footer>
@@ -519,6 +475,7 @@
       <div class="footerCol" style="font-size:13px;">
         <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">Contact</div>
         <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
+        <div><button class="linkBtn" id="chatFab" type="button" aria-expanded="false" aria-controls="chatPanel">Ask the site a question</button></div>
         <div style="margin-top:6px;">
           <a href="https://www.linkedin.com/company/ai-doo/" target="_blank" rel="noopener">LinkedIn</a> &bull;
           <a href="https://github.com/aidoo-systems" target="_blank" rel="noopener">GitHub</a>
@@ -529,12 +486,7 @@
 
 </main>
 
-<!-- CHAT WIDGET -->
-<button class="chatFab" id="chatFab" aria-label="Open chat" aria-expanded="false" aria-controls="chatPanel">
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 1C4.134 1 1 3.91 1 7.5c0 1.57.58 3.01 1.55 4.13L1.5 14.5l3.26-.87A7.17 7.17 0 0 0 8 14c3.866 0 7-2.91 7-6.5S11.866 1 8 1Z" fill="currentColor"/></svg>
-  Ask us
-</button>
-
+<!-- CHAT: opened by "Ask the site a question" in the footer -->
 <div class="chatPanel" id="chatPanel" role="dialog" aria-modal="true" aria-label="Chat with ai.doo">
   <div class="chatHead">
     <strong>Ask ai.doo</strong>
@@ -551,22 +503,6 @@
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
-
-  // Scroll reveal — progressive enhancement. Sections fade/lift in as they enter view.
-  (function() {
-    if (!("IntersectionObserver" in window) ||
-        matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    document.documentElement.classList.add("has-reveal");
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add("is-visible");
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
-  })();
 
   const menuBtn = document.getElementById("menuBtn");
   const mobileNav = document.getElementById("mobileNav");

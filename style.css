@@ -379,3 +379,85 @@ footer{border-top:1px solid var(--stroke);padding:32px 0 48px;color:var(--muted)
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:0.01ms !important;animation-duration:0.01ms !important}
 }
+
+/* ============================================
+   The studio pages (D-018): body.studio
+   The homepage and /promo-games/ sit on a flat, quiet frame so the games are the only
+   colour. No glow, no gradient text, no pills, no chips, no motion. Blue is not the
+   frame's colour any more: it belongs to PIKA and VERA, whose pages don't carry this
+   class and keep the chrome above.
+   ============================================ */
+body.studio{
+  --bg0:#141312;
+  --bg1:#141312;
+  --ink:#f4f1ea;
+  --muted:#b3aca2;
+  --accent:#f4f1ea;
+  --accent2:#f4f1ea;
+  --card:#1d1b1a;
+  --card2:#242120;
+  --stroke:#34302d;
+  --suite:#4db8ff;
+  --focus:#f5b544;
+  background:var(--bg0);
+}
+body.studio .hero::before,
+body.studio .hero::after{content:none}
+body.studio .hero{padding:56px 0 8px}
+body.studio .hero > *{animation:none}
+body.studio .grad{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:inherit}
+body.studio :focus-visible{outline-color:var(--focus)}
+body.studio .skip-link{color:var(--bg0)}
+
+/* Header: a solid bar, the mark unboxed, "Email us" as a link */
+body.studio header{background:var(--bg0);backdrop-filter:none}
+body.studio .logoMark{width:34px;height:34px;border:0;border-radius:0;background:none}
+body.studio .logoMark img{filter:none}
+body.studio .wm-dot{background:var(--muted)}
+body.studio nav a::after{background:var(--ink)}
+body.studio .menuBtn{background:none}
+
+/* One button. Everything secondary is an underlined link. */
+body.studio .btn{border-radius:10px;transition:none}
+body.studio .btn:hover{transform:none;box-shadow:none;border-color:var(--ink)}
+body.studio .btn.primary{background:var(--ink);color:var(--bg0);box-shadow:none}
+body.studio .btn.primary:hover{background:#fff;box-shadow:none}
+body.studio .btn.subtle,
+body.studio .navRight .btn.primary{
+  padding:8px 2px;border:0;border-radius:0;background:none;color:var(--ink);
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;
+}
+body.studio .btn.subtle:hover,
+body.studio .navRight .btn.primary:hover{background:none;color:#fff}
+
+/* Type: calmer. 800 at most, and no billboard sizes. */
+body.studio h1{font-size:clamp(38px,5vw,68px);line-height:1.04;letter-spacing:-.02em;font-weight:800;max-width:16ch;color:var(--ink)}
+body.studio .h2{font-size:clamp(26px,3vw,38px);line-height:1.1;letter-spacing:-.015em;font-weight:750;color:var(--ink)}
+body.studio .sub{font-size:clamp(17px,1.4vw,19px)}
+body.studio .section{padding:56px 0}
+body.studio .kicker{margin-bottom:8px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
+body.studio .kicker::before{content:none}
+body.studio .textLink{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+body.studio .textLink:hover{color:#fff;text-decoration-thickness:2px}
+body.studio .heroLine{margin:22px 0 0;color:var(--muted);font-size:14px;font-weight:600}
+
+/* Surfaces: flat and solid. Nothing lifts, glows or lights up on hover. */
+body.studio .card{box-shadow:none;transition:none}
+body.studio .card::after{content:none}
+body.studio .card:hover,
+body.studio .card:focus-visible{transform:none;border-color:var(--stroke);box-shadow:none;background:var(--card)}
+body.studio .card h3,
+body.studio .step h3{color:var(--ink)}
+body.studio .featureList li::before{opacity:1}
+
+/* Contact: one line and the address, not a panel */
+body.studio .contactLine{margin:24px 0 0;padding:48px 0 8px;border-top:1px solid var(--stroke)}
+body.studio .contactLine p{margin:0;color:var(--muted);font-size:15px}
+body.studio .contactLine .bigLink{
+  display:inline-block;margin:6px 0 10px;color:var(--ink);font-size:clamp(28px,4.4vw,52px);font-weight:750;letter-spacing:-.02em;line-height:1.1;
+  text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:8px;overflow-wrap:anywhere;
+}
+body.studio .contactLine .bigLink:hover{color:#fff}
+body.studio footer{margin-top:40px}
+body.studio .linkBtn{padding:3px 0;border:0;background:none;color:var(--muted);font:inherit;cursor:pointer;text-align:left}
+body.studio .linkBtn:hover{color:var(--ink)}

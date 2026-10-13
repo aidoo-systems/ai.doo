@@ -54,6 +54,8 @@ Needs Node (any current version) and `python -m pip install -r api/requirements.
 
 ## Design system
 
+**Two frames (D-018).** The homepage and `/promo-games/` carry `<body class="studio">`: a flat near-black frame (`#141312`) defined at the end of `style.css`, where every rule is scoped to `body.studio`. No glow, gradient text, pills, chips or floating chat there; the games are the only colour. PIKA, VERA and the privacy pages don't carry the class and keep the navy chrome described below, with blue as the suite's colour. A new studio page takes the class; `tests/test_quiet_frame.py` holds the line.
+
 Shared styles live in `style.css` (loaded by all pages). Individual pages may add inline `<style>` blocks for page-specific components (e.g. the chat widget on the homepage).
 
 ### CSS variables (defined in `:root`)
