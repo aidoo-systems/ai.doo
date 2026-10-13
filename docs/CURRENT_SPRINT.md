@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-13
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (merge #38, then outreach)
+State: ready-for-owner (start outreach)
 
 ## Goal
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** merge #38 (P2.1d, approved by the owner on a phone, 2026-10-13), which puts the quiet frame and the play live. Then the owner starts outreach with the tagged links in the prospect list. Still open from P2.0a: the keep-it-live monthly price (suggested £25) and one scan of the live QR code. After the first emails are out: cards that move, drawn in code (stage 2).
+1. **Next action:** the owner starts outreach, 2 to 3 hours a week, with the tagged links in [the prospect list](design/2026-10-02-promo-prospects.md). It is the one thing P2.0's services bet is measured on and it has not begun. Claude can draft the first emails on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, after the first emails are out and one item at a time: P2.1e (cards that move).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -35,14 +35,16 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Owner gates — waiting on a human
 
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Merge #38. Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, TikTok and the store developer pages (tonight). Set the keep-it-live monthly price (suggested £25) and scan the live QR code on `/promo-games/` once. Start outreach.
+- Start outreach. Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, TikTok and the store developer pages. Set the keep-it-live monthly price for a promo game (Claude suggested £25; the offer page and the chatbot say "a monthly price we agree first" until then). Scan the live QR code on `/promo-games/` once, which closes P2.0a's last acceptance step. Paste the homepage link into a chat to see the new share card.
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
+- Delete two leftover folders whose files Codex's sandbox locked (`takeown`, `icacls`, `Remove-Item`, as before): `C:\dev\worktrees\ai.doo-quiet-shelf` and `C:\dev\worktrees\ai.doo-P2.0a.removing`. Nothing in them is needed; until the second is gone, `loop settle ai.doo` keeps reporting PR #37 as merged but not tidied.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 
 ## Work log
 
 ### 2026-10-13
+- #38 merged on the owner's word and deployed: `deploy`, `deploy-api` and `check-served` all `success`; Gates green on the merge commit. Live check at phone size on `/`, `/promo-games/` and `/privacy-thunee/`: the quiet frame, Bricolage loaded, the Play button and the ball in place, `No console logs`, `scrollWidth == clientWidth`; `/internal/og-card/` returns 404. Banked the same day: this chat ran three days and reached 86% of its context with no `/bank` offered and no context-meter message seen; #38 also carried five things in one PR and five review rounds, against the gauntlet's one item and three rounds. From here: one item per PR, captured first, and `/bank` at each merge.
 - Owner liked the logo ("simple yet polished"), confirmed the three itch.io Play links play in a browser, and asked for the privacy pages and the share card to go in the same merge. Privacy: all nine pages now sit on the quiet frame with Bricolage headings, underlined ink links and the wordmark as the way back; a script restyled them and refused to write any page whose visible words changed (none did). Share card: `og-image.jpg` redrawn from `internal/og-card/` with headless Edge at 2x and scaled to 1200x630; every `og:image` now asks for `?v=3` so shares refetch it. Owner will update the avatars tonight. Tests 143/143. Next: merge #38.
 - Logo: the owner asked whether the blue brain should change to match the new look. An identity review said recolouring wasn't enough and recommended retiring the head for the ball; the owner agreed to try it (D-020). Done on the P2.1d branch as its own commit: `favicon.svg` is now the ball (three flat shapes, 517 bytes, was a 4.8 KB auto-trace with gradients); the head is out of every header and footer, including PIKA and VERA; the studio wordmark's dot is the mark itself and rests amber; new `apple-touch-icon.png` and `images/brand/` files for avatars; the JSON-LD logo points at a real PNG. Three versions of the ball were drawn and compared at 16px in light and dark tab bars before choosing. Tests 141/141. Found, not caused: `vera/changelog.html`'s header is unstyled on live `main` (flagged as its own task). Still the head: the share card and the owner's avatars. Next: owner looks at it on a phone.
 - P2.1d: owner asked for the dot to "glisten a bit in a come hither sense". It is now lit like a small ball and, every 4.2 seconds, hops twice and sends out a ring, until it has been flicked once. Off under reduced motion. Tests 136/136, gates PASS. The hop was confirmed as applied (`comeHither`, stops after a flick) but not watched moving: this machine's preview pane doesn't draw frames in the background.
