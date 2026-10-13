@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-13
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (P2.1d: compare the quiet frame with the live site on a phone)
+State: ready-for-owner (merge #38, then outreach)
 
 ## Goal
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** the owner compares the P2.1d branch with the live site on a phone (and the heading-typeface mock beside it), then merges its PR or sends changes. #37 (P2.0a) merged and went live on 2026-10-11; outreach is the owner's to start, with the tagged links in the prospect list. Still open from P2.0a: the keep-it-live monthly price (suggested £25) and one scan of the live QR code.
+1. **Next action:** merge #38 (P2.1d, approved by the owner on a phone, 2026-10-13), which puts the quiet frame and the play live. Then the owner starts outreach with the tagged links in the prospect list. Still open from P2.0a: the keep-it-live monthly price (suggested £25) and one scan of the live QR code. After the first emails are out: cards that move, drawn in code (stage 2).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -35,7 +35,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Owner gates — waiting on a human
 
 - Release builds with analytics on Play, and the Data Safety form updated for Firebase, for Reactor Panic and Submarine Panic. (The Firebase Android apps and `google-services.json` files have been in all three repos since 2026-10-02. No iOS apps yet.)
-- Approve P2.1d (the quiet frame) on a phone and merge its PR. Decide on the heading typeface from the mock (stage 2). Set the keep-it-live monthly price (suggested £25) and scan the live QR code on `/promo-games/` once. Start outreach.
+- Merge #38. Check on a phone that the three itch.io links the Play button uses play in a browser (not confirmed from this machine). Set the keep-it-live monthly price (suggested £25) and scan the live QR code on `/promo-games/` once. Start outreach.
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
@@ -43,6 +43,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-13
+- P2.1d: owner tried the branch on his phone over VPN and approved all of it. Roadmap row marked Complete. Next: merge #38.
 - P2.1d: owner compared stage 1 and liked the move away from the template, but "I still don't think it's exciting enough... we're a fun studio", and asked whether a floating button should stay. Agreed four additions and built them on the same branch (D-019): a floating Play button in the game's colour (pour game, Pipes 98, three itch.io builds; it offers the game in view), with the chat as a "?" beside it; the background washes to the colour of the game in view and the phone's browser bar follows; the wordmark's dot bounces around the window when clicked; headings in Bricolage Grotesque, self-hosted with its licence. `studio.js` holds the three behaviours and stores and fetches nothing. Codex round 2 found a blocker and two should-fixes, all fixed: a phone loading mid-page crashed the script before it set anything up (reproduced with a new driver that runs `studio.js`, then fixed by ordering); a hidden Play button still showed (its `display` beat the `hidden` attribute); the dot could not be reached by keyboard (now a real, labelled button laid over it). Tests 136/136. Held for later: cards that move, drawn in code (two to three days). Outreach still not started. Next: owner tries it on a phone.
 - P2.1d: the owner said the original chrome ("blue background and info pills etc.") reads as a vibe-coded template and asked for designers' views. An art-director review and a benchmark of ten small-studio sites agreed and named the same tells; the owner said go on stage 1. Done on a branch (D-018): flat warm near-black frame scoped to `body.studio` on the homepage and `/promo-games/`; pill, gradient phrase, glow, dots, chips, label rules, scroll reveal and hover tilt removed; one plain button and underlined links; headings 800 at most; the hero is a statement and one sentence, so the first game card shows in the first screen on a phone; dark-art cards are solid deep tones; store links are text; the contact panel is one line and the address; the chat opens from a footer link (the owner hasn't ruled on the floating button; this is the designers' recommendation and one line to undo). SPICE's card text went dark for contrast. PIKA and VERA untouched. A mock of the homepage with headings in Bricolage Grotesque was built outside the repo (the site gate rightly failed when it sat in the worktree). Tests 130/130. Gate cycles: 2 (the mock folder failed the site gate). Not reviewed by Codex yet. Next: owner compares on a phone.
 
