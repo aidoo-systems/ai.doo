@@ -47,6 +47,8 @@ def test_the_quiet_frame_is_flat_and_scoped():
     frame = css[css.index("body.studio{") :]
     # every rule after the first is scoped, so nothing leaks onto PIKA or VERA
     selectors = re.findall(r"^([^{}@/\n][^{}]*)\{", frame, flags=re.MULTILINE)
+    # keyframe steps such as "68%{" and the indented rule inside a media query aren't frame selectors
+    selectors = [s.strip() for s in selectors if "%" not in s]
     assert selectors
     for selector in selectors:
         assert all(

@@ -483,7 +483,24 @@ body.studio .linkBtn:hover{color:var(--ink)}
 
 /* Play (D-019): the frame is quiet so that these three things can be loud. studio.js runs them. */
 body.studio .nav{position:relative}
-body.studio .wm-dot.toy{width:9px;height:9px}
+/* The dot asks to be pressed: lit like a little ball, it hops and sends out a ring every few seconds, until it has been flicked. */
+body.studio .wm-dot.toy{
+  width:9px;height:9px;
+  box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.6),inset -1px -1px 0 rgba(0,0,0,.22),0 0 0 0 rgba(244,241,234,.55);
+  animation:comeHither 4.2s ease-in-out 1.2s infinite;
+}
+body.studio .wm-dot.toy.flicked{animation:none}
+@keyframes comeHither{
+  0%,62%,100%{transform:translateY(0) scale(1);box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.6),inset -1px -1px 0 rgba(0,0,0,.22),0 0 0 0 rgba(244,241,234,.55)}
+  68%{transform:translateY(-5px) scale(1.25)}
+  74%{transform:translateY(0) scale(1)}
+  79%{transform:translateY(-3px) scale(1.15);box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.6),inset -1px -1px 0 rgba(0,0,0,.22),0 0 0 0 rgba(244,241,234,.55)}
+  84%{transform:translateY(0) scale(1)}
+  98%{box-shadow:inset 1.5px 1.5px 0 rgba(255,255,255,.6),inset -1px -1px 0 rgba(0,0,0,.22),0 0 0 11px rgba(244,241,234,0)}
+}
+@media (prefers-reduced-motion:reduce){
+  body.studio .wm-dot.toy{animation:none}
+}
 body.studio .wmToy{position:absolute;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 body.studio .wmBall{position:fixed;left:0;top:0;z-index:300;border-radius:50%;cursor:pointer;will-change:transform}
 

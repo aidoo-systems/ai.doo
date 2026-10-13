@@ -208,6 +208,7 @@
   }
 
   function flick() {
+    dot.classList.add("flicked"); // it has been found: no more asking
     if (calm) {
       // no motion wanted: the dot just changes colour
       dot.style.background = pick();
