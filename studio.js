@@ -1,7 +1,7 @@
 // The studio pages' bits of play (D-019). Three small things, each drawn from the games
 // rather than laid over them, and all of it optional: the pages read and work without it.
-//   1. The page wears the colour of the game you're looking at.
-//   2. A floating Play button that takes you straight into something playable.
+//   1. A floating Play button that takes you straight into something playable.
+//   2. The page wears the colour of the game you're looking at.
 //   3. The dot in the wordmark is a ball. Flick it.
 // Nothing is stored, and nothing is fetched.
 (function () {
@@ -41,10 +41,69 @@
     if (el.dataset.tint) return el.dataset.tint;
     return el.classList.contains("glow") ? prop(el, "--g") : prop(el, "--c");
   }
+  function all(selector) {
+    return Array.prototype.slice.call(document.querySelectorAll(selector));
+  }
 
-  // ---------------------------------------------------------------- 1. the page's tint
+  var tinted = all(".work, [data-tint]");
 
-  var tinted = Array.prototype.slice.call(document.querySelectorAll(".work, [data-tint]"));
+  // ---------------------------------------------------------------- 1. the Play button
+
+  // Anything playable in a browser is marked in the page: <a data-play="What the button says">.
+  var plays = all("a[data-play]").map(function (a) {
+    var card = a.closest(".work, [data-tint]");
+    var glow = card && card.classList.contains("glow");
+    return {
+      card: card,
+      says: a.dataset.play,
+      href: a.getAttribute("href"),
+      away: a.target === "_blank",
+      back: a.dataset.playBack || (card ? (glow ? prop(card, "--g") : prop(card, "--c")) : "#f4f1ea"),
+      ink: a.dataset.playInk || (card && !glow ? prop(card, "--t") : FRAME),
+    };
+  });
+  var fab = document.getElementById("playFab");
+
+  function show(play) {
+    if (!fab || !play) return;
+    fab.href = play.href;
+    if (play.away) {
+      fab.target = "_blank";
+      fab.rel = "noopener";
+    } else {
+      fab.removeAttribute("target");
+      fab.removeAttribute("rel");
+    }
+    fab.style.background = play.back;
+    fab.style.color = play.ink;
+    fab.querySelector("span").textContent = play.says;
+    fab.hidden = false;
+  }
+  // When the game in view can be played here and now, the button offers that one.
+  function offer(card) {
+    for (var i = 0; i < plays.length; i++) {
+      if (plays[i].card === card) return show(plays[i]);
+    }
+  }
+  if (plays.length) show(plays[Math.floor(Math.random() * plays.length)]);
+  // A page with one thing to play already has a button for it: the floating one waits
+  // until that button has scrolled out of sight.
+  if (fab && plays.length === 1 && "IntersectionObserver" in window) {
+    new IntersectionObserver(function (seen) {
+      fab.hidden = seen[seen.length - 1].isIntersecting;
+    }).observe(document.querySelector("a[data-play]"));
+  }
+
+  // The footer's "Ask the site a question" opens the same chat as the dock's button.
+  var ask = document.getElementById("chatFab");
+  all("[data-open-chat]").forEach(function (el) {
+    el.addEventListener("click", function () {
+      if (ask) ask.click();
+    });
+  });
+
+  // ---------------------------------------------------------------- 2. the page's tint
+
   var wearing = null;
 
   function wear(el) {
@@ -92,71 +151,18 @@
     }
   }
 
-  // ---------------------------------------------------------------- 2. the Play button
-
-  // Anything playable in a browser is marked in the page: <a data-play="What the button says">.
-  var plays = Array.prototype.slice.call(document.querySelectorAll("a[data-play]")).map(function (a) {
-    var card = a.closest(".work, [data-tint]");
-    var glow = card && card.classList.contains("glow");
-    return {
-      card: card,
-      name: a.dataset.play,
-      href: a.getAttribute("href"),
-      away: a.target === "_blank",
-      back: a.dataset.playBack || (card ? (glow ? prop(card, "--g") : prop(card, "--c")) : "#f4f1ea"),
-      ink: a.dataset.playInk || (card && !glow ? prop(card, "--t") : FRAME),
-    };
-  });
-  var fab = document.getElementById("playFab");
-
-  function show(play) {
-    if (!fab || !play) return;
-    fab.href = play.href;
-    if (play.away) {
-      fab.target = "_blank";
-      fab.rel = "noopener";
-    } else {
-      fab.removeAttribute("target");
-      fab.removeAttribute("rel");
-    }
-    fab.style.background = play.back;
-    fab.style.color = play.ink;
-    fab.querySelector("span").textContent = play.name;
-    fab.hidden = false;
-  }
-  // When the game in view can be played here and now, the button offers that one.
-  function offer(card) {
-    for (var i = 0; i < plays.length; i++) {
-      if (plays[i].card === card) return show(plays[i]);
-    }
-  }
-  if (plays.length) show(plays[Math.floor(Math.random() * plays.length)]);
-  // A page with one thing to play already has a button for it: the floating one waits
-  // until that button has scrolled out of sight.
-  if (fab && plays.length === 1 && "IntersectionObserver" in window) {
-    var source = document.querySelector("a[data-play]");
-    new IntersectionObserver(function (seen) {
-      fab.hidden = seen[seen.length - 1].isIntersecting;
-    }).observe(source);
-  }
-
-  // The footer's "Ask the site a question" opens the same chat as the dock's button.
-  var ask = document.getElementById("chatFab");
-  Array.prototype.forEach.call(document.querySelectorAll("[data-open-chat]"), function (el) {
-    el.addEventListener("click", function () {
-      if (ask) ask.click();
-    });
-  });
-
   // ---------------------------------------------------------------- 3. the dot is a ball
 
   var dot = document.querySelector("header .wm-dot");
+  var nav = document.querySelector("header .nav");
+  var brand = document.querySelector("header .brand");
   var colours = tinted.map(colourOf).filter(rgb);
   if (!colours.length) colours = ["#f5b544", "#4be08a", "#e8562a", "#00b3b3"];
   var pick = function () {
     return colours[Math.floor(Math.random() * colours.length)];
   };
   var audio = null;
+  var ball = null;
 
   function blip(speed) {
     try {
@@ -178,37 +184,51 @@
     }
   }
 
-  if (dot) {
+  if (dot && nav && brand) {
     dot.style.background = pick();
     dot.classList.add("toy");
-    dot.title = "Flick me";
-    var ball = null;
+    // The dot sits inside the home link, so the thing you press is a button of its own,
+    // laid over the dot: reachable by keyboard, named for a screen reader, and big
+    // enough for a thumb. The link still goes home.
+    var toy = document.createElement("button");
+    toy.type = "button";
+    toy.className = "wmToy";
+    toy.setAttribute("aria-label", "Flick the dot");
+    brand.insertAdjacentElement("afterend", toy);
+    var place = function () {
+      var d = dot.getBoundingClientRect();
+      var n = nav.getBoundingClientRect();
+      toy.style.left = d.left + d.width / 2 - n.left - 15 + "px";
+      toy.style.top = d.top + d.height / 2 - n.top - 15 + "px";
+    };
+    place();
+    window.addEventListener("resize", place);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    toy.addEventListener("click", flick);
+  }
 
-    dot.addEventListener("click", function (e) {
-      // the dot sits inside the home link: a flick is not a click on that
-      e.preventDefault();
-      e.stopPropagation();
-      if (calm) {
-        dot.style.background = pick();
-        return;
-      }
-      if (ball) return kick();
-      var home = dot.getBoundingClientRect();
-      var size = Math.max(14, home.width * 2);
-      var el = document.createElement("span");
-      el.className = "wmBall";
-      el.style.width = el.style.height = size + "px";
-      el.style.background = dot.style.background;
-      body.appendChild(el);
-      dot.style.visibility = "hidden";
-      ball = { el: el, size: size, x: home.left, y: home.top, vx: 0, vy: 0, life: 0, last: performance.now() };
-      el.addEventListener("pointerdown", function (ev) {
-        ev.preventDefault();
-        kick();
-      });
+  function flick() {
+    if (calm) {
+      // no motion wanted: the dot just changes colour
+      dot.style.background = pick();
+      return;
+    }
+    if (ball) return kick();
+    var home = dot.getBoundingClientRect();
+    var size = Math.max(14, home.width * 2);
+    var el = document.createElement("span");
+    el.className = "wmBall";
+    el.style.width = el.style.height = size + "px";
+    el.style.background = dot.style.background;
+    body.appendChild(el);
+    dot.style.visibility = "hidden";
+    ball = { el: el, size: size, x: home.left, y: home.top, vx: 0, vy: 0, life: 0, last: performance.now() };
+    el.addEventListener("pointerdown", function (ev) {
+      ev.preventDefault();
       kick();
-      requestAnimationFrame(roll);
     });
+    kick();
+    requestAnimationFrame(roll);
   }
 
   function kick() {
@@ -252,11 +272,11 @@
     ball.el.style.transform = "translate(" + ball.x + "px," + ball.y + "px)";
     // after a few seconds, or once it has come to rest, the ball goes home
     var resting = ball.y >= maxY - 1 && Math.abs(ball.vy) < 60 && Math.abs(ball.vx) < 30;
-    if (ball.life > 7 || resting) return home();
+    if (ball.life > 7 || resting) return goHome();
     requestAnimationFrame(roll);
   }
 
-  function home() {
+  function goHome() {
     var to = dot.getBoundingClientRect();
     var el = ball.el;
     dot.style.background = el.style.background;

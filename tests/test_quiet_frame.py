@@ -1,6 +1,9 @@
 """D-018: the studio pages sit on a flat, quiet frame; PIKA and VERA keep the old chrome."""
 
+import json
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -148,3 +151,39 @@ def test_the_heading_typeface_is_self_hosted_with_its_licence():
     )
     assert "SIL Open Font License" in licence
     assert "fonts.googleapis" not in css and "fonts.gstatic" not in css
+
+
+def test_the_play_script_survives_a_phone_loading_mid_page():
+    # A phone restores a scrolled page with a game card across the middle of the screen:
+    # the script must set up the button, the tint, the footer link and the toy, in any order.
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run studio.js in the tests"
+    done = subprocess.run(
+        [node, str(REPO_ROOT / "tests" / "studio_driver.cjs")],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    ran = json.loads(done.stdout)
+    assert ran["error"] is None
+    # the card in view is teal and playable: the page and the button both follow it
+    assert ran["tint"] == ran["themeColour"] != ""
+    assert ran["buttonSays"] == "Play Pipes 98"
+    assert ran["buttonGoesTo"] == "https://pipes98.com/"
+    assert ran["buttonHidden"] is False
+    assert ran["footerOpensChat"] == 1
+    # the toy is a real, named button placed after the home link, not a span inside it
+    assert ran["toyIsButton"] and ran["toyPlacedAfterHomeLink"]
+    assert ran["toyLabel"] == "Flick the dot"
+
+
+def test_a_hidden_play_button_is_really_hidden():
+    css = _text("style.css")
+    assert "body.studio .playFab[hidden]{display:none}" in css
+    # and it starts hidden in the markup, so a page without JavaScript shows no empty button
+    for rel in STUDIO_PAGES:
+        assert re.search(r'<a class="playFab" id="playFab"[^>]*hidden>', _text(rel)), (
+            rel
+        )

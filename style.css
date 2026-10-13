@@ -482,8 +482,9 @@ body.studio .linkBtn{padding:3px 0;border:0;background:none;color:var(--muted);f
 body.studio .linkBtn:hover{color:var(--ink)}
 
 /* Play (D-019): the frame is quiet so that these three things can be loud. studio.js runs them. */
-body.studio .wm-dot.toy{width:9px;height:9px;cursor:pointer;transition:transform .15s ease}
-body.studio .wm-dot.toy:hover{transform:scale(1.6)}
+body.studio .nav{position:relative}
+body.studio .wm-dot.toy{width:9px;height:9px}
+body.studio .wmToy{position:absolute;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 body.studio .wmBall{position:fixed;left:0;top:0;z-index:300;border-radius:50%;cursor:pointer;will-change:transform}
 
 body.studio .playDock{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px}
@@ -492,6 +493,7 @@ body.studio .playFab{
   background:var(--ink);color:var(--bg1);font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap;
   box-shadow:0 5px 0 rgba(0,0,0,.5);transition:transform .06s ease,box-shadow .06s ease,background-color .3s ease,color .3s ease;
 }
+body.studio .playFab[hidden]{display:none} /* display:inline-flex above would show a hidden button */
 body.studio .playFab:hover{transform:translateY(-1px);box-shadow:0 6px 0 rgba(0,0,0,.5)}
 body.studio .playFab:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
 body.studio .playFab svg{flex:none;width:13px;height:15px}
