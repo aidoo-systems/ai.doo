@@ -12,6 +12,16 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* Bricolage Grotesque: headings on the studio pages (D-019). Self-hosted variable font,
+   latin subset, SIL Open Font License 1.1 (fonts/OFL-Bricolage-Grotesque.txt). */
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+}
+
 :root{
   --bg0:#0b1020;
   --bg1:#111a33;
@@ -74,7 +84,7 @@ header{
   background:var(--card2);border:1px solid var(--stroke);overflow:hidden;
 }
 .logoMark img{width:34px;height:34px;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.45))}
-.wordmark{display:inline-flex;align-items:baseline;font-weight:700;letter-spacing:-0.5px;font-size:18px;line-height:1}
+.wordmark{display:inline-flex;align-items:baseline;font-weight:700;letter-spacing:-0.5px;font-size:21px;line-height:1}
 .wm-ai,.wm-doo{color:var(--ink)}
 .wm-dot{width:7px;height:7px;border-radius:999px;margin:0 5px 3px 5px;background:var(--accent2);display:inline-block}
 
@@ -379,3 +389,133 @@ footer{border-top:1px solid var(--stroke);padding:32px 0 48px;color:var(--muted)
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{transition-duration:0.01ms !important;animation-duration:0.01ms !important}
 }
+
+/* ============================================
+   The studio pages (D-018): body.studio
+   The homepage and /promo-games/ sit on a flat, quiet frame so the games are the only
+   colour. No glow, no gradient text, no pills, no chips, no motion. Blue is not the
+   frame's colour any more: it belongs to PIKA and VERA, whose pages don't carry this
+   class and keep the chrome above.
+   ============================================ */
+body.studio{
+  --bg0:#141312;
+  --bg1:#141312;
+  --ink:#f4f1ea;
+  --muted:#b3aca2;
+  --accent:#f4f1ea;
+  --accent2:#f4f1ea;
+  --card:#1d1b1a;
+  --card2:#242120;
+  --stroke:#34302d;
+  --suite:#4db8ff;
+  --focus:#f5b544;
+  --display:'Bricolage Grotesque',Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:var(--bg0);
+  transition:background-color .5s ease; /* studio.js tints --bg0 with the game in view */
+}
+body.studio .hero::before,
+body.studio .hero::after{content:none}
+body.studio .hero{padding:56px 0 8px}
+body.studio .hero > *{animation:none}
+body.studio .grad{background:none;-webkit-background-clip:border-box;background-clip:border-box;color:inherit}
+body.studio :focus-visible{outline-color:var(--focus)}
+body.studio .skip-link{color:var(--bg0)}
+
+/* Header: a solid bar, the mark unboxed, "Email us" as a link */
+body.studio header{background:var(--bg0);backdrop-filter:none;transition:background-color .5s ease}
+/* The logo is the wordmark, and its dot is the mark (D-020): favicon.svg's ball, on the baseline where the name's full stop would be. */
+body.studio .wordmark{font-size:24px;letter-spacing:-.02em}
+body.studio .wm-dot{width:.5em;height:.5em;margin:0 .13em;background:url('/favicon.svg') center/contain no-repeat}
+body.studio nav a::after{background:var(--ink)}
+body.studio .menuBtn{background:none}
+
+/* One button. Everything secondary is an underlined link. */
+body.studio .btn{border-radius:10px;transition:none}
+body.studio .btn:hover{transform:none;box-shadow:none;border-color:var(--ink)}
+body.studio .btn.primary{background:var(--ink);color:var(--bg0);box-shadow:none}
+body.studio .btn.primary:hover{background:#fff;box-shadow:none}
+body.studio .btn.subtle,
+body.studio .navRight .btn.primary{
+  padding:8px 2px;border:0;border-radius:0;background:none;color:var(--ink);
+  text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;
+}
+body.studio .btn.subtle:hover,
+body.studio .navRight .btn.primary:hover{background:none;color:#fff}
+
+/* Type: calmer. 800 at most, and no billboard sizes. */
+body.studio h1{font-family:var(--display);font-size:clamp(40px,5.4vw,72px);line-height:1.02;letter-spacing:-.02em;font-weight:700;max-width:16ch;color:var(--ink)}
+body.studio .h2{font-family:var(--display);font-size:clamp(27px,3.2vw,40px);line-height:1.08;letter-spacing:-.015em;font-weight:650;color:var(--ink)}
+body.studio .wordmark,
+body.studio .work h3,
+body.studio .work h2,
+body.studio .step h3,
+body.studio .promoPrice,
+body.studio .priceBig,
+body.studio .contactLine .bigLink{font-family:var(--display)}
+body.studio .sub{font-size:clamp(17px,1.4vw,19px)}
+body.studio .section{padding:56px 0}
+body.studio .kicker{margin-bottom:8px;color:var(--muted);font-size:13px;font-weight:600;letter-spacing:0;text-transform:none}
+body.studio .kicker::before{content:none}
+body.studio .textLink{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+body.studio .textLink:hover{color:#fff;text-decoration-thickness:2px}
+body.studio .heroLine{margin:22px 0 0;color:var(--muted);font-size:14px;font-weight:600}
+
+/* Surfaces: flat and solid. Nothing lifts, glows or lights up on hover. */
+body.studio .card{box-shadow:none;transition:none}
+body.studio .card::after{content:none}
+body.studio .card:hover,
+body.studio .card:focus-visible{transform:none;border-color:var(--stroke);box-shadow:none;background:var(--card)}
+body.studio .card h3,
+body.studio .step h3{color:var(--ink)}
+body.studio .featureList li::before{opacity:1}
+
+/* Contact: one line and the address, not a panel */
+body.studio .contactLine{margin:24px 0 0;padding:48px 0 8px;border-top:1px solid var(--stroke)}
+body.studio .contactLine p{margin:0;color:var(--muted);font-size:15px}
+body.studio .contactLine .bigLink{
+  display:inline-block;margin:6px 0 10px;color:var(--ink);font-size:clamp(28px,4.4vw,52px);font-weight:750;letter-spacing:-.02em;line-height:1.1;
+  text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:8px;overflow-wrap:anywhere;
+}
+body.studio .contactLine .bigLink:hover{color:#fff}
+body.studio footer{margin-top:40px;padding-bottom:104px} /* room for the Play button */
+body.studio .linkBtn{padding:3px 0;border:0;background:none;color:var(--muted);font:inherit;cursor:pointer;text-align:left}
+body.studio .linkBtn:hover{color:var(--ink)}
+
+/* Play (D-019): the frame is quiet so that these three things can be loud. studio.js runs them. */
+body.studio .nav{position:relative}
+/* The dot asks to be pressed: lit like a little ball, it hops and sends out a ring every few seconds, until it has been flicked. */
+body.studio .wm-dot.toy{
+  box-shadow:0 0 0 0 rgba(244,241,234,.55);
+  animation:comeHither 4.2s ease-in-out 1.2s infinite;
+}
+body.studio .wm-dot.toy.flicked{animation:none}
+@keyframes comeHither{
+  0%,62%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 0 rgba(244,241,234,.55)}
+  68%{transform:translateY(-.5em) scale(1.2)}
+  74%{transform:translateY(0) scale(1)}
+  79%{transform:translateY(-.28em) scale(1.1);box-shadow:0 0 0 0 rgba(244,241,234,.55)}
+  84%{transform:translateY(0) scale(1)}
+  98%{box-shadow:0 0 0 .9em rgba(244,241,234,0)}
+}
+@media (prefers-reduced-motion:reduce){
+  body.studio .wm-dot.toy{animation:none}
+}
+body.studio .wmToy{position:absolute;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
+body.studio .wmBall{position:fixed;left:0;top:0;z-index:300;border-radius:50%;cursor:pointer;will-change:transform;box-shadow:inset -3px -3px 0 rgba(0,0,0,.16),inset 3px 3px 0 rgba(255,255,255,.42)} /* lit like the mark, in whatever colour it has picked up */
+
+body.studio .playDock{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px}
+body.studio .playFab{
+  display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 22px 0 19px;border-radius:999px;
+  background:var(--ink);color:var(--bg1);font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap;
+  box-shadow:0 5px 0 rgba(0,0,0,.5);transition:transform .06s ease,box-shadow .06s ease,background-color .3s ease,color .3s ease;
+}
+body.studio .playFab[hidden]{display:none} /* display:inline-flex above would show a hidden button */
+body.studio .playFab:hover{transform:translateY(-1px);box-shadow:0 6px 0 rgba(0,0,0,.5)}
+body.studio .playFab:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
+body.studio .playFab svg{flex:none;width:13px;height:15px}
+body.studio .askFab{
+  flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--stroke);background:var(--card);
+  color:var(--ink);font:inherit;font-weight:800;font-size:18px;line-height:1;cursor:pointer;
+}
+body.studio .askFab:hover{border-color:var(--ink)}
+body.studio .priceBig small{font-family:Inter,system-ui,sans-serif}

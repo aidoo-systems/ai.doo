@@ -9,7 +9,7 @@
   <meta name="author" content="ai.doo">
 
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#141312">
 
   <script defer src="https://analytics.aidoo.biz/script.js" data-website-id="bc0dc6af-ac24-4d29-ab68-3b19be32c468"></script>
 
@@ -17,16 +17,14 @@
   <style>
     /* Promo games offer, in the homepage's look (D-012): heavy type, game colours, the amber-to-orange promo gradient */
     .promoHero{padding-bottom:40px}
-    .promoHero h1{font-size:clamp(42px,6.4vw,88px);line-height:.98;letter-spacing:-3px;font-weight:900;max-width:13ch}
     .promoHero .sub{font-size:clamp(17px,1.5vw,20px)}
-    .section .h2{font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:900}
 
     .offerSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:32px}
     .offerSteps .step{padding:24px 24px 26px;border:1px solid var(--stroke);background:var(--card);border-radius:22px}
-    .offerSteps .stepNo{font-size:40px;font-weight:900;letter-spacing:-1.5px;line-height:1;margin-bottom:14px;color:var(--n)}
+    .offerSteps .stepNo{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:14px;color:var(--n)}
     .offerSteps.four{grid-template-columns:repeat(4,minmax(0,1fr))}
     .lede{max-width:62ch;margin:14px 0 0;color:var(--muted);font-size:17px;line-height:1.6}
-    .offerSteps h3{font-size:19px;font-weight:800;letter-spacing:-.3px;margin:0 0 8px}
+    .offerSteps h3{font-size:19px;font-weight:750;letter-spacing:-.01em;margin:0 0 8px}
     .offerSteps p{margin:0;color:var(--muted);font-size:14.5px;line-height:1.6}
 
     .ideaList{margin:12px 0 0;padding-left:18px;color:var(--muted);line-height:1.8}
@@ -36,7 +34,7 @@
     /* The playable example: a made-up venue's game, in that venue's colours, with the QR code to it */
     .work{--c:#10231f;--t:#fdf3dc;--g:#f5b544;background:var(--c);color:var(--t);border-radius:28px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(245,181,68,.35)}
     .workBody{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:36px;align-items:center;padding:36px}
-    .work h2{margin:0 0 10px;font-size:clamp(32px,4.2vw,52px);line-height:1.02;letter-spacing:-1.8px;font-weight:900;color:var(--g)}
+    .work h2{margin:0 0 10px;font-size:clamp(26px,3vw,38px);line-height:1.1;letter-spacing:-.015em;font-weight:750;color:var(--g)}
     .work p{margin:0 0 14px;max-width:56ch;font-size:16px;line-height:1.6;opacity:.9}
     .work a:focus-visible{outline:2px solid currentColor;outline-offset:2px}
     .playRow{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0 14px}
@@ -66,14 +64,13 @@
 
     /* The price: the homepage's promo band */
     .priceCard{padding:32px;border-radius:28px;background:linear-gradient(135deg,#f5b544,#e8562a);color:#1a0f08}
-    .priceBig{margin:0;font-size:clamp(44px,6vw,72px);font-weight:900;letter-spacing:-3px;line-height:1}
+    .priceBig{margin:0;font-size:clamp(44px,6vw,72px);font-weight:800;letter-spacing:-.03em;line-height:1}
     .priceBig small{font-size:16px;font-weight:700;letter-spacing:0;color:rgba(26,15,8,.75)}
     .priceCard .note{color:rgba(26,15,8,.82);font-size:14px;margin:10px 0 0}
     .priceCard .featureList li{color:rgba(26,15,8,.88)}
     .priceCard .featureList li::before{background:#1a0f08}
 
     @media (max-width:920px){
-      .promoHero h1{letter-spacing:-2px}
       .offerSteps,.offerSteps.four{grid-template-columns:1fr}
       .workBody{grid-template-columns:1fr;gap:22px;padding:24px 22px}
       /* four tiles would be four screens: on a phone each step is one compact row */
@@ -94,14 +91,11 @@
     }
   </style>
 </head>
-<body>
+<body class="studio">
 <a href="#top" class="skip-link">Skip to content</a>
 <header>
   <div class="nav">
     <a class="brand" href="/" aria-label="ai.doo home">
-      <span class="logoMark" aria-hidden="true" title="ai.doo">
-        <img src="../favicon.svg" alt="" />
-      </span>
       <span class="wordmark" aria-label="ai.doo">
         <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
       </span>
@@ -131,9 +125,9 @@
 <main class="wrap" id="top">
 
   <section class="hero promoHero">
-    <div class="pill">For cafés, pubs, shops and events</div>
+    <p class="kicker">For cafés, pubs, shops and events</p>
 
-    <h1>A mini-game <span class="grad">with your name on it.</span></h1>
+    <h1>A mini-game with your name on it.</h1>
 
     <p class="sub">
       A short game for your customers to play while they wait, with a prize you choose for the top score.
@@ -141,19 +135,15 @@
     </p>
 
     <div class="ctaRow">
-      <a class="btn primary" href="/play/pint/" data-umami-event="play-demo-hero">Play the demo</a>
+      <a class="btn primary" href="/play/pint/" data-umami-event="play-demo-hero" data-play="Play the demo" data-play-back="#f5b544" data-play-ink="#1a0f08">Play the demo</a>
       <a class="btn subtle" href="#price">See the price</a>
     </div>
 
-    <div class="heroMeta">
-      <span><span class="dot"></span> From £750</span>
-      <span><span class="dot"></span> Live in about two weeks</span>
-      <span><span class="dot"></span> Made on the Isle of Man</span>
-    </div>
+    <p class="heroLine">From £750. Live in about two weeks. Made on the Isle of Man.</p>
   </section>
 
   <section class="section" id="try">
-    <article class="work">
+    <article class="work" data-tint="#3fbf8a">
       <div class="workBody">
         <div>
           <h2>Try one now</h2>
@@ -189,7 +179,7 @@
   <section class="section" id="price">
     <h2 class="h2">The price</h2>
     <div class="grid">
-      <div class="priceCard span6">
+      <div class="priceCard span6" data-tint="#f5b544">
         <p class="priceBig">£750 <small>from, and agreed before you pay</small></p>
         <p class="note">£300 deposit to start; the rest when it goes live.</p>
         <ul class="featureList">
@@ -255,9 +245,6 @@
     <div class="footerRow">
       <div class="footerCol">
         <div style="display:flex;align-items:center;gap:12px;font-weight:700;color:var(--ink);">
-          <span class="logoMark" aria-hidden="true">
-            <img src="../favicon.svg" alt="" />
-          </span>
           <span class="wordmark" aria-label="ai.doo">
             <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
           </span>
@@ -320,5 +307,10 @@
     }
   });
 </script>
+
+<div class="playDock">
+  <a class="playFab" id="playFab" data-umami-event="play-fab" hidden><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1.2v11.6a.8.8 0 0 0 1.2.7l9.4-5.8a.8.8 0 0 0 0-1.4L2.2.5A.8.8 0 0 0 1 1.2z" fill="currentColor"/></svg><span></span></a>
+</div>
+<script defer src="../studio.js"></script>
 </body>
 </html>

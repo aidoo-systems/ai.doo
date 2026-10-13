@@ -1,7 +1,7 @@
 # ai.doo brand
 
 Status: draft for owner approval (P2.1a, D-011)
-Last updated: 2026-10-07
+Last updated: 2026-10-13
 
 Every page, store listing and promo pitch takes its identity from this file.
 P2.1b builds the rest of the site on it.
@@ -30,22 +30,23 @@ not leading.
   still holds).
 - Prices appear only where they're settled (promo games: from £750).
 
-## Look: colour per game on the original dark chrome (D-012)
+## Look: colour per game on a flat, quiet frame (D-018, which replaced D-012's chrome)
 
 The chrome stays the original site's, dark and slick. The colour comes from
 the games: each one owns a colour, and its card carries it.
 
 | Element | Decision |
 |---|---|
-| Chrome | Kept from the original site: the sticky top bar, the navy gradient with the faint dotted texture and blue glow behind the hero, the outlined pill above the headline, blue gradient text on one phrase ("made with care."), the blue primary button with glow and hover lift, the outlined secondary button, and a dotted chip row (Android, iOS, the web, from concept to launch) |
-| Palette | Site tokens in `style.css`: `--bg0 #0b1020`, `--bg1 #111a33`, `--ink #eaf0ff`, `--accent #2a8bc9`, `--accent2 #4db8ff`. The chrome's only colour is blue; every other colour belongs to a game |
+| Frame | Flat and silent, so the games are the only colour: one warm near-black, solid surfaces, a solid top bar with the mark unboxed, one plain button, underlined links. No gradient, glow, dotted texture, pill above the headline, gradient text, chip or dot rows, label rules, scroll or hover motion, or floating chat button (the chat opens from a footer link). Carried by `body.studio` in `style.css`, on the homepage and `/promo-games/` |
+| Palette | `body.studio` tokens: `--bg0 #141312`, `--card #1d1b1a`, `--stroke #34302d`, `--ink #f4f1ea`, `--muted #b3aca2`, `--focus #f5b544`. The frame has no colour of its own. Blue (`--suite #4db8ff`) belongs to PIKA and VERA, whose pages keep the older navy chrome until stage 2 |
 | Game colours | Bright-art games are solid cards: Thunee `#17533f`, Reactor Panic `#d9a03b`, Tea Tower `#6a4a3f`, Pomodorable `#ffd7b5`, Reality Check `#f3e7da`, SPICE `#e8562a`, Pipes 98 `#008080`. Dark-art games are dark cards that glow in their colour (edge, title, hover): Submarine Panic `#f5b544`, Orbital Panic `#4be08a`. Set per game as `.w-<name>` in `index.html` |
 | New games | Need a feature graphic, a chosen colour, and a glow colour if the art is dark, before they get a card |
 | Promo band | The page's one bright gradient, amber `#f5b544` to orange `#e8562a`, with dark text and the price as its big number |
-| Type | Inter (self-hosted). Hero headline 900 weight, up to 104px, tight tracking; section headings 900; card titles 900 at 28px |
-| Shape | Big rounded cards (28px radius, art inset with 16px corners); hover lifts and tilts slightly and glows in the game's colour; no motion under `prefers-reduced-motion` |
+| Type | Headings in Bricolage Grotesque (self-hosted, SIL OFL 1.1): H1 700 up to 72px, H2 650 up to 40px, card titles 26px. Inter for body and labels. Labels are sentence case, 13px, muted |
+| Shape | Big rounded cards (28px radius, art inset with 16px corners). Dark-art games are a solid deep tone of their colour with the title in the bright one. Store links are underlined text, not pills. Nothing moves on hover |
+| Play (D-019) | The frame is quiet so three things can be loud: a floating Play button in the colour of the game it starts (the chat is the "?" beside it); the page's background washes to the colour of the game in view; the wordmark's dot is a ball you can flick. All from `studio.js`. Fun comes from play and the games' colours, never from effects |
 | Labs palette | Purple `#a78bfa` and cyan `#22d3ee` retire from the main site. `/labs/` and `/promo-games/` keep them until P2.1b reworks those pages |
-| Mark | Keep the head-and-brain mark and the `ai·doo` wordmark. The Labs stars-and-dots variant retires |
+| Mark (D-020) | The ball from the wordmark: amber `#f5b544`, a shaded side `#e09a2e`, a glint `#ffe9b8`; three flat shapes in `favicon.svg`. The logo is the wordmark with the ball on the baseline between "ai" and "doo"; headers and footers show it alone. Amber at rest, always; other colours only while it bounces. Squares and circles use the ball mid-hop over its shadow on `#141312` (`images/brand/`, `apple-touch-icon.png`). Clear space: one ball's width all round. Never set the name with a typed full stop in the logo. No brains, chips or sparks: the head-and-brain mark is retired |
 | Light mode | None (D-004's non-goal holds) |
 
 If the blue hero glow ever mutes the cards, tone the glow down, not the cards.

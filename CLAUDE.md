@@ -54,6 +54,8 @@ Needs Node (any current version) and `python -m pip install -r api/requirements.
 
 ## Design system
 
+**Two frames (D-018).** The homepage and `/promo-games/` carry `<body class="studio">`: a flat near-black frame (`#141312`) defined at the end of `style.css`, where every rule is scoped to `body.studio`. No glow, gradient text, pills, chips or floating chat there; the games are the only colour. PIKA, VERA and the privacy pages don't carry the class and keep the navy chrome described below, with blue as the suite's colour. A new studio page takes the class; `tests/test_quiet_frame.py` holds the line. `studio.js` (root, served) adds the play (D-019): the floating Play button, the page tint and the ball in the wordmark. Mark a link `data-play="Play <name>"` only if it plays in a browser; give a card or band `data-tint="#hex"` if it isn't a `.work` card. Headings use Bricolage Grotesque from `/fonts/` (OFL licence file beside it).
+
 Shared styles live in `style.css` (loaded by all pages). Individual pages may add inline `<style>` blocks for page-specific components (e.g. the chat widget on the homepage).
 
 ### CSS variables (defined in `:root`)
@@ -112,7 +114,7 @@ background:
 ## Conventions
 - Dark theme only — no light mode
 - No external CSS frameworks; no Google Fonts CDN (fonts self-hosted in `/fonts/`)
-- Favicon: `favicon.svg` (SVG, referenced as `../favicon.svg` from subdirectories)
+- Logo (D-020): the wordmark, with the ball as its dot. `favicon.svg` is the ball (referenced as `../favicon.svg` from subdirectories, and used by `style.css` as the studio wordmark's dot); `apple-touch-icon.png` and `images/brand/` hold the avatar versions. There is no separate symbol beside the wordmark: don't add one
 - Copyright year injected via `document.getElementById("year").textContent = new Date().getFullYear()`
 - Legal/privacy pages use `<meta name="robots" content="noindex">`
 
