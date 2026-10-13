@@ -239,7 +239,7 @@
     var wide = document.documentElement.clientWidth;
     var el = document.createElement("span");
     el.className = "wmPaddle";
-    el.dataset.n = "keep it up";
+    el.dataset.n = mouse ? "keep it up" : "drag to keep it up";
     var court = document.createElement("span");
     court.className = "wmCourt";
     body.appendChild(court);
@@ -261,11 +261,11 @@
     rally.x = Math.max(0, Math.min(document.documentElement.clientWidth - rally.w, x));
     rally.el.style.transform = "translate(" + rally.x + "px," + paddleTop() + "px)";
   }
-  // A mouse steers from anywhere. A finger steers from the strip under the paddle, which
-  // is all that stops scrolling: the rest of the page still moves under a thumb.
+  // A mouse or a finger steers from anywhere. What a finger needs is for the page not to
+  // scroll under it: the court (the bottom half of the screen, then all of it once the
+  // paddle has hit the ball) sees to that.
   function follow(ev) {
-    if (!rally || (ev.pointerType === "touch" && ev.target !== rally.court)) return;
-    steer(ev.clientX - rally.w / 2);
+    if (rally) steer(ev.clientX - rally.w / 2);
   }
   function nudge(ev) {
     if (!rally || (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight")) return;
@@ -331,6 +331,7 @@
         ball.vx = ((mid - rally.x) / rally.w - 0.5) * 920 + ball.vx * 0.25;
         ball.vy = -Math.min(1500, Math.sqrt(2 * GRAVITY * window.innerHeight * 0.55));
         rally.hits++;
+        rally.court.classList.add("all");
         ball.life = 0;
         rally.el.dataset.n = rally.hits + " / " + KEEP_UPS;
         ball.done = rally.hits >= KEEP_UPS;

@@ -117,7 +117,7 @@ if (rally && toy) {
     const from = at(live("wmPaddle"));
     for (let i = 0; i < 3; i++) send("keydown", { key: "ArrowRight" });
     seen.moved = at(live("wmPaddle")) - from;
-    // a finger on the strip under the paddle steers it; a finger anywhere else is scrolling the page
+    // a finger steers from wherever it lands, on the court or off it
     send("pointermove", { clientX: 60, pointerType: "touch", target: live("wmCourt") });
     seen.finger = at(live("wmPaddle"));
     send("pointermove", { clientX: 300, pointerType: "touch", target: body });
@@ -131,6 +131,7 @@ if (rally && toy) {
     if (paddle) {
       seen.paddle = true;
       seen.court = seen.court || !!live("wmCourt");
+      seen.whole = seen.whole || (!!live("wmCourt") && live("wmCourt").classList.contains("all"));
       seen.aside = seen.aside || body.classList.contains("rally");
       if (paddle.dataset.n && seen.says[seen.says.length - 1] !== paddle.dataset.n) seen.says.push(paddle.dataset.n);
       if (ball && rally !== "keys") {
@@ -147,6 +148,7 @@ if (rally && toy) {
   out.rally = {
     paddleShown: seen.paddle,
     courtShown: seen.court,
+    courtTookTheWholeScreen: !!seen.whole,
     dockSteppedAside: seen.aside,
     paddleSaid: seen.says,
     arrowsMoved: seen.moved,
