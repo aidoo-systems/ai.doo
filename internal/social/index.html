@@ -1,0 +1,65 @@
+<!doctype html>
+<!-- The source of the profile banners in images/brand/: the share card's wordmark, line and
+     shelf of games, laid out for each platform's strip. internal/ is not deployed.
+     One page, sized by ?kind= (youtube, linkedin-company, linkedin-personal, header).
+     To redraw them: python scripts/build_social.py (it serves the repo root and drives headless Edge). -->
+<meta charset="utf-8"><title>ai.doo social banners</title>
+<style>
+@font-face{font-family:Bricolage;src:url(../../fonts/bricolage-grotesque-latin.woff2);font-weight:200 800}
+@font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2);font-weight:100 900}
+*{box-sizing:border-box}
+html,body{margin:0;overflow:hidden;background:#141312;color:#f4f1ea;font-family:Inter,sans-serif}
+/* --u is the height of the part a platform always shows; every size hangs off it. */
+.banner{position:relative;width:var(--w);height:var(--h);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.safe{position:relative;width:var(--sw);height:var(--sh);padding-left:var(--pad);display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.wm{font:700 calc(var(--u)*.34)/1 Bricolage;letter-spacing:-.02em;display:inline-flex;align-items:baseline}
+.wm i{width:.5em;height:.5em;margin:0 .13em;background:url(../../favicon.svg) center/contain no-repeat}
+p{margin:calc(var(--u)*.09) 0 0;font-size:calc(var(--u)*.1);line-height:1.3;color:#b3aca2;white-space:nowrap}
+/* The shelf runs off the top and bottom of the strip; where a platform shows more (a TV), more of it shows. */
+.shelf{position:absolute;right:calc(var(--u)*.06);top:50%;display:flex;gap:calc(var(--u)*.05);transform:translateY(-50%) rotate(-7deg)}
+.col{display:grid;gap:calc(var(--u)*.05);align-content:start}
+.col:nth-child(2){margin-top:calc(var(--u)*.2)}
+.col:nth-child(3){margin-top:calc(var(--u)*-.14)}
+.g{width:calc(var(--u)*.62);height:calc(var(--u)*.4);border-radius:calc(var(--u)*.06);padding:calc(var(--u)*.032)}
+.g img{display:block;width:100%;height:100%;object-fit:cover;border-radius:calc(var(--u)*.032)}
+</style>
+<div class="banner">
+  <div class="safe">
+    <span class="wm">ai<i></i>doo</span>
+    <p>Small games and apps,<br>made with care.</p>
+    <div class="shelf" id="shelf"></div>
+  </div>
+</div>
+<script>
+// w, h: the file. sw, sh: the part shown on every device. pad: room kept clear on the left,
+// as a share of sh, where LinkedIn lays the profile picture over the banner. cols: how many
+// columns of games fit beside the words.
+var KINDS = {
+  "youtube":           {w: 2560, h: 1440, sw: 1546, sh: 423, pad: 0.1,  cols: 3},
+  "linkedin-company":  {w: 1128, h: 191,  sw: 1128, sh: 191, pad: 1.3,  cols: 3},
+  "linkedin-personal": {w: 1584, h: 396,  sw: 1584, sh: 396, pad: 0.95, cols: 2},
+  "header":            {w: 1500, h: 500,  sw: 1300, sh: 360, pad: 0.1,  cols: 3}
+};
+var GAMES = [
+  ["thunee", "#17533f"], ["reactor-panic", "#d9a03b"], ["pomodorable", "#ffd7b5"],
+  ["submarine-panic", "#2b2212"], ["orbital-panic", "#10261c"], ["reality-check", "#f3e7da"],
+  ["tea-tower", "#6a4a3f"]
+];
+var k = KINDS[new URLSearchParams(location.search).get("kind")] || KINDS.header;
+var s = document.documentElement.style;
+s.setProperty("--w", k.w + "px"); s.setProperty("--h", k.h + "px");
+s.setProperty("--sw", k.sw + "px"); s.setProperty("--sh", k.sh + "px");
+s.setProperty("--u", k.sh + "px"); s.setProperty("--pad", k.pad * k.sh + "px");
+// Columns of five; each starts two further along the list, so no game sits beside itself.
+var shelf = document.getElementById("shelf");
+for (var c = 0; c < k.cols; c++) {
+  var col = document.createElement("div"); col.className = "col";
+  for (var r = 0; r < 5; r++) {
+    var game = GAMES[(c * 2 + r) % GAMES.length];
+    var card = document.createElement("div"); card.className = "g"; card.style.background = game[1];
+    var img = new Image(); img.src = "../../images/work/" + game[0] + ".webp"; img.alt = "";
+    card.appendChild(img); col.appendChild(card);
+  }
+  shelf.appendChild(col);
+}
+</script>
