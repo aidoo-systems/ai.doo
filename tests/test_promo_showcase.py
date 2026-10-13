@@ -288,10 +288,29 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         # Five hex digits is no CSS colour: the canvas would throw on it mid-game.
         lambda s: s["theme"].update(counter="#12345"),
         lambda s: s["drink"].update(liquid="#1234567"),
+        # What pours the drink is one of the kinds game.js can draw, and nothing else.
+        lambda s: s["drink"].update(pourer="hose"),
+        lambda s: s["drink"].update(stream="white"),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
     assert run(latte(change), ["line", "line"])["problems"] != []
+
+
+def test_a_skin_says_what_pours_the_drink_and_what_colour_it_pours(latte):
+    jug = latte(lambda s: s["drink"].update(pourer="jug", stream="#fffaf0"))
+    assert run(jug, ["line", "line"])["problems"] == []
+    assert run(latte(), ["line", "line"])["problems"] == []
+
+
+def test_the_two_shipped_venues_do_not_pour_from_the_same_thing():
+    pourers = {
+        path.stem: json.loads(path.read_text(encoding="utf-8"))["drink"].get(
+            "pourer", "tap"
+        )
+        for path in SKINS
+    }
+    assert pourers == {"wobbly-gull": "tap", "dozy-otter": "jug"}
 
 
 # --- the page ------------------------------------------------------------------
@@ -476,6 +495,16 @@ def test_an_unknown_skin_falls_back_to_the_default_one(ui):
 
 def test_a_skin_name_cannot_leave_the_skins_folder(ui):
     assert ui["unsafeSkin"]["fetched"] == ["skins/wobbly-gull.json"]
+
+
+def test_the_pourer_a_skin_names_is_the_one_drawn(ui):
+    # A skin that doesn't say gets the tap, drawn exactly as it always was.
+    assert ui["pourers"]["unsaid"] == ui["pourers"]["tap"]
+    assert ui["pourers"]["jug"] != ui["pourers"]["tap"]
+
+
+def test_the_stream_takes_the_colour_the_skin_gives_it(ui):
+    assert ui["streams"] == {"#abcdef": True, "unsaid": False}
 
 
 def test_the_offer_page_stays_short_enough_to_read():
