@@ -46,7 +46,7 @@ the games: each one owns a colour, and its card carries it.
 | Shape | Big rounded cards (28px radius, art inset with 16px corners). Dark-art games are a solid deep tone of their colour with the title in the bright one. Store links are underlined text, not pills. Nothing moves on hover |
 | Play (D-019) | The frame is quiet so three things can be loud: a floating Play button in the colour of the game it starts (the chat is the "?" beside it); the page's background washes to the colour of the game in view; the wordmark's dot is a ball you can flick. All from `studio.js`. Fun comes from play and the games' colours, never from effects |
 | Labs palette | Purple `#a78bfa` and cyan `#22d3ee` retire from the main site. `/labs/` and `/promo-games/` keep them until P2.1b reworks those pages |
-| Mark | Keep the head-and-brain mark and the `ai·doo` wordmark. The Labs stars-and-dots variant retires |
+| Mark (D-020) | The ball from the wordmark: amber `#f5b544`, a shaded side `#e09a2e`, a glint `#ffe9b8`; three flat shapes in `favicon.svg`. The logo is the wordmark with the ball on the baseline between "ai" and "doo"; headers and footers show it alone. Amber at rest, always; other colours only while it bounces. Squares and circles use the ball mid-hop over its shadow on `#141312` (`images/brand/`, `apple-touch-icon.png`). Clear space: one ball's width all round. Never set the name with a typed full stop in the logo. No brains, chips or sparks: the head-and-brain mark is retired |
 | Light mode | None (D-004's non-goal holds) |
 
 If the blue hero glow ever mutes the cards, tone the glow down, not the cards.

@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - **A calmer frame for the homepage and the promo-games page** (P2.1d, D-018): a flat dark background with no glow, the games as the only colour, plain buttons and links, quieter headings, and the chat opened from a link in the footer. PIKA and VERA pages are unchanged
 - **Play on the homepage** (D-019): a floating Play button that starts something playable, a background that takes the colour of the game you're looking at, a dot in the logo you can flick, and a new typeface for headings
+- **A new logo** (D-020): the ball from the wordmark is now the mark, in the browser tab and on every page; the head-and-brain logo is retired
 - **The homepage now leads with the studio** (P2.1a, D-011): "Small games and apps, made with care." Games and apps are shown with their store art, then the promo-games offer, then one line for PIKA and VERA. The enterprise sections (what, why, how, pricing) are gone from the homepage; `/pika/` and `/vera/` are unchanged. Brand recorded in `docs/design/brand.md`
 - The chatbot's opening facts now describe the studio first
 - PIKA's "engagement options" link and the PIKA changelog nav no longer point at homepage sections that no longer exist

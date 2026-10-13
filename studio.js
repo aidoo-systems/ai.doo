@@ -185,7 +185,6 @@
   }
 
   if (dot && nav && brand) {
-    dot.style.background = pick();
     dot.classList.add("toy");
     // The dot sits inside the home link, so the thing you press is a button of its own,
     // laid over the dot: reachable by keyboard, named for a screen reader, and big
@@ -209,18 +208,13 @@
 
   function flick() {
     dot.classList.add("flicked"); // it has been found: no more asking
-    if (calm) {
-      // no motion wanted: the dot just changes colour
-      dot.style.background = pick();
-      return;
-    }
+    if (calm) return; // no motion wanted: the mark stays as it is
     if (ball) return kick();
     var home = dot.getBoundingClientRect();
     var size = Math.max(14, home.width * 2);
     var el = document.createElement("span");
     el.className = "wmBall";
     el.style.width = el.style.height = size + "px";
-    el.style.background = dot.style.background;
     body.appendChild(el);
     dot.style.visibility = "hidden";
     ball = { el: el, size: size, x: home.left, y: home.top, vx: 0, vy: 0, life: 0, last: performance.now() };
@@ -281,9 +275,9 @@
   function goHome() {
     var to = dot.getBoundingClientRect();
     var el = ball.el;
-    dot.style.background = el.style.background;
+    el.style.background = "#f5b544"; // back to the mark's own amber on the way in
     el.style.pointerEvents = "none";
-    el.style.transition = "transform .35s ease-in, width .35s ease-in, height .35s ease-in";
+    el.style.transition = "transform .35s ease-in, width .35s ease-in, height .35s ease-in, background-color .35s ease-in";
     el.style.width = el.style.height = to.width + "px";
     el.style.transform = "translate(" + to.left + "px," + to.top + "px)";
     ball = null;

@@ -114,7 +114,7 @@ background:
 ## Conventions
 - Dark theme only — no light mode
 - No external CSS frameworks; no Google Fonts CDN (fonts self-hosted in `/fonts/`)
-- Favicon: `favicon.svg` (SVG, referenced as `../favicon.svg` from subdirectories)
+- Logo (D-020): the wordmark, with the ball as its dot. `favicon.svg` is the ball (referenced as `../favicon.svg` from subdirectories, and used by `style.css` as the studio wordmark's dot); `apple-touch-icon.png` and `images/brand/` hold the avatar versions. There is no separate symbol beside the wordmark: don't add one
 - Copyright year injected via `document.getElementById("year").textContent = new Date().getFullYear()`
 - Legal/privacy pages use `<meta name="robots" content="noindex">`
 
