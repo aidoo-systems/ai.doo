@@ -2,7 +2,7 @@
 // rather than laid over them, and all of it optional: the pages read and work without it.
 //   1. A floating Play button that takes you straight into something playable.
 //   2. The page wears the colour of the game you're looking at.
-//   3. The dot in the wordmark is a ball. Flick it.
+//   3. The dot in the wordmark is a ball. Flick it, and a paddle turns up to keep it in the air.
 // Nothing is stored, and nothing is fetched.
 (function () {
   "use strict";
@@ -10,6 +10,7 @@
   var FRAME = "#141312"; // body.studio's --bg0
   var body = document.body;
   var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var mouse = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var theme = document.querySelector('meta[name="theme-color"]');
 
   // "#rgb" or "#rrggbb" to [r, g, b]; null for anything else.
@@ -116,7 +117,7 @@
   }
 
   if (tinted.length) {
-    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    if (mouse) {
       // with a mouse: whatever the pointer is over
       tinted.forEach(function (el) {
         el.addEventListener("pointerenter", function () {
@@ -163,6 +164,9 @@
   };
   var audio = null;
   var ball = null;
+  var rally = null; // the paddle and its count, while the ball is out
+  var GRAVITY = 1900;
+  var KEEP_UPS = 6;
 
   function blip(speed) {
     try {
@@ -222,8 +226,67 @@
       ev.preventDefault();
       kick();
     });
+    serve();
     kick();
     requestAnimationFrame(roll);
+  }
+
+  // The paddle (D-021). Until it first touches the ball, the bottom of the screen is a
+  // floor and the ball bounces about as it always did. From the first hit the paddle is
+  // the floor: keep the ball up six times and it goes home by itself; miss, and it drops
+  // out of the bottom and falls back into the wordmark.
+  function serve() {
+    var wide = document.documentElement.clientWidth;
+    var el = document.createElement("span");
+    el.className = "wmPaddle";
+    el.dataset.n = "keep it up";
+    var court = document.createElement("span");
+    court.className = "wmCourt";
+    body.appendChild(court);
+    body.appendChild(el);
+    body.classList.add("rally"); // the dock steps aside
+    if (fab) fab.classList.remove("cheer");
+    rally = { el: el, court: court, w: Math.max(84, Math.min(132, wide * 0.24)), x: 0, hits: 0 };
+    el.style.width = rally.w + "px";
+    steer((wide - rally.w) / 2);
+    window.addEventListener("pointerdown", follow);
+    window.addEventListener("pointermove", follow);
+    window.addEventListener("keydown", nudge);
+  }
+  // A thumb covers what it drags, so on a phone the paddle rides above it.
+  function paddleTop() {
+    return window.innerHeight - (mouse ? 28 : 92) - 14;
+  }
+  function steer(x) {
+    rally.x = Math.max(0, Math.min(document.documentElement.clientWidth - rally.w, x));
+    rally.el.style.transform = "translate(" + rally.x + "px," + paddleTop() + "px)";
+  }
+  // A mouse steers from anywhere. A finger steers from the strip under the paddle, which
+  // is all that stops scrolling: the rest of the page still moves under a thumb.
+  function follow(ev) {
+    if (!rally || (ev.pointerType === "touch" && ev.target !== rally.court)) return;
+    steer(ev.clientX - rally.w / 2);
+  }
+  function nudge(ev) {
+    if (!rally || (ev.key !== "ArrowLeft" && ev.key !== "ArrowRight")) return;
+    ev.preventDefault();
+    steer(rally.x + (ev.key === "ArrowLeft" ? -48 : 48));
+  }
+  function putAway() {
+    if (!rally) return;
+    window.removeEventListener("pointerdown", follow);
+    window.removeEventListener("pointermove", follow);
+    window.removeEventListener("keydown", nudge);
+    rally.el.remove();
+    rally.court.remove();
+    body.classList.remove("rally");
+    rally = null;
+  }
+  // Six keep-ups: the toy points at the real thing.
+  function cheer() {
+    if (!fab || fab.hidden) return;
+    fab.querySelector("span").textContent = "Play a real one";
+    fab.classList.add("cheer");
   }
 
   function kick() {
@@ -240,12 +303,14 @@
     var dt = Math.min(0.033, (now - ball.last) / 1000);
     ball.last = now;
     ball.life += dt;
-    ball.vy += 1900 * dt;
+    var was = ball.y;
+    ball.vy += GRAVITY * dt;
     ball.x += ball.vx * dt;
     ball.y += ball.vy * dt;
     var maxX = document.documentElement.clientWidth - ball.size;
     var maxY = window.innerHeight - ball.size;
     var hit = 0;
+    var struck = false;
     if (ball.x < 0 || ball.x > maxX) {
       ball.x = ball.x < 0 ? 0 : maxX;
       ball.vx *= -0.82;
@@ -255,24 +320,52 @@
       ball.y = 0;
       ball.vy *= -0.82;
       hit = Math.max(hit, Math.abs(ball.vy));
-    } else if (ball.y > maxY) {
-      ball.y = maxY;
-      ball.vy *= -0.8;
-      ball.vx *= 0.94;
-      hit = Math.max(hit, Math.abs(ball.vy));
+    } else {
+      var top = paddleTop() - ball.size; // where the ball sits when it touches the paddle
+      var mid = ball.x + ball.size / 2;
+      var over = mid >= rally.x - ball.size / 2 && mid <= rally.x + rally.w + ball.size / 2;
+      if (ball.vy > 0 && was <= top && ball.y >= top && over && !ball.done) {
+        ball.y = top;
+        // where it lands on the paddle aims it, and every hit sends it as high as the last
+        ball.vx = ((mid - rally.x) / rally.w - 0.5) * 920 + ball.vx * 0.25;
+        ball.vy = -Math.min(1500, Math.sqrt(2 * GRAVITY * window.innerHeight * 0.55));
+        rally.hits++;
+        ball.life = 0;
+        rally.el.dataset.n = rally.hits + " / " + KEEP_UPS;
+        ball.done = rally.hits >= KEEP_UPS;
+        hit = 500 + rally.hits * 150; // each one rings a little higher
+        struck = true;
+      } else if (ball.y > maxY && !rally.hits) {
+        ball.y = maxY;
+        ball.vy *= -0.8;
+        ball.vx *= 0.94;
+        hit = Math.max(hit, Math.abs(ball.vy));
+      }
     }
     if (hit > 90) {
       ball.el.style.background = pick();
+      if (struck) rally.el.style.background = ball.el.style.background;
       blip(hit);
     }
     ball.el.style.transform = "translate(" + ball.x + "px," + ball.y + "px)";
+    // missed: it has dropped out of the bottom, so it comes back in from the top
+    if (ball.y > window.innerHeight + ball.size) {
+      ball.x = dot.getBoundingClientRect().left;
+      ball.y = -ball.size * 2;
+      ball.el.style.transform = "translate(" + ball.x + "px," + ball.y + "px)";
+      ball.el.getBoundingClientRect(); // drawn there first, so the trip home starts from the top
+      return goHome();
+    }
+    // kept up six times: it goes home from the top of its last bounce
+    if (ball.done && ball.vy >= 0) return goHome(cheer);
     // after a few seconds, or once it has come to rest, the ball goes home
     var resting = ball.y >= maxY - 1 && Math.abs(ball.vy) < 60 && Math.abs(ball.vx) < 30;
     if (ball.life > 7 || resting) return goHome();
     requestAnimationFrame(roll);
   }
 
-  function goHome() {
+  function goHome(then) {
+    putAway();
     var to = dot.getBoundingClientRect();
     var el = ball.el;
     el.style.background = "#f5b544"; // back to the mark's own amber on the way in
@@ -284,6 +377,7 @@
     setTimeout(function () {
       el.remove();
       dot.style.visibility = "";
+      if (then) then();
     }, 360);
   }
 })();

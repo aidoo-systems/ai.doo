@@ -502,8 +502,19 @@ body.studio .wm-dot.toy.flicked{animation:none}
 }
 body.studio .wmToy{position:absolute;width:30px;height:30px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer}
 body.studio .wmBall{position:fixed;left:0;top:0;z-index:300;border-radius:50%;cursor:pointer;will-change:transform;box-shadow:inset -3px -3px 0 rgba(0,0,0,.16),inset 3px 3px 0 rgba(255,255,255,.42)} /* lit like the mark, in whatever colour it has picked up */
+/* The ball's paddle (D-021): there while the ball is out. The strip under it is the only part of the page that takes a finger, and the dock steps aside. */
+body.studio .wmPaddle{position:fixed;left:0;top:0;z-index:299;height:14px;border-radius:999px;background:var(--ink);pointer-events:none;will-change:transform;box-shadow:0 4px 0 rgba(0,0,0,.5);transition:background-color .2s ease;animation:wmIn .25s ease}
+body.studio .wmPaddle::after{content:attr(data-n);position:absolute;left:-60px;right:-60px;top:26px;text-align:center;font:700 13px/1 var(--display);color:var(--ink);text-shadow:0 1px 0 rgba(0,0,0,.7);white-space:nowrap}
+@keyframes wmIn{0%{opacity:0}}
+body.studio .wmCourt{position:fixed;left:0;right:0;bottom:0;height:150px;z-index:298;touch-action:none}
+@media (hover:hover) and (pointer:fine){
+  body.studio .wmCourt{display:none}
+}
+body.studio.rally .playDock{transform:translateY(120px);pointer-events:none}
+body.studio .playFab.cheer{animation:cheer .45s ease 2}
+@keyframes cheer{50%{transform:translateY(-9px)}}
 
-body.studio .playDock{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px}
+body.studio .playDock{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px;transition:transform .25s ease}
 body.studio .playFab{
   display:inline-flex;align-items:center;gap:10px;height:52px;padding:0 22px 0 19px;border-radius:999px;
   background:var(--ink);color:var(--bg1);font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;white-space:nowrap;
