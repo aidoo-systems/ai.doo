@@ -232,6 +232,7 @@
   }
 
   function kick() {
+    if (!ball) return; // a late tap on a ball that is already on its way home
     ball.vx = (Math.random() < 0.5 ? -1 : 1) * (260 + Math.random() * 420);
     ball.vy = -(520 + Math.random() * 380);
     ball.life = 0;
@@ -280,6 +281,7 @@
     var to = dot.getBoundingClientRect();
     var el = ball.el;
     dot.style.background = el.style.background;
+    el.style.pointerEvents = "none";
     el.style.transition = "transform .35s ease-in, width .35s ease-in, height .35s ease-in";
     el.style.width = el.style.height = to.width + "px";
     el.style.transform = "translate(" + to.left + "px," + to.top + "px)";
