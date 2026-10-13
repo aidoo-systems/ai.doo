@@ -303,6 +303,7 @@
     var dt = Math.min(0.033, (now - ball.last) / 1000);
     ball.last = now;
     ball.life += dt;
+    steer(rally.x); // drawn afresh each frame, so a turned phone or a resized window can't leave it behind
     var was = ball.y;
     ball.vy += GRAVITY * dt;
     ball.x += ball.vx * dt;

@@ -243,8 +243,17 @@ def test_a_ball_nobody_plays_still_bounces_about_as_it_did():
     assert ran["leftBehind"] == [] and ran["dockBack"] and ran["dotBack"]
 
 
-def test_the_arrow_keys_move_the_paddle():
-    assert _rally("keys")["arrowsMoved"] > 60
+def test_the_arrow_keys_and_a_finger_on_the_strip_move_the_paddle():
+    ran = _rally("keys")
+    assert ran["arrowsMoved"] > 60
+    # the paddle is 90 wide on a 375 screen, so a finger at 60 centres it there
+    assert ran["fingerPutPaddleAt"] == 15
+    assert ran["strayFingerMoved"] == 0
+
+
+def test_the_paddle_is_drawn_where_the_ball_will_meet_it_after_the_screen_turns():
+    # 500 high, 92 above the bottom on a phone, 14 thick
+    assert _rally("turn")["paddleTopAfterTurn"] == 500 - 92 - 14
 
 
 def test_reduced_motion_gets_no_ball_and_no_paddle():
@@ -258,6 +267,8 @@ def test_the_rally_keeps_the_page_scrollable_and_the_dock_out_of_the_way():
     court = css[css.index("body.studio .wmCourt{") :].split("}")[0]
     # only the strip under the paddle takes the finger; the rest of the page still scrolls
     assert "touch-action:none" in court
+    # and it is there on every device: a touchscreen laptop has a mouse and a finger
+    assert "body.studio .wmCourt{display:none}" not in css
     assert "body.studio.rally .playDock{" in css
 
 

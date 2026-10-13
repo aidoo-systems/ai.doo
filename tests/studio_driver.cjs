@@ -4,9 +4,10 @@
 //
 //   node tests/studio_driver.cjs
 //
-// RALLY=keepup|miss|idle|keys|calm then flicks the dot and plays the paddle game (D-021)
+// RALLY=keepup|miss|idle|keys|turn|calm then flicks the dot and plays the paddle game (D-021)
 // frame by frame on a clock of its own: keeping the paddle under the ball, hitting it once
-// and then missing, never touching it, pressing the arrow keys, or asking for reduced motion.
+// and then missing, never touching it, pressing the arrow keys and steering by finger,
+// turning the phone on its side, or asking for reduced motion.
 
 const fs = require("fs");
 const path = require("path");
@@ -109,12 +110,18 @@ if (rally && toy) {
   const live = (name) => created.find((el) => !el.removed && el.className.split(" ").includes(name));
   const at = (el) => (/translate\(([-\d.]+)px/.exec(el.style.transform || "") || [0, "0"])[1] * 1;
   const send = (type, ev) => (onWindow.on[type] || []).slice().forEach((fn) => fn(Object.assign({ preventDefault() {} }, ev)));
-  const seen = { paddle: false, court: false, aside: false, says: [], moved: 0 };
+  const up = (el) => (/,([-\d.]+)px\)/.exec(el.style.transform || "") || [0, "0"])[1] * 1;
+  const seen = { paddle: false, court: false, aside: false, says: [], moved: 0, finger: 0, stray: 0, top: null };
   toy.on.click.forEach((fn) => fn());
   if (rally === "keys" && live("wmPaddle")) {
     const from = at(live("wmPaddle"));
     for (let i = 0; i < 3; i++) send("keydown", { key: "ArrowRight" });
     seen.moved = at(live("wmPaddle")) - from;
+    // a finger on the strip under the paddle steers it; a finger anywhere else is scrolling the page
+    send("pointermove", { clientX: 60, pointerType: "touch", target: live("wmCourt") });
+    seen.finger = at(live("wmPaddle"));
+    send("pointermove", { clientX: 300, pointerType: "touch", target: body });
+    seen.stray = at(live("wmPaddle")) - seen.finger;
   }
   // 16ms frames until the ball is home and nothing is left to run, or 40 seconds
   while (clock < 40000 && (frames.length || timers.length)) {
@@ -133,7 +140,9 @@ if (rally && toy) {
       }
     }
     timers.filter((t) => t.at <= clock).forEach((t) => (timers.splice(timers.indexOf(t), 1), t.fn()));
+    if (rally === "turn" && clock === 160) window.innerHeight = 500; // the phone goes on its side
     frames.splice(0).forEach((fn) => fn(clock));
+    if (rally === "turn" && clock === 160 && live("wmPaddle")) seen.top = up(live("wmPaddle"));
   }
   out.rally = {
     paddleShown: seen.paddle,
@@ -141,6 +150,9 @@ if (rally && toy) {
     dockSteppedAside: seen.aside,
     paddleSaid: seen.says,
     arrowsMoved: seen.moved,
+    fingerPutPaddleAt: seen.finger,
+    strayFingerMoved: seen.stray,
+    paddleTopAfterTurn: seen.top,
     seconds: clock / 1000,
     ballMade: created.some((el) => el.className.split(" ").includes("wmBall")),
     leftBehind: ["wmBall", "wmPaddle", "wmCourt"].filter(live),
