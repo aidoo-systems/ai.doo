@@ -1,6 +1,6 @@
 # ai.doo brand
 
-Status: draft for owner approval (P2.1a, D-011)
+Status: in use. Positioning and voice from P2.1a (D-011); look, play and mark approved by the owner on a phone, 2026-10-13 (D-018, D-019, D-020)
 Last updated: 2026-10-13
 
 Every page, store listing and promo pitch takes its identity from this file.
