@@ -13,17 +13,35 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
-  <meta name="theme-color" content="#0b1020">
+  <meta name="theme-color" content="#141312">
 
   <style>
+    /* Self-hosted Inter — no third-party font CDN on a privacy page */
+    @font-face{
+      font-family:'Inter';
+      font-style:normal;
+      font-weight:100 900;
+      font-display:swap;
+      src:url('/fonts/inter-latin.woff2') format('woff2');
+    }
+
+    /* Headings: Bricolage Grotesque, self-hosted like Inter (SIL OFL 1.1) */
+    @font-face{
+      font-family:'Bricolage Grotesque';
+      font-style:normal;
+      font-weight:200 800;
+      font-display:swap;
+      src:url('/fonts/bricolage-grotesque-latin.woff2') format('woff2');
+    }
+
     :root{
-      --bg0:#0b1020;
-      --bg1:#111a33;
-      --ink:#eaf0ff;
-      --muted:rgba(234,240,255,0.72);
+      --bg0:#141312;
+      --bg1:#141312;
+      --ink:#f4f1ea;
+      --muted:#b3aca2;
       --accent:#2a8bc9;
-      --accent2:#4db8ff;
-      --stroke:rgba(255,255,255,0.12);
+      --accent2:#f4f1ea;
+      --stroke:#34302d;
     }
 
     *{box-sizing:border-box}
@@ -32,10 +50,7 @@
       margin:0;
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--ink);
-      background:
-        radial-gradient(800px 600px at 20% 8%, rgba(77,184,255,.10), transparent 65%),
-        radial-gradient(700px 500px at 80% 25%, rgba(42,139,201,.07), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
+      background:var(--bg0);
       line-height:1.6;
       min-height:100vh;
     }
@@ -69,14 +84,14 @@
       line-height:1.1;
       letter-spacing:-0.5px;
       font-weight:700;
-      color:#fff;
+      color:var(--ink);
     }
 
     h2{
       margin:40px 0 10px;
       font-size:16px;
       font-weight:700;
-      color:#fff;
+      color:var(--ink);
       letter-spacing:-.1px;
     }
 
@@ -102,12 +117,20 @@
       border-top:1px solid var(--stroke);
       margin:40px 0;
     }
+    /* The studio's quiet frame (D-018): flat, with links as underlined ink and the
+       wordmark's ball (D-020) on the way back to the site. */
+    a{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+    a:hover{text-decoration-thickness:2px}
+    h1{font-family:'Bricolage Grotesque',Inter,system-ui,sans-serif;letter-spacing:-.02em}
+    .back,.back:hover{text-decoration:none}
+    .back .wm{font-family:'Bricolage Grotesque',Inter,system-ui,sans-serif;font-weight:700;font-size:18px;letter-spacing:-.02em;color:var(--ink)}
+    .back .wm-dot{display:inline-block;width:.5em;height:.5em;margin:0 .13em;background:url('/favicon.svg') center/contain no-repeat}
   </style>
 </head>
 <body>
 <div class="wrap">
 
-  <a class="back" href="/">&#8592; ai.doo</a>
+  <a class="back" href="/" aria-label="Back to ai.doo">&#8592; <span class="wm" aria-hidden="true">ai<span class="wm-dot"></span>doo</span></a>
 
   <h1>Privacy Policy — Reactor Panic</h1>
   <p class="updated">Last updated: October 2026</p>

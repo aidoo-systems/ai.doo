@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- The source of /og-image.jpg, the 1200x630 card shown when a link to the site is shared.
+     internal/ is not deployed. To redraw it: serve the repo root, then
+       msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --window-size=1200,630 \n              --screenshot=card.png http://localhost:PORT/internal/og-card/
+     and scale the 2400x1260 PNG down to a 1200x630 JPEG. Bump ?v= on every og:image so shares refetch it. --><meta charset="utf-8"><title>ai.doo share card</title>
+<style>
+@font-face{font-family:Bricolage;src:url(../../fonts/bricolage-grotesque-latin.woff2);font-weight:200 800}
+@font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2);font-weight:100 900}
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#141312;color:#f4f1ea;font-family:Inter,sans-serif}
+.card{position:relative;width:1200px;height:630px;padding:56px 0 0 64px}
+.wm{font:700 46px/1 Bricolage;letter-spacing:-.02em;display:inline-flex;align-items:baseline}
+.wm i{width:.5em;height:.5em;margin:0 .13em;background:url(../../favicon.svg) center/contain no-repeat}
+h1{margin:94px 0 0;width:560px;font:700 82px/1.0 Bricolage;letter-spacing:-.025em}
+p{margin:30px 0 0;font-size:27px;color:#b3aca2}
+.shelf{position:absolute;right:-70px;top:-40px;width:590px;display:grid;grid-template-columns:1fr 1fr;gap:18px;transform:rotate(-7deg)}
+.g{border-radius:26px;padding:14px;height:172px}
+.g img{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px}
+.col{display:grid;gap:18px;align-content:start}
+.col.b{margin-top:70px}
+</style>
+<div class="card">
+  <span class="wm">ai<i></i>doo</span>
+  <h1>Small games and apps, made with care.</h1>
+  <p>A small studio on the Isle of Man.</p>
+  <div class="shelf">
+    <div class="col">
+      <div class="g" style="background:#17533f"><img src="../../images/work/thunee.webp" alt=""></div>
+      <div class="g" style="background:#2b2212"><img src="../../images/work/submarine-panic.webp" alt=""></div>
+      <div class="g" style="background:#ffd7b5"><img src="../../images/work/pomodorable.webp" alt=""></div>
+      <div class="g" style="background:#6a4a3f"><img src="../../images/work/tea-tower.webp" alt=""></div>
+    </div>
+    <div class="col b">
+      <div class="g" style="background:#d9a03b"><img src="../../images/work/reactor-panic.webp" alt=""></div>
+      <div class="g" style="background:#10261c"><img src="../../images/work/orbital-panic.webp" alt=""></div>
+      <div class="g" style="background:#f3e7da"><img src="../../images/work/reality-check.webp" alt=""></div>
+      <div class="g" style="background:#e8562a"><img src="../../images/work/submarine-panic.webp" alt=""></div>
+    </div>
+  </div>
+</div>

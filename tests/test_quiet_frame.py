@@ -189,3 +189,68 @@ def test_a_hidden_play_button_is_really_hidden():
         assert re.search(r'<a class="playFab" id="playFab"[^>]*hidden>', _text(rel)), (
             rel
         )
+
+
+# --- the privacy pages and the share card join the frame ------------------------------
+
+PRIVACY_PAGES = sorted(
+    p.relative_to(REPO_ROOT).as_posix() for p in REPO_ROOT.glob("privacy*/index.html")
+)
+
+
+def test_every_privacy_page_sits_on_the_quiet_frame():
+    assert len(PRIVACY_PAGES) == 9
+    for rel in PRIVACY_PAGES:
+        html = _text(rel)
+        assert "--bg0:#141312;" in html, rel
+        assert "background:var(--bg0);" in html, rel
+        for old in ("0b1020", "111a33", "gradient(", "4db8ff"):
+            assert old not in html, f"{rel}: {old}"
+        # a privacy page loads no script, style or font from anyone else: the fonts and the mark are ours
+        assert "url('/fonts/inter-latin.woff2')" in html, rel
+        assert "url('/fonts/bricolage-grotesque-latin.woff2')" in html, rel
+        assert "url('/favicon.svg')" in html, rel
+        assert not re.search(
+            r'(?:src|href)="https?://(?!(?:[a-z]+\.)?aidoo\.biz)[^"]*\.(?:js|css|woff2?)"',
+            html,
+        ), rel
+        assert 'aria-label="Back to ai.doo"' in html, rel
+
+
+def _jpeg_size(rel):
+    data = (REPO_ROOT / rel).read_bytes()
+    assert data[:2] == b"\xff\xd8", rel
+    i = 2
+    while i < len(data):
+        assert data[i] == 0xFF, rel
+        marker = data[i + 1]
+        length = int.from_bytes(data[i + 2 : i + 4], "big")
+        if marker in (0xC0, 0xC1, 0xC2):
+            return int.from_bytes(data[i + 7 : i + 9], "big"), int.from_bytes(
+                data[i + 5 : i + 7], "big"
+            )
+        i += 2 + length
+    raise AssertionError(f"{rel}: no size found")
+
+
+def test_the_share_card_is_the_right_size_and_every_page_asks_for_the_new_one():
+    assert _jpeg_size("og-image.jpg") == (1200, 630)
+    assert (REPO_ROOT / "og-image.jpg").stat().st_size < 300_000
+    asked = 0
+    for path in REPO_ROOT.rglob("*.html"):
+        if {".git", "docs", "_docs_build", "internal"} & set(
+            path.relative_to(REPO_ROOT).parts
+        ):
+            continue
+        for url in re.findall(
+            r'content="(https://aidoo\.biz/og-image[^"]*)"',
+            path.read_text(encoding="utf-8"),
+        ):
+            assert url == "https://aidoo.biz/og-image.jpg?v=3", path
+            asked += 1
+    assert asked == 6
+    # its source is kept, and kept off the public site
+    assert (REPO_ROOT / "internal" / "og-card" / "index.html").is_file()
+    assert "--exclude='internal/'" in (
+        REPO_ROOT / ".github" / "workflows" / "deploy.yml"
+    ).read_text(encoding="utf-8")
