@@ -1,7 +1,7 @@
 // Everything the player sees and hears. The rules are in engine.js; the venue, its
 // colours, its words, its glass and its rounds all come from a skin file in skins/.
 // Three parts: makeSound (synthesised, no audio files), makeScene (the canvas: counter,
-// tap, glass, liquid, foam and particles) and start (the screens and the one control).
+// what pours, glass, liquid, foam and particles) and start (the screens and the one control).
 (function () {
   "use strict";
 
@@ -393,6 +393,49 @@
       ctx.fillRect(cx - 17, tip - 28, 34, 3);
     }
 
+    // A jug held over the glass: upright and clear of the rim until the pour, then it
+    // swings in and tips, pivoting on its lip, and tips further the harder it pours.
+    function drawJug() {
+      var p = smooth(fx.handle * 1.5); // there before the stream is
+      var h = clamp(Math.min(g.gh * 0.3, g.tip / 1.1), 30, 88); // smaller where there is little room above the glass
+      var w = h * 0.74;
+      ctx.save();
+      ctx.translate(g.cx + lerp(w * 0.5, 0, p), g.tip - 1 - lerp(h * 0.92, 0, p));
+      ctx.rotate(-(lerp(0.42, 1.86, p) + (fx.flow - 1) * 0.16 * fx.handle));
+      // the handle, behind the body
+      ctx.lineCap = "round";
+      ctx.strokeStyle = th.metal;
+      ctx.lineWidth = Math.max(4, h * 0.085);
+      ctx.beginPath();
+      ctx.moveTo(w, h * 0.16);
+      ctx.bezierCurveTo(w * 1.62, h * 0.12, w * 1.62, h * 0.82, w + 2, h * 0.78);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(0,0,0,.2)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      // the body, from the tip of the lip round the rim and the base
+      var body = [[0, 0], [w * 0.2, -h * 0.05], [w, -h * 0.05], [w + h * 0.05, h], [w * 0.1, h], [w * 0.16, h * 0.2]];
+      poly(body, h * 0.06);
+      ctx.fillStyle = th.metal;
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      ctx.fillStyle = th.accent;
+      ctx.fillRect(-4, h * 0.56, w + 12, h * 0.17);
+      ctx.fillStyle = "rgba(255,255,255,.42)";
+      ctx.fillRect(w * 0.26, -h * 0.1, w * 0.11, h * 1.2);
+      ctx.fillStyle = "rgba(0,0,0,.2)";
+      ctx.fillRect(w * 0.8, -h * 0.1, w * 0.4, h * 1.2);
+      ctx.fillRect(-4, h * 0.93, w + 12, h * 0.1);
+      ctx.restore();
+      ctx.restore();
+    }
+
+    function drawPourer() {
+      if (dr.pourer === "jug") drawJug();
+      else drawTap();
+    }
+
     // The stream is as wide as the flow is strong: a surge is a visibly fatter pour.
     function drawStream(level) {
       if (fx.head <= 0) return;
@@ -422,8 +465,8 @@
       });
       ctx.closePath();
       var grad = ctx.createLinearGradient(0, g.tip, 0, target);
-      grad.addColorStop(0, dr.liquid);
-      grad.addColorStop(1, dr.liquidDeep);
+      grad.addColorStop(0, dr.stream || dr.liquid);
+      grad.addColorStop(1, dr.stream || dr.liquidDeep);
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.strokeStyle = "rgba(255,255,255,.3)";
@@ -823,12 +866,14 @@
         ctx.save();
         if (fx.shake > 0) ctx.translate(Math.sin(fx.t * 70) * 5 * fx.shake, Math.cos(fx.t * 55) * 3 * fx.shake);
         drawCounter();
-        drawTap();
+        // A tap's stream comes out from under it; a jug is in front of its own.
+        if (dr.pourer !== "jug") drawPourer();
         var e = smooth(1 - fx.slide);
         if (fx.slide > 0 && fx.ghost) drawGlass(e * W * 0.95, fx.ghost.level, null, false, false);
         else fx.ghost = null;
         var ox = fx.slide > 0 ? -(1 - e) * W * 0.95 : 0;
         if (ox === 0) drawStream(s.level);
+        if (dr.pourer === "jug") drawPourer();
         drawGlass(ox, s.level, s.line, true, s.pouring);
         drawSpill();
         drawParts(dt);

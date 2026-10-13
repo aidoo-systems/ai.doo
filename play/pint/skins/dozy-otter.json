@@ -25,6 +25,8 @@
     "liquidDeep": "#9a6d49",
     "head": "#fffaf0",
     "headDepth": 0.16,
+    "pourer": "jug",
+    "stream": "#fffaf0",
     "glass": [[7, 0], [93, 0], [85, 100], [15, 100]]
   },
   "copy": {

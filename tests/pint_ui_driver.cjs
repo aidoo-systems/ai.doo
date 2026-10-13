@@ -13,16 +13,19 @@ const GAME = path.join(__dirname, "..", "play", "pint");
 const SOURCES = ["skins/default.js", "engine.js", "game.js"].map((f) => fs.readFileSync(path.join(GAME, f), "utf8"));
 const settle = () => new Promise((r) => setImmediate(r));
 
-function boot(search) {
+// tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
+function boot(search, tweak) {
   let clock = 1000;
   let frames = [];
   let timers = [];
   const elements = {};
   const fetched = [];
   const sounds = [];
+  const drawn = []; // every canvas call, by name, in order
+  const stops = []; // every colour a gradient was given
 
   const paint = new Proxy({}, {
-    get: (t, p) => (p in t ? t[p] : () => ({ addColorStop() {} })),
+    get: (t, p) => (p in t ? t[p] : () => (drawn.push(p), { addColorStop: (at, colour) => stops.push(colour) })),
     set: (t, p, v) => ((t[p] = v), true),
   });
 
@@ -101,7 +104,9 @@ function boot(search) {
       fetched.push(url);
       const file = path.join(GAME, url.split("?")[0]);
       if (!fs.existsSync(file)) return Promise.resolve({ ok: false, status: 404 });
-      return Promise.resolve({ ok: true, json: () => Promise.resolve(JSON.parse(fs.readFileSync(file, "utf8"))) });
+      const skin = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (tweak) tweak(skin);
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(skin) });
     },
   });
   vm.createContext(window);
@@ -114,6 +119,8 @@ function boot(search) {
     document,
     fetched,
     sounds,
+    drawn,
+    stops,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -138,8 +145,8 @@ function boot(search) {
   };
 }
 
-async function started(search) {
-  const page = boot(search || "");
+async function started(search, tweak) {
+  const page = boot(search || "", tweak);
   for (let i = 0; i < 6; i++) await page.settle();
   page.get("start").fire("click", {});
   page.advance(100);
@@ -196,6 +203,24 @@ async function started(search) {
   page = boot("?skin=../x");
   for (let i = 0; i < 6; i++) await page.settle();
   out.unsafeSkin = { fetched: page.fetched.slice(0, 1) };
+
+  // What pours the drink is the skin's to say. The same skin, three ways: the canvas
+  // calls of one frame of an empty glass, and the colours of the stream mid-pour.
+  out.pourers = {};
+  const ways = { jug: (s) => (s.drink.pourer = "jug"), tap: (s) => (s.drink.pourer = "tap"), unsaid: (s) => delete s.drink.pourer };
+  for (const way of Object.keys(ways)) {
+    page = await started("", (s) => (ways[way](s), delete s.drink.stream));
+    page.drawn.length = 0;
+    page.advance(16);
+    out.pourers[way] = page.drawn.join(" ");
+  }
+  out.streams = {};
+  for (const colour of ["#abcdef", null]) {
+    page = await started("", (s) => (colour ? (s.drink.stream = colour) : delete s.drink.stream));
+    page.down(1);
+    page.advance(400);
+    out.streams[colour || "unsaid"] = page.stops.includes("#abcdef");
+  }
 
   process.stdout.write(JSON.stringify(out));
 })();
