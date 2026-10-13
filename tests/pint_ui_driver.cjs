@@ -23,6 +23,7 @@ function boot(search, tweak) {
   const sounds = [];
   const drawn = []; // every canvas call, by name, in order
   const stops = []; // every colour a gradient was given
+  const paths = []; // every SVG path the canvas was asked to build
 
   const paint = new Proxy({}, {
     get: (t, p) => (p in t ? t[p] : () => (drawn.push(p), { addColorStop: (at, colour) => stops.push(colour) })),
@@ -95,6 +96,9 @@ function boot(search, tweak) {
     performance: { now: () => clock },
     devicePixelRatio: 1,
     AudioContext,
+    Path2D: function (d) {
+      paths.push(d);
+    },
     URLSearchParams,
     console,
     matchMedia: () => ({ matches: false }),
@@ -121,6 +125,7 @@ function boot(search, tweak) {
     sounds,
     drawn,
     stops,
+    paths,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -221,6 +226,21 @@ async function started(search, tweak) {
     page.advance(400);
     out.streams[colour || "unsaid"] = page.stops.includes("#abcdef");
   }
+
+  // The venue stays in sight after the title screen: its name on the play and results
+  // screens, and its emblem on whatever pours the drink. A skin with no emblem has none.
+  out.emblem = skin.emblem.path;
+  out.marks = {};
+  for (const pourer of ["tap", "jug"]) {
+    for (const mark of ["with", "without"]) {
+      page = await started("", (s) => ((s.drink.pourer = pourer), mark === "without" && delete s.emblem));
+      page.drawn.length = 0;
+      page.advance(16);
+      out.marks[pourer + " " + mark] = { paths: page.paths.slice(), drawn: page.drawn.join(" ") };
+    }
+  }
+  page = await started();
+  out.venueShown = { venue: skin.venue, play: page.get("playVenue").textContent, done: page.get("doneVenue").textContent };
 
   process.stdout.write(JSON.stringify(out));
 })();

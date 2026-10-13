@@ -507,6 +507,26 @@ def test_the_stream_takes_the_colour_the_skin_gives_it(ui):
     assert ui["streams"] == {"#abcdef": True, "unsaid": False}
 
 
+def test_the_venue_is_named_while_playing_and_on_the_results(ui):
+    # "Your name on it" is the product: the name may not vanish after the title screen.
+    html = _text("play/pint/index.html")
+    play = html[html.index('id="play"') : html.index('id="done"')]
+    done = html[html.index('id="done"') : html.index('id="claim"')]
+    assert 'id="playVenue"' in play and 'id="playEmblem"' in play
+    assert 'id="doneVenue"' in done and 'id="doneEmblem"' in done
+    assert ui["venueShown"]["play"] == ui["venueShown"]["venue"]
+    assert ui["venueShown"]["done"] == ui["venueShown"]["venue"]
+
+
+def test_the_venues_emblem_is_on_what_pours_the_drink(ui):
+    for pourer in ("tap", "jug"):
+        marked, plain = ui["marks"][pourer + " with"], ui["marks"][pourer + " without"]
+        assert set(marked["paths"]) == {ui["emblem"]}, pourer
+        assert marked["drawn"] != plain["drawn"], pourer
+        # No emblem, nothing built for one: the pourer is drawn as it always was.
+        assert plain["paths"] == [], pourer
+
+
 def test_the_offer_page_stays_short_enough_to_read():
     # It was 989 words in eight sections before it was cut down. Questions sit closed.
     html = _text("promo-games/index.html")
