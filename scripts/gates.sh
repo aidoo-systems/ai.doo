@@ -15,6 +15,25 @@ ONLY="${1:-}"
 # The Python in this repo: the chat API, the changelog builder, their tests.
 PY_PATHS=(api build-changelog.py scripts tests)
 
+# The interpreter the gates run on: the first that can start a child once its own stdin
+# has been redirected, which pytest does on every run. (2026-10-13: the install manager's
+# python3.exe launcher fails that with "[WinError 6] The handle is invalid", so the tests
+# gate failed on the machine, not the code; the interpreter it starts is fine.)
+# From the studio's python-service runner (0.9.11).
+PY_PROBE='import os, subprocess, sys
+os.dup2(os.open(os.devnull, os.O_RDONLY), 0)
+subprocess.run([sys.executable, "-c", ""], capture_output=True, check=True)'
+PY="" PY_TRIED=()
+for name in python python3 py; do
+  found="$(command -v "$name" 2>/dev/null)" || continue
+  # the command itself, then the interpreter it names (what a launcher starts)
+  for cand in "$found" "$("$found" -c 'import sys; print(sys.executable)' 2>/dev/null | tr -d '')"; do
+    [ -n "$cand" ] || continue
+    PY_TRIED+=("$cand")
+    if "$cand" -c "$PY_PROBE" >/dev/null 2>&1; then PY="$cand"; break 2; fi
+  done
+done
+
 FAILED=()
 run_gate() {
   local name="$1"; shift
@@ -35,9 +54,18 @@ echo
 echo "ai.doo gates - ai.doo site"
 echo
 
-run_gate lint    python -m ruff check "${PY_PATHS[@]}"
-run_gate format  python -m ruff format --check "${PY_PATHS[@]}"
-run_gate tests   python -m pytest tests -q --tb=short -p no:cacheprovider
+# No interpreter is the machine's fault, and is said as that: never as failed tests.
+if [ -z "$PY" ] && [ "$ONLY" != docs ]; then
+  echo "  [FAIL] python     (0s)"
+  echo "      No Python here can start a child process once its stdin is redirected, so only the docs gate can run."
+  echo "      This is the machine, not the code. Tried: ${PY_TRIED[*]:-nothing: no python3, python or py on PATH}"
+  FAILED+=("python")
+fi
+py_gate() { [ -z "$PY" ] || run_gate "$@"; }
+
+py_gate  lint    "$PY" -m ruff check "${PY_PATHS[@]}"
+py_gate  format  "$PY" -m ruff format --check "${PY_PATHS[@]}"
+py_gate  tests   "$PY" -m pytest tests -q --tb=short -p no:cacheprovider
 
 # The docs site must build exactly as deploy builds it, with --strict so a
 # broken nav entry or internal link fails here rather than on docs.aidoo.biz.
@@ -46,16 +74,16 @@ run_gate tests   python -m pytest tests -q --tb=short -p no:cacheprovider
 # and needs PIKA's CHANGELOG.md; its renderer is covered by the tests gate.
 check_build() {
   local out; out="$(mktemp -d)"
-  python -m mkdocs build --strict -q -f mkdocs.yml -d "$out"
+  "$PY" -m mkdocs build --strict -q -f mkdocs.yml -d "$out"
   local code=$?
   rm -rf "$out"
   return $code
 }
-run_gate build check_build
+py_gate build check_build
 
 # Every local link and asset on the served site resolves, and every sitemap URL
 # maps to a page whose canonical matches it. See scripts/check_site.py.
-run_gate site    python scripts/check_site.py
+py_gate  site    "$PY" scripts/check_site.py
 
 # Slow tier. There is no pyproject.toml: the chat API's requirements.txt is
 # the only dependency manifest that ships to production.
