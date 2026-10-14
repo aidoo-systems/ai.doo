@@ -27,7 +27,7 @@ PY="" PY_TRIED=()
 for name in python python3 py; do
   found="$(command -v "$name" 2>/dev/null)" || continue
   # the command itself, then the interpreter it names (what a launcher starts)
-  for cand in "$found" "$("$found" -c 'import sys; print(sys.executable)' 2>/dev/null | tr -d '')"; do
+  for cand in "$found" "$("$found" -c 'import sys; print(sys.executable)' 2>/dev/null | tr -d '\r')"; do
     [ -n "$cand" ] || continue
     PY_TRIED+=("$cand")
     if "$cand" -c "$PY_PROBE" >/dev/null 2>&1; then PY="$cand"; break 2; fi

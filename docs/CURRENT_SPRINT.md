@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-13
+Last updated: 2026-10-14
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (start outreach)
 
@@ -40,6 +40,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 
 ## Work log
+
+### 2026-10-14
+- The gates run on an interpreter that works (`fix/gates-interpreter`). The bare `python` here is the install manager's launcher, which can't start a child once its stdin is redirected (`[WinError 6] The handle is invalid`), so the tests gate failed on main: 43 failed, 8 errors, every one a Node subprocess that couldn't start. `scripts/gates.sh` now picks its interpreter the way the studio's python-service runner does (studio 0.9.11). Before: `[FAIL] tests`; after: lint, format, tests, build, site, docs all `[PASS]`. Gate cycles: 2 (docs: this line). Codex, one round: one P2 (this line), fixed. Next: unchanged, outreach (step 1).
 
 ### 2026-10-13
 - Profile banners, in a plain chat: the owner asked for a logo for his social profiles and a background image for each, like the share card. The avatar already existed (`images/brand/ai-doo-avatar-1024.png`, D-020). Added four banners (YouTube 2560x1440 with its words inside the 1546x423 strip every device shows; LinkedIn company 1128x191 and personal 1584x396, with the left kept clear for the profile picture; a 1500x500 header), drawn from `internal/social/` by `scripts/build_social.py` with headless Edge. Each was looked at as a still; none has been seen on a live profile, where each platform crops differently. The owner approved P2.0f ("Looks good"): Complete. He also agreed the showcase is good enough to send; Claude proposed a link that puts a prospect's own name on the demo, and a short clip for emails, neither captured yet. Gates PASS. Gate cycles: 2 (format). No Codex review. Next: outreach (step 1).
