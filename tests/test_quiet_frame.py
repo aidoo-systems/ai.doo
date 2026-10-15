@@ -346,7 +346,7 @@ def test_the_share_card_is_the_right_size_and_every_page_asks_for_the_new_one():
             r'content="(https://aidoo\.biz/og-image[^"]*)"',
             path.read_text(encoding="utf-8"),
         ):
-            assert url == "https://aidoo.biz/og-image.jpg?v=3", path
+            assert url == "https://aidoo.biz/og-image.jpg?v=4", path
             asked += 1
     assert asked == 6
     # its source is kept, and kept off the public site
