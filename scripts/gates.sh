@@ -110,7 +110,13 @@ check_docs() {
   done
   # The sprint file is the resume point; if source has moved on without it,
   # the next session inherits a false account of where the work stands.
-  if [ -f docs/CURRENT_SPRINT.md ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  # A shallow clone (CI's default depth 1) can't be judged: its one commit,
+  # GitHub's synthetic PR merge dated whenever the PR was merged, has its
+  # parents grafted away, so it looks like a root commit touching every file.
+  # With full history a clean merge is simplified away on its own, while a
+  # merge that resolved conflicts in source still counts, as it should.
+  # The local gate run, with full history, still enforces it.
+  if [ -f docs/CURRENT_SPRINT.md ] && git rev-parse --is-inside-work-tree >/dev/null 2>&1      && [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" != true ]; then
     local claimed last_src
     claimed=$(head -20 docs/CURRENT_SPRINT.md | grep -oE '^Last updated:[[:space:]]*[0-9]{4}-[0-9]{2}-[0-9]{2}' | grep -oE '[0-9]{4}-[0-9]{2}-[0-9]{2}')
     # Source commits only - a docs-only commit touching this very line must not
