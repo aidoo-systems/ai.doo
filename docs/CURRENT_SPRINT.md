@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-15
+Last updated: 2026-10-18
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (start outreach)
 
@@ -40,6 +40,11 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 
 ## Work log
+
+### 2026-10-18
+- `/idea`: P2.0l, the prospect's own name on the pour game from the email's link (`?name=`, plain text, capped, sent nowhere), and P2.0m, a short GIF of the pour to sit inline in outreach emails. Both proposed by Claude, captured at the owner's request; owner gate, routine. Neither displaces anything: outreach goes out with today's links.
+- First five outreach emails drafted in [the outreach drafts](design/2026-10-18-first-outreach-emails.md): Noa Bakehouse, Café 360, the Villa Gaiety panto (18 to 31 December, so it needs a yes by the end of November), Okell's Inns and Hospice Isle of Man. Each checked as trading on the web; The Tea Junction dropped (changed hands in 2025). Next: the owner sends them.
+- Since the last bank: #46 (£25 a month to keep a game live, D-022), #47 (profile banners) and #49 (Pomodorable's companion, share card `?v=4`) merged.
 
 ### 2026-10-14
 - The gates run on an interpreter that works (`fix/gates-interpreter`). The bare `python` here is the install manager's launcher, which can't start a child once its stdin is redirected (`[WinError 6] The handle is invalid`), so the tests gate failed on main: 43 failed, 8 errors, every one a Node subprocess that couldn't start. `scripts/gates.sh` now picks its interpreter the way the studio's python-service runner does (studio 0.9.11). Before: `[FAIL] tests`; after: lint, format, tests, build, site, docs all `[PASS]`. Gate cycles: 2 (docs: this line). Codex, one round: one P2 (this line), fixed. Next: unchanged, outreach (step 1).
