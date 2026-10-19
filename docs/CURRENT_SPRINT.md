@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-18
+Last updated: 2026-10-19
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (start outreach)
 
@@ -40,6 +40,10 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
 
 ## Work log
+
+### 2026-10-19
+- Pour demo fixes (`fix/pint-jug-clip`, #52), from the owner's phone and a design review: the café's jug and the pub's tap were clipped at the top of the scene on most phone heights (the jug sized for 1.1x its height above the glass, its handle reaching 1.4x); both now fit. 12px between the title heading and the scene; button labels centred (the "Want one with your name on it?" link sat 13px from the top, 19px from the bottom; now 16 and 16). Browser at 390x664 and 320x568, no console errors, no sideways scroll; showcase tests 62 passed. Not pinned by a test: the pourer's drawn extent. Next: owner plays both venues on a phone and merges; then the two café emails.
+- Design review, outreach order: the fixes above, then P2.0l (their name), then P2.0i (the results screen sells), then P2.0k (one picture) before the tap, backdrop and cup. Pricing: keep £750 on the page; offer the first two or three clients £500 in conversation in return for showing their game as our example (owner to decide).
 
 ### 2026-10-18
 - `/idea`: P2.0l, the prospect's own name on the pour game from the email's link (`?name=`, plain text, capped, sent nowhere), and P2.0m, a short GIF of the pour to sit inline in outreach emails. Both proposed by Claude, captured at the owner's request; owner gate, routine. Neither displaces anything: outreach goes out with today's links.
