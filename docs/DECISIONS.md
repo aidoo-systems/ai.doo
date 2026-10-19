@@ -209,3 +209,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Leaving it to be agreed per client (the wording until now).
 - **Consequences:** It is a published price, so it holds for anyone who has seen it. It covers keeping the game live as it is; anything more is priced in writing first, as the page's Questions say.
 - **Revisit when:** The first client reaches month three, or at the 2026-11-26 review.
+
+## D-023 — An About page is allowed before the review, as an exception to the P2.1b hold
+
+- **Status:** Accepted (owner, 2026-10-19: captured with this decision; parked until the photo is in)
+- **Date:** 2026-10-19
+- **Decision:** One new page, `/about/` (P2.1g), may be built before the 2026-11-26 review. It is one page in the studio frame, linked from the footer and from `/promo-games/`, with no nav item and no header change. Everything else in the site rework stays held for P2.1b (D-010, D-011).
+- **Why:** It serves the outreach bet, as `/promo-games/` did: outreach emails are signed "Keith", and a small-island café owner buys from someone they can picture, but there is no Keith to find on the site. A full page has room for a photo, why, and the games shipped, where a block on the offer page would crowd the price. Umami shows whether prospects open it, which is a signal for the review.
+- **Alternatives:** A short "Who's behind this" block on `/promo-games/` (Claude's first suggestion: smaller, but competes with the price); waiting for P2.1b (leaves the emails without a face for the whole experiment).
+- **Consequences:** The page is plainly one person working as "we": no implied team, no claims or numbers we can't back. It can't be built until the owner supplies a photo and a few sentences in the owner's own words.
+- **Revisit when:** P2.1b, which folds the page into the reworked site.
