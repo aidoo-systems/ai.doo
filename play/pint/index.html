@@ -40,14 +40,14 @@
     @keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
     .kicker{margin:0;color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
     .venue{margin:0;font-size:clamp(34px,11vw,50px);font-weight:900;letter-spacing:-1.8px;line-height:.98;text-wrap:balance}
-    .attract{position:relative;flex:1 1 0;min-height:0;margin:0 -20px}
+    .attract{position:relative;flex:1 1 0;min-height:0;margin:12px -20px 0}
     .attract canvas,.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
     .offer{margin:0 auto;max-width:28ch;color:var(--accent);font-size:17px;font-weight:900;letter-spacing:-.2px;line-height:1.25;text-wrap:balance}
     .how{margin:0 auto;color:var(--muted);font-size:15.5px}
     .beat{margin:0 0 8px;color:var(--muted);font-weight:700;font-size:14.5px}
 
     /* The one big control: a button with some travel in it */
-    .btn{position:relative;flex:none;display:block;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+    .btn{position:relative;flex:none;display:flex;align-items:center;justify-content:center;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
     .btn:active,.btn.down{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.3)}
     .btn.wait{opacity:.45}
     .btn.second{min-height:52px;padding:11px 18px;background:transparent;color:var(--ink);font-size:16.5px;box-shadow:inset 0 0 0 2px var(--muted);touch-action:manipulation}
@@ -203,6 +203,6 @@
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=9"></script>
 <script src="engine.js?v=11"></script>
-<script src="game.js?v=19"></script>
+<script src="game.js?v=20"></script>
 </body>
 </html>

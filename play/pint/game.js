@@ -366,9 +366,12 @@
       var cx = g.cx;
       var tip = g.tip;
       // the handle, behind the pipe: pulled down while pouring, and it judders with the flow
+      // at rest the handle reaches 114 above the nozzle: smaller where there is less room
+      var s = clamp((tip - 6) / 114, 0.3, 1);
       ctx.save();
-      ctx.translate(cx + 12, tip - 30);
+      ctx.translate(cx + 12 * s, tip - 30 * s);
       ctx.rotate(lerp(0.28, 1.1, smooth(fx.handle)) + (fx.flow - 1) * 0.24 * fx.handle);
+      ctx.scale(s, s);
       ctx.fillStyle = th.metal;
       box(-4, -24, 8, 28, 3);
       ctx.fill();
@@ -423,7 +426,8 @@
     // swings in and tips, pivoting on its lip, and tips further the harder it pours.
     function drawJug() {
       var p = smooth(fx.handle * 1.5); // there before the stream is
-      var h = clamp(Math.min(g.gh * 0.3, g.tip / 1.1), 30, 88); // smaller where there is little room above the glass
+      // upright or tipped, the handle reaches about 1.4h above the lip: smaller where there is little room
+      var h = clamp(Math.min(g.gh * 0.3, (g.tip - 6) / 1.42), 14, 88);
       var w = h * 0.74;
       ctx.save();
       ctx.translate(g.cx + lerp(w * 0.5, 0, p), g.tip - 1 - lerp(h * 0.92, 0, p));
