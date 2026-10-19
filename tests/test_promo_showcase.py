@@ -563,6 +563,15 @@ def test_without_a_name_the_game_is_as_it_was(ui):
     assert ui["plainSwitch"] == ["?skin=dozy-otter"]
 
 
+def test_a_long_name_wraps_and_is_never_cut_off():
+    # 32 wide letters need three lines in a name row at 320px (Codex, round 1).
+    html = _text("play/pint/index.html")
+    for selector in (r"\.brand span", r"\.venue"):
+        rule = re.search(selector + r"\{([^}]*)\}", html).group(1)
+        assert "overflow-wrap:anywhere" in rule, selector
+        assert not re.search(r"line-clamp|ellipsis|nowrap", rule), selector
+
+
 def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     # Switching venue keeps it; the offer page's links never carry it, and the page
     # sends no referrer, so the offer page's analytics can't see it (D-017).

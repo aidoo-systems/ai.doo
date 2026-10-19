@@ -70,8 +70,8 @@
     /* The venue, kept in sight after the title screen */
     .brand{flex:none;display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;margin:0;padding:0 44px;font-size:15px;font-weight:900;letter-spacing:-.2px;line-height:1.2}
     .brand svg{flex:none;width:26px;height:20px;color:var(--accent)}
-    /* A prospect's own name (?name=, up to 32 characters) wraps to a second line rather than being cut off */
-    .brand span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;text-align:center;text-wrap:balance;overflow-wrap:anywhere}
+    /* A prospect's own name (?name=, up to 32 characters) wraps rather than being cut off */
+    .brand span{min-width:0;text-align:center;text-wrap:balance;overflow-wrap:anywhere}
 
     /* Play */
     .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-y:auto}
