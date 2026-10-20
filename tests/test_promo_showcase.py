@@ -657,6 +657,15 @@ def test_the_chatbot_knows_the_promo_offer_and_keeps_pilot_prices_to_the_ai_tool
     assert prompt.count("£3,000") == 1
 
 
+def test_the_offer_says_we_build_it_and_look_after_it():
+    # A café owner's first worry is who keeps it running (owner, 2026-10-20). The page speaks as "we".
+    html = _text("promo-games/index.html")
+    hero = html[html.index('class="heroLine"') :]
+    assert "We build it and look after it." in hero[: hero.index("</p>")]
+    assert "Hosted and looked after for three months" in html
+    assert "hosted and looked after for three months" in _text("api/chat.py")
+
+
 def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
     # P2.0r: a cafe's link shouldn't say pint; nobody else has the old links, so no forwarding page
     assert not (REPO_ROOT / "play" / "pint").exists()
