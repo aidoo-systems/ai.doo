@@ -43,8 +43,10 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 | 26 | Conrod's (Ramsey) | TT-connected owner; a race-week game |
 | 27 | Okell's Brewery | Pub-quiz-night or anniversary game across its pubs |
 | 28 | Davisons Ice Cream | A summer "stack the scoops" game at its parlours |
-| 29 | Isle of Man Creamery | A brand game for a product launch |
+| 29 | Isle of Man Creamery | Pour the perfect glass of milk: a family brand game. **Held until a milk skin exists** (2026-10-20) |
 | 30 | Local bakeries and farm shops (walk in on a high street) | A quick yes or no |
+| 42 | Wine Down (owner's suggestion; not yet checked as trading) | Pour a glass of wine to the line. **Held until a wine skin exists** |
+| 43 | Wine Cellar (owner's suggestion; not yet checked as trading) | The same |
 
 ## Tier 3: charities and clubs (fundraising, shareable leaderboards)
 
@@ -73,15 +75,22 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 
 Open with a specific idea for them, not "we do games". One follow-up after a week, then stop.
 
-Links to paste (added 2026-10-11). Send the skin nearest their trade, and tag both links with the kind of venue, never the business's name, so Umami shows which kind responds:
+Links to paste (added 2026-10-11; moved to `/play/pour/` 2026-10-20, P2.0r). Send the skin nearest their trade, and tag both links with the kind of venue, never the business's name, so Umami shows which kind responds:
 
 | For | Demo link | Offer link |
 |---|---|---|
-| A café, shop or restaurant | `aidoo.biz/play/pint/?skin=dozy-otter` | `aidoo.biz/promo-games/?for=cafe` |
-| A pub or bar | `aidoo.biz/play/pint/` | `aidoo.biz/promo-games/?for=pub` |
-| An event, charity or attraction | `aidoo.biz/play/pint/` | `aidoo.biz/promo-games/?for=event` |
+| A café, shop or restaurant | `aidoo.biz/play/pour/?skin=cafe` | `aidoo.biz/promo-games/?for=cafe` |
+| A pub or bar | `aidoo.biz/play/pour/?skin=pub` | `aidoo.biz/promo-games/?for=pub` |
+| An event, charity or attraction | `aidoo.biz/play/pour/?skin=pub` | `aidoo.biz/promo-games/?for=event` |
 
 The game itself is not tracked ("Nothing is stored or sent" is printed on it), so a demo link shows nothing in Umami until they come back to the offer page, which arrives as `?from=demo`. The offer page's buttons report `play-demo-hero`, `play-demo-pub`, `play-demo-cafe`, `email-nav`, `email-contact` and `whatsapp-contact`.
+
+## Held: a game in their language first (2026-10-20)
+
+The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted until the demo pours their drink. Not built yet; to think through:
+
+- **Milk** (Creamery, #29). The café's jug already pours milk, so a skin is mostly a glass and colours. The open question is the skill: milk has no head, so the game is "stop at the line", which is thinner than the pint.
+- **Wine** (#42, #43). Needs a stemmed glass (the stem drawn, never filled) and a bottle pourer (new in `game.js` and `POURERS`). The same skill question, plus the prize: a bar will want a glass of wine, which is the drinks-prize question D-025 leaves to the business.
 
 ## Contact log
 
