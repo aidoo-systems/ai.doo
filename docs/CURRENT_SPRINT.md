@@ -38,9 +38,14 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - For the About page (P2.1g, D-023): a photo you're happy with, and a few sentences on why you make games.
-- Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any pub offers a drinks prize: check the Isle of Man rules on alcohol promotions.
+- Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any real pub offers a drinks prize: check the Isle of Man rules on alcohol promotions (the demo's example drink, D-024, doesn't wait on it).
 
 ## Work log
+
+### 2026-10-20
+- #55 (the review capture) conflicted with #54 in this log after #54 merged; merged `main` into it and kept both entries.
+- `/idea`: P2.0p, a drink on us (D-024): the demo pub's prize is "a drink on us", soft drinks included, called an example prize, in place of crisps. Supersedes the "not alcohol" framing for the demo only; a real pub's drinks prize still waits on the Isle of Man rules.
+- P2.0n and P2.0p together (`item/P2.0n-P2.0p-drink-on-us`): the winner's screen and the offer page's answer no longer say the moving clock proves it isn't a screenshot (a recording beats it); both say a live game gives a one-off code staff mark used (P2.0b). The claim screen is headed "Example: this week's winner". The pub's lines say "a drink on us", soft drinks included. Tests red first (2 failed), then 72 passed; the old no-drink-prize test now holds D-024's line (no pint, beer or lager alone; a drink prize names soft drinks). Next: owner plays the pub on a phone and approves the wording.
 
 ### 2026-10-19
 - `/idea`: P2.1g, an About page (`/about/`: Keith's photo, why, what's shipped, made on the Isle of Man), allowed before the review as an exception to the P2.1b hold (D-023), because outreach emails signed "Keith" need someone to find. Parked: waiting on the owner's photo and a few sentences in the owner's words. Displaces nothing.

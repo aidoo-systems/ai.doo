@@ -219,3 +219,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A short "Who's behind this" block on `/promo-games/` (Claude's first suggestion: smaller, but competes with the price); waiting for P2.1b (leaves the emails without a face for the whole experiment).
 - **Consequences:** The page is plainly one person working as "we": no implied team, no claims or numbers we can't back. It can't be built until the owner supplies a photo and a few sentences in the owner's own words.
 - **Revisit when:** P2.1b, which folds the page into the reworked site.
+
+## D-024 — The demo pub's prize is a drink, soft drinks included, labelled an example
+
+- **Status:** Accepted (owner, 2026-10-20: "a drink on us (pub skin, soft drinks included, labelled an example)")
+- **Date:** 2026-10-20
+- **Decision:** The made-up pub in the pour demo offers "a drink on us" for the week's top score, soft drinks included, called an example prize. It replaces crisps. This supersedes, for the demo only, P2.0b's "not alcohol" framing and the 2026-10-18 email rule that no prize is a drink.
+- **Why:** A pub would offer a drink, so it's the prize that makes the demo look like their game; crisps read as a stand-in. Saying soft drinks count keeps it from being an alcohol promotion, and the example label keeps it from reading as an offer anyone can claim.
+- **Alternatives:** Keep crisps until the Isle of Man rules are checked (the rule until now); a named soft drink only.
+- **Consequences:** No prize may be a pint, beer or lager alone (a test holds it). A real pub's drinks prize still waits on the owner checking the Isle of Man rules on alcohol promotions; the outreach emails keep their rule until then. The café's prize doesn't change.
+- **Revisit when:** The first pub client sets a prize, or the Isle of Man rules are checked.
