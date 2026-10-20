@@ -43,6 +43,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-20
+- P2.1g, the About page (`draft/P2.1g-about-page`), goes live without the photo at the owner's word, to test on the live site; the photo of Keith and Bineeta follows this afternoon. A family studio: Bineeta and Luke as the first testers; why the name (Naidoo without the N). Linked from both footers and from "Tell Keith" on `/promo-games/`; noindex and out of the sitemap, like `/promo-games/`.
 - #55 (the review capture) conflicted with #54 in this log after #54 merged; merged `main` into it and kept both entries.
 - `/idea`: P2.0p, a drink on us (D-024): the demo pub's prize is "a drink on us", soft drinks included, called an example prize, in place of crisps. Supersedes the "not alcohol" framing for the demo only; a real pub's drinks prize still waits on the Isle of Man rules.
 - P2.0n and P2.0p together (`item/P2.0n-P2.0p-drink-on-us`): the winner's screen and the offer page's answer no longer say the moving clock proves it isn't a screenshot (a recording beats it); both say a live game gives a one-off code staff mark used (P2.0b). The claim screen is headed "Example: this week's winner". The pub's lines say "a drink on us", soft drinks included. Tests red first (2 failed), then 72 passed; the old no-drink-prize test now holds D-024's line (no pint, beer or lager alone; a drink prize names soft drinks). Next: owner plays the pub on a phone and approves the wording.
