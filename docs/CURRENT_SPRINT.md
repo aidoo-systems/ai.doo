@@ -24,7 +24,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 1. **Next action:** the owner starts outreach, 2 to 3 hours a week, with the tagged links in [the prospect list](design/2026-10-02-promo-prospects.md). It is the one thing P2.0's services bet is measured on and it has not begun. Claude can draft the first emails on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, after the first emails are out and one item at a time: P2.1e (cards that move).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
-2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Owner creates the Firebase apps and drops the config files in; then `/next` in each repo; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
+2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Firebase apps created (owner, 2026-10-20); the config files go into each repo, then `/next` in each; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
 4. **P2.1a** (D-011): done. Homepage restyled per D-012 and merged (#22, #23); live on aidoo.biz. History in the work log.
 5. **P2.1c** (D-011, D-013): done. Labs retired; merged (#24, #25, #26) and live.
@@ -38,12 +38,14 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - For the About page (P2.1g, D-023): a photo you're happy with, and a few sentences on why you make games.
-- Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. Before any real pub offers a drinks prize: check the Isle of Man rules on alcohol promotions (the demo's example drink, D-024, doesn't wait on it).
+- Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
 
 ### 2026-10-20
 - P2.1g, the About page (`draft/P2.1g-about-page`), goes live without the photo at the owner's word, to test on the live site; the photo of Keith and Bineeta follows this afternoon. A family studio: Bineeta and Luke as the first testers; why the name (Naidoo without the N). Linked from both footers and from "Tell Keith" on `/promo-games/`; noindex and out of the sitemap, like `/promo-games/`.
+- #56 (P2.0n + P2.0p) merged. Outreach starts tonight (owner). The Firebase apps for Reactor Panic, Submarine Panic and Pomodorable are created (owner); next there is `/next` on each analytics row.
+- P2.0q (`item/P2.0q-pint-on-us-and-venue-links`, D-025): `?skin=cafe` and `?skin=pub` start on that venue (kinds in `skins/default.js`); the pub's prize is "a pint on us"; no "example" wording on the prize or the winner's screen (the done screen says the board is their customers and the prize is theirs to set); the offer page says the business checks its prize is allowed. Tests red first, then 73 passed. Next: owner opens a café and a pub link on a phone.
 - #55 (the review capture) conflicted with #54 in this log after #54 merged; merged `main` into it and kept both entries.
 - `/idea`: P2.0p, a drink on us (D-024): the demo pub's prize is "a drink on us", soft drinks included, called an example prize, in place of crisps. Supersedes the "not alcohol" framing for the demo only; a real pub's drinks prize still waits on the Isle of Man rules.
 - P2.0n and P2.0p together (`item/P2.0n-P2.0p-drink-on-us`): the winner's screen and the offer page's answer no longer say the moving clock proves it isn't a screenshot (a recording beats it); both say a live game gives a one-off code staff mark used (P2.0b). The claim screen is headed "Example: this week's winner". The pub's lines say "a drink on us", soft drinks included. Tests red first (2 failed), then 72 passed; the old no-drink-prize test now holds D-024's line (no pint, beer or lager alone; a drink prize names soft drinks). Next: owner plays the pub on a phone and approves the wording.
