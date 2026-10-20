@@ -368,6 +368,14 @@ def test_every_shipped_skin_names_a_made_up_venue(path):
     assert "made up" in skin["fictional"].lower() or "made-up" in skin["fictional"]
 
 
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_tagline_fits_one_line_beside_the_sound_button(path):
+    # At 320px a named link drops the emblem and the tagline sits level with the sound
+    # button: 30 letters ran under it and wrapped, squeezing the glass. The café's 22 fit.
+    skin = json.loads(path.read_text(encoding="utf-8"))
+    assert len(skin["tagline"]) <= 22, skin["tagline"]
+
+
 def test_deploy_serves_the_game_and_its_skin():
     served = check_site.served_files(REPO_ROOT, check_site.deploy_excludes(REPO_ROOT))
     for rel in (
