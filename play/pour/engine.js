@@ -13,7 +13,7 @@
   var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
-  var POURERS = ["tap", "jug"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
+  var POURERS = ["tap", "jug", "carton"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
@@ -77,6 +77,8 @@
     if (drink.pourer !== undefined && POURERS.indexOf(drink.pourer) < 0) problems.push("drink.pourer must be one of: " + POURERS.join(", "));
     // The stream is the drink's own colour unless the skin gives it another.
     if (drink.stream !== undefined && !COLOUR.test(drink.stream)) problems.push("drink.stream must be a hex colour");
+    // Bubbles, churn and a frothy head are on unless the skin turns them off (a still drink has none).
+    if (drink.fizz !== undefined && typeof drink.fizz !== "boolean") problems.push("drink.fizz must be true or false");
     var glass = drink.glass;
     var glassOk = Array.isArray(glass) && glass.length >= 3 && glass.length <= 24 && glass.every(function (p) {
       return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, 100);

@@ -13,6 +13,9 @@ const GAME = path.join(__dirname, "..", "play", "pour");
 const SOURCES = ["skins/default.js", "engine.js", "game.js"].map((f) => fs.readFileSync(path.join(GAME, f), "utf8"));
 const settle = () => new Promise((r) => setImmediate(r));
 
+// How tall the stand-in canvas is; a scenario may shorten it to a small phone's.
+let stage = 420;
+
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
 function boot(search, tweak) {
   let clock = 1000;
@@ -25,10 +28,37 @@ function boot(search, tweak) {
   const stops = []; // every colour a gradient was given
   const paths = []; // every SVG path the canvas was asked to build
   const arcs = []; // every circle drawn: x, y and radius
+  const trace = []; // every canvas call and setting, with its values, to compare frames exactly
+  const fmt = (v) => (typeof v === "number" ? v.toFixed(2) : typeof v === "string" ? v : typeof v);
+
+  // Where the canvas's own transform puts a point, so a test can ask how high a pourer reaches.
+  let m = [1, 0, 0, 1, 0, 0];
+  const saved = [];
+  const reach = { top: Infinity };
+  // Only what is drawn turned (a jug or a carton tipping) counts: the tap's pipe runs off the top on purpose.
+  const at = (x, y) => Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, m[1] * x + m[3] * y + m[5]));
+  const moves = {
+    save: () => saved.push(m.slice()),
+    restore: () => (m = saved.pop() || [1, 0, 0, 1, 0, 0]),
+    setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
+    translate: (x, y) => ((m[4] += m[0] * x + m[2] * y), (m[5] += m[1] * x + m[3] * y)),
+    scale: (x, y) => (m = [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]]),
+    rotate: (r) => {
+      const c = Math.cos(r);
+      const s = Math.sin(r);
+      m = [m[0] * c + m[2] * s, m[1] * c + m[3] * s, m[2] * c - m[0] * s, m[3] * c - m[1] * s, m[4], m[5]];
+    },
+    moveTo: at,
+    lineTo: at,
+    arcTo: (x1, y1, x2, y2) => (at(x1, y1), at(x2, y2)),
+    quadraticCurveTo: (x1, y1, x, y) => (at(x1, y1), at(x, y)),
+    bezierCurveTo: (x1, y1, x2, y2, x, y) => (at(x1, y1), at(x2, y2), at(x, y)),
+    fillRect: (x, y, w, h) => (at(x, y), at(x + w, y + h), at(x, y + h), at(x + w, y)),
+  };
 
   const paint = new Proxy({}, {
-    get: (t, p) => (p in t ? t[p] : (...args) => (drawn.push(p), p === "arc" && arcs.push(args.slice(0, 3)), { addColorStop: (at, colour) => stops.push(colour) })),
-    set: (t, p, v) => ((t[p] = v), true),
+    get: (t, p) => (p in t ? t[p] : (...args) => (moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3)), { addColorStop: (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour)) })),
+    set: (t, p, v) => ((t[p] = v), trace.push(p + "=" + fmt(v)), true),
   });
 
   function element(id) {
@@ -53,7 +83,7 @@ function boot(search, tweak) {
     e.removeAttribute = (k) => (k === "hidden" ? (e.hidden = false) : delete e.attrs[k]);
     e.focus = () => {};
     e.setPointerCapture = () => {};
-    e.getBoundingClientRect = () => ({ width: 375, height: 420, left: 0, top: 0, right: 375, bottom: 420 });
+    e.getBoundingClientRect = () => ({ width: 375, height: stage, left: 0, top: 0, right: 375, bottom: stage });
     e.getContext = () => paint;
     e.firstElementChild = { setAttribute() {} };
     e.parentNode = { id: id + "-parent" };
@@ -115,6 +145,8 @@ function boot(search, tweak) {
     },
   });
   vm.createContext(window);
+  // The same "random" numbers every run, so a whole pour can be compared call for call.
+  vm.runInContext("Math.random = (function () { var s = 7; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })()", window);
   SOURCES.forEach((src) => vm.runInContext(src, window));
 
   const get = document.getElementById;
@@ -128,6 +160,8 @@ function boot(search, tweak) {
     stops,
     paths,
     arcs,
+    trace,
+    reach,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -286,6 +320,61 @@ async function started(search, tweak) {
   for (let i = 0; i < 6; i++) await page.settle();
   out.plainSwitch = page.get("othersTitle").kids.map((a) => a.href);
   out.plain = shown(page);
+
+  // P2.0s: the dairy. ?skin=dairy plays it; a carton pours it, and its milk doesn't fizz.
+  page = boot("?skin=dairy");
+  for (let i = 0; i < 12; i++) await page.settle();
+  out.dairySkin = { fetched: page.fetched.slice(0, 1), venue: page.get("venue").textContent };
+  page = await started("", (s) => ((s.drink.pourer = "carton"), delete s.drink.stream));
+  page.drawn.length = 0;
+  page.advance(16);
+  out.pourers.carton = page.drawn.join(" ");
+  for (const mark of ["with", "without"]) {
+    page = await started("", (s) => ((s.drink.pourer = "carton"), mark === "without" && delete s.emblem));
+    page.drawn.length = 0;
+    page.advance(16);
+    out.marks["carton " + mark] = { paths: page.paths.slice(), drawn: page.drawn.join(" ") };
+  }
+  // The highest the carton reaches, at rest and through a whole pour, on a tall stage
+  // and a short one: none of it may go off the top of the canvas.
+  out.cartonTop = {};
+  for (const tall of [420, 200]) {
+    stage = tall;
+    page = await started("?skin=dairy");
+    page.reach.top = Infinity;
+    page.advance(16);
+    const rest = page.reach.top;
+    page.down(1);
+    page.reach.top = Infinity;
+    page.advance(1550);
+    out.cartonTop[tall] = { rest, pouring: page.reach.top };
+  }
+  stage = 420;
+  // Mid-pour, the bubbles, the churn and the head's bumps are all circles in the glass (poured
+  // from the jug, which draws none of its own).
+  out.fizz = {};
+  for (const fizz of [true, false]) {
+    page = await started("", (s) => ((s.drink.pourer = "jug"), fizz ? delete s.drink.fizz : (s.drink.fizz = false)));
+    page.down(1);
+    page.advance(800);
+    page.arcs.length = 0;
+    page.advance(16);
+    out.fizz[fizz ? "on" : "off"] = page.arcs.filter((a) => a[2] < 9).length;
+  }
+
+  // Each shipped skin, call for call: a frame at rest, then a pour held to the end and
+  // its result, so a change to one pourer can't quietly redraw another venue.
+  out.traces = {};
+  for (const id of ["wobbly-gull", "dozy-otter"]) {
+    page = await started("?skin=" + id);
+    page.trace.length = 0;
+    page.advance(16);
+    page.down(1);
+    page.advance(900);
+    page.up(1);
+    page.advance(700);
+    out.traces[id] = require("crypto").createHash("sha256").update(page.trace.join("\n")).digest("hex");
+  }
 
   process.stdout.write(JSON.stringify(out));
 })();

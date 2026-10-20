@@ -29,7 +29,8 @@ SKINS = sorted((GAME / "skins").glob("*.json"))
 DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
 # What the shipped code may not know about: any shipped skin's venue or drink.
 SKIN_WORDS = re.compile(
-    r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]",
+    r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]"
+    r"|sleepy|\bcow\b|dairy|milk|creamery",
     re.IGNORECASE,
 )
 
@@ -127,8 +128,8 @@ def _text(rel):
 # --- the rules -----------------------------------------------------------------
 
 
-def test_two_skins_ship():
-    assert [p.stem for p in SKINS] == ["dozy-otter", "wobbly-gull"]
+def test_three_skins_ship():
+    assert [p.stem for p in SKINS] == ["dozy-otter", "sleepy-cow", "wobbly-gull"]
 
 
 def test_the_skin_list_names_files_that_exist_and_ids_match_file_names():
@@ -291,6 +292,8 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         # What pours the drink is one of the kinds game.js can draw, and nothing else.
         lambda s: s["drink"].update(pourer="hose"),
         lambda s: s["drink"].update(stream="white"),
+        # Fizz is on or off, nothing in between.
+        lambda s: s["drink"].update(fizz="no"),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
@@ -303,14 +306,26 @@ def test_a_skin_says_what_pours_the_drink_and_what_colour_it_pours(latte):
     assert run(latte(), ["line", "line"])["problems"] == []
 
 
-def test_the_two_shipped_venues_do_not_pour_from_the_same_thing():
+def test_a_skin_can_pour_from_a_carton_and_turn_its_fizz_off(latte):
+    # P2.0s: milk comes from a carton and has no bubbles; a skin that doesn't say still fizzes.
+    milk = latte(lambda s: s["drink"].update(pourer="carton", fizz=False))
+    assert run(milk, ["line", "line"])["problems"] == []
+    fizzy = latte(lambda s: s["drink"].update(fizz=True))
+    assert run(fizzy, ["line", "line"])["problems"] == []
+
+
+def test_the_shipped_venues_do_not_pour_from_the_same_thing():
     pourers = {
         path.stem: json.loads(path.read_text(encoding="utf-8"))["drink"].get(
             "pourer", "tap"
         )
         for path in SKINS
     }
-    assert pourers == {"wobbly-gull": "tap", "dozy-otter": "jug"}
+    assert pourers == {
+        "wobbly-gull": "tap",
+        "dozy-otter": "jug",
+        "sleepy-cow": "carton",
+    }
 
 
 # --- the page ------------------------------------------------------------------
@@ -362,6 +377,7 @@ def test_deploy_serves_the_game_and_its_skin():
         "play/pour/skins/default.js",
         "play/pour/skins/wobbly-gull.json",
         "play/pour/skins/dozy-otter.json",
+        "play/pour/skins/sleepy-cow.json",
         "images/promo/pour-qr.svg",
     ):
         assert rel in served, rel
@@ -531,7 +547,7 @@ def test_a_link_can_name_the_kind_of_venue(ui):
         "skins/wobbly-gull.json",
     ]
     kinds = _text("play/pour/skins/default.js")
-    for kind in ("pub", "cafe"):
+    for kind in ("pub", "cafe", "dairy"):
         assert re.search(kind + r'\s*:\s*"[a-z0-9-]+"', kinds), kind
 
 
@@ -602,7 +618,7 @@ def test_without_a_name_the_game_is_as_it_was(ui):
     assert ui["plain"]["title"] == "The Wobbly Gull"
     assert ui["plain"]["fictional"] == "The Wobbly Gull is a made-up pub."
     assert ui["plain"]["emblem"]
-    assert ui["plainSwitch"] == ["?skin=dozy-otter"]
+    assert ui["plainSwitch"] == ["?skin=dozy-otter", "?skin=sleepy-cow"]
 
 
 def test_a_long_name_wraps_and_is_never_cut_off():
@@ -617,7 +633,10 @@ def test_a_long_name_wraps_and_is_never_cut_off():
 def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     # Switching venue keeps it; the offer page's links never carry it, and the page
     # sends no referrer, so the offer page's analytics can't see it (D-017).
-    assert ui["namedSwitch"] == ["?skin=dozy-otter&name=Noa%20Bakehouse"]
+    assert ui["namedSwitch"] == [
+        "?skin=dozy-otter&name=Noa%20Bakehouse",
+        "?skin=sleepy-cow&name=Noa%20Bakehouse",
+    ]
     html = _text("play/pour/index.html")
     assert re.search(r'<meta name="referrer" content="no-referrer"', html)
     offers = re.findall(r'href="(/promo-games/[^"]*)"', html)
@@ -679,3 +698,49 @@ def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
             and p.suffix in (".html", ".js", ".py", ".svg", ".json")
         ):
             assert "play/pint" not in p.read_text(encoding="utf-8"), "/".join(parts)
+
+
+# --- P2.0s: the dairy, poured from a carton ------------------------------------------
+
+
+def test_the_pub_and_the_cafe_draw_exactly_as_they_did(ui):
+    # Recorded from main before the carton was added: every canvas call and value of a
+    # frame at rest, a pour and its result, with the same "random" numbers each run.
+    assert ui["traces"] == {
+        "wobbly-gull": "a867258b2eba7df04b826032530d05da69ce5d6421c6b81ca6c7eba71c11c86b",
+        "dozy-otter": "dd14a52b458c327219986d45cd13159663a5add2a1cb3640194cf69cd2f40219",
+    }
+
+
+def test_a_dairy_link_starts_on_the_dairy(ui):
+    assert ui["dairySkin"]["fetched"] == ["skins/sleepy-cow.json"]
+    assert ui["dairySkin"]["venue"] == "Sleepy Cow Dairy"
+
+
+def test_the_carton_is_drawn_and_carries_the_emblem(ui):
+    assert ui["pourers"]["carton"] not in (ui["pourers"]["tap"], ui["pourers"]["jug"])
+    marked, plain = ui["marks"]["carton with"], ui["marks"]["carton without"]
+    assert set(marked["paths"]) == {ui["emblem"]}
+    assert marked["drawn"] != plain["drawn"]
+    assert plain["paths"] == []
+
+
+@pytest.mark.parametrize("tall", ["420", "200"])
+def test_the_carton_stays_on_the_canvas_at_rest_and_tipped(ui, tall):
+    seen = ui["cartonTop"][tall]
+    assert 0 <= seen["rest"] < 1e9 and 0 <= seen["pouring"] < 1e9, seen
+
+
+def test_a_skin_without_fizz_pours_no_bubbles(ui):
+    assert ui["fizz"]["on"] > 0
+    assert ui["fizz"]["off"] == 0
+
+
+def test_the_dairy_is_plain_milk_with_a_week_of_it_on_us():
+    skin = json.loads((GAME / "skins" / "sleepy-cow.json").read_text(encoding="utf-8"))
+    assert skin["drink"]["pourer"] == "carton" and skin["drink"]["fizz"] is False
+    for key in ("offer", "prize", "claim"):
+        assert "a week's milk" in skin["copy"][key].lower(), key
+    # Every round glugs: a surge you learn to let go between (D-027).
+    for r in skin["rounds"]:
+        assert 0.5 <= r["surge"] <= 0.7 and 1.6 <= r["surgeHz"] <= 2.2, r
