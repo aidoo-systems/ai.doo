@@ -43,7 +43,7 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 | 26 | Conrod's (Ramsey) | TT-connected owner; a race-week game |
 | 27 | Okell's Brewery | Pub-quiz-night or anniversary game across its pubs |
 | 28 | Davisons Ice Cream | A summer "stack the scoops" game at its parlours |
-| 29 | Isle of Man Creamery | Pour the perfect glass of milk: a family brand game. **Held until a milk skin exists** (2026-10-20) |
+| 29 | Isle of Man Creamery | Pour the perfect glass of milk: a family brand game. The milk skin shipped (P2.0s, #65, 2026-10-20): email drafted |
 | 30 | Local bakeries and farm shops (walk in on a high street) | A quick yes or no |
 | 42 | Wine Down (owner's suggestion; not yet checked as trading) | Pour a glass of wine to the line. **Held until a wine skin exists** |
 | 43 | Wine Cellar (owner's suggestion; not yet checked as trading) | The same |
@@ -89,7 +89,7 @@ The game itself is not tracked ("Nothing is stored or sent" is printed on it), s
 
 The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted until the demo pours their drink. Not built yet; to think through:
 
-- **Milk** (Creamery, #29). The café's jug already pours milk, so a skin is mostly a glass and colours. The open question is the skill: milk has no head, so the game is "stop at the line", which is thinner than the pint.
+- **Milk** (Creamery, #29): built (P2.0s, #65). A carton that glugs into a straight glass, no head; the skill is releasing between glugs. No longer held.
 - **Wine** (#42, #43). Needs a stemmed glass (the stem drawn, never filled) and a bottle pourer (new in `game.js` and `POURERS`). The same skill question, plus the prize: a bar will want a glass of wine, which is the drinks-prize question D-025 leaves to the business.
 
 ## Contact log
