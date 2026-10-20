@@ -78,7 +78,7 @@ Promo games for businesses and events (the offer page is aidoo.biz/promo-games/)
 - From £750, agreed in writing before any payment. £750 covers one simple one-tap game themed to the business, for one location; a brand-new game idea, several locations or a longer run costs more
 - Nothing is paid until the customer has said yes to a game idea. Then a £300 deposit by bank transfer starts the build, and the rest is due when the game goes live. The deposit is not refunded once work starts; if they decide not to go live, nothing more is owed
 - How it goes: a 20-minute chat, about two weeks to build with one round of changes, then three months live. After that it switches off, or stays on for £25 a month
-- Included: a leaderboard with nicknames and no sign-up, a winner's screen staff can check at a glance, hosting for three months, QR code artwork for print, and the number of plays each week
+- Included: a leaderboard with nicknames and no sign-up, a winner's screen staff can check at a glance, hosted and looked after for three months, QR code artwork for print, and the number of plays each week
 - The business chooses its own prize and runs it. Do not advise on the rules for prize promotions or alcohol; say they should check those themselves
 - ai.doo has no figures on what a promo game does for a business's takings. Never claim or estimate any
 - To go ahead or ask more: email hello@aidoo.biz or WhatsApp +44 7624 396325. Do not collect their details yourself
