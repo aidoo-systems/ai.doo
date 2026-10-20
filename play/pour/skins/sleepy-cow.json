@@ -1,0 +1,73 @@
+{
+  "id": "sleepy-cow",
+  "venue": "Sleepy Cow Dairy",
+  "tagline": "Pour the perfect glass",
+  "fictional": "Sleepy Cow Dairy is a made-up dairy.",
+  "switchLabel": "See it as a dairy",
+  "theme": {
+    "bg": "#1d4a2f",
+    "panel": "#2f6a45",
+    "ink": "#fbf7ea",
+    "muted": "#d3e3d2",
+    "accent": "#f2c94c",
+    "accentInk": "#15301f",
+    "counter": "#e8dcc4",
+    "counterEdge": "#c4b496",
+    "metal": "#f7f3ea"
+  },
+  "emblem": {
+    "width": 80,
+    "height": 56,
+    "path": "M26 13 Q22 4 30 2 Q28 8 33 11 Z M54 13 Q58 4 50 2 Q52 8 47 11 Z M22 18 Q8 14 4 22 Q12 28 22 26 Z M58 18 Q72 14 76 22 Q68 28 58 26 Z M22 16 Q40 8 58 16 L60 34 Q62 54 40 54 Q18 54 20 34 Z"
+  },
+  "drink": {
+    "liquid": "#fbf8f0",
+    "liquidDeep": "#e9e2d0",
+    "head": "#ffffff",
+    "headDepth": 0.03,
+    "pourer": "carton",
+    "fizz": false,
+    "glass": [[14, 0], [86, 0], [82, 100], [18, 100]]
+  },
+  "copy": {
+    "start": "Start pouring",
+    "offer": "Top score this week wins a week's milk on us",
+    "beat": "Beat {score} to top the board",
+    "round": "Glass {n} of {total}",
+    "hold": "Hold to pour",
+    "release": "Let go at the line",
+    "hint": "Hold to pour. It glugs: let go as the milk hits the line.",
+    "falseStart": "Keep holding to pour. Have another go.",
+    "again": "Pour again",
+    "perfect": "A perfect glass",
+    "good": "A good glass",
+    "short": "A bit short",
+    "over": "A bit full",
+    "spill": "All over the table",
+    "total": "Your score",
+    "boardTitle": "This week at Sleepy Cow",
+    "you": "You",
+    "prize": "Top on Sunday wins a week's milk on us.",
+    "rival": "{gap} more to pass {name}",
+    "rivalTop": "{gap} more to pass {name} and win a week's milk",
+    "top": "Top of the board. A week's milk is on us.",
+    "best": "Your best today: {score}",
+    "newBest": "A new best for you today",
+    "claim": "A week's milk on us"
+  },
+  "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
+  "rounds": [
+    { "line": 0.8, "speed": 0.5, "surge": 0.5, "surgeHz": 1.6 },
+    { "line": 0.62, "speed": 0.62, "surge": 0.55, "surgeHz": 1.8 },
+    { "line": 0.86, "speed": 0.52, "surge": 0.6, "surgeHz": 2 },
+    { "line": 0.74, "speed": 0.7, "surge": 0.6, "surgeHz": 2.2 },
+    { "line": 0.9, "speed": 0.62, "surge": 0.7, "surgeHz": 2.2 }
+  ],
+  "sampleScores": [
+    { "name": "Aalish", "score": 438 },
+    { "name": "Kerron", "score": 409 },
+    { "name": "Little Ned", "score": 377 },
+    { "name": "Moirrey", "score": 340 },
+    { "name": "Fenella", "score": 295 }
+  ]
+}

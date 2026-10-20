@@ -253,6 +253,10 @@
     var BUMP_MAX = 6.6;
     // The venue's emblem, to go on whatever pours the drink.
     var mark = skin.emblem && typeof Path2D === "function" ? new Path2D(skin.emblem.path) : null;
+    // A still drink has no bubbles, churn or frothy head: a skin turns them off with fizz: false.
+    var fizz = dr.fizz !== false;
+    // A tap's stream comes out from under it; a jug or a carton is in front of its own.
+    var inFront = dr.pourer === "jug" || dr.pourer === "carton";
 
     function reset() {
       fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null };
@@ -479,8 +483,68 @@
       ctx.restore();
     }
 
-    function drawPourer() {
+    // A gable-top carton, poured from the spout notch at the top of one side: upright and
+    // clear of the rim until the pour, then it tips on its spout, further as the glass
+    // fills (it is emptying), and judders on each glug of a surge.
+    function drawCarton(level) {
+      var p = smooth(fx.handle * 1.5);
+      // tipped all the way, the far corner reaches about 1.25h above the spout: smaller where there is little room
+      var h = clamp(Math.min(g.gh * 0.34, (g.tip - 8) / 1.32), 8, 96);
+      var w = h * 0.62;
+      var k = w * 0.12; // the spout's reach out from the side
+      var roof = w * 0.42;
+      var glug = Math.max(0, fx.flow - 1) * fx.handle;
+      ctx.save();
+      ctx.translate(g.cx + lerp(w * 0.5, 0, p), g.tip - 1 - lerp(h, 0, p));
+      ctx.rotate(-(lerp(0.1, 1.7, p) + 0.5 * level * fx.handle + (fx.flow - 1) * 0.2 * fx.handle + Math.sin(fx.t * 46) * 0.03 * glug));
+      var top = k * 0.5;
+      var body = [[k, top], [k + w / 2, top - roof], [k + w, top], [k + w, top + h], [k, top + h]];
+      // the fin along the ridge, then the spout, then the carton
+      ctx.fillStyle = th.metal;
+      box(k + w / 2 - w * 0.05, top - roof - w * 0.1, w * 0.1, w * 0.16, 1.5);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(k * 1.4, top - k * 0.9);
+      ctx.lineTo(k * 1.4, top + k * 1.2);
+      ctx.closePath();
+      ctx.fill();
+      poly(body, h * 0.04);
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      // the roof is a shade darker than the sides
+      ctx.fillStyle = "rgba(0,0,0,.1)";
+      ctx.beginPath();
+      ctx.moveTo(k - 2, top);
+      ctx.lineTo(k + w / 2, top - roof - 2);
+      ctx.lineTo(k + w + 2, top);
+      ctx.closePath();
+      ctx.fill();
+      // the label face, for the venue's emblem, and a band of the room's colour under it
+      ctx.fillStyle = th.accent;
+      ctx.fillRect(k - 2, top + h * 0.16, w + 4, h * 0.52);
+      ctx.fillStyle = th.panel;
+      ctx.fillRect(k - 2, top + h * 0.72, w + 4, h * 0.1);
+      if (mark) drawMark(k + w / 2, top + h * 0.42, Math.min(w * 0.7, h * 0.4), th.accentInk);
+      ctx.fillStyle = "rgba(255,255,255,.4)";
+      ctx.fillRect(k + w * 0.1, top - roof, w * 0.1, h + roof);
+      ctx.fillStyle = "rgba(0,0,0,.16)";
+      ctx.fillRect(k + w * 0.8, top - roof, w * 0.3, h + roof);
+      ctx.restore();
+      // the notch the drink runs from
+      ctx.strokeStyle = "rgba(0,0,0,.3)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(k * 0.3, 0);
+      ctx.lineTo(k * 1.4, top);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawPourer(level) {
       if (dr.pourer === "jug") drawJug();
+      else if (dr.pourer === "carton") drawCarton(level);
       else drawTap();
     }
 
@@ -570,7 +634,7 @@
         ctx.fillStyle = lit;
         ctx.fillRect(x0, bodyTop - 3, x1 - x0, 34);
 
-        if (live) {
+        if (live && fizz) {
           ctx.fillStyle = rgba(dr.head, 0.55);
           bubbles.forEach(function (b) {
             if (b.y > bodyTop + 3) {
@@ -599,7 +663,7 @@
           ctx.closePath();
           ctx.fill();
           var n = 0;
-          for (x = g.gx; x <= g.gx + g.gw; x += 9) {
+          for (x = g.gx; fizz && x <= g.gx + g.gw; x += 9) {
             var r = Math.min(bumps[n++ % bumps.length], headH * 0.8 + 1.5);
             ctx.beginPath();
             ctx.arc(x, ys + wave(x) + r + (BUMP_MAX - r) * 0.22, r, 0, 6.3);
@@ -899,7 +963,7 @@
 
         var span = g.bottom - g.top;
         var bodyTop = yAt(s.level) + dr.headDepth * s.level * span;
-        if (s.level > 0.06 && bubbles.length < 20 && Math.random() < dt * 16) {
+        if (fizz && s.level > 0.06 && bubbles.length < 20 && Math.random() < dt * 16) {
           var by = g.bottom - rand(0, 10);
           var edge = xRange(g.inner, by - 4);
           if (edge) bubbles.push({ x: rand(edge[0] + 6, edge[1] - 6), y: by, r: rand(0.8, 2.3), v: rand(24, 56), ph: rand(0, 6) });
@@ -914,14 +978,14 @@
         ctx.save();
         if (fx.shake > 0) ctx.translate(Math.sin(fx.t * 70) * 5 * fx.shake, Math.cos(fx.t * 55) * 3 * fx.shake);
         drawCounter();
-        // A tap's stream comes out from under it; a jug is in front of its own.
-        if (dr.pourer !== "jug") drawPourer();
+
+        if (!inFront) drawPourer(s.level);
         var e = smooth(1 - fx.slide);
         if (fx.slide > 0 && fx.ghost) drawGlass(e * W * 0.95, fx.ghost.level, null, false, false);
         else fx.ghost = null;
         var ox = fx.slide > 0 ? -(1 - e) * W * 0.95 : 0;
         if (ox === 0) drawStream(s.level);
-        if (dr.pourer === "jug") drawPourer();
+        if (inFront) drawPourer(s.level);
         drawGlass(ox, s.level, s.line, true, s.pouring);
         drawSpill();
         drawParts(dt);
