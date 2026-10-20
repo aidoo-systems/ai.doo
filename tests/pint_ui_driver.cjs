@@ -207,6 +207,13 @@ async function started(search, tweak) {
   page = boot("?skin=nope");
   for (let i = 0; i < 12; i++) await page.settle();
   out.unknownSkin = { fetched: page.fetched.slice(0, 2), venue: page.get("venue").textContent, start: page.get("start").hidden };
+  // A link can name the kind of venue, not the skin's file: ?skin=cafe, ?skin=pub.
+  page = boot("?skin=cafe");
+  for (let i = 0; i < 12; i++) await page.settle();
+  out.kindSkin = { fetched: page.fetched.slice(0, 1), venue: page.get("venue").textContent };
+  page = boot("?skin=constructor");
+  for (let i = 0; i < 12; i++) await page.settle();
+  out.oddKind = { fetched: page.fetched.slice(0, 2) };
   page = boot("?skin=../x");
   for (let i = 0; i < 6; i++) await page.settle();
   out.unsafeSkin = { fetched: page.fetched.slice(0, 1) };
