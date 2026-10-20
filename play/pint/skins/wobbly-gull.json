@@ -29,7 +29,7 @@
   },
   "copy": {
     "start": "Start pouring",
-    "offer": "Top score this week: crisps on us, and your name on the wall",
+    "offer": "Example prize: a drink on us for the week's top score, soft drinks included",
     "beat": "Beat {score} to top the board",
     "round": "Pint {n} of {total}",
     "hold": "Hold to pour",
@@ -45,13 +45,13 @@
     "total": "Your score",
     "boardTitle": "This week at the Gull",
     "you": "You",
-    "prize": "Top on Sunday wins the crisps and their name on the wall.",
+    "prize": "Top on Sunday wins a drink on us, soft drinks included, and their name on the wall.",
     "rival": "{gap} more to pass {name}",
-    "rivalTop": "{gap} more to pass {name} and win the crisps",
-    "top": "Top of the board. The crisps are on us.",
+    "rivalTop": "{gap} more to pass {name} and win the drink",
+    "top": "Top of the board. The drink's on us.",
     "best": "Your best today: {score}",
     "newBest": "A new best for you today",
-    "claim": "Crisps on us, and your name on the wall"
+    "claim": "A drink on us, soft drinks included"
   },
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [

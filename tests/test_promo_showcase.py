@@ -348,12 +348,17 @@ def test_the_game_keeps_and_sends_nothing():
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
-def test_every_shipped_skin_names_a_made_up_venue_and_no_drink_as_a_prize(path):
+def test_every_shipped_skin_names_a_made_up_venue_and_no_alcohol_only_prize(path):
+    # D-024: a drink may be the prize only if soft drinks count; never a pint or a beer.
     skin = json.loads(path.read_text(encoding="utf-8"))
     assert "made up" in skin["fictional"].lower() or "made-up" in skin["fictional"]
+    text = json.dumps(skin)
     assert not re.search(
-        r"free (pint|drink|beer)|wins? a (pint|drink|beer)", json.dumps(skin), re.I
+        r"free (pint|beer|lager)|wins? (a|the) (pint|beer|lager)", text, re.I
     )
+    for key in ("offer", "prize", "claim"):
+        if re.search(r"\bdrinks?\b", skin["copy"][key], re.I):
+            assert "soft drinks" in skin["copy"][key], key
 
 
 def test_deploy_serves_the_game_and_its_skin():
@@ -434,6 +439,39 @@ def test_the_demo_shows_an_example_winners_screen_labelled_as_one():
     assert "An example." in html
     for path in SKINS:
         assert json.loads(path.read_text(encoding="utf-8"))["copy"]["claim"], path.stem
+
+
+def test_the_winners_screen_claims_only_what_it_does():
+    # P2.0n: a moving clock is beaten by a screen recording, so nothing may say it proves
+    # the win. The line says what a live game would do instead: a one-off code staff mark used.
+    html = _text("play/pint/index.html")
+    claim = html[html.index('id="claim"') :]
+    faq = _text("promo-games/index.html")
+    for text in (claim, faq, _text("play/pint/game.js")):
+        for phrase in (
+            "isn't a screenshot",
+            "can't be a screenshot",
+            "shows it isn't",
+            "proves",
+            "proof",
+        ):
+            assert phrase not in text, phrase
+    assert "one-off code" in claim and "one-off code" in faq
+    assert "Example" in claim[: claim.index('id="claimVenue"')]
+
+
+def test_the_pub_offers_a_drink_soft_drinks_included_as_an_example():
+    # P2.0p (D-024): the made-up pub's prize is the one a real pub would offer, and every
+    # place it's named says soft drinks count; the title line says it's an example.
+    copy_ = json.loads(
+        (GAME / "skins" / "wobbly-gull.json").read_text(encoding="utf-8")
+    )["copy"]
+    for key in ("offer", "prize", "claim"):
+        assert "a drink on us" in copy_[key].lower(), key
+        assert "soft drinks" in copy_[key], key
+    assert "example" in copy_["offer"].lower()
+    for key, line in copy_.items():
+        assert "crisps" not in line, key
 
 
 def test_the_title_screen_leads_with_the_prize_and_labels_it_an_example():

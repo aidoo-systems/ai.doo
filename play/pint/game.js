@@ -1313,8 +1313,8 @@
       muteBtn.setAttribute("aria-pressed", String(sound.toggle()));
     });
 
-    // ---- an example of what a winner shows the staff. The clock keeps moving, which a
-    // screenshot can't. A live game would only give this screen to the real winner.
+    // ---- an example of what a winner shows the staff. A moving clock doesn't stop a screen
+    // recording, so it claims nothing; a live game gives the real winner a one-off code (P2.0b).
 
     var markBtn = $("claimMark");
     var markText = markBtn.textContent;
