@@ -239,3 +239,23 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** D-024's "a drink on us, soft drinks included", labelled an example.
 - **Consequences:** The outreach emails' rule (no drink as a real prize until the Isle of Man rules are checked) relaxes to: the business sets and checks its own prize; we don't advise on promotion law (the chatbot already says so). If a pub asks us what's allowed, we say they should check.
 - **Revisit when:** A prospect or the regulator raises it, or a pub client sets a drinks prize.
+
+## D-026 — The offer page speaks as "we", and says we build it and look after it
+
+- **Status:** Accepted (owner, 2026-10-20: "Let's go with we")
+- **Date:** 2026-10-20
+- **Decision:** `/promo-games/` keeps "we" throughout. Its hero line says "We build it and look after it", and the price card and the chatbot say the game is "hosted and looked after for three months". Outreach emails signed by Keith keep "I build it and look after it".
+- **Why:** A café owner's first worry is who keeps the game running. The page already spoke as "we", and mixing voices on one page reads as careless.
+- **Alternatives:** Switching the page to "I", to match the About page and the emails.
+- **Consequences:** "Live in about two weeks" left the hero line; it stays in "How it goes" and the chatbot (#63).
+- **Revisit when:** The About page or a client says the studio reads as bigger than it is.
+
+## D-027 — A prospect hears from us once the demo pours their drink
+
+- **Status:** Accepted (owner, 2026-10-20: "I don't want to reach out to the new prospects until I have a game that speaks their language"; "I like A ... It feels more like milk, for a dairy company"; asked whether a carton should pour it)
+- **Date:** 2026-10-20
+- **Decision:** A prospect whose drink isn't a pint or a latte isn't contacted until the demo has a skin that pours it. The Isle of Man Creamery waits on a milk skin (P2.0s); Wine Down and Wine Cellar wait on a wine skin (P2.0t, parked). The milk skin is mock A, plain milk, carried forward with a designer agent's review: a milk carton pours it (a new `carton` pourer, the carton's face a label for the dairy's logo), each glug a surge you learn to release between, no bubbles, a straight tumbler, a lighter morning room, and a prize such as "a week's milk on us". At the pitch it wears the Creamery's own colours.
+- **Why:** A café's latte link won't persuade a dairy; the demo sells by looking like the thing the business would run. A carton reads as milk, where the steel jug reads as a café. Plain milk has no head, so the glug keeps it a skill.
+- **Alternatives:** Emailing with today's links and building on a reply (Claude's first suggestion); a strawberry milkshake (mock B, the strongest skill, but less like a dairy); chocolate milk (mock C); a glass milk bottle (little label room, a steep tip).
+- **Consequences:** Outreach to these three waits on a build; the five drafted emails don't. The bottle, an emptying carton, a moving line and a cereal-bowl round wait for a dairy's yes.
+- **Revisit when:** The 2026-11-26 review, or a dairy or wine bar gets in touch first.
