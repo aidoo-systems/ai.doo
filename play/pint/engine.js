@@ -259,8 +259,16 @@
     return game;
   }
 
+  // A prospect's venue name from the demo's link (?name=), or null if it isn't one: at
+  // most 32 letters, digits, spaces and & ' . - with at least one letter or digit.
+  function guestName(asked) {
+    var name = typeof asked === "string" ? asked.trim() : "";
+    return name.length <= 32 && /^[\p{L}\p{N} &'.-]+$/u.test(name) && /[\p{L}\p{N}]/u.test(name) ? name : null;
+  }
+
   return {
     validateSkin: validateSkin,
+    guestName: guestName,
     scorePour: scorePour,
     roundLabel: roundLabel,
     board: board,

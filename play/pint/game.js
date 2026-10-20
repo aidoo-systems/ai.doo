@@ -56,6 +56,19 @@
       });
   }
 
+  // The prospect's own venue name, from the link in our email; null when there isn't one.
+  // It is only ever drawn as text, and goes nowhere but this page and its venue switch.
+  var guest = E.guestName(new URLSearchParams(location.search).get("name"));
+
+  // The skin as the prospect sees it: their name for the made-up venue's, and not its emblem.
+  function forGuest(skin) {
+    if (!guest) return skin;
+    var named = Object.assign({}, skin, { venue: guest, fictional: "Made for " + guest + " as a sample." });
+    named.copy = Object.assign({}, skin.copy, { boardTitle: "This week's scores" });
+    delete named.emblem;
+    return named;
+  }
+
   // A name nobody has (a typo, a retired skin on old artwork) plays the default skin.
   var asked = skinId();
   loadSkin(asked)
@@ -63,7 +76,9 @@
       if (asked === window.POUR_SKIN) throw err;
       return loadSkin(window.POUR_SKIN);
     })
-    .then(start)
+    .then(function (skin) {
+      return start(forGuest(skin));
+    })
     .catch(function () {
       $("tagline").textContent = "Sorry, this game couldn't load. Please try again.";
       document.documentElement.classList.add("ready");
@@ -956,7 +971,7 @@
         ["othersTitle", "othersDone"].forEach(function (where) {
           var a = document.createElement("a");
           a.className = "other";
-          a.href = "?skin=" + id;
+          a.href = "?skin=" + id + (guest ? "&name=" + encodeURIComponent(guest) : "");
           a.textContent = other.switchLabel;
           $(where).appendChild(a);
         });

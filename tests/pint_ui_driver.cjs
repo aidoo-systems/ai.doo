@@ -245,5 +245,40 @@ async function started(search, tweak) {
   page = await started();
   out.venueShown = { venue: skin.venue, play: page.get("playVenue").textContent, done: page.get("doneVenue").textContent };
 
+  // A prospect's own name from the email's link (?name=), and names that aren't one.
+  const shown = (p) => ({
+    title: p.get("venue").textContent,
+    play: p.get("playVenue").textContent,
+    done: p.get("doneVenue").textContent,
+    claim: p.get("claimVenue").textContent,
+    fictional: p.get("fictional").textContent,
+    tab: p.document.title,
+    board: p.get("boardTitle").textContent,
+    emblem: "viewBox" in p.get("emblem").attrs, // the stand-in starts shown; only a skin emblem sets its box
+  });
+  out.named = {};
+  const names = {
+    plain: "Noa Bakehouse",
+    marks: "O'Brien's Bar & Grill",
+    longest: "A".repeat(32),
+    tooLong: "A".repeat(33),
+    html: "<b>Noa</b>",
+    empty: "",
+    padded: "  Café 360  ",
+    punctuationOnly: "...",
+  };
+  for (const [key, name] of Object.entries(names)) {
+    page = await started("?name=" + encodeURIComponent(name));
+    page.advance(16);
+    out.named[key] = Object.assign(shown(page), { badge: page.paths.length > 0 });
+  }
+  page = await started("?skin=wobbly-gull&name=" + encodeURIComponent("Noa Bakehouse"));
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.namedSwitch = page.get("othersTitle").kids.map((a) => a.href);
+  page = await started();
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.plainSwitch = page.get("othersTitle").kids.map((a) => a.href);
+  out.plain = shown(page);
+
   process.stdout.write(JSON.stringify(out));
 })();
