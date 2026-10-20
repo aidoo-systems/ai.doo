@@ -102,7 +102,7 @@ def test_both_studio_pages_load_the_play_script_and_the_suite_pages_do_not():
     assert '<script defer src="../studio.js"></script>' in _text(
         "promo-games/index.html"
     )
-    for rel in SUITE_PAGES + ("play/pint/index.html",):
+    for rel in SUITE_PAGES + ("play/pour/index.html",):
         assert "studio.js" not in _text(rel), rel
 
 
@@ -114,7 +114,7 @@ def test_the_play_button_only_offers_things_that_play_in_a_browser():
         "https://forcesensitivesaiyan.itch.io/orbital-panic": "Play Orbital Panic",
         "https://forcesensitivesaiyan.itch.io/reactor-panic": "Play Reactor Panic",
         "https://pipes98.com/": "Play Pipes 98",
-        "play/pint/": "Pour a pint",
+        "play/pour/": "Pour a pint",
     }
     # on the offer page it is the demo and nothing that leads a buyer away
     offer = dict(
@@ -122,7 +122,7 @@ def test_the_play_button_only_offers_things_that_play_in_a_browser():
             r'href="([^"]+)"[^>]*data-play="([^"]+)"', _text("promo-games/index.html")
         )
     )
-    assert offer == {"/play/pint/": "Play the demo"}
+    assert offer == {"/play/pour/": "Play the demo"}
 
 
 def test_the_play_script_stores_and_fetches_nothing_and_respects_reduced_motion():

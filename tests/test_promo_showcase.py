@@ -1,6 +1,6 @@
-"""P2.0a: the playable promo showcase at /play/pint/, and its place on /promo-games/.
+"""P2.0a: the playable promo showcase at /play/pour/, and its place on /promo-games/.
 
-The game's rules live in play/pint/engine.js and are run here under Node, so a
+The game's rules live in play/pour/engine.js and are run here under Node, so a
 skin is proved to be data: the tests hand the same engine a skin it has never seen.
 """
 
@@ -24,7 +24,7 @@ sys.path.insert(
 import check_site  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-GAME = REPO_ROOT / "play" / "pint"
+GAME = REPO_ROOT / "play" / "pour"
 SKINS = sorted((GAME / "skins").glob("*.json"))
 DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
 # What the shipped code may not know about: any shipped skin's venue or drink.
@@ -95,7 +95,7 @@ LATTE = {
 
 def run(skin_path, plays):
     node = shutil.which("node")
-    assert node, "Node.js is needed to run play/pint/engine.js in the tests"
+    assert node, "Node.js is needed to run play/pour/engine.js in the tests"
     done = subprocess.run(
         [node, str(DRIVER), str(skin_path), json.dumps(plays)],
         capture_output=True,
@@ -132,7 +132,7 @@ def test_two_skins_ship():
 
 
 def test_the_skin_list_names_files_that_exist_and_ids_match_file_names():
-    listing = _text("play/pint/skins/default.js")
+    listing = _text("play/pour/skins/default.js")
     default = re.search(r'POUR_SKIN = "([^"]+)"', listing).group(1)
     listed = re.findall(
         r'"([a-z0-9-]+)"', re.search(r"POUR_SKINS = \[(.*?)\]", listing).group(1)
@@ -173,7 +173,7 @@ def test_a_second_skin_is_data_alone(latte):
 
 
 def test_the_shipped_code_knows_nothing_about_the_first_skin():
-    for rel in ("play/pint/engine.js", "play/pint/game.js", "play/pint/index.html"):
+    for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
         found = SKIN_WORDS.findall(_text(rel))
         assert found == [], f"{rel}: {found}"
 
@@ -317,7 +317,7 @@ def test_the_two_shipped_venues_do_not_pour_from_the_same_thing():
 
 
 def test_the_game_page_is_unlisted_and_says_its_scores_are_samples():
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     assert re.search(r'<meta name="robots" content="noindex', html)
     assert 'rel="canonical"' not in html
     assert "/play/" not in _text("sitemap.xml")
@@ -326,7 +326,7 @@ def test_the_game_page_is_unlisted_and_says_its_scores_are_samples():
 
 
 def test_the_game_keeps_and_sends_nothing():
-    for rel in ("play/pint/engine.js", "play/pint/game.js", "play/pint/index.html"):
+    for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
         text = _text(rel)
         for api in (
             "localStorage",
@@ -341,7 +341,7 @@ def test_the_game_keeps_and_sends_nothing():
         ):
             assert api not in text, f"{rel}: {api}"
     # The one request the game makes is for its own skin file, by a safe name.
-    js = _text("play/pint/game.js")
+    js = _text("play/pour/game.js")
     assert len(re.findall(r"\bfetch\(", js)) == 1
     assert re.search(r"fetch\(\s*[`\"']skins/", js)
     assert "/^[a-z0-9-]+$/" in js
@@ -356,13 +356,13 @@ def test_every_shipped_skin_names_a_made_up_venue(path):
 def test_deploy_serves_the_game_and_its_skin():
     served = check_site.served_files(REPO_ROOT, check_site.deploy_excludes(REPO_ROOT))
     for rel in (
-        "play/pint/index.html",
-        "play/pint/engine.js",
-        "play/pint/game.js",
-        "play/pint/skins/default.js",
-        "play/pint/skins/wobbly-gull.json",
-        "play/pint/skins/dozy-otter.json",
-        "images/promo/pint-qr.svg",
+        "play/pour/index.html",
+        "play/pour/engine.js",
+        "play/pour/game.js",
+        "play/pour/skins/default.js",
+        "play/pour/skins/wobbly-gull.json",
+        "play/pour/skins/dozy-otter.json",
+        "images/promo/pour-qr.svg",
     ):
         assert rel in served, rel
 
@@ -372,9 +372,9 @@ def test_deploy_serves_the_game_and_its_skin():
 
 def test_the_offer_page_leads_with_the_playable_example():
     html = _text("promo-games/index.html")
-    assert 'href="/play/pint/"' in html
-    assert 'href="/play/pint/?skin=dozy-otter"' in html
-    assert 'src="../images/promo/pint-qr.svg"' in html
+    assert 'href="/play/pour/"' in html
+    assert 'href="/play/pour/?skin=dozy-otter"' in html
+    assert 'src="../images/promo/pour-qr.svg"' in html
     # "No app to download" and a store link can't share a page.
     assert "play.google.com" not in html
     assert "tea-tower.webp" not in html
@@ -396,7 +396,7 @@ def test_the_offer_page_walks_through_the_customers_side_and_claims_no_results()
 
 def test_the_offer_page_is_measured_and_the_game_is_not():
     # "Nothing is stored or sent" is printed on the game: no analytics may load there.
-    for rel in ("play/pint/index.html", "play/pint/game.js", "play/pint/engine.js"):
+    for rel in ("play/pour/index.html", "play/pour/game.js", "play/pour/engine.js"):
         assert "analytics" not in _text(rel), rel
     offer = _text("promo-games/index.html")
     assert "analytics.aidoo.biz/script.js" in offer
@@ -404,7 +404,7 @@ def test_the_offer_page_is_measured_and_the_game_is_not():
         assert f'data-umami-event="{event}"' in offer, event
     assert 'data-umami-event="whatsapp-contact"' in offer
     # Coming back from the game is visible as its own page view.
-    assert 'href="/promo-games/?from=demo#price"' in _text("play/pint/index.html")
+    assert 'href="/promo-games/?from=demo#price"' in _text("play/pour/index.html")
 
 
 def test_the_offer_page_puts_the_demo_first_and_answers_the_buyers_questions():
@@ -426,7 +426,7 @@ def test_the_offer_page_puts_the_demo_first_and_answers_the_buyers_questions():
 
 
 def test_the_demo_shows_a_winners_screen():
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     assert 'id="claimOpen"' in html and 'id="claim"' in html
     assert "only the real winner" in html
     for path in SKINS:
@@ -436,10 +436,10 @@ def test_the_demo_shows_a_winners_screen():
 def test_the_winners_screen_claims_only_what_it_does():
     # P2.0n: a moving clock is beaten by a screen recording, so nothing may say it proves
     # the win. The line says what a live game would do instead: a one-off code staff mark used.
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     claim = html[html.index('id="claim"') :]
     faq = _text("promo-games/index.html")
-    for text in (claim, faq, _text("play/pint/game.js")):
+    for text in (claim, faq, _text("play/pour/game.js")):
         for phrase in (
             "isn't a screenshot",
             "can't be a screenshot",
@@ -466,7 +466,7 @@ def test_the_pub_offers_a_pint_and_reads_as_meant():
 
 
 def test_the_title_screen_leads_with_the_prize_and_says_its_theirs_to_set():
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     assert 'id="offer"' in html
     assert "the prize is yours to set" in html
     for path in SKINS:
@@ -481,7 +481,7 @@ def test_the_title_screen_leads_with_the_prize_and_says_its_theirs_to_set():
 @pytest.fixture(scope="module")
 def ui():
     node = shutil.which("node")
-    assert node, "Node.js is needed to run play/pint/game.js in the tests"
+    assert node, "Node.js is needed to run play/pour/game.js in the tests"
     done = subprocess.run(
         [node, str(REPO_ROOT / "tests" / "pint_ui_driver.cjs")],
         capture_output=True,
@@ -530,7 +530,7 @@ def test_a_link_can_name_the_kind_of_venue(ui):
         "skins/constructor.json",
         "skins/wobbly-gull.json",
     ]
-    kinds = _text("play/pint/skins/default.js")
+    kinds = _text("play/pour/skins/default.js")
     for kind in ("pub", "cafe"):
         assert re.search(kind + r'\s*:\s*"[a-z0-9-]+"', kinds), kind
 
@@ -551,7 +551,7 @@ def test_the_stream_takes_the_colour_the_skin_gives_it(ui):
 
 def test_the_venue_is_named_while_playing_and_on_the_results(ui):
     # "Your name on it" is the product: the name may not vanish after the title screen.
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     play = html[html.index('id="play"') : html.index('id="done"')]
     done = html[html.index('id="done"') : html.index('id="claim"')]
     assert 'id="playVenue"' in play and 'id="playEmblem"' in play
@@ -607,7 +607,7 @@ def test_without_a_name_the_game_is_as_it_was(ui):
 
 def test_a_long_name_wraps_and_is_never_cut_off():
     # 32 wide letters need three lines in a name row at 320px (Codex, round 1).
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     for selector in (r"\.brand span", r"\.venue"):
         rule = re.search(selector + r"\{([^}]*)\}", html).group(1)
         assert "overflow-wrap:anywhere" in rule, selector
@@ -618,11 +618,11 @@ def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     # Switching venue keeps it; the offer page's links never carry it, and the page
     # sends no referrer, so the offer page's analytics can't see it (D-017).
     assert ui["namedSwitch"] == ["?skin=dozy-otter&name=Noa%20Bakehouse"]
-    html = _text("play/pint/index.html")
+    html = _text("play/pour/index.html")
     assert re.search(r'<meta name="referrer" content="no-referrer"', html)
     offers = re.findall(r'href="(/promo-games/[^"]*)"', html)
     assert offers and not [h for h in offers if "name" in h]
-    js = _text("play/pint/game.js")
+    js = _text("play/pour/game.js")
     assert not re.search(r"promo-games", js)
 
 
@@ -640,7 +640,7 @@ def test_the_offer_page_stays_short_enough_to_read():
 def test_the_chatbot_knows_the_promo_offer_and_keeps_pilot_prices_to_the_ai_tools():
     prompt = _text("api/chat.py")
     for fact in (
-        "aidoo.biz/play/pint/",
+        "aidoo.biz/play/pour/",
         "£300 deposit",
         "+44 7624 396325",
         "From £750",
@@ -655,3 +655,18 @@ def test_the_chatbot_knows_the_promo_offer_and_keeps_pilot_prices_to_the_ai_tool
     pricing = prompt.index("Engagement models / pricing for PIKA and VERA only")
     assert pricing < prompt.index("£3,000")
     assert prompt.count("£3,000") == 1
+
+
+def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
+    # P2.0r: a cafe's link shouldn't say pint; nobody else has the old links, so no forwarding page
+    assert not (REPO_ROOT / "play" / "pint").exists()
+    assert (REPO_ROOT / "play" / "pour" / "index.html").is_file()
+    skip = (".claude", ".git", "docs", "_docs_build", "node_modules", "tests")
+    for p in REPO_ROOT.rglob("*"):
+        parts = p.relative_to(REPO_ROOT).parts
+        if (
+            p.is_file()
+            and not set(parts) & set(skip)
+            and p.suffix in (".html", ".js", ".py", ".svg", ".json")
+        ):
+            assert "play/pint" not in p.read_text(encoding="utf-8"), "/".join(parts)
