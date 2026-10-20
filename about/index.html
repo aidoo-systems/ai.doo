@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About Keith | ai.doo</title>
+  <meta name="description" content="ai.doo is Keith, making small games and apps on the Isle of Man, and promo games for local businesses." />
+  <meta name="robots" content="noindex">
+  <meta name="author" content="ai.doo">
+
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#141312">
+
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    /* About (P2.1g, D-023): one person, plainly. DRAFT: the photo and the words are placeholders for Keith's own */
+    .aboutHero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;align-items:center;padding-bottom:24px}
+    .aboutHero .sub{font-size:clamp(17px,1.5vw,20px);max-width:52ch}
+    .photo{aspect-ratio:4/5;border-radius:28px;background:#1f1d1b;border:2px dashed rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px;padding:24px}
+    .story{max-width:64ch}
+    .story p{color:var(--muted);font-size:17px;line-height:1.7;margin:0 0 16px}
+    .story h2{margin:0 0 12px}
+    .made{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+    .made a{display:block;border-radius:20px;overflow:hidden;border:1px solid var(--stroke);background:var(--card);color:var(--ink);text-decoration:none}
+    .made img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
+    .made span{display:block;padding:12px 16px;font-weight:700}
+    .made small{display:block;padding:0 16px 14px;margin-top:-6px;color:var(--muted);font-size:13.5px}
+    .facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:22px 0 0;padding:0;list-style:none;color:var(--muted);font-size:15px}
+    .facts b{color:var(--ink)}
+    @media (max-width:920px){
+      .aboutHero{grid-template-columns:1fr;gap:28px}
+      .photo{max-width:320px}
+      .made{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width:520px){.made{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="studio">
+<a href="#top" class="skip-link">Skip to content</a>
+<header>
+  <div class="nav">
+    <a class="brand" href="/" aria-label="ai.doo home">
+      <span class="wordmark" aria-label="ai.doo">
+        <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+      </span>
+    </a>
+
+    <div class="navRight">
+      <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Hello" data-umami-event="email-about-nav">Email me</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+
+  <section class="hero aboutHero">
+    <div>
+      <p class="kicker">About</p>
+      <h1>Hi, I'm Keith. I make small games.</h1>
+      <p class="sub">
+        ai.doo is me, on the Isle of Man. I make games and apps you can pick up in a spare minute,
+        and now I make them for local businesses too: a short game with your name on it, for your
+        customers to play while they wait.
+      </p>
+      <ul class="facts">
+        <li><b>One person</b>, so you deal with me</li>
+        <li><b>Made here</b>, on the Isle of Man</li>
+        <li><b>Games out</b> on Google Play</li>
+      </ul>
+    </div>
+    <div class="photo" role="img" aria-label="Keith">Your photo goes here<br>(4:5, about 600 by 750)</div>
+  </section>
+
+  <section class="section">
+    <div class="story">
+      <h2 class="h2">Why games</h2>
+      <p>
+        I like things you can play in the gaps: waiting for a coffee, a bus, the kids. A minute that
+        leaves you smiling is a good minute, and most of what I build starts as something I wanted on
+        my own phone.
+      </p>
+      <p>
+        I care about the small stuff: that it opens fast, feels good under your thumb, and doesn't ask
+        for your email or fill your screen with ads.
+      </p>
+
+      <h2 class="h2" style="margin-top:36px">Why make them for businesses</h2>
+      <p>
+        A café or a pub already has people waiting. A short game with your name on it gives them
+        something to do, a reason to come back and beat their score, and a prize you choose for the
+        top of the board. I build it, keep it running, and you get one person to talk to.
+      </p>
+      <p>
+        <a href="/play/pint/" data-umami-event="play-demo-about">Have a go at the demo</a>, or see
+        <a href="/promo-games/">what it costs</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="h2">Some things I've made</h2>
+    <div class="made">
+      <a href="/#orbital-panic"><img src="../images/work/orbital-panic.webp" alt="" loading="lazy"><span>Orbital Panic</span><small>One-tap orbital arcade</small></a>
+      <a href="/#submarine-panic"><img src="../images/work/submarine-panic.webp" alt="" loading="lazy"><span>Submarine Panic</span><small>Arcade, under the sea</small></a>
+      <a href="/#reactor-panic"><img src="../images/work/reactor-panic.webp" alt="" loading="lazy"><span>Reactor Panic</span><small>Keep it from melting down</small></a>
+      <a href="/#tea-tower"><img src="../images/work/tea-tower.webp" alt="" loading="lazy"><span>Tea Tower</span><small>Stack it high</small></a>
+      <a href="/#thunee"><img src="../images/work/thunee.webp" alt="" loading="lazy"><span>Thunee</span><small>The card game, in 3D</small></a>
+      <a href="/#pomodorable"><img src="../images/work/pomodorable.webp" alt="" loading="lazy"><span>Pomodorable</span><small>A focus timer</small></a>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="card" style="text-align:center">
+      <h2 class="h2" style="margin-top:0">Say hello</h2>
+      <p class="sub" style="margin:8px auto 18px">About a game for your business, or anything else.</p>
+      <div class="ctaRow" style="justify-content:center">
+        <a class="btn primary" href="mailto:hello@aidoo.biz?subject=Hello" data-umami-event="email-about">hello@aidoo.biz</a>
+        <a class="btn subtle" href="https://wa.me/447624396325?text=Hi%20Keith" target="_blank" rel="noopener" data-umami-event="whatsapp-about">WhatsApp +44 7624 396325</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footerRow">
+      <div class="footerCol">
+        <span class="wordmark" aria-label="ai.doo">
+          <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+        </span>
+        <p class="trustline">A small studio on the Isle of Man.</p>
+        <p style="margin:10px 0 0; font-size:13px;">&copy; <span id="year"></span> ai.doo</p>
+      </div>
+      <div class="footerCol" style="font-size:13px;">
+        <div style="font-weight:700;color:var(--ink);margin-bottom:8px;">More</div>
+        <div><a href="/">ai.doo home</a></div>
+        <div><a href="/promo-games/">Promo games</a></div>
+        <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
+      </div>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<div class="playDock">
+  <a class="playFab" id="playFab" data-umami-event="play-fab" hidden><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1.2v11.6a.8.8 0 0 0 1.2.7l9.4-5.8a.8.8 0 0 0 0-1.4L2.2.5A.8.8 0 0 0 1 1.2z" fill="currentColor"/></svg><span></span></a>
+</div>
+<script defer src="../studio.js"></script>
+</body>
+</html>
