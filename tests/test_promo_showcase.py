@@ -532,6 +532,58 @@ def test_the_venues_emblem_is_on_what_pours_the_drink(ui):
     assert not [a for a in ui["marks"]["tap without"]["arcs"] if a[2] >= 10]
 
 
+def test_a_prospects_name_from_the_link_is_the_venue_on_every_screen(ui):
+    # P2.0l: the email's link puts their name on the game, marked as a sample made for them.
+    for key, name in (
+        ("plain", "Noa Bakehouse"),
+        ("marks", "O'Brien's Bar & Grill"),
+        ("longest", "A" * 32),
+        ("padded", "Café 360"),
+    ):
+        seen = ui["named"][key]
+        assert seen["title"] == seen["play"] == seen["done"] == seen["claim"] == name, (
+            key
+        )
+        assert seen["fictional"] == f"Made for {name} as a sample.", key
+        assert name in seen["tab"], key
+        # The made-up venue isn't left behind: not its emblem, nor its name on the board.
+        assert not seen["emblem"] and not seen["badge"], key
+        assert "Gull" not in seen["board"] and seen["board"], key
+
+
+@pytest.mark.parametrize("key", ["tooLong", "html", "empty", "punctuationOnly"])
+def test_a_name_that_isnt_one_plays_the_skins_own_venue(ui, key):
+    assert ui["named"][key] == {**ui["plain"], "badge": True}
+
+
+def test_without_a_name_the_game_is_as_it_was(ui):
+    assert ui["plain"]["title"] == "The Wobbly Gull"
+    assert ui["plain"]["fictional"] == "The Wobbly Gull is a made-up pub."
+    assert ui["plain"]["emblem"]
+    assert ui["plainSwitch"] == ["?skin=dozy-otter"]
+
+
+def test_a_long_name_wraps_and_is_never_cut_off():
+    # 32 wide letters need three lines in a name row at 320px (Codex, round 1).
+    html = _text("play/pint/index.html")
+    for selector in (r"\.brand span", r"\.venue"):
+        rule = re.search(selector + r"\{([^}]*)\}", html).group(1)
+        assert "overflow-wrap:anywhere" in rule, selector
+        assert not re.search(r"line-clamp|ellipsis|nowrap", rule), selector
+
+
+def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
+    # Switching venue keeps it; the offer page's links never carry it, and the page
+    # sends no referrer, so the offer page's analytics can't see it (D-017).
+    assert ui["namedSwitch"] == ["?skin=dozy-otter&name=Noa%20Bakehouse"]
+    html = _text("play/pint/index.html")
+    assert re.search(r'<meta name="referrer" content="no-referrer"', html)
+    offers = re.findall(r'href="(/promo-games/[^"]*)"', html)
+    assert offers and not [h for h in offers if "name" in h]
+    js = _text("play/pint/game.js")
+    assert not re.search(r"promo-games", js)
+
+
 def test_the_offer_page_stays_short_enough_to_read():
     # It was 989 words in eight sections before it was cut down. Questions sit closed.
     html = _text("promo-games/index.html")
