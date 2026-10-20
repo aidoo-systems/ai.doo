@@ -71,22 +71,23 @@ Hospice (slower, bigger, a winter conversation either way).
 ## 2. Café 360 at Cycle 360 (#20), café
 
 **To:** Café 360 (now run by Woodbourne Kitchen, since summer 2026)
-**Subject:** Fill the bidon: a game for Café 360
+**Subject:** Pour the perfect latte: a game for Café 360
 
 > Hi `<name>`,
 >
 > Congratulations on taking on Café 360. I'm Keith: I run ai.doo, a small family studio on the
-> Island that makes phone games. Here's our demo as a latte, with your name on it as a sample:
+> Island that makes phone games. Here's "pour the perfect latte" with your name on it as a
+> sample, half a minute to play:
 >
 > aidoo.biz/play/pour/?skin=cafe&name=Caf%C3%A9%20360
 >
-> For you I'd make it "fill the bidon": hold to fill a water bottle and stop at the line. Why
-> I think it suits a café in a bike shop:
+> Why I think it suits you:
 >
-> - **It's in your customers' language.** Riders fill bidons every ride. A game about it is a
->   small joke they'll get straight away, and it's yours, not a generic coffee game.
-> - **It says the café is under new hands.** A card on each table and a weekly board give
->   regulars and passing riders something new to notice, without a relaunch.
+> - **The wait is already there.** Riders and walkers sit down, order, and wait. A card on
+>   each table turns that wait into a game with your name on the screen.
+> - **It says the café is under new hands.** A weekly board gives regulars and passing riders
+>   something new to notice, and a reason to come back and defend their score, without a
+>   relaunch.
 > - **A small prize does the work.** The week's top score wins a coffee and cake for the ride
 >   home. You set it; there's nothing else to run, no app and no customer data.
 >
