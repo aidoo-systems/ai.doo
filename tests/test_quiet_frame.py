@@ -371,3 +371,16 @@ def test_every_page_that_counts_clicks_loads_the_analytics():
         assert script in page.read_text(encoding="utf-8"), page.relative_to(
             REPO_ROOT
         ).as_posix()
+
+
+def test_the_about_page_shows_three_games_with_their_art_uncropped():
+    # the card art is Play feature graphics (1024x500); a 16:10 crop cut the titles off
+    html = _text("about/index.html")
+    made = html[html.index('<div class="made">') :]
+    made = made[: made.index("</div>")]
+    imgs = re.findall(r"<img [^>]*>", made)
+    assert len(imgs) == 3
+    for img in imgs:
+        assert 'width="1024" height="500"' in img, img
+    assert re.search(r"\.made img\{[^}]*aspect-ratio:1024/500", html)
+    assert 'href="/#games"' in html
