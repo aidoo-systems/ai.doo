@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-STUDIO_PAGES = ("index.html", "promo-games/index.html")
+STUDIO_PAGES = ("index.html", "promo-games/index.html", "about/index.html")
 SUITE_PAGES = ("pika/index.html", "vera/index.html")
 
 
@@ -354,3 +354,20 @@ def test_the_share_card_is_the_right_size_and_every_page_asks_for_the_new_one():
     assert "--exclude='internal/'" in (
         REPO_ROOT / ".github" / "workflows" / "deploy.yml"
     ).read_text(encoding="utf-8")
+
+
+def test_every_page_that_counts_clicks_loads_the_analytics():
+    # D-023: Umami shows whether prospects open /about/; an event with no script counts nothing
+    script = 'src="https://analytics.aidoo.biz/script.js"'
+    skip = (".claude", ".git", "docs", "_docs_build", "node_modules", "internal")
+    pages = [
+        p
+        for p in REPO_ROOT.rglob("*.html")
+        if not set(p.relative_to(REPO_ROOT).parts) & set(skip)
+    ]
+    counted = [p for p in pages if "data-umami-event=" in p.read_text(encoding="utf-8")]
+    assert REPO_ROOT / "about" / "index.html" in counted
+    for page in counted:
+        assert script in page.read_text(encoding="utf-8"), page.relative_to(
+            REPO_ROOT
+        ).as_posix()
