@@ -259,3 +259,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Emailing with today's links and building on a reply (Claude's first suggestion); a strawberry milkshake (mock B, the strongest skill, but less like a dairy); chocolate milk (mock C); a glass milk bottle (little label room, a steep tip).
 - **Consequences:** Outreach to these three waits on a build; the five drafted emails don't. The bottle, an emptying carton, a moving line and a cereal-bowl round wait for a dairy's yes.
 - **Revisit when:** The 2026-11-26 review, or a dairy or wine bar gets in touch first.
+
+## D-028 — Outreach emails pitch the drink their link pours, and name no family
+
+- **Status:** Accepted (owner, 2026-10-20: "I'd like for them to not mention the wife and son's name directly", "walk them through why this would be a good fit", "The cafe's should have the latte, not a water bottle suggestion. Bars should have the pints"; the About page stays as it is)
+- **Date:** 2026-10-20
+- **Decision:** Each outreach email pitches the game its demo link plays: a café the latte, a pub the pint, the Creamery the glass of milk. A custom idea (a bike café's bidon) waits for the conversation. The emails say "a small family studio" and name no family members; the About page, linked in the signature, keeps their names. Each email walks through why the game suits that business (the moment it fills, what they get, the effort on their side) with no claimed results, and says they play it before launch and owe nothing beyond the £300 deposit.
+- **Why:** The demo sells by being what they'd run (D-027); asking them to picture something they can't play weakens it. Family names belong on the page someone chooses to open, not in a cold email.
+- **Alternatives:** A custom idea per venue in the email (the first rewrite's "fill the bidon"); keeping the family names in the emails.
+- **Consequences:** The panto and Hospice, which aren't cafés or bars, open the café link to show how the game plays and pitch their own idea in words.
+- **Revisit when:** A prospect replies asking for something the demo doesn't show, or the 2026-11-26 review.
