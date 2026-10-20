@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The promo game pours milk too** (P2.0s): a made-up dairy, Sleepy Cow, at `/play/pour/?skin=dairy`. The milk comes from a carton that glugs, into a straight glass with no bubbles, and the prize is a week's milk
 - **Keeping a promo game live has a price**: £25 a month after the first three months, on the promo-games page and in the chatbot's answers
 - **The venue's name stays in sight in the promo game** (P2.0f): the pub's and the café's name and emblem now show while you play and on the results, and the emblem is on the tap's handle and the milk jug
 - **The café demo pours like a café** (P2.0c): the made-up café in the promo game now pours milk from a steel jug that tips as you hold, where the pub has its beer tap. What pours the drink is part of a venue's skin
