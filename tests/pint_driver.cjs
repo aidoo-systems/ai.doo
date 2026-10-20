@@ -1,4 +1,4 @@
-// Drives play/pint/engine.js from the command line for tests/test_promo_showcase.py.
+// Drives play/pour/engine.js from the command line for tests/test_promo_showcase.py.
 //
 //   node tests/pint_driver.cjs <skin.json> '<plays>'
 //
@@ -9,7 +9,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const engine = require(path.join(__dirname, "..", "play", "pint", "engine.js"));
+const engine = require(path.join(__dirname, "..", "play", "pour", "engine.js"));
 
 const skin = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const plays = JSON.parse(process.argv[3] || "[]");

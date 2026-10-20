@@ -1,4 +1,4 @@
-// Runs play/pint/game.js itself (not just the rules) for tests/test_promo_showcase.py,
+// Runs play/pour/game.js itself (not just the rules) for tests/test_promo_showcase.py,
 // against a stand-in page: fake elements, a clock the test moves by hand, a fake
 // AudioContext that notes every sound it is asked to start, and a fetch that reads the
 // skin files from disk. Prints one JSON object with each scenario's observations.
@@ -9,7 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const GAME = path.join(__dirname, "..", "play", "pint");
+const GAME = path.join(__dirname, "..", "play", "pour");
 const SOURCES = ["skins/default.js", "engine.js", "game.js"].map((f) => fs.readFileSync(path.join(GAME, f), "utf8"));
 const settle = () => new Promise((r) => setImmediate(r));
 

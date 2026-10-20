@@ -35,7 +35,7 @@ Needs Node (any current version) and `python -m pip install -r api/requirements.
 - **The chat rate limit isn't per visitor.** It keys on `request.remote_addr`, which behind Caddy is loopback, so all visitors share about 10 requests/min per gunicorn worker (P1.5).
 - **The chatbot learns from `sitemap.xml`.** `api/site_context.py` loads every sitemap page at API startup. A page missing from the sitemap is invisible to the bot, and a new page needs an API restart (any deploy restarts it).
 - **The docs build is pinned** in `scripts/docs-requirements.txt`, which both `ci.yml` and `deploy.yml` install. MkDocs 2.0 drops theme overrides, which `overrides/` relies on; bump the pins only in a PR so CI proves them first.
-- **The promo showcase (`play/pint/`) is one engine and a skin.** `engine.js` holds the rules and runs under Node in `tests/test_promo_showcase.py`, so the `tests` gate needs Node on the PATH. A venue is a JSON file in `play/pint/skins/` (two ship: a pub and a café, switched with `?skin=`); what pours the drink is the skin's too (`drink.pourer`: a new kind is a new draw function in `game.js` and a name in `engine.js`'s `POURERS`); `skins/default.js` names the default and the list. No venue or drink word belongs in `engine.js`, `game.js` or `index.html` (a test checks). Bump the `?v=` on the script tags when a script changes, or phones keep the old one. The page is noindex and out of the sitemap, so the chatbot doesn't know it. It loads no analytics (D-017): the game prints "Nothing is stored or sent". `tests/pint_ui_driver.cjs` runs `game.js` against a stand-in page; put input, sound and timing fixes under test there.
+- **The promo showcase (`play/pour/`) is one engine and a skin.** `engine.js` holds the rules and runs under Node in `tests/test_promo_showcase.py`, so the `tests` gate needs Node on the PATH. A venue is a JSON file in `play/pour/skins/` (two ship: a pub and a café, switched with `?skin=`); what pours the drink is the skin's too (`drink.pourer`: a new kind is a new draw function in `game.js` and a name in `engine.js`'s `POURERS`); `skins/default.js` names the default and the list. No venue or drink word belongs in `engine.js`, `game.js` or `index.html` (a test checks). Bump the `?v=` on the script tags when a script changes, or phones keep the old one. The page is noindex and out of the sitemap, so the chatbot doesn't know it. It loads no analytics (D-017): the game prints "Nothing is stored or sent". `tests/pint_ui_driver.cjs` runs `game.js` against a stand-in page; put input, sound and timing fixes under test there.
 - **Line endings.** Some files are CRLF (`deploy.yml`, `mkdocs.yml`); preserve them when editing.
 - The pages table below is incomplete; `sitemap.xml` plus the `privacy-*/` folders are the full list.
 
@@ -48,7 +48,7 @@ Needs Node (any current version) and `python -m pip install -r api/requirements.
 | `/pika/changelog` | `pika/changelog.html` |
 | `/vera/` | `vera/index.html` |
 | `/promo-games/` | `promo-games/index.html` |
-| `/play/pint/` | `play/pint/index.html` (promo showcase game) |
+| `/play/pour/` | `play/pour/index.html` (promo showcase game) |
 | `/privacy/` | `privacy/index.html` |
 | `/privacy-pomodorable/` | `privacy-pomodorable/index.html` |
 
