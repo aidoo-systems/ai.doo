@@ -348,17 +348,9 @@ def test_the_game_keeps_and_sends_nothing():
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
-def test_every_shipped_skin_names_a_made_up_venue_and_no_alcohol_only_prize(path):
-    # D-024: a drink may be the prize only if soft drinks count; never a pint or a beer.
+def test_every_shipped_skin_names_a_made_up_venue(path):
     skin = json.loads(path.read_text(encoding="utf-8"))
     assert "made up" in skin["fictional"].lower() or "made-up" in skin["fictional"]
-    text = json.dumps(skin)
-    assert not re.search(
-        r"free (pint|beer|lager)|wins? (a|the) (pint|beer|lager)", text, re.I
-    )
-    for key in ("offer", "prize", "claim"):
-        if re.search(r"\bdrinks?\b", skin["copy"][key], re.I):
-            assert "soft drinks" in skin["copy"][key], key
 
 
 def test_deploy_serves_the_game_and_its_skin():
@@ -433,10 +425,10 @@ def test_the_offer_page_puts_the_demo_first_and_answers_the_buyers_questions():
         assert phrase not in html, phrase
 
 
-def test_the_demo_shows_an_example_winners_screen_labelled_as_one():
+def test_the_demo_shows_a_winners_screen():
     html = _text("play/pint/index.html")
     assert 'id="claimOpen"' in html and 'id="claim"' in html
-    assert "An example." in html
+    assert "only the real winner" in html
     for path in SKINS:
         assert json.loads(path.read_text(encoding="utf-8"))["copy"]["claim"], path.stem
 
@@ -457,27 +449,26 @@ def test_the_winners_screen_claims_only_what_it_does():
         ):
             assert phrase not in text, phrase
     assert "one-off code" in claim and "one-off code" in faq
-    assert "Example" in claim[: claim.index('id="claimVenue"')]
 
 
-def test_the_pub_offers_a_drink_soft_drinks_included_as_an_example():
-    # P2.0p (D-024): the made-up pub's prize is the one a real pub would offer, and every
-    # place it's named says soft drinks count; the title line says it's an example.
+def test_the_pub_offers_a_pint_and_reads_as_meant():
+    # P2.0q (D-025): the made-up pub offers what a pub would, a pint, and says it plainly.
+    # The page's own copy calls the venue made up; nothing calls the prize an example.
     copy_ = json.loads(
         (GAME / "skins" / "wobbly-gull.json").read_text(encoding="utf-8")
     )["copy"]
     for key in ("offer", "prize", "claim"):
-        assert "a drink on us" in copy_[key].lower(), key
-        assert "soft drinks" in copy_[key], key
-    assert "example" in copy_["offer"].lower()
-    for key, line in copy_.items():
-        assert "crisps" not in line, key
+        assert "pint on us" in copy_[key].lower(), key
+    for path in SKINS:
+        for key, line in json.loads(path.read_text(encoding="utf-8"))["copy"].items():
+            assert "example" not in line.lower(), (path.stem, key)
+            assert "crisps" not in line, (path.stem, key)
 
 
-def test_the_title_screen_leads_with_the_prize_and_labels_it_an_example():
+def test_the_title_screen_leads_with_the_prize_and_says_its_theirs_to_set():
     html = _text("play/pint/index.html")
     assert 'id="offer"' in html
-    assert "The names and the prize are examples" in html
+    assert "the prize is yours to set" in html
     for path in SKINS:
         skin = json.loads(path.read_text(encoding="utf-8"))
         assert skin["copy"]["rivalTop"].count("{gap}") == 1, path.stem
@@ -529,6 +520,19 @@ def test_an_unknown_skin_falls_back_to_the_default_one(ui):
     ]
     assert ui["unknownSkin"]["venue"] == "The Wobbly Gull"
     assert ui["unknownSkin"]["start"] is False
+
+
+def test_a_link_can_name_the_kind_of_venue(ui):
+    # P2.0q: an email to a café links ?skin=cafe; the kinds are data, in default.js.
+    assert ui["kindSkin"]["fetched"] == ["skins/dozy-otter.json"]
+    assert ui["kindSkin"]["venue"] == "The Dozy Otter"
+    assert ui["oddKind"]["fetched"] == [
+        "skins/constructor.json",
+        "skins/wobbly-gull.json",
+    ]
+    kinds = _text("play/pint/skins/default.js")
+    for kind in ("pub", "cafe"):
+        assert re.search(kind + r'\s*:\s*"[a-z0-9-]+"', kinds), kind
 
 
 def test_a_skin_name_cannot_leave_the_skins_folder(ui):

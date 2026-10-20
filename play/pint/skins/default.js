@@ -2,3 +2,5 @@
 // to switch to. Data, like the skins.
 window.POUR_SKIN = "wobbly-gull";
 window.POUR_SKINS = ["wobbly-gull", "dozy-otter"];
+// The kind of venue a link can name instead of a skin: ?skin=cafe, ?skin=pub.
+window.POUR_KINDS = { pub: "wobbly-gull", cafe: "dozy-otter" };

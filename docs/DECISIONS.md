@@ -222,10 +222,20 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 
 ## D-024 — The demo pub's prize is a drink, soft drinks included, labelled an example
 
-- **Status:** Accepted (owner, 2026-10-20: "a drink on us (pub skin, soft drinks included, labelled an example)")
+- **Status:** Superseded by D-025 (2026-10-20). Accepted (owner, 2026-10-20: "a drink on us (pub skin, soft drinks included, labelled an example)")
 - **Date:** 2026-10-20
 - **Decision:** The made-up pub in the pour demo offers "a drink on us" for the week's top score, soft drinks included, called an example prize. It replaces crisps. This supersedes, for the demo only, P2.0b's "not alcohol" framing and the 2026-10-18 email rule that no prize is a drink.
 - **Why:** A pub would offer a drink, so it's the prize that makes the demo look like their game; crisps read as a stand-in. Saying soft drinks count keeps it from being an alcohol promotion, and the example label keeps it from reading as an offer anyone can claim.
 - **Alternatives:** Keep crisps until the Isle of Man rules are checked (the rule until now); a named soft drink only.
 - **Consequences:** No prize may be a pint, beer or lager alone (a test holds it). A real pub's drinks prize still waits on the owner checking the Isle of Man rules on alcohol promotions; the outreach emails keep their rule until then. The café's prize doesn't change.
 - **Revisit when:** The first pub client sets a prize, or the Isle of Man rules are checked.
+
+## D-025 — The demo pub offers a pint, said plainly; the prize's rules are the business's
+
+- **Status:** Accepted (owner, 2026-10-20: "A pint on us sounds more grabby"; "I'd shy away from 'example' wording. Let's make it deliberate and fun to read")
+- **Date:** 2026-10-20
+- **Decision:** The made-up pub's prize is "a pint on us", with no "soft drinks included" and no "example" label on the prize or the winner's screen. The demo stays honest about what it is through the credit line ("The Wobbly Gull is a made-up pub") and by saying the prize is the business's to set. The offer page says the business chooses the prize, runs it and checks it's allowed where they are. Supersedes D-024.
+- **Why:** The demo sells by looking like the real thing a pub would run. Hedged copy read as a demo apologising for itself. The venue is made up and nothing is won, so it isn't a promotion; a real promotion, and its rules, are the business's.
+- **Alternatives:** D-024's "a drink on us, soft drinks included", labelled an example.
+- **Consequences:** The outreach emails' rule (no drink as a real prize until the Isle of Man rules are checked) relaxes to: the business sets and checks its own prize; we don't advise on promotion law (the chatbot already says so). If a pub asks us what's allowed, we say they should check.
+- **Revisit when:** A prospect or the regulator raises it, or a pub client sets a drinks prize.

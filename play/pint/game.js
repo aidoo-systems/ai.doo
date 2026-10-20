@@ -40,6 +40,8 @@
 
   function skinId() {
     var asked = new URLSearchParams(location.search).get("skin");
+    var kinds = window.POUR_KINDS || {};
+    if (asked && Object.prototype.hasOwnProperty.call(kinds, asked)) asked = kinds[asked];
     return asked && /^[a-z0-9-]+$/.test(asked) ? asked : window.POUR_SKIN;
   }
 

@@ -14,7 +14,7 @@ Before sending each one:
 - Send it from your own address, not a mailing tool. One follow-up after a week, then stop.
 - The links are tagged with the kind of venue, never the business (D-017). If P2.0l (their name
   on the pour) is live by then, swap the demo link for the `?name=` version.
-- No prize may be alcohol until the Isle of Man rules on drinks promotions are checked (owner gate).
+- The prize is the business's to set and check (D-025); we don't advise on promotion law.
 
 Order: the two cafés first (they decide in a week), then the panto (it has a deadline), then
 Okell's and Hospice (slower, bigger, a winter conversation either way).
