@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, one item at a time: P2.0u (the whippy, rotating serves, D-029), then P2.0v, then P2.1e (cards that move).
+1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. P2.0u (the whippy, rotating serves, D-029) is built and Ready For Test: the owner plays `/play/pour/?skin=icecream` on a phone and merges its PR. Next build, one item at a time: P2.0v (the pub and café rotate their drinks), then P2.1e (cards that move).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Firebase apps created (owner, 2026-10-20); the config files go into each repo, then `/next` in each; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -34,6 +34,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
+- Play the whippy on a phone (`/play/pour/?skin=icecream`, and with `&name=` a shop's name) and merge P2.0u's PR. Its button and kicker are a softer coral than mock A's, for contrast (Codex): say if you'd rather another colour.
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
@@ -43,6 +44,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-21
+- P2.0u built (`item/P2.0u-whippy`, `/next P2.0u`): Giddy Puffin at `?skin=icecream`, the kiosk the owner saw in mock A. A soft-serve machine (a new `machine` pourer) pulls a swirl over a faint outline (`top: swirl`, `outline: faint`); each round names its serve (D-029): a 99 with a flake, a cup with sauce, a twist with sprinkles, another 99 quicker, a twist in a cup. A round's `serve` (name, colours, glass, a `vessel` drawn but never filled, a `topping`: stick, drizzle or scatter) sits over the skin's drink; a skin whose rounds name none plays as before (pub, café and dairy trace hashes match `main`). Too much topples off. Tests red first (47 failed), then 227 passed; gates all PASS. Codex round 1: one P2 (accent contrast), fixed with a test. Next: owner plays it on a phone and merges; then P2.0v, and ice cream shops on the prospect list.
 - #68 (D-028) and #69 (outreach sent: six emails 2026-10-20, contact log, follow-ups 2026-10-27) merged after fixing Codex's findings (the Noa email's flat white recorded as a sent exception; the sprint no longer says outreach hasn't begun). The owner's wife's idea, a whippy skin for ice cream shops: three mocks (cone with flake, cup with sauce, strawberry twist with sprinkles); the owner chose all three, rotating per round (D-029). #70 merged: P2.0u (whippy) and P2.0v (the pub and café rotate their drinks). Next: build P2.0u; add ice cream shops to the prospect list.
 
 ### 2026-10-20
