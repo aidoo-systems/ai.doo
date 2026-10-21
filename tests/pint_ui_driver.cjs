@@ -35,9 +35,19 @@ function boot(search, tweak) {
   let m = [1, 0, 0, 1, 0, 0];
   const saved = [];
   const reach = { top: Infinity };
+  // Every shape filled, with the highest point of its path and whether a gradient filled it.
+  const fills = [];
+  let pathTop = Infinity;
+  let gradientFill = false;
   // Only what is drawn turned (a jug or a carton tipping) counts: the tap's pipe runs off the top on purpose.
-  const at = (x, y) => Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, m[1] * x + m[3] * y + m[5]));
+  const at = (x, y) => {
+    const yy = m[1] * x + m[3] * y + m[5];
+    pathTop = Math.min(pathTop, yy);
+    return Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, yy));
+  };
   const moves = {
+    beginPath: () => (pathTop = Infinity),
+    fill: () => fills.push({ gradient: gradientFill, top: pathTop }),
     save: () => saved.push(m.slice()),
     restore: () => (m = saved.pop() || [1, 0, 0, 1, 0, 0]),
     setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
@@ -58,7 +68,7 @@ function boot(search, tweak) {
 
   const paint = new Proxy({}, {
     get: (t, p) => (p in t ? t[p] : (...args) => (moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3)), { addColorStop: (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour)) })),
-    set: (t, p, v) => ((t[p] = v), trace.push(p + "=" + fmt(v)), true),
+    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && (gradientFill = typeof v === "object"), trace.push(p + "=" + fmt(v)), true),
   });
 
   function element(id) {
@@ -162,6 +172,7 @@ function boot(search, tweak) {
     arcs,
     trace,
     reach,
+    fills,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -428,6 +439,31 @@ async function started(search, tweak) {
   page.trace.length = 0;
   page.advance(16);
   out.whippyCoils = { early, late: turns() };
+  // What is seen is what is scored (Codex, round 1 of the coils): once poured, the top of the
+  // soft serve (every shape a gradient fills: the turns and the curl) is the height the
+  // result's bracket measures to.
+  out.whippyPeaks = [];
+  for (let hold = 500; hold <= 1700; hold += 75) {
+    page = await started("?skin=icecream");
+    page.advance(500);
+    page.down(1);
+    page.advance(hold);
+    page.up(1);
+    page.advance(450);
+    page.trace.length = 0;
+    page.fills.length = 0;
+    page.advance(16);
+    const after = page.trace.slice(page.trace.lastIndexOf("lineWidth=3.50"));
+    const bracket = after.filter((s) => s.startsWith("lineTo("));
+    const tops = page.fills.filter((f) => f.gradient && f.top < Infinity).map((f) => f.top);
+    out.whippyPeaks.push({
+      hold,
+      say: page.get("say").textContent,
+      // a bracket is three lines; a tick (on the line) is two, and says nothing more exact
+      scored: bracket.length === 3 ? parseFloat(bracket[1].split(",")[1]) : null,
+      top: tops.length ? Math.min(...tops) : null,
+    });
+  }
   // Held too long, it topples off to one side: a dollop beside the serve, not drips down a glass.
   page = await started("?skin=icecream");
   page.advance(500);

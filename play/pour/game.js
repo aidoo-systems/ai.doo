@@ -682,12 +682,11 @@
       return dr.coils || 5;
     }
 
-    // Turn i of n: its middle, half its width and its height.
+    // Turn i of n: the top of its slot, half its width and its height.
     function coilAt(i, n) {
       var ch = (g.bottom - g.top) / n;
-      var y = g.bottom - ch * (i + 0.5);
-      var edge = xRange(g.outer, y) || [g.cx - 10, g.cx + 10];
-      return { y: y, hw: (edge[1] - edge[0]) / 2, ch: ch };
+      var edge = xRange(g.outer, g.bottom - ch * (i + 0.5)) || [g.cx - 10, g.cx + 10];
+      return { top: g.bottom - ch * (i + 1), hw: (edge[1] - edge[0]) / 2, ch: ch };
     }
 
     // Where the rope lands while it pours: the end of the turn being laid.
@@ -699,17 +698,21 @@
       return g.cx - c.hw + 2 * c.hw * (laid - i);
     }
 
-    // One turn, laid from the left as far as frac.
+    // One turn, laid from the left as far as frac. Tilted, it's hung from its top, so its
+    // highest corner is the top of its slot and nothing rises above the level (overlapping the
+    // turn below instead; what it is served in hides the lowest).
     function drawCoil(c, frac) {
       var h = c.ch * 1.12;
+      var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+      var mid = c.top + c.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt);
       ctx.save();
       if (frac < 1) {
         ctx.beginPath();
-        ctx.rect(g.cx - c.hw - 6, c.y - c.ch * 2, (2 * c.hw + 12) * frac, c.ch * 4);
+        ctx.rect(g.cx - c.hw - 6, mid - c.ch * 2, (2 * c.hw + 12) * frac, c.ch * 4);
         ctx.clip();
       }
-      ctx.translate(g.cx, c.y);
-      ctx.rotate(-Math.atan2(c.ch * 0.42, 2 * c.hw));
+      ctx.translate(g.cx, mid);
+      ctx.rotate(-tilt);
       ctx.fillStyle = "rgba(0,0,0,.16)";
       box(-c.hw + 2, -h / 2 + 4, 2 * c.hw - 4, h, h / 2);
       ctx.fill();
@@ -742,7 +745,7 @@
         // the rope coming round from behind into the next turn
         ctx.fillStyle = dr.liquidDeep;
         ctx.beginPath();
-        ctx.ellipse(c.hw - h * 0.25, -h * 0.25, h * 0.32, h * 0.42, 0.4, 0, 6.3);
+        ctx.ellipse(c.hw - h * 0.3, 0, h * 0.28, h * 0.4, 0.4, 0, 6.3);
         ctx.fill();
       }
       ctx.restore();
@@ -777,8 +780,7 @@
       var c = coilAt(full, n);
       var floor = g.bottom - c.ch * full; // the top of the turns already laid
       if (topped) return drawCurl(floor + Math.min(8, c.ch * 0.3), yAt(level), c.hw * 0.8);
-      var tall = Math.max(3, c.ch * rest);
-      drawCoil({ y: floor - tall / 2, hw: c.hw, ch: tall / 1.12 }, rest);
+      drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * rest) / 1.12 }, rest);
     }
 
     // What the serve is in: drawn, never filled with the drink, and in front of it.
@@ -1104,13 +1106,13 @@
       var n = coilCount();
       var c = coilAt(n - 1, n);
       var x = g.cx + g.gw * (0.25 + 0.5 * k);
-      var y = lerp(g.top - c.ch * 0.5, g.counterY - c.ch * 0.45, k * k);
+      var y = lerp(g.top - c.ch * 0.5, g.counterY - c.ch * 0.45, k * k); // where its middle goes
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(0.6 + 1.2 * k);
-      ctx.translate(-g.cx, -c.y);
-      drawCoil({ y: c.y, hw: c.hw * 0.9, ch: c.ch * 0.9 }, 1);
-      drawCurl(c.y - c.ch * 0.4, c.y - c.ch * 1.3, c.hw * 0.6);
+      ctx.translate(-g.cx, -(c.top + c.ch / 2));
+      drawCoil({ top: c.top, hw: c.hw * 0.9, ch: c.ch * 0.9 }, 1);
+      drawCurl(c.top + c.ch * 0.2, c.top - c.ch * 0.8, c.hw * 0.6);
       ctx.restore();
       // where it lands
       ctx.fillStyle = rgba(dr.liquidDeep, 0.9 * k);

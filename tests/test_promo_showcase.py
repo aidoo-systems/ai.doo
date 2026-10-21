@@ -994,6 +994,15 @@ def test_the_stack_is_laid_coil_by_coil(ui):
     assert coils["early"] < coils["late"], coils
 
 
+def test_the_top_of_the_serve_is_the_height_scored(ui):
+    # Tilted turns once rose above the scored height: at 0.60 the stack read 0.64, past a
+    # 0.62 line the engine still called short (Codex, round 1 of the coils).
+    measured = [p for p in ui["whippyPeaks"] if p["scored"] is not None]
+    assert len(measured) >= 10, ui["whippyPeaks"]
+    for peak in measured:
+        assert peak["top"] is not None and abs(peak["top"] - peak["scored"]) < 0.6, peak
+
+
 def _luminance(hex_colour):
     h = hex_colour[1:]
     if len(h) == 3:
