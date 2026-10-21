@@ -96,6 +96,11 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 
 | Date | # | Organisation | How contacted | Reply | Conversation? | Deposit? | "We already use X" |
 |---|---|---|---|---|---|---|---|
-| | | | | | | | |
+| 2026-10-20 | 19 | Noa Bakehouse | Email (owner) | | | | |
+| 2026-10-20 | 20 | Café 360 | Email (owner) | | | | |
+| 2026-10-20 | 6 | Villa Marina and Gaiety Theatre | Email (owner); 2 of its addresses bounced | | | | |
+| 2026-10-20 | 29 | Isle of Man Creamery | Email (owner) | | | | |
+| 2026-10-20 | 27 | Okell's Inns | Email (owner) | | | | |
+| 2026-10-20 | 31 | Hospice Isle of Man | Email (owner) | | | | |
 
 Sources: Visit Isle of Man (what's on; cafés and tearooms), Castletown Commissioners events, Manx National Heritage community events, IOM Today and Manx Radio reports on the Chamber of Commerce and Hospice Isle of Man events, gov.im food and drink event notices. Retrieved 2026-10-02.

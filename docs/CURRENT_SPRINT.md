@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-10-20
+Last updated: 2026-10-21
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (start outreach)
+State: ready-for-owner (outreach follow-ups due 2026-10-27)
 
 ## Goal
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** the owner starts outreach, 2 to 3 hours a week, with the tagged links in [the prospect list](design/2026-10-02-promo-prospects.md). It is the one thing P2.0's services bet is measured on and it has not begun. Claude can draft the first emails on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, after the first emails are out and one item at a time: P2.1e (cards that move).
+1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, one item at a time: P2.1e (cards that move).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Firebase apps created (owner, 2026-10-20); the config files go into each repo, then `/next` in each; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -34,8 +34,8 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- Start outreach. Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
-- Run the outreach (2–3 hours a week) once P2.0a is live. Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
+- Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
+- Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
 - For the About page (P2.1g, D-023): a photo you're happy with, and a few sentences on why you make games.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
@@ -43,6 +43,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-20
+- **Outreach started** (owner, late evening): the six drafted emails sent (Noa, Café 360, Villa Gaiety, the Creamery, Okell's, Hospice); two Villa Gaiety addresses bounced. Logged in the prospect list's contact log. Next: one follow-up each after a week (2026-10-27), and find a working Villa Gaiety address (ask at the box office).
 - #65 (P2.0s, the milk skin) merged. Outreach emails rewritten at the owner's word (`docs/outreach-why-it-fits`): no family names, each walks through why the game suits that business, one line on the risk (play it before launch; nothing owed beyond the £300 deposit), and a sixth to the Isle of Man Creamery, no longer held. Next: owner sends the panto first (start by end of November for 18 December), then the cafés.
 - P2.0s built (`item/P2.0s-milk-skin`): Sleepy Cow Dairy at `?skin=dairy`, poured from a carton (a new `carton` pourer; `drink.fizz: false` turns off bubbles and churn), a straight tumbler, glug rounds, "a week's milk on us". Tests red first (12 failed), then 87 passed; the pub and café draw exactly as before (canvas trace hashes from `main`). The stills found the 30-letter tagline wrapping at 320 and, on a named link, running under the sound button; now "Pour the perfect glass", test red first, then 90 passed. Gates all PASS. Codex round 1 (medium): no findings. Next: owner plays `?skin=dairy&name=Isle%20of%20Man%20Creamery` on a phone and merges; then the Creamery email can go.
 - Banked (owner, evening). #62 (the outreach drafts, and the prospect list's demo links moved to `/play/pour/`) and #63 (the offer page: "We build it and look after it", D-026; Codex no findings) merged. Wine Down and Wine Cellar added to the prospect list and, with the Creamery, held until the demo pours their drink (D-027). Milk mocks A, B and C rendered from a scratch skin; the owner picked A; a designer agent recommended a carton pourer, glug surges, no bubbles, a straight tumbler and a lighter room. Captured as P2.0s (next build) and P2.0t (wine, parked). Next: build P2.0s; the owner sends the five drafted emails.
