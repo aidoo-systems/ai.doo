@@ -279,3 +279,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** One serve per skin (Claude's first suggestion, mock A); a skin per serve.
 - **Consequences:** The skin format grows a per-round serve, tested so the pub, café and dairy draw as before. Ice cream emails pitch the spring season: most island shops are quiet or closed until Easter, so a deposit before the 2026-11-26 read is unlikely. The next build is P2.0u, ahead of P2.1e.
 - **Revisit when:** The 2026-11-26 review, or an ice cream shop replies.
+
+## D-030 — The whippy is built in coils, not filled like a glass
+
+- **Status:** Proposed (owner, 2026-10-21: "the filling up of the shape like a glass doesn't feel right. I think we need a better mechanic here for a swirl effect"; a game designer agent's recommendation below; the owner picks from mock stills before it is built)
+- **Date:** 2026-10-21
+- **Decision:** P2.0u's first build (PR #72) reused the glass: the finished swirl's outline drawn faintly from the start and filled from the bottom, with fixed stripes and a dome. Replace it with a coil stack: the rope lays coils where it lands, each a little narrower than the one below; the grooves turn with the cone (faster in a surge); the stack climbs to the dashed line; on release a small curl goes on top, its tip exactly at the scored height; an over-pour narrows to a point, then leans and topples. Scoring stays height against the line (`scorePour` unchanged).
+- **Why:** The scored thing (height) is the thing you watch grow, where the rope lands; the outline-and-fill read as a mould being revealed, with no cause and effect between the rope and the rise.
+- **Alternatives:** Counting turns of a rotating cone (rejected: periodic, unreadable on a phone, asks the player to count); scoring the final curl's height alone (rejected: every target ends near the top, losing the rounds' variety; kept as the finish).
+- **Consequences:** A generic `coil` top and `coils` count (overridable per serve) and an outline of `none`; the skin's `glass` becomes a smooth envelope with a flat top at least 20 wide; cup rounds get their own `serve.glass` starting at the cup's rim (about two coils were hidden in the cup); `drawSwirl` becomes `drawCoils`, which depends only on the level, shape, serve and whether it's topped, so the sliding-away serve doesn't keep spinning; the stream gets a landing point. About 200 lines and tests; the pub, café and dairy draw as before.
+- **Revisit when:** The owner picks from the coil mock stills.
