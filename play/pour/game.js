@@ -257,10 +257,9 @@
     var fizz = dr.fizz !== false;
     // A tap's stream comes out from under it; a jug or a carton is in front of its own.
     var inFront = dr.pourer === "jug" || dr.pourer === "carton";
-    // Soft serve: ridges and a rounded peak in place of a liquid top, and no glass, only a
-    // faint line where the finished serve will be.
-    var swirl = dr.top === "swirl";
-    var faint = dr.outline === "faint";
+    // Soft serve: laid in coils (D-030) in place of a liquid top, with no glass round it.
+    var coil = dr.top === "coil";
+    var bare = dr.outline === "none";
     // The scene is sized for the deepest vessel any round serves in, so nothing shrinks between rounds.
     var deep = 1;
     skin.rounds.forEach(function (r, i) {
@@ -306,8 +305,8 @@
       }
       var gx = (W - gw) / 2;
       var gy = counterY - gh * deep + 4; // where the tallest serve's top is
-      var wall = faint ? 0 : Math.max(3, gw * 0.022);
-      var base = faint ? 0 : Math.max(6, gh * 0.045);
+      var wall = bare ? 0 : Math.max(3, gw * 0.022);
+      var base = bare ? 0 : Math.max(6, gh * 0.045);
       var cx = W / 2;
       g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
       fit(dr);
@@ -638,12 +637,13 @@
       var y1 = lerp(g.tip, target, fx.head);
       if (y1 - y0 < 2) return;
       var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5) * (dr.pourer === "machine" ? 1.7 : 1); // soft serve is a thick rope
+      var land = coil ? landing(level) - g.cx : 0; // a coil's rope lands where the turn is being laid
       var left = [];
       var right = [];
       for (var y = y0; ; y += 6) {
         if (y > y1) y = y1;
         var k = (y - g.tip) / Math.max(1, target - g.tip);
-        var mid = g.cx + Math.sin(y * 0.045 + fx.t * 11) * 1.3 * k;
+        var mid = g.cx + Math.sin(y * 0.045 + fx.t * 11) * 1.3 * k + (coil ? land * k * k : 0);
         var half = lerp(5.4, 3.4, k) * fat;
         left.push([mid - half, y]);
         right.push([mid + half, y]);
@@ -673,39 +673,112 @@
       ctx.stroke();
     }
 
-    // Soft serve up to a level, inside the clip of its outline: a rounded peak that tops out
-    // on the level (what you see is what is scored), and ridges round it in the head's colour.
-    function drawSwirl(ys) {
-      var d = clamp(g.gw * 0.07, 3, 10);
-      var x0 = g.gx - 4;
-      var x1 = g.gx + g.gw + 4;
-      ctx.beginPath();
-      ctx.moveTo(x0, g.bottom + 4);
-      ctx.lineTo(x0, ys + d);
-      ctx.quadraticCurveTo(g.cx, ys - d, x1, ys + d);
-      ctx.lineTo(x1, g.bottom + 4);
-      ctx.closePath();
-      var grad = ctx.createLinearGradient(0, ys, 0, g.bottom);
+    // Soft serve in coils (D-030). The rope lays a turn at a time where it lands, each turn a
+    // little narrower than the one below (the glass is their envelope) and tilted into the next,
+    // so it reads as one rope going round. The turn being laid rises as it goes round, so the top
+    // of the stack is the level. Poured and topped, that turn becomes a curl whose tip is exactly
+    // the scored height. Depends only on the level, shape, serve and whether it's topped.
+    function coilCount() {
+      return dr.coils || 5;
+    }
+
+    // Turn i of n: its middle, half its width and its height.
+    function coilAt(i, n) {
+      var ch = (g.bottom - g.top) / n;
+      var y = g.bottom - ch * (i + 0.5);
+      var edge = xRange(g.outer, y) || [g.cx - 10, g.cx + 10];
+      return { y: y, hw: (edge[1] - edge[0]) / 2, ch: ch };
+    }
+
+    // Where the rope lands while it pours: the end of the turn being laid.
+    function landing(level) {
+      var n = coilCount();
+      var laid = clamp(level, 0, 1) * n;
+      var i = Math.min(n - 1, Math.floor(laid));
+      var c = coilAt(i, n);
+      return g.cx - c.hw + 2 * c.hw * (laid - i);
+    }
+
+    // One turn, laid from the left as far as frac.
+    function drawCoil(c, frac) {
+      var h = c.ch * 1.12;
+      ctx.save();
+      if (frac < 1) {
+        ctx.beginPath();
+        ctx.rect(g.cx - c.hw - 6, c.y - c.ch * 2, (2 * c.hw + 12) * frac, c.ch * 4);
+        ctx.clip();
+      }
+      ctx.translate(g.cx, c.y);
+      ctx.rotate(-Math.atan2(c.ch * 0.42, 2 * c.hw));
+      ctx.fillStyle = "rgba(0,0,0,.16)";
+      box(-c.hw + 2, -h / 2 + 4, 2 * c.hw - 4, h, h / 2);
+      ctx.fill();
+      box(-c.hw, -h / 2, 2 * c.hw, h, h / 2);
+      var grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
       grad.addColorStop(0, dr.liquid);
       grad.addColorStop(1, dr.liquidDeep);
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.save();
       ctx.clip();
-      var step = Math.max(7, g.gh * 0.1);
-      var tilt = g.gw * 0.16;
+      // the nozzle's grooves, running round the turn, in the head's colour (a twist's pink)
       ctx.strokeStyle = rgba(dr.head, 0.85);
-      ctx.lineWidth = Math.max(2, step * 0.28);
-      ctx.lineCap = "round";
-      for (var y = g.bottom; y > ys - tilt; y -= step) {
+      ctx.lineWidth = Math.max(1.4, h * 0.06);
+      [-0.15, 0.15].forEach(function (f) {
         ctx.beginPath();
-        ctx.moveTo(x0, y);
-        ctx.quadraticCurveTo(g.cx, y - tilt * 1.4, x1, y - tilt * 0.4);
+        ctx.moveTo(-c.hw, f * h);
+        ctx.quadraticCurveTo(0, f * h + h * 0.28, c.hw, f * h);
         ctx.stroke();
-      }
-      ctx.fillStyle = "rgba(255,255,255,.22)";
-      ctx.fillRect(g.gx + g.gw * 0.2, ys, g.gw * 0.08, g.bottom - ys);
+      });
+      ctx.strokeStyle = "rgba(255,255,255,.6)";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-c.hw * 0.7, -h * 0.3);
+      ctx.quadraticCurveTo(-c.hw * 0.2, -h * 0.42, c.hw * 0.1, -h * 0.36);
+      ctx.stroke();
       ctx.restore();
+      if (frac >= 1) {
+        // the rope coming round from behind into the next turn
+        ctx.fillStyle = dr.liquidDeep;
+        ctx.beginPath();
+        ctx.ellipse(c.hw - h * 0.25, -h * 0.25, h * 0.32, h * 0.42, 0.4, 0, 6.3);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // The finishing curl, from a base to a tip that nothing drawn goes above.
+    function drawCurl(base, tip, hw) {
+      var tall = base - tip;
+      if (tall < 1) return;
+      var lean = clamp(tall * 0.45, 3, 13);
+      ctx.beginPath();
+      ctx.moveTo(g.cx - hw, base);
+      ctx.quadraticCurveTo(g.cx - hw * 0.5, tip + Math.min(6, tall * 0.4), g.cx + 2, tip);
+      ctx.quadraticCurveTo(g.cx + lean + 1, tip, g.cx + lean, tip + lean * 0.7);
+      ctx.quadraticCurveTo(g.cx + lean * 0.6, tip + lean * 0.5, g.cx + lean * 0.4, tip + lean * 0.6);
+      ctx.quadraticCurveTo(g.cx + hw * 0.6, Math.max(tip + lean, base - 10), g.cx + hw, base);
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(0, tip, 0, base);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+
+    function drawCoils(level, topped) {
+      var n = coilCount();
+      var laid = clamp(level, 0, 1) * n;
+      var full = Math.min(n, Math.floor(laid));
+      for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
+      var rest = laid - full;
+      if (full >= n || rest < 0.001) return;
+      var c = coilAt(full, n);
+      var floor = g.bottom - c.ch * full; // the top of the turns already laid
+      if (topped) return drawCurl(floor + Math.min(8, c.ch * 0.3), yAt(level), c.hw * 0.8);
+      var tall = Math.max(3, c.ch * rest);
+      drawCoil({ y: floor - tall / 2, hw: c.hw, ch: tall / 1.12 }, rest);
     }
 
     // What the serve is in: drawn, never filled with the drink, and in front of it.
@@ -825,15 +898,18 @@
       ctx.ellipse(g.cx, g.counterY + 7, g.gw * 0.46, 6, 0, 0, 6.3);
       ctx.fill();
 
-      poly(g.inner, 3);
-      ctx.fillStyle = "rgba(255,255,255,.05)";
-      ctx.fill();
+      if (coil) {
+        if (level > 0.004) drawCoils(level, topped);
+      } else {
+        poly(g.inner, 3);
+        ctx.fillStyle = "rgba(255,255,255,.05)";
+        ctx.fill();
+      }
 
       ctx.save();
       poly(g.inner, 3);
       ctx.clip();
-      if (level > 0.004 && swirl) drawSwirl(yAt(level));
-      else if (level > 0.004) {
+      if (level > 0.004 && !coil) {
         var ys = yAt(level);
         var headH = dr.headDepth * level * span;
         var bodyTop = ys + headH;
@@ -931,7 +1007,7 @@
       var bot = g.gy + g.gh * 0.7;
       var a = xRange(g.inner, top);
       var b = xRange(g.inner, bot);
-      if (a && b && !faint) {
+      if (a && b && !bare) {
         ctx.lineCap = "round";
         ctx.strokeStyle = "rgba(255,255,255,.15)";
         ctx.lineWidth = g.gw * 0.05;
@@ -948,14 +1024,7 @@
       }
       ctx.restore();
 
-      if (faint) {
-        // no glass: a faint line where the finished serve will be
-        poly(g.outer, 5);
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = rgba(th.ink, 0.3);
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      } else {
+      if (!bare) {
         // the glass itself: a thick base and a bright edge
         ctx.save();
         poly(g.outer, 5);
@@ -1028,26 +1097,31 @@
       ctx.globalAlpha = 1;
     }
 
-    // Too much soft serve doesn't run down the sides: its top topples off to one side, onto the counter.
+    // Too much soft serve doesn't run down the sides: its top turn leans off to one side and
+    // falls onto the counter.
     function drawTopple() {
       var k = smooth(fx.spill);
-      var r = g.gw * 0.24;
+      var n = coilCount();
+      var c = coilAt(n - 1, n);
       var x = g.cx + g.gw * (0.25 + 0.5 * k);
-      var y = lerp(g.gy + r * 0.4, g.counterY + 4 - r * 0.35 * (1 - k * 0.4), k * k);
-      ctx.fillStyle = dr.liquid;
+      var y = lerp(g.top - c.ch * 0.5, g.counterY - c.ch * 0.45, k * k);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(0.6 + 1.2 * k);
+      ctx.translate(-g.cx, -c.y);
+      drawCoil({ y: c.y, hw: c.hw * 0.9, ch: c.ch * 0.9 }, 1);
+      drawCurl(c.y - c.ch * 0.4, c.y - c.ch * 1.3, c.hw * 0.6);
+      ctx.restore();
+      // where it lands
+      ctx.fillStyle = rgba(dr.liquidDeep, 0.9 * k);
       ctx.beginPath();
-      ctx.ellipse(x, y, r * (1 + 0.35 * k), r * (0.62 - 0.22 * k), 0.9 * (1 - k), 0, 6.3);
+      ctx.ellipse(x, g.counterY + 4, Math.max(1, c.hw * k), 4, 0, 0, 6.3);
       ctx.fill();
-      ctx.strokeStyle = rgba(dr.head, 0.85);
-      ctx.lineWidth = Math.max(2, r * 0.16);
-      ctx.beginPath();
-      ctx.ellipse(x, y, r * 0.6 * (1 + 0.35 * k), r * 0.28 * (1 - 0.3 * k), 0.9 * (1 - k), 0.3, 2.8);
-      ctx.stroke();
     }
 
     function drawSpill() {
       if (fx.spill <= 0) return;
-      if (swirl) return drawTopple();
+      if (coil) return drawTopple();
       ctx.fillStyle = rgba(dr.head, 0.9);
       ctx.beginPath();
       ctx.ellipse(g.cx, g.counterY + 8, g.gw * (0.3 + 0.36 * fx.spill), 5.5, 0, 0, 6.3);

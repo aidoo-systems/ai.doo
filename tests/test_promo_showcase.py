@@ -846,7 +846,7 @@ def test_a_skin_whose_rounds_name_no_serve_pours_its_one_drink_each_round(latte)
 def test_a_skin_can_pour_soft_serve_from_a_machine(latte):
     def soft(s):
         s["drink"].update(
-            pourer="machine", fizz=False, top="swirl", outline="faint", headDepth=0
+            pourer="machine", fizz=False, top="coil", outline="none", headDepth=0
         )
         s["drink"].update(vessel=CONE["vessel"], topping=CONE["topping"])
 
@@ -869,7 +869,7 @@ def test_the_whippy_is_soft_serve_with_a_99_on_us():
     skin = _whippy()
     drink = skin["drink"]
     assert drink["pourer"] == "machine" and drink["fizz"] is False
-    assert drink["top"] == "swirl" and drink["outline"] == "faint"
+    assert drink["top"] == "coil" and drink["outline"] == "none"
     for key in ("offer", "prize", "claim"):
         assert "a 99" in skin["copy"][key].lower(), key
     # The machine pushes in surges, like the milk's glug.
@@ -942,6 +942,56 @@ def test_every_serve_name_fits_one_line_at_320():
     # lines and squeezed the stage between rounds. 22 letters fit, as the taglines do.
     for r in _whippy()["rounds"]:
         assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]
+
+
+# --- D-030: the whippy is built in coils, not filled like a glass ----------------------
+
+
+def test_soft_serve_can_be_built_in_coils(latte):
+    def coiled(s):
+        s["drink"].update(
+            pourer="machine",
+            fizz=False,
+            top="coil",
+            outline="none",
+            coils=5,
+            headDepth=0,
+        )
+        s["rounds"][1]["serve"] = dict(CONE, coils=4)
+
+    assert run(latte(coiled), ["line", "line"])["problems"] == []
+    for bad in (1, 13, 4.5, "5"):
+        skin = latte(lambda s: s["drink"].update(coils=bad))
+        assert run(skin, ["line"])["problems"], bad
+    # The glass-filling swirl and its faint outline are gone.
+    assert run(latte(lambda s: s["drink"].update(top="swirl")), ["line"])["problems"]
+    assert run(latte(lambda s: s["drink"].update(outline="faint")), ["line"])[
+        "problems"
+    ]
+
+
+def test_the_whippys_coils_narrow_smoothly_to_a_flat_top():
+    drink = _whippy()["drink"]
+    assert 3 <= drink["coils"] <= 8
+    glass = drink["glass"]
+    top = sorted(p[0] for p in glass if p[1] == 0)
+    assert len(top) == 2 and top[1] - top[0] >= 20, top
+    # No zig-zag: going down, the right-hand side only widens.
+    right = sorted((p for p in glass if p[0] > 50), key=lambda p: p[1])
+    assert all(a[0] <= b[0] for a, b in zip(right, right[1:])), right
+
+
+def test_no_coil_is_hidden_in_a_cup():
+    # The cup's rim meets the bottom of the stack (y 100), so every coil laid is seen.
+    for r in _whippy()["rounds"]:
+        rim = min(p[1] for p in r["serve"]["vessel"]["points"])
+        assert rim >= 88, (r["serve"]["name"], rim)
+
+
+def test_the_stack_is_laid_coil_by_coil(ui):
+    # Each coil is a tilted turn of the rope, so a longer pour draws more of them.
+    coils = ui["whippyCoils"]
+    assert coils["early"] < coils["late"], coils
 
 
 def _luminance(hex_colour):

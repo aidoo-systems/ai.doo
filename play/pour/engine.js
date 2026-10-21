@@ -14,11 +14,11 @@
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
   var POURERS = ["tap", "jug", "carton", "machine"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
-  var TOPS = ["liquid", "swirl"]; // what the top of the drink looks like; a skin that doesn't say gets the first
-  var OUTLINES = ["glass", "faint"]; // a glass round the drink, or a faint line where the finished serve will be
+  var TOPS = ["liquid", "coil"]; // what the top of the drink looks like; a skin that doesn't say gets the first
+  var OUTLINES = ["glass", "none"]; // a glass round the drink, or nothing round it (soft serve stands up on its own)
   var TOPPINGS = ["stick", "drizzle", "scatter"]; // how a serve can be finished once it's poured
   // What a round's serve can say for itself. What pours it, its fizz, top and outline stay the skin's.
-  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "topping"];
+  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "topping", "coils"];
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
@@ -75,6 +75,8 @@
       var ok = isOutline(v.points, 200) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
       if (!ok) problems.push(at + "vessel needs 3 to 24 points (x 0 to 100, y 0 to 200), a hex colour, and may have a hex edge and a grid");
     }
+    // How many coils of soft serve fill the glass, from its bottom to its top.
+    if (d.coils !== undefined && !(Number.isInteger(d.coils) && d.coils >= 2 && d.coils <= 12)) problems.push(at + "coils must be a whole number from 2 to 12");
     // How it's finished once it's poured: a kind and its colours.
     if (d.topping !== undefined) {
       var t = isObj(d.topping) ? d.topping : {};

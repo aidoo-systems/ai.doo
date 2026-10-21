@@ -415,6 +415,19 @@ async function started(search, tweak) {
     page.advance(1400);
     out.whippyRounds.push(seen);
   }
+  // D-030: the stack is laid coil by coil, each a tilted turn, so a longer pour draws more.
+  page = await started("?skin=icecream");
+  page.advance(500);
+  page.down(1);
+  const turns = () => page.trace.filter((t) => t.startsWith("rotate(")).length;
+  page.advance(250);
+  page.trace.length = 0;
+  page.advance(16);
+  const early = turns();
+  page.advance(900);
+  page.trace.length = 0;
+  page.advance(16);
+  out.whippyCoils = { early, late: turns() };
   // Held too long, it topples off to one side: a dollop beside the serve, not drips down a glass.
   page = await started("?skin=icecream");
   page.advance(500);

@@ -28,9 +28,10 @@
     "pourer": "machine",
     "stream": "#fbf3dc",
     "fizz": false,
-    "top": "swirl",
-    "outline": "faint",
-    "glass": [[38, 0], [62, 0], [70, 10], [64, 18], [80, 28], [74, 38], [88, 50], [80, 60], [94, 74], [86, 84], [98, 100], [2, 100], [14, 84], [6, 74], [20, 60], [12, 50], [26, 38], [20, 28], [36, 18], [30, 10]]
+    "top": "coil",
+    "coils": 5,
+    "outline": "none",
+    "glass": [[40, 0], [60, 0], [72, 14], [83, 40], [93, 70], [99, 100], [1, 100], [7, 70], [17, 40], [28, 14]]
   },
   "copy": {
     "start": "Start serving",
@@ -72,7 +73,7 @@
       "line": 0.62, "speed": 0.5, "surge": 0.45, "surgeHz": 1.6,
       "serve": {
         "name": "A cup with sauce",
-        "vessel": { "points": [[0, 62], [100, 62], [90, 130], [10, 130]], "colour": "#ffffff", "edge": "#d6c7a6" },
+        "vessel": { "points": [[0, 92], [100, 92], [90, 158], [10, 158]], "colour": "#ffffff", "edge": "#d6c7a6" },
         "topping": { "kind": "drizzle", "colours": ["#c4314b"] }
       }
     },
@@ -98,7 +99,7 @@
       "serve": {
         "name": "A twist in a cup",
         "head": "#f39ab8",
-        "vessel": { "points": [[0, 62], [100, 62], [90, 130], [10, 130]], "colour": "#ffffff", "edge": "#d6c7a6" }
+        "vessel": { "points": [[0, 92], [100, 92], [90, 158], [10, 158]], "colour": "#ffffff", "edge": "#d6c7a6" }
       }
     }
   ],
