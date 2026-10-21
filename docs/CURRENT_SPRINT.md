@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, one item at a time: P2.1e (cards that move).
+1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, one item at a time: P2.0u (the whippy, rotating serves, D-029), then P2.0v, then P2.1e (cards that move).
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Firebase apps created (owner, 2026-10-20); the config files go into each repo, then `/next` in each; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -41,6 +41,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-21
+- #68 (D-028) and #69 (outreach sent: six emails 2026-10-20, contact log, follow-ups 2026-10-27) merged after fixing Codex's findings (the Noa email's flat white recorded as a sent exception; the sprint no longer says outreach hasn't begun). The owner's wife's idea, a whippy skin for ice cream shops: three mocks (cone with flake, cup with sauce, strawberry twist with sprinkles); the owner chose all three, rotating per round (D-029). #70 merged: P2.0u (whippy) and P2.0v (the pub and café rotate their drinks). Next: build P2.0u; add ice cream shops to the prospect list.
 
 ### 2026-10-20
 - **Outreach started** (owner, late evening): the six drafted emails sent (Noa, Café 360, Villa Gaiety, the Creamery, Okell's, Hospice); two Villa Gaiety addresses bounced. Logged in the prospect list's contact log. Next: one follow-up each after a week (2026-10-27), and find a working Villa Gaiety address (ask at the box office).
