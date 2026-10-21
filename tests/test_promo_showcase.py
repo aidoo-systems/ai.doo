@@ -942,3 +942,31 @@ def test_every_serve_name_fits_one_line_at_320():
     # lines and squeezed the stage between rounds. 22 letters fit, as the taglines do.
     for r in _whippy()["rounds"]:
         assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]
+
+
+def _luminance(hex_colour):
+    h = hex_colour[1:]
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+
+    def channel(v):
+        v /= 255
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (channel(int(h[i : i + 2], 16)) for i in (0, 2, 4))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast(a, b):
+    hi, lo = sorted((_luminance(a), _luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_accent_reads_against_the_room(path):
+    # The accent is text too (the kicker, the offer, the prize), on the room and its
+    # panels: Giddy Puffin's first coral was 1.75:1 on its panel (Codex, round 1).
+    theme = json.loads(path.read_text(encoding="utf-8"))["theme"]
+    for ground in ("bg", "panel"):
+        assert _contrast(theme["accent"], theme[ground]) >= 4, ground
+    assert _contrast(theme["accentInk"], theme["accent"]) >= 4.5

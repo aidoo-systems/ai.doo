@@ -6,11 +6,11 @@
   "switchLabel": "See it as an ice cream kiosk",
   "theme": {
     "bg": "#1f4e79",
-    "panel": "#2b6aa0",
+    "panel": "#22588a",
     "ink": "#fdfaf2",
     "muted": "#c9dcef",
-    "accent": "#f25c54",
-    "accentInk": "#ffffff",
+    "accent": "#ffb0a5",
+    "accentInk": "#1b3352",
     "counter": "#f3e9d2",
     "counterEdge": "#d6c7a6",
     "metal": "#eef1f4"
