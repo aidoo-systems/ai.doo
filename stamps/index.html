@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Stamp card demo | ai.doo</title>
+  <meta name="description" content="A demo of a shop's stamp card in Apple or Google Wallet: no app, no sign-up, stamped at the till with the shop's own phone." />
+  <meta name="robots" content="noindex">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#f7f4ef">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
+  <style>
+    /* A guided walk through the stamp card for a shop owner who opens the link cold.
+       Everything is simulated on this page: nothing is stored or sent. The shop's name,
+       icon, colour, reward and stamp count come from the link; card.js checks them. */
+    :root{--bg:#f7f4ef;--panel:#fff;--ink:#1f1d1b;--muted:#6b655e;--line:#e6dfd6;--phone:#16161a;--ok:#1f8a4c;--full:#f2b01e;--brand:#2f6f5e;--brandInk:#fff}
+    @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2')}
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+    a{color:inherit}
+    [hidden]{display:none !important}
+    button{font:inherit;cursor:pointer}
+    button:focus-visible,a:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+
+    .top{display:flex;justify-content:space-between;align-items:center;max-width:980px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) 16px 0;font-size:14px}
+    .top a{font-weight:800;text-decoration:none;letter-spacing:-.01em;font-size:17px}
+    .tag{border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted);background:var(--panel)}
+
+    .intro{max-width:720px;margin:0 auto;padding:22px 16px 6px;text-align:center}
+    .intro h1{font-size:clamp(1.6rem,5vw,2.4rem);line-height:1.15;letter-spacing:-.02em;margin:0 0 10px}
+    .intro p{margin:0 auto;color:var(--muted);max-width:34em}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:16px 0 0;padding:0;list-style:none}
+    .chips li{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
+
+    /* The guide: one step at a time, with the step's action as its button */
+    .guide{max-width:640px;margin:22px auto 0;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:18px;margin-inline:16px}
+    @media (min-width:672px){.guide{margin-inline:auto}}
+    /* Side by side, the guide stays in view above the phones as the page scrolls to them */
+    @media (min-width:760px){.guide{position:sticky;top:10px;z-index:10;box-shadow:0 8px 24px rgba(40,30,20,.08)}}
+    .stepno{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .dots{display:inline-flex;gap:5px;margin-left:8px;vertical-align:1px}
+    .dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+    .dots i.on{background:var(--brand)}
+    .guide h2{margin:4px 0 4px;font-size:20px;letter-spacing:-.01em}
+    .guide p{margin:0;color:var(--muted)}
+    .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    .act{border:0;border-radius:12px;padding:11px 16px;font-weight:700;background:var(--brand);color:var(--brandInk);text-decoration:none;display:inline-block}
+    .act.quiet{background:transparent;color:var(--ink);border:1px solid var(--line)}
+
+    .tabs{display:none;justify-content:center;gap:6px;margin:16px 16px 0}
+    .tabs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600;color:var(--muted);position:relative}
+    .tabs button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+    .tabs button.ping::after{content:"";position:absolute;top:4px;right:6px;width:8px;height:8px;border-radius:50%;background:#e5484d}
+
+    .stage{display:flex;justify-content:center;gap:36px;padding:18px 16px 8px}
+    .col{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .label{font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .col.turn .label{color:var(--ink)}
+    .col.turn .label::after{content:" · your turn";color:var(--brand)}
+    @media (max-width:759px){
+      .tabs{display:flex}
+      .stage{padding-top:12px}
+      .stage[data-show="customer"] .col.shopside,.stage[data-show="shop"] .col.custside{display:none}
+      .col .label{display:none}
+      .chips{display:none}
+      .intro{padding-top:16px}
+      .guide{padding:13px 15px;margin-top:16px}
+      .guide h2{font-size:18px}
+      .guide p{font-size:15px}
+      .phone{height:540px}
+    }
+
+    .phone{width:min(300px,calc(100vw - 48px));height:600px;background:var(--phone);border-radius:46px;padding:11px;box-shadow:0 24px 50px rgba(40,30,20,.16);position:relative;flex:none}
+    .screen{width:100%;height:100%;border-radius:36px;overflow:hidden;position:relative;background:#f2f2f7}
+    .island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:92px;height:26px;background:#000;border-radius:14px;z-index:6}
+    .view{position:absolute;inset:0;display:flex;flex-direction:column;padding:48px 16px 18px;animation:enter .3s ease-out}
+    @keyframes enter{from{opacity:0;transform:translateY(8px)}}
+
+    /* Customer 1: the camera, pointed at the counter sign */
+    .camera{background:radial-gradient(120% 80% at 50% 40%,#5b4a3c,#1e1813);align-items:center;justify-content:center;gap:18px}
+    .sign{width:78%;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.45);transform:rotate(-2deg);text-align:center;color:#111}
+    .sign-top{background:var(--brand);color:var(--brandInk);padding:10px 8px 8px;font-weight:800;font-size:15px;line-height:1.25}
+    .sign-top .ico{font-size:22px;display:block}
+    .sign svg{width:96px;height:96px;margin:10px auto 2px;display:block}
+    .sign small{display:block;padding:0 10px 12px;font-size:11px;line-height:1.35;color:#444}
+    .pill{border:0;border-radius:999px;background:#ffd60a;color:#111;font-weight:700;font-size:14px;padding:9px 16px;box-shadow:0 6px 16px rgba(0,0,0,.35);animation:bob 1.6s ease-in-out infinite}
+    @keyframes bob{50%{transform:translateY(-3px)}}
+
+    /* Customer 2: the page the sign opens */
+    .page{background:#fff;padding:40px 0 0}
+    .urlbar{margin:0 12px 10px;background:#eeeef1;border-radius:10px;padding:7px 10px;font-size:13px;color:#555;text-align:center}
+    .page-body{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:6px 18px 16px;overflow:auto}
+    .logo{width:60px;height:60px;border-radius:50%;background:var(--brand);color:var(--brandInk);display:grid;place-items:center;font-size:30px;flex:none}
+    .page h3{margin:0;font-size:20px;line-height:1.2}
+    .page p{margin:0;color:#666;font-size:14px}
+    .walletbtn{width:100%;border:0;border-radius:12px;padding:13px;font-weight:700;font-size:15px;background:#000;color:#fff}
+    .walletbtn.google{background:#fff;color:#111;border:1px solid #c9c9c9}
+    .linkish{border:0;background:none;color:#555;font-size:13px;text-decoration:underline;padding:2px}
+    .fine{font-size:12px;color:#888}
+
+    /* The pass, on the page and in Wallet */
+    .pass{width:100%;background:var(--brand);color:var(--brandInk);border-radius:14px;padding:12px 13px;text-align:left}
+    .pass-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .pass-top b{font-size:19px;line-height:1.2;font-weight:800;overflow-wrap:anywhere}
+    .pass-top .ico{margin-right:6px}
+    .pass-count{text-align:right;flex:none}
+    .pass-count small{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+    .pass-count span{font-size:19px;font-weight:800}
+    .boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0 8px}
+    .box{aspect-ratio:1;border-radius:50%;border:2px solid currentColor;opacity:.55;display:grid;place-items:center;font-size:17px;line-height:1}
+    .box.on{opacity:1;background:var(--brandInk);border-color:var(--brandInk);animation:pop .35s ease-out backwards}
+    @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}}
+    .pass-line{text-align:center;font-weight:700;font-size:14px;min-height:21px}
+    .code{background:#fff;color:#111;border-radius:8px;padding:8px;margin:10px auto 0;width:128px;text-align:center;font:600 11px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.08em}
+    .code svg{width:108px;height:108px;display:block;margin:0 auto 4px}
+    .page .pass .code{display:none}
+
+    /* Customer 3: Wallet */
+    .wallet{background:#000;color:#fff}
+    .wallet h4{margin:0 0 12px;font-size:28px;letter-spacing:-.01em}
+    .wallet .pass{animation:slidein .5s ease-out}
+    @keyframes slidein{from{transform:translateY(420px)}}
+    .note{position:absolute;top:44px;left:9px;right:9px;z-index:5;background:rgba(245,245,247,.97);color:#111;border-radius:18px;padding:10px 12px;font-size:13px;line-height:1.35;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);transform:translateY(-200%);opacity:0;transition:transform .35s,opacity .35s}
+    .note.show{transform:none;opacity:1}
+    .note .ico{width:32px;height:32px;border-radius:8px;background:var(--brand);color:var(--brandInk);display:grid;place-items:center;flex:none;font-size:17px}
+
+    /* The shop's phone */
+    .till{background:#1b1b1f;color:#fff;gap:11px}
+    .till-top{display:flex;justify-content:space-between;font-size:13px;color:#aaa;gap:8px}
+    .till-top b{color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .finder{height:150px;border-radius:16px;background:#2a2a30;position:relative;overflow:hidden;display:grid;place-items:center;color:#888;font-size:13px;flex:none}
+    .finder::before{content:"";position:absolute;width:104px;height:104px;border:3px solid rgba(255,255,255,.75);border-radius:14px}
+    .laser{position:absolute;left:24%;right:24%;height:2px;background:#ff4d4d;top:50%;animation:scan 1.6s ease-in-out infinite}
+    @keyframes scan{0%,100%{transform:translateY(-46px)}50%{transform:translateY(46px)}}
+    .result{flex:1;min-height:0;border-radius:16px;background:#26262b;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;color:#aaa;font-size:14px;transition:background .2s}
+    .result b{display:block;font-size:34px;line-height:1.1;color:#fff;font-weight:800}
+    .result.ok{background:var(--ok);color:#e8fff0}
+    .result.full{background:var(--full);color:#2a1d00}
+    .result.full b{color:#000}
+    .flash{animation:flash .45s ease-out}
+    @keyframes flash{0%{transform:scale(.94)}60%{transform:scale(1.03)}}
+    .stepper{display:flex;align-items:center;justify-content:space-between;background:#26262b;border-radius:14px;padding:6px 6px 6px 14px;font-size:14px;color:#ccc}
+    .stepper div{display:flex;align-items:center;gap:4px}
+    .stepper button{width:40px;height:40px;border-radius:10px;border:0;background:#3a3a42;color:#fff;font-size:20px;font-weight:700}
+    .stepper output{min-width:28px;text-align:center;font-size:18px;font-weight:800;color:#fff}
+    .big{border:0;border-radius:14px;padding:15px;font-size:17px;font-weight:800;background:var(--brand);color:var(--brandInk)}
+    .big.give{background:var(--full);color:#000}
+    .big:disabled,.stepper button:disabled{opacity:.35;cursor:default}
+    .undo{border:0;background:none;color:#bbb;font-size:14px;text-decoration:underline;padding:4px;min-height:30px}
+
+    /* The end, and the plain facts */
+    .end{max-width:640px;margin:18px 16px 0;padding:22px 20px;background:var(--brand);color:var(--brandInk);border-radius:20px;text-align:center}
+    @media (min-width:672px){.end{margin-inline:auto}}
+    .end h2{margin:0 0 6px;font-size:24px;letter-spacing:-.01em}
+    .end p{margin:0 0 14px;opacity:.9}
+    .end .act{background:var(--brandInk);color:var(--brand)}
+    .facts{max-width:900px;margin:30px auto 0;padding:0 16px;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+    .facts section{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 18px}
+    .facts h2{font-size:16px;margin:0 0 8px}
+    .facts ol,.facts ul{margin:0;padding-left:20px;color:var(--muted);font-size:15px}
+    .facts li{margin:4px 0}
+    .facts li b{color:var(--ink)}
+    footer{max-width:720px;margin:26px auto 0;padding:0 16px max(30px,env(safe-area-inset-bottom));text-align:center;color:var(--muted);font-size:13px}
+    footer p{margin:4px 0}
+
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}}
+  </style>
+</head>
+<body>
+  <div class="top"><a href="/">ai.doo</a><span class="tag">Demo</span></div>
+
+  <div class="intro">
+    <h1 id="headline">Your stamp card, on your customers' phones</h1>
+    <p>The paper card they already know, kept in Apple or Google Wallet, so it's never left at home. Try it from both sides of the counter: it takes about a minute.</p>
+    <ul class="chips">
+      <li>No app to download</li><li>No sign-up, no email, no phone number</li><li>Stamped in a few seconds</li><li>Your own phone at the till</li>
+    </ul>
+  </div>
+
+  <div class="guide" aria-live="polite">
+    <div class="stepno"><span id="stepNo">Step 1 of 4</span><span class="dots" id="dots"><i></i><i></i><i></i><i></i></span></div>
+    <h2 id="gTitle"></h2>
+    <p id="gText"></p>
+    <div class="actions" id="gActions"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button type="button" id="tabCustomer" aria-pressed="true">Customer's phone</button>
+    <button type="button" id="tabShop" aria-pressed="false">Shop's phone</button>
+  </div>
+
+  <div class="stage" id="stage" data-show="customer">
+    <div class="col custside" id="colCustomer">
+      <div class="label">Customer's phone</div>
+      <div class="phone"><div class="screen">
+        <div class="island"></div>
+        <div class="note" id="note" role="status"><div class="ico icon"></div><div><b class="shopname"></b><br><span id="noteText"></span></div></div>
+
+        <div class="view camera" id="vCamera">
+          <div class="sign" aria-label="The sign on the counter">
+            <div class="sign-top"><span class="ico icon"></span><span class="shopname"></span> stamp card</div>
+            <svg class="qr" viewBox="0 0 25 25" aria-hidden="true"></svg>
+            <small>Scan with your camera.<br>No app, no sign-up.</small>
+          </div>
+          <button type="button" class="pill" id="openLink">stamps.aidoo.biz ›</button>
+        </div>
+
+        <div class="view page" id="vPage" hidden>
+          <div class="urlbar">🔒 stamps.aidoo.biz</div>
+          <div class="page-body">
+            <div class="logo icon"></div>
+            <h3><span class="shopname"></span> stamp card</h3>
+            <div class="pass passview"></div>
+            <p>Buy <span class="need"></span>, get a <span class="rewardname"></span>.</p>
+            <button type="button" class="walletbtn" id="addWallet"></button>
+            <button type="button" class="linkish" id="otherWallet"></button>
+            <div class="fine">No account. No details asked. This page works as your card too.</div>
+          </div>
+        </div>
+
+        <div class="view wallet" id="vWallet" hidden>
+          <h4>Wallet</h4>
+          <div class="pass passview" id="walletPass"></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col shopside" id="colShop">
+      <div class="label">Shop's phone at the till</div>
+      <div class="phone"><div class="screen">
+        <div class="island"></div>
+        <div class="view till">
+          <div class="till-top"><b class="shopname"></b><span>Till</span></div>
+          <div class="finder" id="finder"><div class="laser"></div></div>
+          <div class="result" id="result"></div>
+          <div class="stepper"><span>Stamps this visit</span><div>
+            <button type="button" id="less" aria-label="One fewer stamp">−</button><output id="many">1</output><button type="button" id="more" aria-label="One more stamp">+</button>
+          </div></div>
+          <button type="button" class="big" id="tillAct">Scan card</button>
+          <button type="button" class="undo" id="undo" hidden>Undo</button>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="end" id="end" hidden>
+    <h2 id="endTitle">Want this for your shop?</h2>
+    <p>Tell us your stamp count and your free item, and we'll show you how it would work at your counter.</p>
+    <a class="act" id="mail" href="mailto:hello@aidoo.biz?subject=Stamp%20cards%20for%20my%20shop">Email hello@aidoo.biz</a>
+  </div>
+
+  <div class="facts">
+    <section>
+      <h2>How it works</h2>
+      <ol>
+        <li>A small sign by the till. Customers scan it and tap <b>Add to Wallet</b>, once.</li>
+        <li>Each visit, staff scan the card with the shop's own phone. One stamp per item.</li>
+        <li>The card updates on the customer's phone a moment later, with a note on the lock screen.</li>
+        <li>When it's full, the till says so. One tap gives the free item and the card starts again.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>What it isn't</h2>
+      <ul>
+        <li><b>No customer data.</b> No names, emails or phone numbers, so nothing to protect or leak.</li>
+        <li><b>No marketing.</b> No messages or offers sent to your customers.</li>
+        <li><b>No card machine changes.</b> It sits beside your till, not in it.</li>
+        <li><b>No self-stamping.</b> A stamp always needs your staff's phone.</li>
+      </ul>
+    </section>
+  </div>
+
+  <footer>
+    <p>This is a demo. Nothing on this page is stored or sent, and the cards here are pretend.</p>
+    <p>Made by <a href="/">ai.doo</a> on the Isle of Man.</p>
+  </footer>
+
+  <script src="card.js?v=1"></script>
+  <script>
+    (function () {
+      "use strict";
+      var query = {};
+      new URLSearchParams(location.search).forEach(function (value, key) { query[key] = value; });
+      var S = StampCard.settings(query);
+      var SHOP = S.shop || "Your shop";
+      var REWARD = S.reward;
+      var Reward = REWARD.charAt(0).toUpperCase() + REWARD.slice(1);
+      var NEED = S.stamps;
+      var $ = function (id) { return document.getElementById(id); };
+      var all = function (sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); };
+      var narrow = window.matchMedia("(max-width: 759px)");
+
+      document.documentElement.style.setProperty("--brand", S.color);
+      document.documentElement.style.setProperty("--brandInk", S.ink);
+      document.title = (S.shop ? S.shop + " stamp card" : "Stamp card") + " demo | ai.doo";
+      if (S.shop) $("headline").textContent = StampCard.possessive(S.shop) + " stamp card, on your customers' phones";
+      all(".shopname", function (e) { e.textContent = SHOP; });
+      all(".icon", function (e) { e.textContent = S.icon; });
+      all(".need", function (e) { e.textContent = NEED; });
+      all(".rewardname", function (e) { e.textContent = REWARD; });
+      $("endTitle").textContent = S.shop ? "Want this for " + S.shop + "?" : "Want this for your shop?";
+      $("mail").href = "mailto:hello@aidoo.biz?subject=" +
+        encodeURIComponent("Stamp cards for " + (S.shop || "my shop"));
+
+      // A QR that only has to look like one: fixed corners, the rest from the card's code.
+      function drawQr(svg, seed) {
+        var n = 25, s = 0, cells = [];
+        for (var i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) % 233280;
+        var rnd = function () { return (s = (s * 9301 + 49297) % 233280) / 233280; };
+        var finder = function (x, y) {
+          return [[0, 0], [n - 7, 0], [0, n - 7]].some(function (o) {
+            return x >= o[0] - 1 && x <= o[0] + 7 && y >= o[1] - 1 && y <= o[1] + 7;
+          });
+        };
+        for (var y = 0; y < n; y++) for (var x = 0; x < n; x++)
+          if (!finder(x, y) && rnd() > 0.52) cells.push("M" + x + " " + y + "h1v1h-1z");
+        [[0, 0], [n - 7, 0], [0, n - 7]].forEach(function (o) {
+          cells.push("M" + o[0] + " " + o[1] + "h7v7h-7zM" + (o[0] + 1) + " " + (o[1] + 1) + "v5h5v-5z" +
+            "M" + (o[0] + 2) + " " + (o[1] + 2) + "h3v3h-3z");
+        });
+        svg.innerHTML = '<rect width="25" height="25" fill="#fff"/><path fill="#000" fill-rule="evenodd" d="' + cells.join("") + '"/>';
+      }
+
+      var platform = /android/i.test(navigator.userAgent) ? "google" : "apple";
+      var code, card, step, redeemed, many, undoTimer, noteTimer, started = false;
+
+      function renderPasses(popFrom) {
+        all(".passview", function (pass) {
+          pass.textContent = "";
+          var top = document.createElement("div");
+          top.className = "pass-top";
+          var name = document.createElement("b");
+          var ico = document.createElement("span");
+          ico.className = "ico"; ico.textContent = S.icon;
+          name.appendChild(ico); name.appendChild(document.createTextNode(SHOP));
+          var count = document.createElement("div");
+          count.className = "pass-count";
+          count.innerHTML = "<small>Stamps</small><span></span>";
+          count.lastChild.textContent = card.count + " / " + NEED;
+          top.appendChild(name); top.appendChild(count);
+          var boxes = document.createElement("div");
+          boxes.className = "boxes";
+          boxes.style.gridTemplateColumns = "repeat(" + (NEED <= 5 ? NEED : NEED <= 10 ? 5 : 6) + ",1fr)";
+          for (var i = 0; i < NEED; i++) {
+            var box = document.createElement("div");
+            var on = i < card.count;
+            box.className = "box" + (on ? " on" : "");
+            box.textContent = on ? S.icon : i === NEED - 1 ? "🎁" : "";
+            if (on && popFrom !== undefined && i >= popFrom) box.style.animationDelay = (i - popFrom) * 0.1 + "s";
+            else if (on) box.style.animation = "none";
+            boxes.appendChild(box);
+          }
+          var line = document.createElement("div");
+          line.className = "pass-line";
+          line.textContent = card.full() ? "Your " + REWARD + " is ready!" : (NEED - card.count) + " to your " + REWARD;
+          var codeBox = document.createElement("div");
+          codeBox.className = "code";
+          codeBox.innerHTML = '<svg viewBox="0 0 25 25" aria-hidden="true"></svg>';
+          codeBox.appendChild(document.createTextNode(code));
+          drawQr(codeBox.firstChild, code);
+          pass.appendChild(top); pass.appendChild(boxes); pass.appendChild(line); pass.appendChild(codeBox);
+        });
+      }
+
+      function notify(text) {
+        $("noteText").textContent = text;
+        $("note").classList.add("show");
+        if (narrow.matches && $("stage").dataset.show === "shop") $("tabCustomer").classList.add("ping");
+        clearTimeout(noteTimer);
+        noteTimer = setTimeout(function () { $("note").classList.remove("show"); }, 3200);
+      }
+
+      function till(kind, big, small) {
+        var r = $("result");
+        r.className = "result" + (kind ? " " + kind : "");
+        r.textContent = "";
+        if (big) { var b = document.createElement("b"); b.textContent = big; r.appendChild(b); }
+        r.appendChild(document.createTextNode(small || ""));
+        if (kind) { void r.offsetWidth; r.classList.add("flash"); }
+      }
+
+      function show(side) {
+        $("stage").dataset.show = side;
+        $("tabCustomer").setAttribute("aria-pressed", side === "customer");
+        $("tabShop").setAttribute("aria-pressed", side === "shop");
+        if (side === "customer") $("tabCustomer").classList.remove("ping");
+      }
+
+      function view(id) {
+        ["vCamera", "vPage", "vWallet"].forEach(function (v) { $(v).hidden = v !== id; });
+      }
+
+      function button(label, onClick, quiet) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "act" + (quiet ? " quiet" : "");
+        b.textContent = label;
+        b.onclick = onClick;
+        return b;
+      }
+
+      // The guide and the two phones follow one step: camera, page, staff, full, done.
+      function render(moved) {
+        var steps = { camera: 1, page: 2, staff: 3, full: 4, done: 4 };
+        $("stepNo").textContent = step === "done" ? "All done" : "Step " + steps[step] + " of 4";
+        all("#dots i", function (d, i) { d.className = i < steps[step] ? "on" : ""; });
+        var acts = $("gActions");
+        acts.textContent = "";
+        var customerTurn = step === "camera" || step === "page";
+        $("colCustomer").classList.toggle("turn", customerTurn);
+        $("colShop").classList.toggle("turn", step === "staff" || step === "full");
+
+        if (step === "camera") {
+          guide("You're a customer at the counter", "There's a small sign by the till. Point your phone's camera at it.");
+          acts.appendChild(button("Scan the sign", openPage));
+        } else if (step === "page") {
+          guide("It opens a page, not an app store", "No app, no account, no name or email. The card is theirs straight away; Wallet just keeps it handy.");
+          acts.appendChild(button(walletLabel(platform), addToWallet));
+        } else if (step === "staff") {
+          if (card.count === 0) {
+            guide("Now you're the staff", "Each visit, staff scan the card with the shop's own phone. Bought two? Tap + first.");
+          } else {
+            guide("Stamp " + card.count + " of " + NEED + " is on their phone",
+              "It landed on the customer's card and their lock screen. Keep stamping, or skip ahead.");
+          }
+          acts.appendChild(button("Scan the card", scan));
+          if (card.count > 0 && card.count < NEED - 1) {
+            acts.appendChild(button("Skip to " + (NEED - 1) + " of " + NEED, skip, true));
+          }
+          if (narrow.matches && card.count > 0) acts.appendChild(button("See the customer's phone", function () { show("customer"); }, true));
+        } else if (step === "full") {
+          guide("The card is full", "The till tells staff, so nobody counts boxes. One tap gives the " + REWARD + " and the card starts again.");
+          acts.appendChild(button("Give the " + REWARD, give));
+        } else {
+          guide("That's all there is to it", "One sign on the counter, the phone you already have, and a card your customers can't leave at home.");
+          var mail = document.createElement("a");
+          mail.className = "act"; mail.href = $("mail").href; mail.textContent = "Email us about it";
+          acts.appendChild(mail);
+          acts.appendChild(button("Start again", start, true));
+        }
+        $("end").hidden = step !== "done";
+
+        var full = card.full();
+        var tillAct = $("tillAct");
+        tillAct.className = "big" + (full ? " give" : "");
+        tillAct.textContent = full ? "Give the " + REWARD : "Scan card";
+        tillAct.disabled = !(step === "staff" || step === "full" || step === "done") || busy;
+        $("less").disabled = full || many <= 1 || tillAct.disabled;
+        $("more").disabled = full || many >= NEED - card.count || tillAct.disabled;
+        $("many").textContent = many;
+        // On a phone the guide and one phone share the screen: bring them back into view.
+        if (moved && narrow.matches) document.querySelector(".guide").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function guide(title, text) {
+        $("gTitle").textContent = title;
+        $("gText").textContent = text;
+      }
+
+      function walletLabel(which) {
+        return which === "google" ? "Add to Google Wallet" : "Add to Apple Wallet";
+      }
+
+      function setPlatform(which) {
+        platform = which;
+        $("addWallet").textContent = walletLabel(which);
+        $("addWallet").className = "walletbtn" + (which === "google" ? " google" : "");
+        $("otherWallet").textContent = which === "google" ? "On an iPhone? Apple Wallet" : "On Android? Google Wallet";
+        if (step === "page") render();
+      }
+
+      function openPage() {
+        if (step !== "camera") return;
+        step = "page";
+        view("vPage");
+        show("customer");
+        renderPasses();
+        render(true);
+      }
+
+      function addToWallet() {
+        if (step !== "page") return;
+        step = "staff";
+        view("vWallet");
+        renderPasses();
+        till("", "", "Ready. Scan the customer's card.");
+        render(true);
+        // On a phone, let the pass land before handing over to the staff side.
+        if (narrow.matches) setTimeout(function () { if (step === "staff") show("shop"); }, 1400);
+      }
+
+      var busy = false;
+      function scan() {
+        if (step !== "staff" || busy || card.full()) return;
+        show(narrow.matches ? "shop" : $("stage").dataset.show);
+        busy = true;
+        till("", "", "Scanning card " + code + "…");
+        render();
+        setTimeout(function () {
+          var before = card.count;
+          card.stamp(many);
+          many = 1;
+          busy = false;
+          if (navigator.vibrate) navigator.vibrate(40);
+          if (card.full()) {
+            step = "full";
+            till("full", "Card full", "Give a " + REWARD);
+            notify("Your " + REWARD + " is ready. Show this card at the till.");
+          } else {
+            till("ok", "+" + (card.count - before) + "  ·  " + card.count + " of " + NEED, "Stamped");
+            notify("Stamp " + card.count + " of " + NEED + ". " + (NEED - card.count) + " to your " + REWARD + ".");
+          }
+          renderPasses(before);
+          offerUndo();
+          render();
+        }, 650);
+      }
+
+      function skip() {
+        if (step !== "staff" || busy) return;
+        var before = card.count;
+        card.stamp(NEED - 1 - card.count);
+        till("ok", card.count + " of " + NEED, "A few visits later");
+        renderPasses(before);
+        offerUndo();
+        render();
+      }
+
+      function give() {
+        if (step !== "full" || busy || !card.redeem()) return;
+        redeemed += 1;
+        step = "done";
+        till("ok", "Enjoy! " + S.icon, Reward + " given. The card starts again.");
+        notify("Enjoy your " + REWARD + "! Your card starts again.");
+        renderPasses();
+        offerUndo();
+        render(true);
+        if (narrow.matches) setTimeout(function () { show("customer"); }, 900);
+        setTimeout(function () { $("end").scrollIntoView({ behavior: "smooth", block: "nearest" }); }, 1600);
+      }
+
+      function offerUndo() {
+        $("undo").hidden = false;
+        clearTimeout(undoTimer);
+        undoTimer = setTimeout(function () { $("undo").hidden = true; }, 5000);
+      }
+
+      function undo() {
+        if (busy || !card.undo()) return;
+        $("undo").hidden = true;
+        if (step === "done") { redeemed -= 1; }
+        step = card.full() ? "full" : "staff";
+        till(card.full() ? "full" : "", card.full() ? "Card full" : "", card.full() ? "Give a " + REWARD : "Undone. " + card.count + " of " + NEED + ".");
+        renderPasses();
+        render();
+      }
+
+      function tillAction() {
+        if (step === "full") give();
+        else if (step === "done") { step = "staff"; scan(); }
+        else scan();
+      }
+
+      function start() {
+        code = StampCard.cardCode();
+        card = StampCard.createCard(NEED);
+        step = "camera"; redeemed = 0; many = 1; busy = false;
+        clearTimeout(undoTimer); $("undo").hidden = true;
+        $("note").classList.remove("show");
+        view("vCamera");
+        show("customer");
+        drawQr(document.querySelector(".sign .qr"), SHOP);
+        till("", "", "Waiting for a customer's card");
+        renderPasses();
+        setPlatform(platform);
+        render(started);
+        started = true;
+      }
+
+      $("openLink").onclick = openPage;
+      $("addWallet").onclick = addToWallet;
+      $("otherWallet").onclick = function () { setPlatform(platform === "google" ? "apple" : "google"); };
+      $("tillAct").onclick = tillAction;
+      $("undo").onclick = undo;
+      $("less").onclick = function () { if (many > 1) { many -= 1; render(); } };
+      $("more").onclick = function () { if (many < NEED - card.count) { many += 1; render(); } };
+      $("tabCustomer").onclick = function () { show("customer"); };
+      $("tabShop").onclick = function () { show("shop"); };
+      start();
+    })();
+  </script>
+</body>
+</html>

@@ -42,6 +42,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Work log
 
+### 2026-10-21
+- The stamp card demo moves here from loyalty (`item/stamps-demo`), at the owner's word in a plain chat (no roadmap row), for outreach to Gelatory and other shops: `/stamps/`, unlisted and out of the sitemap like `/play/pour/`. A guided walk in four steps (scan the counter sign, the page it opens, staff scan with +n, the full card gives the free item), one phone at a time below 760px, ending in "Email us" to hello@aidoo.biz. A shop is a link: `?shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10`; every value is checked in `stamps/card.js` (run under Node in `tests/test_stamps_demo.py`) and written only as text. Nothing stored or sent; no analytics, like the pour demo (D-017). The wallet button follows the phone (Android: Google), with a switch. Browser at 800x600 and 375x812: the whole walk, no sideways scroll. loyalty's `demo/` becomes a pointer here once its P1.2 run ends.
+
 ### 2026-10-20
 - **Outreach started** (owner, late evening): the six drafted emails sent (Noa, Café 360, Villa Gaiety, the Creamery, Okell's, Hospice); two Villa Gaiety addresses bounced. Logged in the prospect list's contact log. Next: one follow-up each after a week (2026-10-27), and find a working Villa Gaiety address (ask at the box office).
 - #65 (P2.0s, the milk skin) merged. Outreach emails rewritten at the owner's word (`docs/outreach-why-it-fits`): no family names, each walks through why the game suits that business, one line on the risk (play it before launch; nothing owed beyond the £300 deposit), and a sixth to the Isle of Man Creamery, no longer held. Next: owner sends the panto first (start by end of November for 18 December), then the cafés.
