@@ -362,10 +362,76 @@ async function started(search, tweak) {
     out.fizz[fizz ? "on" : "off"] = page.arcs.filter((a) => a[2] < 9).length;
   }
 
+  // P2.0u: the whippy. ?skin=icecream plays it; a machine pours it, and each round serves
+  // something else: what it's in, and its finish once it's poured.
+  page = boot("?skin=icecream");
+  for (let i = 0; i < 12; i++) await page.settle();
+  out.icecreamSkin = { fetched: page.fetched.slice(0, 1), venue: page.get("venue").textContent };
+  page = await started("", (s) => ((s.drink.pourer = "machine"), delete s.drink.stream));
+  page.drawn.length = 0;
+  page.advance(16);
+  out.pourers.machine = page.drawn.join(" ");
+  for (const mark of ["with", "without"]) {
+    page = await started("", (s) => ((s.drink.pourer = "machine"), mark === "without" && delete s.emblem));
+    page.drawn.length = 0;
+    page.advance(16);
+    out.marks["machine " + mark] = { paths: page.paths.slice(), drawn: page.drawn.join(" ") };
+  }
+  out.machineTop = {};
+  for (const tall of [420, 200]) {
+    stage = tall;
+    page = await started("?skin=icecream");
+    page.reach.top = Infinity;
+    page.advance(16);
+    const rest = page.reach.top;
+    page.down(1);
+    page.reach.top = Infinity;
+    page.advance(600);
+    out.machineTop[tall] = { rest, pouring: page.reach.top };
+  }
+  stage = 420;
+  const whippyFile = path.join(GAME, "skins", "giddy-puffin.json");
+  const whippy = fs.existsSync(whippyFile) ? JSON.parse(fs.readFileSync(whippyFile, "utf8")) : { rounds: [], drink: {} };
+  const paints = (trace, colours) => colours.some((c) => trace.includes("fillStyle=" + c) || trace.includes("strokeStyle=" + c));
+  out.whippyRounds = [];
+  page = await started("?skin=icecream");
+  for (const r of whippy.rounds) {
+    const serve = r.serve || {};
+    const finish = serve.topping ? serve.topping.colours : [];
+    page.advance(500);
+    const seen = { say: page.get("say").textContent };
+    page.trace.length = 0;
+    page.advance(16);
+    seen.frame = page.trace.join("\n");
+    seen.vessel = !!serve.vessel && page.trace.includes("fillStyle=" + serve.vessel.colour);
+    page.down(1);
+    page.trace.length = 0;
+    page.advance(600);
+    seen.toppingWhilePouring = paints(page.trace, finish);
+    page.up(1);
+    page.trace.length = 0;
+    page.advance(400);
+    seen.toppingAfter = paints(page.trace, finish);
+    page.advance(1400);
+    out.whippyRounds.push(seen);
+  }
+  // Held too long, it topples off to one side: a dollop beside the serve, not drips down a glass.
+  page = await started("?skin=icecream");
+  page.advance(500);
+  page.down(1);
+  for (let t = 0; t < 8000 && !page.get("say").textContent.startsWith(whippy.copy ? whippy.copy.spill : "?"); t += 50) page.advance(50);
+  page.trace.length = 0;
+  page.advance(900);
+  const dollops = page.trace.filter((t) => t.startsWith("ellipse(")).map((t) => parseFloat(t.slice(8)));
+  out.whippySpill = {
+    say: page.get("say").textContent,
+    toppled: !page.trace.includes("lineWidth=7.00") && dollops.some((x) => x > 375 / 2 + 30),
+  };
+
   // Each shipped skin, call for call: a frame at rest, then a pour held to the end and
   // its result, so a change to one pourer can't quietly redraw another venue.
   out.traces = {};
-  for (const id of ["wobbly-gull", "dozy-otter"]) {
+  for (const id of ["wobbly-gull", "dozy-otter", "sleepy-cow"]) {
     page = await started("?skin=" + id);
     page.trace.length = 0;
     page.advance(16);

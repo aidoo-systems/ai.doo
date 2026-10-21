@@ -239,7 +239,7 @@
   function makeScene(canvas, skin) {
     var ctx = canvas.getContext("2d");
     var th = skin.theme;
-    var dr = skin.drink;
+    var dr = skin.drink; // what this round serves: the skin's drink, or a round's own serve (serve())
     var W = 0;
     var H = 0;
     var g = null; // geometry, rebuilt by layout()
@@ -257,9 +257,26 @@
     var fizz = dr.fizz !== false;
     // A tap's stream comes out from under it; a jug or a carton is in front of its own.
     var inFront = dr.pourer === "jug" || dr.pourer === "carton";
+    // Soft serve: ridges and a rounded peak in place of a liquid top, and no glass, only a
+    // faint line where the finished serve will be.
+    var swirl = dr.top === "swirl";
+    var faint = dr.outline === "faint";
+    // The scene is sized for the deepest vessel any round serves in, so nothing shrinks between rounds.
+    var deep = 1;
+    skin.rounds.forEach(function (r, i) {
+      deep = Math.max(deep, depth(E.serveOf(skin, i)));
+    });
+
+    // How far down a serve's vessel reaches, in glass heights: 1 when it has none below the glass.
+    function depth(d) {
+      if (!d.vessel) return 1;
+      return Math.max(1, Math.max.apply(null, d.vessel.points.map(function (p) {
+        return p[1];
+      })) / 100);
+    }
 
     function reset() {
-      fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null };
+      fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null, topped: false };
       bubbles = [];
       parts = [];
       floats = [];
@@ -281,26 +298,34 @@
 
       var counterH = clamp(H * 0.13, 22, 60);
       var counterY = H - counterH;
-      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330); // the room above is the tap's
+      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330) / deep; // the room above is the tap's
       var gw = gh * 0.66;
       if (gw > W * 0.58) {
         gw = W * 0.58;
         gh = gw / 0.66;
       }
       var gx = (W - gw) / 2;
-      var gy = counterY - gh + 4;
-      var wall = Math.max(3, gw * 0.022);
-      var base = Math.max(6, gh * 0.045);
+      var gy = counterY - gh * deep + 4; // where the tallest serve's top is
+      var wall = faint ? 0 : Math.max(3, gw * 0.022);
+      var base = faint ? 0 : Math.max(6, gh * 0.045);
       var cx = W / 2;
       g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
-      g.outer = dr.glass.map(function (p) {
-        return [gx + (p[0] / 100) * gw, gy + (p[1] / 100) * gh];
-      });
+      fit(dr);
+    }
+
+    // Where a serve sits: its glass at the scene's size, its vessel on the counter.
+    function fit(d) {
+      var gy = (g.gy = g.counterY - g.gh * depth(d) + 4);
+      var place = function (p) {
+        return [g.gx + (p[0] / 100) * g.gw, gy + (p[1] / 100) * g.gh];
+      };
+      g.outer = d.glass.map(place);
       g.inner = g.outer.map(function (p) {
-        return [cx + (p[0] - cx) * (1 - (2 * wall) / gw), gy + (p[1] - gy) * (1 - base / gh)];
+        return [g.cx + (p[0] - g.cx) * (1 - (2 * g.wall) / g.gw), gy + (p[1] - gy) * (1 - g.base / g.gh)];
       });
+      g.vessel = d.vessel ? d.vessel.points.map(place) : null;
       g.top = gy;
-      g.bottom = gy + gh - base;
+      g.bottom = gy + g.gh - g.base;
     }
 
     // Where a level (0 empty, 1 the rim) sits on the canvas.
@@ -542,9 +567,66 @@
       ctx.restore();
     }
 
+    // A soft-serve machine across the top of the scene: its front carries the badge, and the
+    // lever beside the nozzle is pulled down while it pours and kicks on each surge.
+    function drawMachine() {
+      var cx = g.cx;
+      var tip = g.tip;
+      var mw = clamp(g.gw * 1.4, 64, 170);
+      var foot = tip - 24; // the underside of the machine, where the nozzle hangs
+      ctx.fillStyle = th.metal;
+      box(cx - mw / 2, -12, mw, foot + 12, 10);
+      ctx.fill();
+      ctx.fillStyle = th.accent;
+      ctx.fillRect(cx - mw / 2, foot - Math.min(14, foot * 0.3), mw, Math.min(8, foot * 0.16));
+      ctx.fillStyle = "rgba(255,255,255,.35)";
+      ctx.fillRect(cx - mw / 2 + 6, -4, 5, foot - 8);
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.fillRect(cx + mw / 2 - 12, -4, 8, foot);
+      // the nozzle, with ridges that give the swirl its grooves
+      ctx.fillStyle = th.metal;
+      ctx.beginPath();
+      ctx.moveTo(cx - 11, foot - 2);
+      ctx.lineTo(cx + 11, foot - 2);
+      ctx.lineTo(cx + 7, tip);
+      ctx.lineTo(cx - 7, tip);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      for (var i = -1; i <= 1; i++) ctx.fillRect(cx + i * 5 - 1, foot + 2, 2, 20);
+      // the lever, smaller where there is less room above the nozzle
+      var s = clamp((tip - 6) / 62, 0.15, 1);
+      ctx.save();
+      ctx.translate(cx + 20 * s, tip - 22 * s);
+      ctx.rotate(lerp(0.3, 1.25, smooth(fx.handle)) + (fx.flow - 1) * 0.3 * fx.handle);
+      ctx.scale(s, s);
+      ctx.fillStyle = th.metal;
+      box(-3, -34, 6, 36, 3);
+      ctx.fill();
+      ctx.fillStyle = th.accent;
+      ctx.beginPath();
+      ctx.arc(0, -34, 7, 0, 6.3);
+      ctx.fill();
+      ctx.restore();
+      // the badge on the front, as big as the machine allows
+      var by = foot / 2;
+      var r = Math.min(16, by - 4, mw * 0.2);
+      if (mark && r >= 9) {
+        ctx.beginPath();
+        ctx.arc(cx, by, r, 0, 6.3);
+        ctx.fillStyle = th.accentInk;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = th.accent;
+        ctx.stroke();
+        drawMark(cx, by, r * 1.4, th.accent);
+      }
+    }
+
     function drawPourer(level) {
       if (dr.pourer === "jug") drawJug();
       else if (dr.pourer === "carton") drawCarton(level);
+      else if (dr.pourer === "machine") drawMachine();
       else drawTap();
     }
 
@@ -555,7 +637,7 @@
       var y0 = lerp(g.tip, target, fx.tail);
       var y1 = lerp(g.tip, target, fx.head);
       if (y1 - y0 < 2) return;
-      var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5);
+      var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5) * (dr.pourer === "machine" ? 1.7 : 1); // soft serve is a thick rope
       var left = [];
       var right = [];
       for (var y = y0; ; y += 6) {
@@ -591,8 +673,149 @@
       ctx.stroke();
     }
 
+    // Soft serve up to a level, inside the clip of its outline: a rounded peak that tops out
+    // on the level (what you see is what is scored), and ridges round it in the head's colour.
+    function drawSwirl(ys) {
+      var d = clamp(g.gw * 0.07, 3, 10);
+      var x0 = g.gx - 4;
+      var x1 = g.gx + g.gw + 4;
+      ctx.beginPath();
+      ctx.moveTo(x0, g.bottom + 4);
+      ctx.lineTo(x0, ys + d);
+      ctx.quadraticCurveTo(g.cx, ys - d, x1, ys + d);
+      ctx.lineTo(x1, g.bottom + 4);
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(0, ys, 0, g.bottom);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      var step = Math.max(7, g.gh * 0.1);
+      var tilt = g.gw * 0.16;
+      ctx.strokeStyle = rgba(dr.head, 0.85);
+      ctx.lineWidth = Math.max(2, step * 0.28);
+      ctx.lineCap = "round";
+      for (var y = g.bottom; y > ys - tilt; y -= step) {
+        ctx.beginPath();
+        ctx.moveTo(x0, y);
+        ctx.quadraticCurveTo(g.cx, y - tilt * 1.4, x1, y - tilt * 0.4);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,255,255,.22)";
+      ctx.fillRect(g.gx + g.gw * 0.2, ys, g.gw * 0.08, g.bottom - ys);
+      ctx.restore();
+    }
+
+    // What the serve is in: drawn, never filled with the drink, and in front of it.
+    function drawVessel() {
+      var v = dr.vessel;
+      poly(g.vessel, 3);
+      ctx.fillStyle = v.colour;
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      if (v.grid) {
+        // a criss-cross, pressed into it
+        var step = Math.max(6, g.gw * 0.12);
+        ctx.strokeStyle = rgba(v.edge || th.ink, 0.7);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (var x = g.gx - g.gh * 2; x < g.gx + g.gw + g.gh * 2; x += step) {
+          ctx.moveTo(x, g.gy);
+          ctx.lineTo(x + g.gh * 2, g.gy + g.gh * 2);
+          ctx.moveTo(x, g.gy);
+          ctx.lineTo(x - g.gh * 2, g.gy + g.gh * 2);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,255,255,.25)";
+      ctx.fillRect(g.gx + g.gw * 0.12, g.gy, g.gw * 0.07, g.gh * 2);
+      ctx.fillStyle = "rgba(0,0,0,.14)";
+      ctx.fillRect(g.gx + g.gw * 0.72, g.gy, g.gw * 0.3, g.gh * 2);
+      ctx.restore();
+      if (v.edge) {
+        poly(g.vessel, 3);
+        ctx.strokeStyle = v.edge;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    // How the serve is finished once it's poured, at the top of what was poured.
+    function drawTopping(level) {
+      var t = dr.topping;
+      var ys = yAt(level);
+      var c = t.colours;
+      ctx.save();
+      if (t.kind === "stick") {
+        // a bar pushed in at an angle beside the peak
+        var len = g.gw * 0.55;
+        var w = Math.max(5, g.gw * 0.11);
+        ctx.translate(g.cx + g.gw * 0.1, ys + g.gw * 0.12);
+        ctx.rotate(0.42);
+        ctx.fillStyle = c[0];
+        box(-w / 2, -len, w, len, 2);
+        ctx.fill();
+        ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for (var k = 1; k < 4; k++) {
+          ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
+          ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+        }
+        ctx.stroke();
+      } else {
+        poly(g.inner, 3);
+        ctx.clip();
+        var x0 = g.gx;
+        var x;
+        if (t.kind === "drizzle") {
+          // sauce run over the peak, with drips down the sides
+          ctx.strokeStyle = c[0];
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.lineWidth = Math.max(3, g.gw * 0.06);
+          ctx.beginPath();
+          for (x = x0; x <= x0 + g.gw; x += 4) {
+            var y = ys + 4 + Math.abs(x - g.cx) * 0.25 + Math.sin(x * 0.16) * 3;
+            if (x === x0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          [-0.28, 0.05, 0.3].forEach(function (f, i) {
+            var dx = g.cx + f * g.gw;
+            var top = ys + 4 + Math.abs(dx - g.cx) * 0.25;
+            ctx.beginPath();
+            ctx.moveTo(dx, top);
+            ctx.lineTo(dx, top + g.gh * (0.12 + 0.07 * i));
+            ctx.stroke();
+          });
+        } else {
+          // a scatter of little strands over the top
+          ctx.lineCap = "round";
+          ctx.lineWidth = Math.max(2, g.gw * 0.025);
+          for (var n = 0; n < 26; n++) {
+            var fx0 = bumps[n] / BUMP_MAX;
+            var fy0 = bumps[(n * 7) % bumps.length] / BUMP_MAX;
+            var sx = x0 + g.gw * ((n * 0.382) % 1);
+            var sy = ys + 3 + fy0 * g.gh * 0.3;
+            var a = fx0 * 6.3;
+            ctx.strokeStyle = c[n % c.length];
+            ctx.beginPath();
+            ctx.moveTo(sx - Math.cos(a) * 3, sy - Math.sin(a) * 3);
+            ctx.lineTo(sx + Math.cos(a) * 3, sy + Math.sin(a) * 3);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.restore();
+    }
+
     // One glass at a sideways offset. live: the one being poured (bubbles, churn, marks).
-    function drawGlass(ox, level, line, live, pouring) {
+    // topped: poured and finished, so its topping goes on.
+    function drawGlass(ox, level, line, live, pouring, topped) {
       var span = g.bottom - g.top;
       ctx.save();
       ctx.translate(ox, 0);
@@ -609,7 +832,8 @@
       ctx.save();
       poly(g.inner, 3);
       ctx.clip();
-      if (level > 0.004) {
+      if (level > 0.004 && swirl) drawSwirl(yAt(level));
+      else if (level > 0.004) {
         var ys = yAt(level);
         var headH = dr.headDepth * level * span;
         var bodyTop = ys + headH;
@@ -707,7 +931,7 @@
       var bot = g.gy + g.gh * 0.7;
       var a = xRange(g.inner, top);
       var b = xRange(g.inner, bot);
-      if (a && b) {
+      if (a && b && !faint) {
         ctx.lineCap = "round";
         ctx.strokeStyle = "rgba(255,255,255,.15)";
         ctx.lineWidth = g.gw * 0.05;
@@ -724,18 +948,30 @@
       }
       ctx.restore();
 
-      // the glass itself: a thick base and a bright edge
-      ctx.save();
-      poly(g.outer, 5);
-      ctx.clip();
-      ctx.fillStyle = "rgba(255,255,255,.2)";
-      ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
-      ctx.restore();
-      poly(g.outer, 5);
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(255,255,255,.62)";
-      ctx.lineWidth = Math.max(2.5, g.wall);
-      ctx.stroke();
+      if (faint) {
+        // no glass: a faint line where the finished serve will be
+        poly(g.outer, 5);
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = rgba(th.ink, 0.3);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        // the glass itself: a thick base and a bright edge
+        ctx.save();
+        poly(g.outer, 5);
+        ctx.clip();
+        ctx.fillStyle = "rgba(255,255,255,.2)";
+        ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
+        ctx.restore();
+        poly(g.outer, 5);
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "rgba(255,255,255,.62)";
+        ctx.lineWidth = Math.max(2.5, g.wall);
+        ctx.stroke();
+      }
+      // the finish, then what it's served in, so a cup hides the sauce that runs into it
+      if (topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
+      if (g.vessel) drawVessel();
 
       if (line !== null) {
         var yy = yAt(line);
@@ -792,8 +1028,26 @@
       ctx.globalAlpha = 1;
     }
 
+    // Too much soft serve doesn't run down the sides: its top topples off to one side, onto the counter.
+    function drawTopple() {
+      var k = smooth(fx.spill);
+      var r = g.gw * 0.24;
+      var x = g.cx + g.gw * (0.25 + 0.5 * k);
+      var y = lerp(g.gy + r * 0.4, g.counterY + 4 - r * 0.35 * (1 - k * 0.4), k * k);
+      ctx.fillStyle = dr.liquid;
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * (1 + 0.35 * k), r * (0.62 - 0.22 * k), 0.9 * (1 - k), 0, 6.3);
+      ctx.fill();
+      ctx.strokeStyle = rgba(dr.head, 0.85);
+      ctx.lineWidth = Math.max(2, r * 0.16);
+      ctx.beginPath();
+      ctx.ellipse(x, y, r * 0.6 * (1 + 0.35 * k), r * 0.28 * (1 - 0.3 * k), 0.9 * (1 - k), 0.3, 2.8);
+      ctx.stroke();
+    }
+
     function drawSpill() {
       if (fx.spill <= 0) return;
+      if (swirl) return drawTopple();
       ctx.fillStyle = rgba(dr.head, 0.9);
       ctx.beginPath();
       ctx.ellipse(g.cx, g.counterY + 8, g.gw * (0.3 + 0.36 * fx.spill), 5.5, 0, 0, 6.3);
@@ -891,6 +1145,7 @@
       fx.measure = { level: result.level, line: result.line, verdict: result.verdict, t: 0 };
       var size = clamp(g.gh * 0.13, 15, 34); // smaller on the title screen's little scene
       floats.push({ text: "+" + result.score, x: g.cx, y: Math.max(size * 2.4, yAt(result.level) - size * 0.8), size: size, life: 1 });
+      fx.topped = result.verdict !== "spill";
       if (result.verdict === "perfect") {
         fx.glow = 1;
         burst(24, g.cx, yl, { spread: g.gw * 0.4, vx: 190, vy: [-260, -60], gravity: 420, r: [2, 4.2], colors: [th.accent, dr.head, th.ink], star: true });
@@ -909,6 +1164,12 @@
       press: function () {
         fx.head = 0;
         fx.tail = 0;
+        fx.topped = false;
+      },
+      // What the next pour serves (E.serveOf): its glass, colours, vessel and topping.
+      serve: function (d) {
+        dr = d;
+        if (g) fit(d);
       },
       // Everything holds still for a moment, then the result lands.
       result: function (result) {
@@ -918,8 +1179,10 @@
         fx.wave = 0;
       },
       // The finished glass slides off along the counter as an empty one slides in.
+      // It slides off as it was served, whatever the next round serves.
       nextRound: function (level) {
-        fx.ghost = calm ? null : { level: level };
+        fx.ghost = calm ? null : { level: level, g: g && Object.assign({}, g), dr: dr, topped: fx.topped };
+        fx.topped = false;
         fx.slide = calm ? 0 : 1;
         fx.spilling = false;
         fx.spill = 0;
@@ -981,12 +1244,18 @@
 
         if (!inFront) drawPourer(s.level);
         var e = smooth(1 - fx.slide);
-        if (fx.slide > 0 && fx.ghost) drawGlass(e * W * 0.95, fx.ghost.level, null, false, false);
-        else fx.ghost = null;
+        if (fx.slide > 0 && fx.ghost) {
+          var now = [g, dr];
+          if (fx.ghost.g) g = fx.ghost.g;
+          dr = fx.ghost.dr;
+          drawGlass(e * W * 0.95, fx.ghost.level, null, false, false, fx.ghost.topped);
+          g = now[0];
+          dr = now[1];
+        } else fx.ghost = null;
         var ox = fx.slide > 0 ? -(1 - e) * W * 0.95 : 0;
         if (ox === 0) drawStream(s.level);
         if (inFront) drawPourer(s.level);
-        drawGlass(ox, s.level, s.line, true, s.pouring);
+        drawGlass(ox, s.level, s.line, true, s.pouring, fx.topped);
         drawSpill();
         drawParts(dt);
         ctx.restore();
@@ -1142,10 +1411,13 @@
       }
     }
 
+    // A round that serves something of its own says what, over the hint.
     function beginRound() {
+      var serve = skin.rounds[game.round].serve;
+      scene.serve(E.serveOf(skin, game.round));
       $("round").textContent = E.roundLabel(skin, game.round);
       pills($("pips"), game.round);
-      say("", skin.copy.hint);
+      say(serve && serve.name ? serve.name : "", skin.copy.hint);
       pourBtn.textContent = skin.copy.hold;
       pourBtn.classList.remove("down", "wait");
     }
@@ -1415,6 +1687,7 @@
 
     var demo = E.createGame(skin);
     var attract = makeScene($("attract"), skin);
+    attract.serve(E.serveOf(skin, 0));
     var demoOn = true;
     var demoWait = 0.7;
     var demoLast = performance.now();

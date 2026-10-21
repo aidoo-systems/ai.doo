@@ -30,7 +30,8 @@ DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
 # What the shipped code may not know about: any shipped skin's venue or drink.
 SKIN_WORDS = re.compile(
     r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]"
-    r"|sleepy|\bcow\b|dairy|milk|creamery",
+    r"|sleepy|\bcow\b|dairy|milk|creamery"
+    r"|giddy|puffin|whipp|ice cream|\bcones?\b|flake|kiosk|strawberr|sprinkle|wafer",
     re.IGNORECASE,
 )
 
@@ -94,6 +95,21 @@ LATTE = {
 }
 
 
+# P2.0u: a round's own serve, as the whippy writes one: a swirl over a cone, a stick in it.
+CONE = {
+    "name": "A test cone",
+    "liquid": "#fff6dc",
+    "glass": [[30, 0], [70, 0], [95, 100], [5, 100]],
+    "vessel": {
+        "points": [[0, 100], [100, 100], [50, 180]],
+        "colour": "#d9a55b",
+        "edge": "#a8742f",
+        "grid": True,
+    },
+    "topping": {"kind": "stick", "colours": ["#5a3218"]},
+}
+
+
 def run(skin_path, plays):
     node = shutil.which("node")
     assert node, "Node.js is needed to run play/pour/engine.js in the tests"
@@ -128,8 +144,13 @@ def _text(rel):
 # --- the rules -----------------------------------------------------------------
 
 
-def test_three_skins_ship():
-    assert [p.stem for p in SKINS] == ["dozy-otter", "sleepy-cow", "wobbly-gull"]
+def test_four_skins_ship():
+    assert [p.stem for p in SKINS] == [
+        "dozy-otter",
+        "giddy-puffin",
+        "sleepy-cow",
+        "wobbly-gull",
+    ]
 
 
 def test_the_skin_list_names_files_that_exist_and_ids_match_file_names():
@@ -294,6 +315,44 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["drink"].update(stream="white"),
         # Fizz is on or off, nothing in between.
         lambda s: s["drink"].update(fizz="no"),
+        # P2.0u: the top and the outline are kinds game.js can draw.
+        lambda s: s["drink"].update(top="fizzy"),
+        lambda s: s["drink"].update(outline="dotted"),
+        # A round's serve is checked like the drink it stands in for.
+        lambda s: s["rounds"][1].update(serve="cone"),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, liquid="#12")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, name="")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, name="A" * 41)),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, headDepth=0.5)),
+        # What pours, the fizz, the top and the outline are the skin's, not a round's.
+        lambda s: s["rounds"][1].update(serve=dict(CONE, pourer="tap")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, fizz=True)),
+        # A serve's glass has to be open at its own round's line.
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, glass=[[45, 0], [55, 0], [55, 100], [45, 100]])
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(
+                CONE,
+                vessel=dict(CONE["vessel"], points=[[0, 100], [50, 250], [100, 100]]),
+            )
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, vessel=dict(CONE["vessel"], colour="tan"))
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, vessel={"points": [[0, 100]], "colour": "#d9a55b"})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "flake", "colours": ["#5a3218"]})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "stick", "colours": []})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "scatter", "colours": ["red"]})
+        ),
+        lambda s: s["drink"].update(topping={"kind": "drizzle"}),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
@@ -325,6 +384,7 @@ def test_the_shipped_venues_do_not_pour_from_the_same_thing():
         "wobbly-gull": "tap",
         "dozy-otter": "jug",
         "sleepy-cow": "carton",
+        "giddy-puffin": "machine",
     }
 
 
@@ -555,7 +615,7 @@ def test_a_link_can_name_the_kind_of_venue(ui):
         "skins/wobbly-gull.json",
     ]
     kinds = _text("play/pour/skins/default.js")
-    for kind in ("pub", "cafe", "dairy"):
+    for kind in ("pub", "cafe", "dairy", "icecream"):
         assert re.search(kind + r'\s*:\s*"[a-z0-9-]+"', kinds), kind
 
 
@@ -626,7 +686,11 @@ def test_without_a_name_the_game_is_as_it_was(ui):
     assert ui["plain"]["title"] == "The Wobbly Gull"
     assert ui["plain"]["fictional"] == "The Wobbly Gull is a made-up pub."
     assert ui["plain"]["emblem"]
-    assert ui["plainSwitch"] == ["?skin=dozy-otter", "?skin=sleepy-cow"]
+    assert ui["plainSwitch"] == [
+        "?skin=dozy-otter",
+        "?skin=sleepy-cow",
+        "?skin=giddy-puffin",
+    ]
 
 
 def test_a_long_name_wraps_and_is_never_cut_off():
@@ -644,6 +708,7 @@ def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     assert ui["namedSwitch"] == [
         "?skin=dozy-otter&name=Noa%20Bakehouse",
         "?skin=sleepy-cow&name=Noa%20Bakehouse",
+        "?skin=giddy-puffin&name=Noa%20Bakehouse",
     ]
     html = _text("play/pour/index.html")
     assert re.search(r'<meta name="referrer" content="no-referrer"', html)
@@ -711,12 +776,14 @@ def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
 # --- P2.0s: the dairy, poured from a carton ------------------------------------------
 
 
-def test_the_pub_and_the_cafe_draw_exactly_as_they_did(ui):
-    # Recorded from main before the carton was added: every canvas call and value of a
-    # frame at rest, a pour and its result, with the same "random" numbers each run.
+def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
+    # Recorded from main before the carton was added (the dairy's before the whippy): every
+    # canvas call and value of a frame at rest, a pour and its result, with the same
+    # "random" numbers each run.
     assert ui["traces"] == {
         "wobbly-gull": "a867258b2eba7df04b826032530d05da69ce5d6421c6b81ca6c7eba71c11c86b",
         "dozy-otter": "dd14a52b458c327219986d45cd13159663a5add2a1cb3640194cf69cd2f40219",
+        "sleepy-cow": "6d601f38861b8fdfaef1ec04aa18e944a7e5d6cea3dfd442b63559a694c15ed2",
     }
 
 
@@ -752,3 +819,126 @@ def test_the_dairy_is_plain_milk_with_a_week_of_it_on_us():
     # Every round glugs: a surge you learn to let go between (D-027).
     for r in skin["rounds"]:
         assert 0.5 <= r["surge"] <= 0.7 and 1.6 <= r["surgeHz"] <= 2.2, r
+
+
+# --- P2.0u: the whippy, and a serve that changes each round --------------------------
+
+
+def test_a_round_can_name_its_own_serve_over_the_skins(latte):
+    path = latte(lambda s: s["rounds"][1].update(serve=copy.deepcopy(CONE)))
+    result = run(path, ["line", "line"])
+    assert result["problems"] == []
+    first, second = result["serves"]
+    assert first == LATTE["drink"]
+    # The serve's own keys win; anything it doesn't say is the skin's.
+    assert second["liquid"] == CONE["liquid"] and second["glass"] == CONE["glass"]
+    assert second["vessel"] == CONE["vessel"] and second["topping"] == CONE["topping"]
+    assert second["head"] == LATTE["drink"]["head"]
+    assert second["liquidDeep"] == LATTE["drink"]["liquidDeep"]
+    assert [r["verdict"] for r in result["rounds"]] == ["perfect", "perfect"]
+
+
+def test_a_skin_whose_rounds_name_no_serve_pours_its_one_drink_each_round(latte):
+    result = run(latte(), ["line", "line"])
+    assert result["serves"] == [LATTE["drink"], LATTE["drink"]]
+
+
+def test_a_skin_can_pour_soft_serve_from_a_machine(latte):
+    def soft(s):
+        s["drink"].update(
+            pourer="machine", fizz=False, top="swirl", outline="faint", headDepth=0
+        )
+        s["drink"].update(vessel=CONE["vessel"], topping=CONE["topping"])
+
+    assert run(latte(soft), ["line", "line"])["problems"] == []
+    for kind in ("stick", "drizzle", "scatter"):
+        topped = latte(
+            lambda s: s["drink"].update(
+                topping={"kind": kind, "colours": ["#aa2244", "#ffffff"]}
+            )
+        )
+        assert run(topped, ["line", "line"])["problems"] == [], kind
+
+
+def _whippy():
+    path = GAME / "skins" / "giddy-puffin.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_the_whippy_is_soft_serve_with_a_99_on_us():
+    skin = _whippy()
+    drink = skin["drink"]
+    assert drink["pourer"] == "machine" and drink["fizz"] is False
+    assert drink["top"] == "swirl" and drink["outline"] == "faint"
+    for key in ("offer", "prize", "claim"):
+        assert "a 99" in skin["copy"][key].lower(), key
+    # The machine pushes in surges, like the milk's glug.
+    for r in skin["rounds"]:
+        assert r.get("surge", 0) >= 0.3, r
+
+
+def test_the_whippy_serves_rotate_as_the_owner_chose():
+    # D-029: a 99 with a flake, a cup with sauce, a strawberry twist with sprinkles,
+    # a faster 99, then a twist in a cup.
+    skin = _whippy()
+    rounds = skin["rounds"]
+    serves = [r["serve"] for r in rounds]
+    assert len(rounds) == 5
+    assert all(s["name"] for s in serves)
+    toppings = [s.get("topping", {}).get("kind") for s in serves]
+    assert toppings == ["stick", "drizzle", "scatter", "stick", None]
+    cone, cup = serves[0]["vessel"], serves[1]["vessel"]
+    assert cone != cup
+    assert [s["vessel"] for s in serves] == [cone, cup, cone, cone, cup]
+    assert rounds[3]["speed"] > rounds[0]["speed"]
+    # The twists are two colours swirled: a pink ridge on the vanilla.
+    plain = serves[0].get("head", skin["drink"]["head"])
+    assert serves[2]["head"] == serves[4]["head"] != plain
+
+
+def test_an_icecream_link_starts_on_the_whippy(ui):
+    assert ui["icecreamSkin"]["fetched"] == ["skins/giddy-puffin.json"]
+    assert ui["icecreamSkin"]["venue"] == _whippy()["venue"]
+
+
+def test_the_machine_is_drawn_and_carries_the_emblem(ui):
+    others = (ui["pourers"]["tap"], ui["pourers"]["jug"], ui["pourers"]["carton"])
+    assert ui["pourers"]["machine"] not in others
+    marked, plain = ui["marks"]["machine with"], ui["marks"]["machine without"]
+    assert set(marked["paths"]) == {ui["emblem"]}
+    assert marked["drawn"] != plain["drawn"]
+    assert plain["paths"] == []
+
+
+@pytest.mark.parametrize("tall", ["420", "200"])
+def test_the_machine_stays_on_the_canvas_at_rest_and_pouring(ui, tall):
+    seen = ui["machineTop"][tall]
+    assert 0 <= seen["rest"] < 1e9 and 0 <= seen["pouring"] < 1e9, seen
+
+
+def test_each_round_says_and_draws_its_own_serve(ui):
+    serves = [r["serve"] for r in _whippy()["rounds"]]
+    seen = ui["whippyRounds"]
+    assert len(seen) == len(serves)
+    for n, (serve, shown) in enumerate(zip(serves, seen)):
+        assert shown["say"].startswith(serve["name"]), (n, shown["say"])
+        assert shown["vessel"], n
+        # The finish goes on once it's poured, not while it pours.
+        if "topping" in serve:
+            assert not shown["toppingWhilePouring"], n
+            assert shown["toppingAfter"], n
+    # The serve changes what is drawn, not only what is said.
+    assert seen[0]["frame"] != seen[1]["frame"]
+
+
+def test_too_much_topples_off(ui):
+    spill = ui["whippySpill"]
+    assert spill["say"].startswith(_whippy()["copy"]["spill"])
+    assert spill["toppled"]
+
+
+def test_every_serve_name_fits_one_line_at_320():
+    # Said in 24px type over the hint: at 320px "A strawberry twist with sprinkles" took two
+    # lines and squeezed the stage between rounds. 22 letters fit, as the taglines do.
+    for r in _whippy()["rounds"]:
+        assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]

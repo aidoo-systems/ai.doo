@@ -13,7 +13,12 @@
   var EMBLEM = /^[MmLlHhVvCcSsQqTtAaZz0-9 ,.\-]+$/;
   var THEME = ["bg", "panel", "ink", "muted", "accent", "accentInk", "counter", "counterEdge", "metal"];
   var DRINK = ["liquid", "liquidDeep", "head"];
-  var POURERS = ["tap", "jug", "carton"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
+  var POURERS = ["tap", "jug", "carton", "machine"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
+  var TOPS = ["liquid", "swirl"]; // what the top of the drink looks like; a skin that doesn't say gets the first
+  var OUTLINES = ["glass", "faint"]; // a glass round the drink, or a faint line where the finished serve will be
+  var TOPPINGS = ["stick", "drizzle", "scatter"]; // how a serve can be finished once it's poured
+  // What a round's serve can say for itself. What pours it, its fizz, top and outline stay the skin's.
+  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "topping"];
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
@@ -47,6 +52,39 @@
     return hi >= lo ? hi - lo : 0;
   }
 
+  // 3 to 24 points, each [x, y] from 0 to (by default) 100.
+  function isOutline(pts, maxY) {
+    return Array.isArray(pts) && pts.length >= 3 && pts.length <= 24 && pts.every(function (p) {
+      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, maxY || 100);
+    });
+  }
+
+  // The drink's own colours and shapes, at the skin's level or a round's serve (where each
+  // is optional: the serve takes the skin's for anything it doesn't say).
+  function checkDrink(d, at, partial, problems) {
+    DRINK.concat("stream").forEach(function (key) {
+      var must = !partial && key !== "stream";
+      if ((must || d[key] !== undefined) && !COLOUR.test(d[key])) problems.push(at + key + " must be a hex colour");
+    });
+    if ((!partial || d.headDepth !== undefined) && !isNum(d.headDepth, 0, 0.3)) problems.push(at + "headDepth must be between 0 and 0.3");
+    if ((!partial || d.glass !== undefined) && !isOutline(d.glass)) problems.push(at + "glass must be 3 to 24 points, each [x, y] from 0 to 100");
+    // What the drink is served in, drawn and never filled: a holder under it, a cup round
+    // it, a stem under a bowl. Its points are in the glass's units, down to y 200 below it.
+    if (d.vessel !== undefined) {
+      var v = isObj(d.vessel) ? d.vessel : {};
+      var ok = isOutline(v.points, 200) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
+      if (!ok) problems.push(at + "vessel needs 3 to 24 points (x 0 to 100, y 0 to 200), a hex colour, and may have a hex edge and a grid");
+    }
+    // How it's finished once it's poured: a kind and its colours.
+    if (d.topping !== undefined) {
+      var t = isObj(d.topping) ? d.topping : {};
+      var colours = Array.isArray(t.colours) && t.colours.length >= 1 && t.colours.length <= 6 && t.colours.every(function (c) {
+        return COLOUR.test(c);
+      });
+      if (TOPPINGS.indexOf(t.kind) < 0 || !colours) problems.push(at + "topping needs a kind (" + TOPPINGS.join(", ") + ") and 1 to 6 hex colours");
+    }
+  }
+
   // Every problem with a skin, as plain sentences. An empty list means it can be played.
   function validateSkin(skin) {
     var problems = [];
@@ -70,20 +108,13 @@
     });
 
     var drink = isObj(skin.drink) ? skin.drink : {};
-    DRINK.forEach(function (key) {
-      if (!COLOUR.test(drink[key])) problems.push("drink." + key + " must be a hex colour");
-    });
-    if (!isNum(drink.headDepth, 0, 0.3)) problems.push("drink.headDepth must be between 0 and 0.3");
+    checkDrink(drink, "drink.", false, problems);
     if (drink.pourer !== undefined && POURERS.indexOf(drink.pourer) < 0) problems.push("drink.pourer must be one of: " + POURERS.join(", "));
-    // The stream is the drink's own colour unless the skin gives it another.
-    if (drink.stream !== undefined && !COLOUR.test(drink.stream)) problems.push("drink.stream must be a hex colour");
     // Bubbles, churn and a frothy head are on unless the skin turns them off (a still drink has none).
     if (drink.fizz !== undefined && typeof drink.fizz !== "boolean") problems.push("drink.fizz must be true or false");
-    var glass = drink.glass;
-    var glassOk = Array.isArray(glass) && glass.length >= 3 && glass.length <= 24 && glass.every(function (p) {
-      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, 100);
-    });
-    if (!glassOk) problems.push("drink.glass must be 3 to 24 points, each [x, y] from 0 to 100");
+    if (drink.top !== undefined && TOPS.indexOf(drink.top) < 0) problems.push("drink.top must be one of: " + TOPS.join(", "));
+    if (drink.outline !== undefined && OUTLINES.indexOf(drink.outline) < 0) problems.push("drink.outline must be one of: " + OUTLINES.join(", "));
+    var glassOk = isOutline(drink.glass);
 
     var copy = isObj(skin.copy) ? skin.copy : {};
     COPY.forEach(function (key) {
@@ -109,20 +140,41 @@
       if (r.surgeHz !== undefined && !isNum(r.surgeHz, 0.2, 4)) problems.push(at + "surgeHz must be between 0.2 and 4");
       // A line a false start can reach could never be scored on.
       if (isNum(r.line, 0, 1) && isNum(scoring.falseStart, 0, 1) && r.line - scoring.falseStart < 0.1) problems.push(at + "line must sit at least 0.1 above scoring.falseStart");
+      // A round can serve something of its own, over the skin's drink.
+      if (r.serve !== undefined) {
+        if (!isObj(r.serve)) return problems.push(at + "serve must be an object");
+        Object.keys(r.serve).forEach(function (key) {
+          if (SERVE.indexOf(key) < 0) problems.push(at + "serve." + key + " is the skin's to say, not a round's");
+        });
+        if (r.serve.name !== undefined && !isText(r.serve.name, 40)) problems.push(at + "serve.name must be up to 40 letters");
+        checkDrink(r.serve, at + "serve.", true, problems);
+      }
     });
 
     // The glass is drawn from its rim (y 0) to its base (y 100) and marked at every
     // round's line: it has to be a real, open shape at each of those heights.
-    if (glassOk) {
+    // A round with a glass of its own is marked on that glass, not the skin's.
+    var wide = function (glass, marked, at) {
       var heights = [0.5, 25, 50, 75, 99.5];
-      rounds.forEach(function (r) {
-        if (isObj(r) && isNum(r.line, 0, 1)) heights.push(100 * (1 - r.line));
+      marked.forEach(function (r) {
+        if (isNum(r.line, 0, 1)) heights.push(100 * (1 - r.line));
       });
       var thin = heights.some(function (y) {
         return glassWidth(glass, y) < 20;
       });
-      if (thin) problems.push("drink.glass must run from its rim at y 0 to its base at y 100 and be at least 20 wide all the way down");
+      if (thin) problems.push(at + " must run from its rim at y 0 to its base at y 100 and be at least 20 wide all the way down");
+    };
+    var own = function (r) {
+      return isObj(r) && isObj(r.serve) && r.serve.glass !== undefined;
+    };
+    if (glassOk) {
+      wide(drink.glass, rounds.filter(function (r) {
+        return isObj(r) && !own(r);
+      }), "drink.glass");
     }
+    rounds.forEach(function (r, i) {
+      if (own(r) && isOutline(r.serve.glass)) wide(r.serve.glass, [r], "rounds[" + i + "].serve.glass");
+    });
 
     var samples = skin.sampleScores;
     if (!Array.isArray(samples) || samples.length > 20) {
@@ -153,6 +205,12 @@
   function flowAt(skin, round, held) {
     var r = skin.rounds[round];
     return 1 + (r.surge || 0) * Math.sin(2 * Math.PI * (r.surgeHz || SURGE_HZ) * held);
+  }
+
+  // What a round serves: its own serve over the skin's drink, or the drink itself.
+  function serveOf(skin, round) {
+    var serve = skin.rounds[round].serve;
+    return serve ? Object.assign({}, skin.drink, serve) : skin.drink;
   }
 
   function roundLabel(skin, round) {
@@ -273,6 +331,7 @@
     guestName: guestName,
     scorePour: scorePour,
     roundLabel: roundLabel,
+    serveOf: serveOf,
     board: board,
     stars: stars,
     flowAt: flowAt,

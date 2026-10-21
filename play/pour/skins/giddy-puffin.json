@@ -1,0 +1,112 @@
+{
+  "id": "giddy-puffin",
+  "venue": "Giddy Puffin",
+  "tagline": "Pull the perfect 99",
+  "fictional": "Giddy Puffin is a made-up ice cream kiosk.",
+  "switchLabel": "See it as an ice cream kiosk",
+  "theme": {
+    "bg": "#1f4e79",
+    "panel": "#2b6aa0",
+    "ink": "#fdfaf2",
+    "muted": "#c9dcef",
+    "accent": "#f25c54",
+    "accentInk": "#ffffff",
+    "counter": "#f3e9d2",
+    "counterEdge": "#d6c7a6",
+    "metal": "#eef1f4"
+  },
+  "emblem": {
+    "width": 80,
+    "height": 60,
+    "path": "M16 58 Q4 36 18 18 Q30 4 46 10 Q52 12 54 18 L76 24 Q66 32 52 34 Q62 46 50 58 Z"
+  },
+  "drink": {
+    "liquid": "#fbf3dc",
+    "liquidDeep": "#e6d2a4",
+    "head": "#e9d3a6",
+    "headDepth": 0,
+    "pourer": "machine",
+    "stream": "#fbf3dc",
+    "fizz": false,
+    "top": "swirl",
+    "outline": "faint",
+    "glass": [[38, 0], [62, 0], [70, 10], [64, 18], [80, 28], [74, 38], [88, 50], [80, 60], [94, 74], [86, 84], [98, 100], [2, 100], [14, 84], [6, 74], [20, 60], [12, 50], [26, 38], [20, 28], [36, 18], [30, 10]]
+  },
+  "copy": {
+    "start": "Start serving",
+    "offer": "Top score this week wins a 99 on us",
+    "beat": "Beat {score} to top the board",
+    "round": "Serve {n} of {total}",
+    "hold": "Hold to pull",
+    "release": "Let go at the line",
+    "hint": "Hold the lever. It pushes in surges: let go as the swirl hits the line.",
+    "falseStart": "Keep holding to pull. Have another go.",
+    "again": "Serve again",
+    "perfect": "A perfect swirl",
+    "good": "A good swirl",
+    "short": "A bit small",
+    "over": "A bit big",
+    "spill": "It toppled off",
+    "total": "Your score",
+    "boardTitle": "This week at Giddy Puffin",
+    "you": "You",
+    "prize": "Top on Sunday wins a 99 on us.",
+    "rival": "{gap} more to pass {name}",
+    "rivalTop": "{gap} more to pass {name} and win a 99",
+    "top": "Top of the board. A 99 is on us.",
+    "best": "Your best today: {score}",
+    "newBest": "A new best for you today",
+    "claim": "A 99 on us"
+  },
+  "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
+  "rounds": [
+    {
+      "line": 0.78, "speed": 0.45, "surge": 0.4, "surgeHz": 1.4,
+      "serve": {
+        "name": "A 99 with a flake",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "stick", "colours": ["#7a4a24", "#5a3418"] }
+      }
+    },
+    {
+      "line": 0.62, "speed": 0.5, "surge": 0.45, "surgeHz": 1.6,
+      "serve": {
+        "name": "A cup with sauce",
+        "vessel": { "points": [[0, 62], [100, 62], [90, 130], [10, 130]], "colour": "#ffffff", "edge": "#d6c7a6" },
+        "topping": { "kind": "drizzle", "colours": ["#c4314b"] }
+      }
+    },
+    {
+      "line": 0.86, "speed": 0.5, "surge": 0.5, "surgeHz": 1.8,
+      "serve": {
+        "name": "A twist with sprinkles",
+        "head": "#f39ab8",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "scatter", "colours": ["#ffd166", "#6fd3ff", "#ff6b9a", "#9be36d", "#fffdf6"] }
+      }
+    },
+    {
+      "line": 0.74, "speed": 0.68, "surge": 0.5, "surgeHz": 2,
+      "serve": {
+        "name": "Another 99, quicker",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "stick", "colours": ["#7a4a24", "#5a3418"] }
+      }
+    },
+    {
+      "line": 0.9, "speed": 0.6, "surge": 0.55, "surgeHz": 2,
+      "serve": {
+        "name": "A twist in a cup",
+        "head": "#f39ab8",
+        "vessel": { "points": [[0, 62], [100, 62], [90, 130], [10, 130]], "colour": "#ffffff", "edge": "#d6c7a6" }
+      }
+    }
+  ],
+  "sampleScores": [
+    { "name": "Breesha", "score": 441 },
+    { "name": "Juan", "score": 412 },
+    { "name": "Orry", "score": 380 },
+    { "name": "Ealish", "score": 336 },
+    { "name": "Calum", "score": 290 }
+  ]
+}
