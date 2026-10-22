@@ -182,7 +182,7 @@ def test_the_link_is_never_written_into_the_page_as_html():
 
 def test_the_page_says_it_is_a_demo_and_how_to_ask_for_one():
     html = _text("stamps/index.html")
-    assert "This is a demo" in html
+    assert "A demo by" in html
     assert "mailto:hello@aidoo.biz" in html
 
 
