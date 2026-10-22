@@ -858,8 +858,13 @@
       var n = coilCount();
       var laid = clamp(level, 0, 1) * n;
       var full = Math.min(n, Math.floor(laid));
-      for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
       var rest = laid - full;
+      // served on a whole turn, its tip forms in place of the last turn (Codex, round 1 of look b)
+      if (topped && full > 0 && rest < 0.001) {
+        full -= 1;
+        rest = 1;
+      }
+      for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
       if (full >= n || rest < 0.001) return;
       var c = coilAt(full, n);
       var floor = g.bottom - c.ch * full; // the top of the turns already laid

@@ -15,6 +15,7 @@ const settle = () => new Promise((r) => setImmediate(r));
 
 // How tall the stand-in canvas is; a scenario may shorten it to a small phone's.
 let stage = 420;
+let snapLevel = null;
 
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
 function boot(search, tweak) {
@@ -164,7 +165,18 @@ function boot(search, tweak) {
   vm.createContext(window);
   // The same "random" numbers every run, so a whole pour can be compared call for call.
   vm.runInContext("Math.random = (function () { var s = 7; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })()", window);
-  SOURCES.forEach((src) => vm.runInContext(src, window));
+  SOURCES.forEach((src, i) => {
+    vm.runInContext(src, window);
+    // a scenario may land every pour exactly on a level (snapLevel), once the engine is loaded
+    if (i !== 1 || snapLevel === null) return;
+    const make = window.PourEngine.createGame;
+    window.PourEngine.createGame = (skin) => {
+      const game = make(skin);
+      const release = game.release;
+      game.release = () => ((game.level = snapLevel), release());
+      return game;
+    };
+  });
 
   const get = document.getElementById;
   return {
@@ -506,6 +518,30 @@ async function started(search, tweak) {
     out.whippyStaged.push({ topping: !!serve.topping, shadowed, atRelease, bySecond: paints(page.trace, finish), say: page.get("say").textContent });
     page.advance(1400);
   }
+  // Served exactly on a whole turn (0.6 of five), it still gets its tip and finish (Codex,
+  // round 1 of look b): the cup with sauce, served at its line's nearest whole turn.
+  snapLevel = 0.6;
+  page = await started("?skin=icecream");
+  const cup = whippy.rounds[1].serve.topping.colours;
+  page.advance(500);
+  page.down(1);
+  page.advance(700);
+  page.up(1);
+  page.advance(2000);
+  page.advance(500);
+  page.down(1);
+  page.advance(700);
+  page.up(1);
+  page.advance(984);
+  page.trace.length = 0;
+  page.fills.length = 0;
+  page.advance(16);
+  out.whippyWholeTurn = {
+    say: page.get("say").textContent,
+    finish: paints(page.trace, cup),
+    top: Math.min(...page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep)).map((f) => f.top)),
+  };
+  snapLevel = null;
   // Held too long, it topples off to one side: a dollop beside the serve, not drips down a glass.
   page = await started("?skin=icecream");
   page.advance(500);

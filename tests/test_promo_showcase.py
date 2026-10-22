@@ -1011,6 +1011,12 @@ def test_the_tip_tops_out_at_the_height_scored_while_it_forms(ui):
         assert all(top >= peak["scored"] - 0.6 for top in peak["frames"]), peak
 
 
+def test_a_serve_on_a_whole_turn_still_gets_its_finish(ui):
+    # At exactly 0.6 of five turns the tip and the sauce were skipped (Codex, round 1 of look b).
+    seen = ui["whippyWholeTurn"]
+    assert seen["finish"], seen
+
+
 def test_the_finish_arrives_after_its_served(ui):
     # D-030, look b: no flake, sauce or sprinkles on the frame the result lands; all of it
     # within a second; one light over the stack, not a drop shadow under every turn.
