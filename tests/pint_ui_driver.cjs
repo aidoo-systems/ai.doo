@@ -36,9 +36,11 @@ function boot(search, tweak) {
   let m = [1, 0, 0, 1, 0, 0];
   const saved = [];
   const reach = { top: Infinity };
-  // Every shape filled, with the highest point of its path and whether a gradient filled it.
+  // Every shape filled, with the highest point of its path, whether a gradient filled it and
+  // whether it was built of circles (the whippy's rope is; its turns and tip aren't).
   const fills = [];
   let pathTop = Infinity;
+  let pathCircles = false;
   let gradientFill = false;
   // Only what is drawn turned (a jug or a carton tipping) counts: the tap's pipe runs off the top on purpose.
   const at = (x, y) => {
@@ -47,8 +49,9 @@ function boot(search, tweak) {
     return Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, yy));
   };
   const moves = {
-    beginPath: () => (pathTop = Infinity),
-    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop }),
+    beginPath: () => ((pathTop = Infinity), (pathCircles = false)),
+    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, circles: pathCircles }),
+    arc: () => (pathCircles = true),
     save: () => saved.push(m.slice()),
     restore: () => (m = saved.pop() || [1, 0, 0, 1, 0, 0]),
     setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
@@ -473,8 +476,8 @@ async function started(search, tweak) {
     for (let t = 0; t < 448; t += 16) {
       page.fills.length = 0;
       page.advance(16);
-      // the stack shades to its deep colour; the stream still falling from the nozzle doesn't
-      const f = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && f.top < Infinity).map((f) => f.top);
+      // the stack shades to its deep colour; the rope still falling from the nozzle is circles
+      const f = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity).map((f) => f.top);
       if (f.length) frames.push(Math.min(...f));
     }
     page.advance(2);
@@ -554,6 +557,26 @@ async function started(search, tweak) {
     say: page.get("say").textContent,
     toppled: !page.trace.includes("lineWidth=7.00") && dollops.some((x) => x > 375 / 2 + 30),
   };
+
+  // P2.0w: the whippy's stream, frame by frame (every circle drawn, and what was already there
+  // at rest), from pulling the lever to just after it's let go.
+  page = await started("?skin=icecream");
+  page.advance(500);
+  page.arcs.length = 0;
+  page.advance(16);
+  out.whippyStream = { rest: page.arcs.slice(), pouring: [], after: [] };
+  page.down(1);
+  for (let held = 0; held < 1600; held += 16) {
+    page.arcs.length = 0;
+    page.advance(16);
+    out.whippyStream.pouring.push({ held: held + 16, arcs: page.arcs.slice() });
+  }
+  page.up(1);
+  for (let since = 0; since < 400; since += 16) {
+    page.arcs.length = 0;
+    page.advance(16);
+    out.whippyStream.after.push({ since: since + 16, arcs: page.arcs.slice() });
+  }
 
   // Each shipped skin, call for call: a frame at rest, then a pour held to the end and
   // its result, so a change to one pourer can't quietly redraw another venue.

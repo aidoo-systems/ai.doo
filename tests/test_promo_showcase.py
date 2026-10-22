@@ -1029,6 +1029,70 @@ def test_the_finish_arrives_after_its_served(ui):
             assert round_["bySecond"], (n, round_)
 
 
+# --- P2.0w: the whippy's stream, out of the machine ------------------------------------
+
+
+def _rope(frame, rest):
+    # The stream's circles, top to bottom: not the badge or the lever (there at rest), not a
+    # turn's rim light (drawn turned, at y 0), not the little bead left on the nozzle.
+    return sorted(
+        (a for a in frame["arcs"] if a not in rest and a[1] > 10 and a[2] >= 3),
+        key=lambda a: a[1],
+    )
+
+
+def test_the_whippys_stream_is_a_rope_like_its_turns(ui):
+    # Owner, 2026-10-22: the plain band "feels slightly out of place". It is now a rope of
+    # circles, grooved and lit like the turns (mock B).
+    seen = ui["whippyStream"]
+    for frame in (f for f in seen["pouring"] if f["held"] > 200):
+        assert len(_rope(frame, seen["rest"])) >= 20, frame["held"]
+
+
+def test_the_whippys_stream_swings_towards_the_turn_being_laid(ui):
+    # Mock B: halfway down, it is already most of the way across to where it lands.
+    seen = ui["whippyStream"]
+    swung = 0
+    for frame in (f for f in seen["pouring"] if f["held"] > 200):
+        rope = _rope(frame, seen["rest"])
+        top, bottom = rope[0], rope[-1]
+        if abs(bottom[0] - top[0]) <= 10:
+            continue
+        half = (top[1] + bottom[1]) / 2
+        middle = min(rope, key=lambda a: abs(a[1] - half))
+        assert (middle[0] - top[0]) / (bottom[0] - top[0]) > 0.5, frame["held"]
+        swung += 1
+    assert swung >= 5, swung
+
+
+def test_the_whippys_stream_swells_in_a_surge(ui):
+    # At the nozzle the rope is as fat as the flow: a peak of the first round's surge against
+    # the trough after it (each a little after the engine's, as the drawing eases towards it).
+    seen = ui["whippyStream"]
+    hz = _whippy()["rounds"][0]["surgeHz"]
+
+    def width(at_ms):
+        frame = min(seen["pouring"], key=lambda f: abs(f["held"] - at_ms))
+        return _rope(frame, seen["rest"])[0][2]
+
+    peak, trough = width(1250 / hz + 60), width(1750 / hz + 60)
+    assert peak > 1.3 * trough, (peak, trough)
+
+
+def test_the_whippys_stream_snaps_off_when_let_go(ui):
+    # On release it necks at the nozzle and snaps; the last of it drops onto the top turn,
+    # and then there's no stream at all.
+    seen = ui["whippyStream"]
+    top_while_pouring = _rope(seen["pouring"][-1], seen["rest"])[0][1]
+    falling = [
+        f
+        for f in seen["after"]
+        if (r := _rope(f, seen["rest"])) and r[0][1] > top_while_pouring + 10
+    ]
+    assert falling, "the stream never came away from the nozzle"
+    assert not _rope(seen["after"][-1], seen["rest"])
+
+
 def _luminance(hex_colour):
     h = hex_colour[1:]
     if len(h) == 3:

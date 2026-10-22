@@ -629,14 +629,80 @@
       else drawTap();
     }
 
+    // Soft serve comes out as a rope, grooved and lit like the turns it lays (P2.0w, mock B).
+    // It swings out towards the turn being laid and sways as it goes, and a surge swells it.
+    // Let go, it necks at the nozzle and snaps, and the last of it drops onto the top turn.
+    function drawRope(level) {
+      if (fx.head <= 0) return;
+      var target = level > 0.01 ? yAt(level) + 3 : g.bottom;
+      var neck = smooth(clamp(fx.tail / 0.35, 0, 1));
+      var drop = smooth(clamp((fx.tail - 0.35) / 0.65, 0, 1));
+      var y0 = lerp(g.tip, target, drop * 0.92);
+      var y1 = lerp(g.tip, target, fx.head);
+      if (y1 - y0 < 2) return;
+      var r0 = 9.6 * (1 + clamp(fx.flow - 1, -0.6, 0.6) * 0.75);
+      var land = coil ? landing(level) - g.cx : 0;
+      var pts = [];
+      var N = 36;
+      for (var i = 0; i <= N; i++) {
+        var y = lerp(y0, y1, i / N);
+        var k = (y - g.tip) / Math.max(1, target - g.tip);
+        var r = r0 * lerp(1, 0.86, k);
+        var below = y - y0; // how far down from the rope's top end
+        if (drop <= 0) r *= lerp(1, 0.18, neck * clamp(1 - below / (r0 * 2.6), 0, 1));
+        else r *= clamp(below / (r0 * 1.6), 0.25, 1); // the broken end comes to a point
+        pts.push({ x: g.cx + land * (1 - Math.pow(1 - k, 2.2)) * 0.95 + Math.sin(fx.t * 4.2) * 2.4 * k, y: y, r: r });
+      }
+      ctx.save();
+      ctx.beginPath();
+      pts.forEach(function (p) {
+        ctx.moveTo(p.x + p.r, p.y);
+        ctx.arc(p.x, p.y, p.r, 0, 6.3);
+      });
+      var mx = (pts[0].x + pts[N].x) / 2;
+      var grad = ctx.createLinearGradient(mx - r0, 0, mx + r0, 0);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(0.45, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      ctx.fillStyle = grad;
+      ctx.fill("nonzero");
+      ctx.clip("nonzero");
+      // its far side in the turns' shadow, their grooves, and their light
+      ctx.lineCap = "round";
+      [
+        [0.62, "rgba(120,80,20,.22)", r0 * 0.7],
+        [-0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.14)],
+        [0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.14)],
+        [-0.6, "rgba(255,255,255,.6)", 2],
+      ].forEach(function (s) {
+        ctx.strokeStyle = s[1];
+        ctx.lineWidth = s[2];
+        ctx.beginPath();
+        pts.forEach(function (p, i) {
+          if (i) ctx.lineTo(p.x + s[0] * p.r, p.y);
+          else ctx.moveTo(p.x + s[0] * p.r, p.y);
+        });
+        ctx.stroke();
+      });
+      ctx.restore();
+      // a little bead left on the nozzle once it's snapped
+      if (fx.tail > 0.35 && fx.tail < 0.9) {
+        ctx.fillStyle = dr.liquid;
+        ctx.beginPath();
+        ctx.arc(g.cx, g.tip + 1.5, r0 * 0.3 * (1 - drop), 0, 6.3);
+        ctx.fill();
+      }
+    }
+
     // The stream is as wide as the flow is strong: a surge is a visibly fatter pour.
     function drawStream(level) {
+      if (dr.pourer === "machine") return drawRope(level);
       if (fx.head <= 0) return;
       var target = level > 0.01 ? yAt(level) + 3 : g.bottom;
       var y0 = lerp(g.tip, target, fx.tail);
       var y1 = lerp(g.tip, target, fx.head);
       if (y1 - y0 < 2) return;
-      var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5) * (dr.pourer === "machine" ? 1.7 : 1); // soft serve is a thick rope
+      var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5);
       var land = coil ? landing(level) - g.cx : 0; // a coil's rope lands where the turn is being laid
       var left = [];
       var right = [];
