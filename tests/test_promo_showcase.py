@@ -1003,6 +1003,26 @@ def test_the_top_of_the_serve_is_the_height_scored(ui):
         assert peak["top"] is not None and abs(peak["top"] - peak["scored"]) < 0.6, peak
 
 
+def test_the_tip_tops_out_at_the_height_scored_while_it_forms(ui):
+    # D-030, look b: the tip grows out of the top turn after release; at every stage of it,
+    # nothing drawn rises above the height the result measures.
+    for peak in (p for p in ui["whippyPeaks"] if p["scored"] is not None):
+        assert peak["frames"], peak
+        assert all(top >= peak["scored"] - 0.6 for top in peak["frames"]), peak
+
+
+def test_the_finish_arrives_after_its_served(ui):
+    # D-030, look b: no flake, sauce or sprinkles on the frame the result lands; all of it
+    # within a second; one light over the stack, not a drop shadow under every turn.
+    staged = ui["whippyStaged"]
+    assert len(staged) == len(_whippy()["rounds"])
+    for n, round_ in enumerate(staged):
+        assert not round_["shadowed"], (n, round_)
+        if round_["topping"]:
+            assert not round_["atRelease"], (n, round_)
+            assert round_["bySecond"], (n, round_)
+
+
 def _luminance(hex_colour):
     h = hex_colour[1:]
     if len(h) == 3:

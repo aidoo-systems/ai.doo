@@ -686,7 +686,7 @@
     function coilAt(i, n) {
       var ch = (g.bottom - g.top) / n;
       var edge = xRange(g.outer, g.bottom - ch * (i + 0.5)) || [g.cx - 10, g.cx + 10];
-      return { top: g.bottom - ch * (i + 1), hw: (edge[1] - edge[0]) / 2, ch: ch };
+      return { top: g.bottom - ch * (i + 1), hw: ((edge[1] - edge[0]) / 2) * lerp(1, 0.55, i / n), ch: ch };
     }
 
     // Where the rope lands while it pours: the end of the turn being laid.
@@ -698,9 +698,20 @@
       return g.cx - c.hw + 2 * c.hw * (laid - i);
     }
 
-    // One turn, laid from the left as far as frac. Tilted, it's hung from its top, so its
-    // highest corner is the top of its slot and nothing rises above the level (overlapping the
-    // turn below instead; what it is served in hides the lowest).
+    // How long the serve has been topped, for the finish arriving in stages (D-030, look b).
+    // The glass sliding off, and a calm screen, have it all at once.
+    var since = 0;
+
+    // One light for the whole stack, from the upper left, in canvas space (not per turn).
+    function stackFill() {
+      var c0 = coilAt(0, coilCount());
+      var grad = ctx.createLinearGradient(g.cx - c0.hw, g.top, g.cx + c0.hw, g.bottom);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(0.4, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      return grad;
+    }
+
     function drawCoil(c, frac) {
       var h = c.ch * 1.12;
       var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
@@ -711,22 +722,38 @@
         ctx.rect(g.cx - c.hw - 6, mid - c.ch * 2, (2 * c.hw + 12) * frac, c.ch * 4);
         ctx.clip();
       }
+      ctx.save();
       ctx.translate(g.cx, mid);
       ctx.rotate(-tilt);
-      ctx.fillStyle = "rgba(0,0,0,.16)";
-      box(-c.hw + 2, -h / 2 + 4, 2 * c.hw - 4, h, h / 2);
-      ctx.fill();
       box(-c.hw, -h / 2, 2 * c.hw, h, h / 2);
-      var grad = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-      grad.addColorStop(0, dr.liquid);
-      grad.addColorStop(1, dr.liquidDeep);
-      ctx.fillStyle = grad;
+      ctx.restore();
+      ctx.fillStyle = stackFill();
       ctx.fill();
       ctx.save();
       ctx.clip();
-      // the nozzle's grooves, running round the turn, in the head's colour (a twist's pink)
-      ctx.strokeStyle = rgba(dr.head, 0.85);
-      ctx.lineWidth = Math.max(1.4, h * 0.06);
+      ctx.translate(g.cx, mid);
+      ctx.rotate(-tilt);
+      // the crease where it sits on the turn below: shade inside its own underside, no drop shadow
+      var sh = ctx.createLinearGradient(0, h * 0.05, 0, h / 2);
+      sh.addColorStop(0, "rgba(120,80,20,0)");
+      sh.addColorStop(1, "rgba(120,80,20,.2)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(-c.hw, 0, 2 * c.hw, h / 2);
+      // the rope turns away round the back: its right end rolls into shadow, no cap
+      var re = ctx.createLinearGradient(c.hw - h * 1.3, 0, c.hw, 0);
+      re.addColorStop(0, "rgba(120,80,20,0)");
+      re.addColorStop(0.65, "rgba(120,80,20,.12)");
+      re.addColorStop(1, "rgba(120,80,20,.34)");
+      ctx.fillStyle = re;
+      ctx.fillRect(c.hw - h * 1.3, -h / 2, h * 1.3, h);
+      // and a little light bounced up from below along its rim
+      ctx.strokeStyle = "rgba(255,250,235,.35)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(c.hw - h / 2, 0, h / 2 - 1.5, 0.15, 1.1);
+      ctx.stroke();
+      ctx.strokeStyle = rgba(dr.head, 0.7);
+      ctx.lineWidth = Math.max(1.3, h * 0.05);
       [-0.15, 0.15].forEach(function (f) {
         ctx.beginPath();
         ctx.moveTo(-c.hw, f * h);
@@ -741,33 +768,90 @@
       ctx.quadraticCurveTo(-c.hw * 0.2, -h * 0.42, c.hw * 0.1, -h * 0.36);
       ctx.stroke();
       ctx.restore();
-      if (frac >= 1) {
-        // the rope coming round from behind into the next turn
-        ctx.fillStyle = dr.liquidDeep;
-        ctx.beginPath();
-        ctx.ellipse(c.hw - h * 0.3, 0, h * 0.28, h * 0.4, 0.4, 0, 6.3);
-        ctx.fill();
-      }
       ctx.restore();
     }
 
-    // The finishing curl, from a base to a tip that nothing drawn goes above.
-    function drawCurl(base, tip, hw) {
-      var tall = base - tip;
-      if (tall < 1) return;
-      var lean = clamp(tall * 0.45, 3, 13);
+    // The tip: the rope's own end, drawn like the turns, coming off the top turn's right-hand end
+    // and curling up over the middle. grow (0..1) is how much of it has come out; whatever it is,
+    // the whole tip is scaled so its highest point is exactly the scored height.
+    function drawTip(base, tip, hw, r0, grow) {
+      var rEnd = r0 * 0.28;
+      var p0 = [g.cx + hw * 0.8, base + r0 * 0.15];
+      var p1 = [g.cx - hw * 1.05, base - (base - tip) * 0.2];
+      var p2 = [g.cx + hw * 0.08, tip];
+      var pts = [];
+      var N = 40;
+      for (var k = 0; k <= N; k++) {
+        var t = (k / N) * grow;
+        var u = 1 - t;
+        pts.push({
+          x: u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
+          y: u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1],
+          r: lerp(r0, rEnd, t),
+        });
+      }
+      var last = pts[pts.length - 1];
+      var top = Infinity;
+      pts.forEach(function (p) {
+        top = Math.min(top, p.y - p.r);
+      });
+      // scale it up or down from its base so its top is the tip, at every stage of growing
+      var k0 = base - top > 0.5 ? (base - tip) / (base - top) : 1;
+      var Y = function (y) {
+        return base - (base - y) * k0;
+      };
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(g.cx - hw, base);
-      ctx.quadraticCurveTo(g.cx - hw * 0.5, tip + Math.min(6, tall * 0.4), g.cx + 2, tip);
-      ctx.quadraticCurveTo(g.cx + lean + 1, tip, g.cx + lean, tip + lean * 0.7);
-      ctx.quadraticCurveTo(g.cx + lean * 0.6, tip + lean * 0.5, g.cx + lean * 0.4, tip + lean * 0.6);
-      ctx.quadraticCurveTo(g.cx + hw * 0.6, Math.max(tip + lean, base - 10), g.cx + hw, base);
-      ctx.closePath();
-      var grad = ctx.createLinearGradient(0, tip, 0, base);
-      grad.addColorStop(0, dr.liquid);
-      grad.addColorStop(1, dr.liquidDeep);
-      ctx.fillStyle = grad;
-      ctx.fill();
+      pts.forEach(function (p) {
+        ctx.moveTo(p.x + p.r, Y(p.y));
+        ctx.ellipse(p.x, Y(p.y), p.r, p.r * k0, 0, 0, 6.3);
+      });
+      ctx.fillStyle = stackFill();
+      ctx.fill("nonzero");
+      ctx.clip("nonzero");
+      // its underside's crease, its grooves and its light, as on the turns
+      var sh = ctx.createLinearGradient(0, Y(base - r0 * 2), 0, base + r0);
+      sh.addColorStop(0, "rgba(120,80,20,0)");
+      sh.addColorStop(1, "rgba(120,80,20,.18)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(g.cx - hw * 1.5, Y(base - r0 * 2), hw * 3, r0 * 4);
+      // its foot, at the top turn's right-hand end, turns away into the same shadow
+      var fe = ctx.createRadialGradient(p0[0] + r0 * 0.4, Y(p0[1]), 0, p0[0] + r0 * 0.4, Y(p0[1]), r0 * 1.6);
+      fe.addColorStop(0, "rgba(120,80,20,.3)");
+      fe.addColorStop(1, "rgba(120,80,20,0)");
+      ctx.fillStyle = fe;
+      ctx.fillRect(p0[0] - r0 * 2, Y(p0[1]) - r0 * 2, r0 * 4, r0 * 4);
+      ctx.lineCap = "round";
+      [
+        [-0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.1)],
+        [0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.1)],
+        [-0.62, "rgba(255,255,255,.6)", 2],
+      ].forEach(function (s) {
+        ctx.strokeStyle = s[1];
+        ctx.lineWidth = s[2];
+        ctx.beginPath();
+        for (var i = 1; i < pts.length; i++) {
+          var a = pts[i - 1];
+          var b = pts[i];
+          var dx = b.x - a.x;
+          var dy = (b.y - a.y) * k0;
+          var len = Math.hypot(dx, dy) || 1;
+          var nx = dy / len;
+          var ny = -dx / len;
+          var x = b.x + nx * s[0] * b.r;
+          var y = Y(b.y) + ny * s[0] * b.r * k0;
+          if (i === 1) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+      return { x: last.x, y: Y(last.y), r: last.r };
+    }
+
+    // How far one stage of the finish has got: it starts at from seconds and takes dur.
+    function stage(from, dur) {
+      return smooth(clamp((since - from) / dur, 0, 1));
     }
 
     function drawCoils(level, topped) {
@@ -779,8 +863,122 @@
       if (full >= n || rest < 0.001) return;
       var c = coilAt(full, n);
       var floor = g.bottom - c.ch * full; // the top of the turns already laid
-      if (topped) return drawCurl(floor + Math.min(8, c.ch * 0.3), yAt(level), c.hw * 0.8);
-      drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * rest) / 1.12 }, rest);
+      if (!topped) return drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * rest) / 1.12 }, rest);
+      var below = full > 0 ? coilAt(full - 1, n) : c;
+      var hw = Math.min(c.hw, below.hw * 0.92);
+      var t = dr.topping;
+      // a stick goes in before the tip is drawn over its foot, so it's partly hidden
+      if (t && t.kind === "stick") drawStick(floor, hw, stage(0.18, 0.22));
+      drawTip(floor + c.ch * 0.25, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
+      if (t && t.kind === "drizzle") drawSauce(floor, yAt(level), hw, n, full, since - 0.18);
+      if (t && t.kind === "scatter") drawScatter(floor, yAt(level), hw, n, full, since - 0.18);
+    }
+
+    function drawStick(floor, hw, q) {
+      var c = dr.topping.colours;
+      var len = g.gw * 0.55;
+      var w = Math.max(5, g.gw * 0.11);
+      if (q <= 0) return;
+      ctx.save();
+      ctx.translate(g.cx + hw * 0.3, floor - hw * 0.05);
+      ctx.rotate(0.42);
+      ctx.translate(0, -(1 - q) * len * 0.9); // slides in along its own length
+      ctx.globalAlpha = Math.min(1, q * 3);
+      ctx.fillStyle = c[0];
+      box(-w / 2, -len, w, len, 2);
+      ctx.fill();
+      ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (var k = 1; k < 4; k++) {
+        ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
+        ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // The top surface of the stack at x: the tip's hump, then the turns' tops on the way down.
+    function surfaceY(x, floor, tip, hw, n, full) {
+      var d = Math.abs(x - g.cx);
+      if (d < hw * 0.7) return lerp(tip + 4, floor + 2, smooth(d / (hw * 0.7)));
+      for (var j = full - 1; j >= 0; j--) {
+        var c = coilAt(j, n);
+        if (d < c.hw * 0.95) return c.top + 3 + (x > g.cx ? c.ch * 0.25 : 0);
+      }
+      return g.bottom;
+    }
+
+    // Sauce: a drop falls onto the tip, spreads over it, then runs down the turns in three drips.
+    function drawSauce(floor, tip, hw, n, full, s) {
+      var col = dr.topping.colours[0];
+      if (s <= 0) return;
+      var q = clamp(s / 0.4, 0, 1);
+      ctx.save();
+      ctx.fillStyle = col;
+      ctx.strokeStyle = col;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      var lw = Math.max(3, g.gw * 0.06);
+      if (q < 0.25) {
+        var y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
+        ctx.beginPath();
+        ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
+        ctx.fill();
+        ctx.restore();
+        return;
+      }
+      var spread = smooth(clamp((q - 0.25) / 0.3, 0, 1));
+      var wide = hw * 1.25 * spread;
+      ctx.lineWidth = lw;
+      ctx.beginPath();
+      for (var x = g.cx - wide; x <= g.cx + wide; x += 3) {
+        var yy = surfaceY(x, floor, tip, hw, n, full) + Math.sin(x * 0.2) * 1.5;
+        if (x === g.cx - wide) ctx.moveTo(x, yy);
+        else ctx.lineTo(x, yy);
+      }
+      ctx.stroke();
+      var run = smooth(clamp((q - 0.45) / 0.55, 0, 1));
+      [-0.75, 0.15, 0.9].forEach(function (f, i) {
+        var dx = g.cx + f * hw * 1.15;
+        if (Math.abs(dx - g.cx) > wide) return;
+        var y0 = surfaceY(dx, floor, tip, hw, n, full);
+        var len = run * g.gh * (0.1 + 0.07 * i);
+        if (len < 1) return;
+        ctx.beginPath();
+        ctx.moveTo(dx, y0);
+        // it bulges a little where it goes over each turn's edge
+        for (var yy2 = y0; yy2 <= y0 + len; yy2 += 2) ctx.lineTo(dx + Math.sin((yy2 - y0) * 0.18) * 1.6, yy2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(dx, y0 + len + 1, lw * 0.62, 0, 6.3);
+        ctx.fill();
+      });
+      ctx.restore();
+    }
+
+    // A scatter falls from above onto the stack, a few bits at a time.
+    function drawScatter(floor, tip, hw, n, full, s) {
+      var cols = dr.topping.colours;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineWidth = Math.max(2, g.gw * 0.025);
+      for (var k = 0; k < 26; k++) {
+        var at = s - (k / 26) * 0.2;
+        var q = clamp(at / 0.15, 0, 1);
+        if (q <= 0) continue;
+        var f = ((k * 0.382) % 1) * 2 - 1;
+        var x = g.cx + f * hw * 1.2;
+        var yEnd = surfaceY(x, floor, tip, hw, n, full) + ((bumps[(k * 7) % bumps.length] / BUMP_MAX) * 6) - 1;
+        var y = lerp(yEnd - g.gh * 0.35, yEnd, q * q);
+        var a = (bumps[k] / BUMP_MAX) * 6.3;
+        ctx.strokeStyle = cols[k % cols.length];
+        ctx.beginPath();
+        ctx.moveTo(x - Math.cos(a) * 3, y - Math.sin(a) * 3);
+        ctx.lineTo(x + Math.cos(a) * 3, y + Math.sin(a) * 3);
+        ctx.stroke();
+      }
+      ctx.restore();
     }
 
     // What the serve is in: drawn, never filled with the drink, and in front of it.
@@ -901,6 +1099,7 @@
       ctx.fill();
 
       if (coil) {
+        since = live && !calm ? fx.since || 0 : 9;
         if (level > 0.004) drawCoils(level, topped);
       } else {
         poly(g.inner, 3);
@@ -1041,7 +1240,7 @@
         ctx.stroke();
       }
       // the finish, then what it's served in, so a cup hides the sauce that runs into it
-      if (topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
+      if (!coil && topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
       if (g.vessel) drawVessel();
 
       if (line !== null) {
@@ -1112,7 +1311,7 @@
       ctx.rotate(0.6 + 1.2 * k);
       ctx.translate(-g.cx, -(c.top + c.ch / 2));
       drawCoil({ top: c.top, hw: c.hw * 0.9, ch: c.ch * 0.9 }, 1);
-      drawCurl(c.top + c.ch * 0.2, c.top - c.ch * 0.8, c.hw * 0.6);
+      drawTip(c.top + c.ch * 0.2, c.top - c.ch * 0.8, c.hw * 0.6, c.ch * 0.5, 1);
       ctx.restore();
       // where it lands
       ctx.fillStyle = rgba(dr.liquidDeep, 0.9 * k);
@@ -1283,6 +1482,7 @@
           }
         }
         fx.t += dt;
+        fx.since = fx.topped ? (fx.since || 0) + dt : 0;
         fx.wave = toward(fx.wave, s.pouring ? (calm ? 0.5 : 1.6) : 0, dt * 9);
         fx.flow = toward(fx.flow, s.pouring ? s.flow : 1, dt * 16);
         fx.slosh *= Math.exp(-dt * 5);

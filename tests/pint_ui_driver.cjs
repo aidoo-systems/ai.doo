@@ -47,7 +47,7 @@ function boot(search, tweak) {
   };
   const moves = {
     beginPath: () => (pathTop = Infinity),
-    fill: () => fills.push({ gradient: gradientFill, top: pathTop }),
+    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop }),
     save: () => saved.push(m.slice()),
     restore: () => (m = saved.pop() || [1, 0, 0, 1, 0, 0]),
     setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
@@ -64,11 +64,18 @@ function boot(search, tweak) {
     quadraticCurveTo: (x1, y1, x, y) => (at(x1, y1), at(x, y)),
     bezierCurveTo: (x1, y1, x2, y2, x, y) => (at(x1, y1), at(x2, y2), at(x, y)),
     fillRect: (x, y, w, h) => (at(x, y), at(x + w, y + h), at(x, y + h), at(x + w, y)),
+    // an unturned ellipse's top and bottom (the whippy's tip is a run of them)
+    ellipse: (x, y, rx, ry, turn) => !turn && (at(x, y - ry), at(x, y + ry)),
   };
 
   const paint = new Proxy({}, {
-    get: (t, p) => (p in t ? t[p] : (...args) => (moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3)), { addColorStop: (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour)) })),
-    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && (gradientFill = typeof v === "object"), trace.push(p + "=" + fmt(v)), true),
+    get: (t, p) => (p in t ? t[p] : (...args) => {
+      moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3));
+      const gradient = { stops: [] };
+      gradient.addColorStop = (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour), gradient.stops.push(colour));
+      return gradient;
+    }),
+    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && (gradientFill = typeof v === "object" && v), trace.push(p + "=" + fmt(v)), true),
   });
 
   function element(id) {
@@ -449,7 +456,16 @@ async function started(search, tweak) {
     page.down(1);
     page.advance(hold);
     page.up(1);
-    page.advance(450);
+    // and in every frame while the tip comes out, not only once it has (D-030, look b)
+    const frames = [];
+    for (let t = 0; t < 448; t += 16) {
+      page.fills.length = 0;
+      page.advance(16);
+      // the stack shades to its deep colour; the stream still falling from the nozzle doesn't
+      const f = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && f.top < Infinity).map((f) => f.top);
+      if (f.length) frames.push(Math.min(...f));
+    }
+    page.advance(2);
     page.trace.length = 0;
     page.fills.length = 0;
     page.advance(16);
@@ -462,7 +478,33 @@ async function started(search, tweak) {
       // a bracket is three lines; a tick (on the line) is two, and says nothing more exact
       scored: bracket.length === 3 ? parseFloat(bracket[1].split(",")[1]) : null,
       top: tops.length ? Math.min(...tops) : null,
+      frames,
     });
+  }
+  // D-030, look b: the finish arrives after release (the flake slides in, the sauce falls and
+  // runs, the sprinkles fall), none of it on the frame it's served and all of it within a second;
+  // and one light over the whole stack, with no drop shadow under each turn.
+  out.whippyStaged = [];
+  page = await started("?skin=icecream");
+  for (const r of whippy.rounds) {
+    const serve = r.serve || {};
+    const finish = serve.topping ? serve.topping.colours : [];
+    page.advance(500);
+    page.down(1);
+    page.advance(700);
+    page.trace.length = 0;
+    page.advance(16);
+    const shadowed = page.trace.includes("fillStyle=rgba(0,0,0,.16)");
+    page.up(1);
+    page.advance(134); // the beat of stillness, then the result lands
+    page.trace.length = 0;
+    page.advance(16);
+    const atRelease = paints(page.trace, finish);
+    page.advance(834);
+    page.trace.length = 0;
+    page.advance(16);
+    out.whippyStaged.push({ topping: !!serve.topping, shadowed, atRelease, bySecond: paints(page.trace, finish), say: page.get("say").textContent });
+    page.advance(1400);
   }
   // Held too long, it topples off to one side: a dollop beside the serve, not drips down a glass.
   page = await started("?skin=icecream");
