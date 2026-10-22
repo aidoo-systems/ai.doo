@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-21
+Last updated: 2026-10-22
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (outreach follow-ups due 2026-10-27)
 
@@ -41,6 +41,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-22
+- The stamp card demo moves here from loyalty (#74, `item/stamps-loop`; #73 closed: its branch had no merge base), at the owner's word in a plain chat (no roadmap row), for outreach to Gelatory and other shops: `/stamps/`, unlisted and out of the sitemap like `/play/pour/`. One phone that plays the card in a loop (sign, page, Wallet, staff scan, stamps land 1, 2, 5, full, free item; a tap skips ahead), refined in loyalty first (its D-014 and `docs/design/0002-demo-review.md`), ending in "Email us" to hello@aidoo.biz. A shop is a link: `?shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10`; every value is checked in `stamps/card.js` (run under Node in `tests/test_stamps_demo.py`) and written only as text. Nothing stored or sent; no analytics, like the pour demo (D-017). Browser at 375x812: the phone starts 119px down, 480px tall; at 1280 the intro is two even lines. loyalty's `demo/` becomes a pointer here once its P1.2 run ends. Hosting decided by the owner 2026-10-22: here at `aidoo.biz/stamps/`, not stamps.aidoo.biz (the real service's host, in every issued pass). Codex: no blockers; one P2 (Pause held only the next beat) fixed.
 
 ### 2026-10-21
 - #68 (D-028) and #69 (outreach sent: six emails 2026-10-20, contact log, follow-ups 2026-10-27) merged after fixing Codex's findings (the Noa email's flat white recorded as a sent exception; the sprint no longer says outreach hasn't begun). The owner's wife's idea, a whippy skin for ice cream shops: three mocks (cone with flake, cup with sauce, strawberry twist with sprinkles); the owner chose all three, rotating per round (D-029). #70 merged: P2.0u (whippy) and P2.0v (the pub and café rotate their drinks). Next: build P2.0u; add ice cream shops to the prospect list.
