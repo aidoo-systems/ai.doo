@@ -407,13 +407,22 @@
   drawings.forEach(function (svg) {
     var reacts = svg.dataset.react;
     if (!reacts) return;
-    svg.addEventListener("click", function () {
+    var clear = null; // the one pending timeout that would end this drawing's reaction
+    var react = function () {
+      if (clear) clearTimeout(clear);
       svg.classList.remove(reacts);
       svg.getBoundingClientRect(); // forces a reflow, so a repeat tap restarts the animation
       svg.classList.add(reacts);
-      setTimeout(function () {
+      clear = setTimeout(function () {
         svg.classList.remove(reacts);
+        clear = null;
       }, 900);
+    };
+    svg.addEventListener("click", react);
+    svg.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Enter" && ev.key !== " ") return;
+      ev.preventDefault(); // " " would otherwise scroll the page
+      react();
     });
   });
 })();

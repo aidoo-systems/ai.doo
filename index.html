@@ -176,7 +176,8 @@
        (stage 2 of D-018). Every animation starts paused; studio.js turns .playing on while
        a card sits on screen. Scoped to no-preference, so a reduced-motion visitor loads no
        rule that moves any of it. */
-    .cardDrawing{display:block;width:100%;height:auto;aspect-ratio:1024/500;border-radius:16px}
+    .cardDrawing{display:block;width:100%;height:auto;aspect-ratio:1024/500;border-radius:16px;cursor:pointer}
+    .cardDrawing:focus-visible{outline:2px solid #fff;outline-offset:3px}
     @media (prefers-reduced-motion:no-preference){
       /* Submarine Panic: a sonar sweep over three contacts, a ping on tap */
       .w-submarine .sweep{animation:sweepTurn 4s linear infinite;animation-play-state:paused;transform-origin:0 0}
@@ -289,7 +290,7 @@
 
     <div class="workGrid">
       <article class="work glow w-submarine" id="submarine-panic">
-        <div class="workArt"><svg class="cardDrawing" data-react="pinged" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Submarine Panic: a sonar scope sweeping over three contacts">
+        <div class="workArt"><svg class="cardDrawing" data-react="pinged" tabindex="0" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Submarine Panic: a sonar scope sweeping over three contacts">
           <rect width="1024" height="500" fill="#140f08"/>
           <g transform="translate(512,250)">
             <circle r="200" fill="none" stroke="#3a2c14" stroke-width="2"/>
@@ -318,7 +319,7 @@
       </article>
 
       <article class="work w-thunee" id="thunee">
-        <div class="workArt"><svg class="cardDrawing" data-react="shuffled" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Thunee: three cards fanned on the table, one turning face up">
+        <div class="workArt"><svg class="cardDrawing" data-react="shuffled" tabindex="0" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Thunee: three cards fanned on the table, one turning face up">
           <rect width="1024" height="500" fill="#0e3f2f"/>
           <g class="fanCard" transform="translate(560,250) rotate(8)"><g class="fanCardBump">
             <rect x="-90" y="-130" width="180" height="260" rx="14" fill="#0c3326" stroke="#124a37"/>
@@ -351,7 +352,7 @@
       </article>
 
       <article class="work glow w-orbital" id="orbital-panic">
-        <div class="workArt"><svg class="cardDrawing" data-react="boost" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Orbital Panic: a small probe circling a planet near a distant sun">
+        <div class="workArt"><svg class="cardDrawing" data-react="boost" tabindex="0" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Orbital Panic: a small probe circling a planet near a distant sun">
           <rect width="1024" height="500" fill="#07130d"/>
           <circle cx="860" cy="90" r="46" fill="#ffce6b"/>
           <circle cx="860" cy="90" r="70" fill="#ffce6b" fill-opacity=".12"/>

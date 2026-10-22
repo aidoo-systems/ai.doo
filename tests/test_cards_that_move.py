@@ -136,6 +136,20 @@ def test_the_play_script_wires_up_the_drawings():
     assert "dataset.react" in js
 
 
+def test_each_drawing_is_reachable_by_keyboard_and_shows_focus():
+    # Codex round 1 (P2): the SVGs had only a click handler, so a keyboard-only visitor
+    # could not set off any reaction.
+    html = _text("index.html")
+    for card_id in CARDS:
+        card = _card(html, card_id)
+        assert re.search(r'<svg class="cardDrawing"[^>]*\btabindex="0"', card), card_id
+    css = _text("index.html")
+    assert ".cardDrawing:focus-visible{" in css
+    js = _text("studio.js")
+    assert '"keydown"' in js
+    assert '"Enter"' in js
+
+
 def _run_driver(calm=False):
     node = shutil.which("node")
     assert node, "Node.js is needed to run studio.js in the tests"
@@ -174,3 +188,16 @@ def test_a_tap_sets_off_each_drawings_own_reaction_and_it_clears_itself():
     assert ran["reactionCleared"] is True
     assert ran["cardsReacted"] is True
     assert ran["orbitReacted"] is True
+
+
+def test_pressing_enter_sets_off_the_same_reaction_as_a_tap():
+    ran = _run_driver()
+    assert ran["keyboardReacted"] is True
+
+
+def test_a_repeat_tap_restarts_the_reaction_instead_of_cutting_it_short():
+    # Codex round 1 (P2): a retap just before the first tap's 900ms timeout fired used to
+    # let that stale timeout clear the *second* reaction almost immediately.
+    ran = _run_driver()
+    assert ran["stillReactingAfterRepeatTap"] is True
+    assert ran["reactionClearedAfterRepeatTap"] is True

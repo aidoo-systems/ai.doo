@@ -63,14 +63,33 @@ FakeIntersectionObserver.prototype.observe = function (el) {
 };
 
 let clock = 0;
+let nextTimerId = 1;
 const timers = [];
 const calm = !!process.env.CALM;
+
+function tick(ms) {
+  clock += ms;
+  timers
+    .filter((t) => t.at <= clock)
+    .forEach((t) => {
+      timers.splice(timers.indexOf(t), 1);
+      t.fn();
+    });
+}
 
 const window = {
   innerHeight: 800,
   performance: { now: () => clock },
   requestAnimationFrame: () => {},
-  setTimeout: (fn, ms) => timers.push({ at: clock + (ms || 0), fn }),
+  setTimeout: (fn, ms) => {
+    const id = nextTimerId++;
+    timers.push({ id, at: clock + (ms || 0), fn });
+    return id;
+  },
+  clearTimeout: (id) => {
+    const found = timers.find((t) => t.id === id);
+    if (found) timers.splice(timers.indexOf(found), 1);
+  },
   addEventListener: () => {},
   removeEventListener: () => {},
   matchMedia: (query) => ({ matches: calm && query.includes("reduced-motion") }),
@@ -117,13 +136,28 @@ out.playingOffScreen = sonar.classList.contains("playing");
 // a tap sets off the drawing's own reaction, which clears itself afterwards
 (sonar.on.click || []).forEach((fn) => fn());
 out.reactedOnTap = sonar.classList.contains("pinged");
-clock += 2000;
-timers.filter((t) => t.at <= clock).forEach((t) => t.fn());
+tick(2000);
 out.reactionCleared = !sonar.classList.contains("pinged");
 
 (cards.on.click || []).forEach((fn) => fn());
 out.cardsReacted = cards.classList.contains("shuffled");
 (orbit.on.click || []).forEach((fn) => fn());
 out.orbitReacted = orbit.classList.contains("boost");
+
+// a keyboard Enter sets off the same reaction as a tap (Codex round 1, P2)
+(cards.on.keydown || []).forEach((fn) => fn({ key: "Enter", preventDefault() {} }));
+out.keyboardReacted = cards.classList.contains("shuffled");
+
+// a repeat tap restarts the reaction instead of letting the first tap's timeout cut it
+// short (Codex round 1, P2): tap, wait half the window, tap again — the reaction must
+// still be showing a moment after the *first* tap's own timeout would have fired, and
+// only clear a moment after the *second* tap's.
+(orbit.on.click || []).forEach((fn) => fn());
+tick(500); // t+500: first tap's reaction is still running (900ms window)
+(orbit.on.click || []).forEach((fn) => fn()); // retapped; restarts the window
+tick(500); // t+1000: the first tap's own timeout (due at t+900) must not have fired
+out.stillReactingAfterRepeatTap = orbit.classList.contains("boost");
+tick(500); // t+1500: the second tap's timeout (due at t+1400) should have cleared it
+out.reactionClearedAfterRepeatTap = !orbit.classList.contains("boost");
 
 process.stdout.write(JSON.stringify(out));
