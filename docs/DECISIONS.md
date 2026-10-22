@@ -269,3 +269,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A custom idea per venue in the email (the first rewrite's "fill the bidon"); keeping the family names in the emails.
 - **Consequences:** The panto and Hospice, which aren't cafés or bars, open the café link to show how the game plays and pitch their own idea in words. One exception went out before this was written down: the Noa Bakehouse email (sent 2026-10-20) says "pour the perfect flat white" while its link pours a latte. Its follow-up says latte.
 - **Revisit when:** A prospect replies asking for something the demo doesn't show, or the 2026-11-26 review.
+
+## D-029 — Ice cream shops join phase one, with a whippy whose serve rotates
+
+- **Status:** Accepted (owner, 2026-10-21: the owner's wife's idea, "using the pour game but as a whippy ice cream server"; "I'd like to get that one done quick as we can add that to our phase one outreach, then wine"; of the three mocks, "I like them all ... they should rotate between each as sometimes it's a flake, sometimes it's in a cup")
+- **Date:** 2026-10-21
+- **Decision:** Ice cream shops join phase one outreach once the demo has a whippy skin (P2.0u), built before wine (P2.0t). One made-up kiosk, and each round serves something different: a 99 in a cone with a flake, a cup with sauce, a strawberry twist with sprinkles. A round can name its own serve (vessel, colours, topping) over the skin's; a skin whose rounds don't plays exactly as now. The pub and café take the same rotation afterwards (P2.0v: lager, ale, cider; flat white, latte, cappuccino).
+- **Why:** Hold-and-release is how a soft-serve lever works, queues are the waiting moment the offer sells, and "a 99 on us" is a cheap, family-friendly prize. Rotating serves plays like a real queue and shows a shop its menu; head and foam depth make each drink a different skill.
+- **Alternatives:** One serve per skin (Claude's first suggestion, mock A); a skin per serve.
+- **Consequences:** The skin format grows a per-round serve, tested so the pub, café and dairy draw as before. Ice cream emails pitch the spring season: most island shops are quiet or closed until Easter, so a deposit before the 2026-11-26 read is unlikely. The next build is P2.0u, ahead of P2.1e.
+- **Revisit when:** The 2026-11-26 review, or an ice cream shop replies.
