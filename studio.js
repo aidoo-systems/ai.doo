@@ -382,4 +382,38 @@
       if (then) then();
     }, 360);
   }
+
+  // ---------------------------------------------------------------- 4. the first three cards draw themselves
+
+  // Submarine Panic's sonar sweep, Thunee's cards and Orbital Panic's orbiting probe (P2.1e,
+  // stage 2 of D-018): small drawings made from each game's own shapes, in place of its store
+  // graphic. CSS is what keeps them still when the visitor doesn't want motion (the rules
+  // only exist under prefers-reduced-motion:no-preference), so this section's job is just to
+  // pause a drawing once it leaves the screen, and let a tap set off its own reaction.
+  var drawings = all(".cardDrawing");
+  if (drawings.length && "IntersectionObserver" in window) {
+    var seen = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          entry.target.classList.toggle("playing", entry.isIntersecting);
+        });
+      },
+      { threshold: 0.2 }
+    );
+    drawings.forEach(function (svg) {
+      seen.observe(svg);
+    });
+  }
+  drawings.forEach(function (svg) {
+    var reacts = svg.dataset.react;
+    if (!reacts) return;
+    svg.addEventListener("click", function () {
+      svg.classList.remove(reacts);
+      svg.getBoundingClientRect(); // forces a reflow, so a repeat tap restarts the animation
+      svg.classList.add(reacts);
+      setTimeout(function () {
+        svg.classList.remove(reacts);
+      }, 900);
+    });
+  });
 })();

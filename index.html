@@ -171,6 +171,43 @@
     .alsoLine{padding:0 0 56px}
     .alsoLine p{margin:0;max-width:72ch;color:var(--muted);font-size:14px;line-height:1.7}
     .alsoLine a{color:var(--suite);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+
+    /* P2.1e: the first three cards draw a small scene in code, in place of a store graphic
+       (stage 2 of D-018). Every animation starts paused; studio.js turns .playing on while
+       a card sits on screen. Scoped to no-preference, so a reduced-motion visitor loads no
+       rule that moves any of it. */
+    .cardDrawing{display:block;width:100%;height:auto;aspect-ratio:1024/500;border-radius:16px}
+    @media (prefers-reduced-motion:no-preference){
+      /* Submarine Panic: a sonar sweep over three contacts, a ping on tap */
+      .w-submarine .sweep{animation:sweepTurn 4s linear infinite;animation-play-state:paused;transform-origin:0 0}
+      .w-submarine .cardDrawing.playing .sweep{animation-play-state:running}
+      .w-submarine .blip{animation:blipPulse 2.6s ease-in-out infinite;animation-play-state:paused}
+      .w-submarine .cardDrawing.playing .blip{animation-play-state:running}
+      .w-submarine .ping{opacity:0}
+      .w-submarine .cardDrawing.pinged .ping{animation:pingOut .7s ease-out}
+      @keyframes sweepTurn{to{transform:rotate(360deg)}}
+      @keyframes blipPulse{0%,100%{opacity:.3}50%{opacity:1}}
+      @keyframes pingOut{0%{opacity:.9;r:6}100%{opacity:0;r:170}}
+
+      /* Thunee: three fanned cards, the front one turning face up; a bump on tap */
+      .w-thunee .flipCard{animation:cardSquish 5s ease-in-out infinite;animation-play-state:paused}
+      .w-thunee .cardDrawing.playing .flipCard{animation-play-state:running}
+      .w-thunee .cardFront{animation:flipFront 5s ease-in-out infinite;animation-play-state:paused}
+      .w-thunee .cardDrawing.playing .cardFront{animation-play-state:running}
+      .w-thunee .cardBack{animation:flipBack 5s ease-in-out infinite;animation-play-state:paused}
+      .w-thunee .cardDrawing.playing .cardBack{animation-play-state:running}
+      .w-thunee .cardDrawing.shuffled .fanCardBump{animation:shuffleBump .5s ease-out}
+      @keyframes cardSquish{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.04)}}
+      @keyframes flipFront{0%,49%{opacity:1}50%,100%{opacity:0}}
+      @keyframes flipBack{0%,49%{opacity:0}50%,100%{opacity:1}}
+      @keyframes shuffleBump{0%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}}
+
+      /* Orbital Panic: a probe circling the planet near its sun; a quick spin on tap */
+      .w-orbital .orbitPivot{animation:orbitTurn 6s linear infinite;animation-play-state:paused;transform-origin:0 0}
+      .w-orbital .cardDrawing.playing .orbitPivot{animation-play-state:running}
+      .w-orbital .cardDrawing.boost .orbitPivot{animation-duration:1.1s}
+      @keyframes orbitTurn{to{transform:rotate(360deg)}}
+    }
     @media (max-width:920px){
       .workGrid{grid-template-columns:1fr}
       .workWide{display:flex}
@@ -252,7 +289,22 @@
 
     <div class="workGrid">
       <article class="work glow w-submarine" id="submarine-panic">
-        <div class="workArt"><img src="images/work/submarine-panic.webp" width="1024" height="500" loading="lazy" alt="Submarine Panic: a sonar scope with contacts on a dark control panel"></div>
+        <div class="workArt"><svg class="cardDrawing" data-react="pinged" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Submarine Panic: a sonar scope sweeping over three contacts">
+          <rect width="1024" height="500" fill="#140f08"/>
+          <g transform="translate(512,250)">
+            <circle r="200" fill="none" stroke="#3a2c14" stroke-width="2"/>
+            <circle r="150" fill="none" stroke="#3a2c14" stroke-width="2"/>
+            <circle r="100" fill="none" stroke="#3a2c14" stroke-width="2"/>
+            <circle r="50" fill="none" stroke="#3a2c14" stroke-width="2"/>
+            <line x1="-200" y1="0" x2="200" y2="0" stroke="#3a2c14"/>
+            <line x1="0" y1="-200" x2="0" y2="200" stroke="#3a2c14"/>
+            <g class="sweep"><path d="M0 0 L200 0 A200 200 0 0 0 170 -104 Z" fill="#f5b544" fill-opacity=".35"/></g>
+            <circle class="blip" cx="90" cy="-40" r="5" fill="#f5b544" style="animation-delay:0s"/>
+            <circle class="blip" cx="-120" cy="60" r="5" fill="#f5b544" style="animation-delay:.9s"/>
+            <circle class="blip" cx="40" cy="150" r="5" fill="#f5b544" style="animation-delay:1.7s"/>
+            <circle class="ping" cx="0" cy="0" r="6" fill="none" stroke="#f5b544" stroke-width="3"/>
+          </g>
+        </svg></div>
         <div class="workBody">
           <h3>Submarine Panic</h3>
           <p>Keep a failing Cold War submarine alive from a CRT control room of gauges, sonar, ballast and torpedo tubes.</p>
@@ -266,7 +318,27 @@
       </article>
 
       <article class="work w-thunee" id="thunee">
-        <div class="workArt"><img src="images/work/thunee.webp" width="1024" height="500" loading="lazy" alt="Thunee: three playing cards fanned on a green table"></div>
+        <div class="workArt"><svg class="cardDrawing" data-react="shuffled" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Thunee: three cards fanned on the table, one turning face up">
+          <rect width="1024" height="500" fill="#0e3f2f"/>
+          <g class="fanCard" transform="translate(560,250) rotate(8)"><g class="fanCardBump">
+            <rect x="-90" y="-130" width="180" height="260" rx="14" fill="#0c3326" stroke="#124a37"/>
+          </g></g>
+          <g class="fanCard" transform="translate(512,250) rotate(-4)"><g class="fanCardBump">
+            <rect x="-90" y="-130" width="180" height="260" rx="14" fill="#0c3326" stroke="#124a37"/>
+          </g></g>
+          <g transform="translate(462,250) rotate(-14)"><g class="flipCard">
+            <g class="cardBack">
+              <rect x="-90" y="-130" width="180" height="260" rx="14" fill="#124a37" stroke="#1d6b4f"/>
+              <rect x="-70" y="-110" width="140" height="220" rx="8" fill="none" stroke="#3fbf8a" stroke-width="3"/>
+            </g>
+            <g class="cardFront">
+              <rect x="-90" y="-130" width="180" height="260" rx="14" fill="#f3f0dc" stroke="#cfead9"/>
+              <circle cx="-56" cy="-86" r="16" fill="#17533f"/>
+              <circle cx="56" cy="86" r="16" fill="#17533f"/>
+              <path d="M0 -20 L24 20 L-24 20 Z" fill="#17533f"/>
+            </g>
+          </g></g>
+        </svg></div>
         <div class="workBody">
           <h3>Thunee</h3>
           <p>South Africa's partnership trick-taking classic in 3D. Bid for trump, read the table and race to 12 balls. Plays offline.</p>
@@ -279,7 +351,16 @@
       </article>
 
       <article class="work glow w-orbital" id="orbital-panic">
-        <div class="workArt"><img src="images/work/orbital-panic.webp" width="1024" height="500" loading="lazy" alt="Orbital Panic: a small probe orbiting a planet near a sun"></div>
+        <div class="workArt"><svg class="cardDrawing" data-react="boost" viewBox="0 0 1024 500" width="1024" height="500" role="img" aria-label="Orbital Panic: a small probe circling a planet near a distant sun">
+          <rect width="1024" height="500" fill="#07130d"/>
+          <circle cx="860" cy="90" r="46" fill="#ffce6b"/>
+          <circle cx="860" cy="90" r="70" fill="#ffce6b" fill-opacity=".12"/>
+          <circle cx="470" cy="270" r="86" fill="#1d6b4f"/>
+          <circle cx="470" cy="270" r="86" fill="none" stroke="#2f8f68" stroke-width="2"/>
+          <g transform="translate(470,270)"><g class="orbitPivot">
+            <g transform="translate(150,0)"><path d="M-10 -6 L10 0 L-10 6 Z" fill="#4be08a"/></g>
+          </g></g>
+        </svg></div>
         <div class="workBody">
           <h3>Orbital Panic</h3>
           <p>A one-tap arcade game. Break orbit, thread the capture ring around the next planet, dodge black holes and hold the chain.</p>
