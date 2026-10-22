@@ -994,6 +994,21 @@ def test_the_stack_is_laid_coil_by_coil(ui):
     assert coils["early"] < coils["late"], coils
 
 
+def test_the_turn_being_laid_reaches_into_the_turn_below(ui):
+    # D-030, seam fix (a): settled turns are drawn 12% taller than their slot and overlap the one
+    # below; the turn being laid stopped at the top of the stack, a seam until it settled (owner).
+    checked = 0
+    for seam in ui["whippySeams"]:
+        turns = seam["turns"]
+        if len(turns) < 3:
+            continue
+        laid, below, under = turns[-1], turns[-2], turns[-3]
+        slot = under["top"] - below["top"]
+        assert laid["bottom"] - below["top"] >= 0.12 * slot, seam
+        checked += 1
+    assert checked >= 5, ui["whippySeams"]
+
+
 def test_the_top_of_the_serve_is_the_height_scored(ui):
     # Tilted turns once rose above the scored height: at 0.60 the stack read 0.64, past a
     # 0.62 line the engine still called short (Codex, round 1 of the coils).

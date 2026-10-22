@@ -40,6 +40,7 @@ function boot(search, tweak) {
   // whether it was built of circles (the whippy's rope is; its turns and tip aren't).
   const fills = [];
   let pathTop = Infinity;
+  let pathBottom = -Infinity;
   let pathCircles = false;
   let gradientFill = false;
   let fillColour = null;
@@ -53,11 +54,12 @@ function boot(search, tweak) {
   const at = (x, y) => {
     const yy = m[1] * x + m[3] * y + m[5];
     pathTop = Math.min(pathTop, yy);
+    pathBottom = Math.max(pathBottom, yy);
     return Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, yy));
   };
   const moves = {
-    beginPath: () => ((pathTop = Infinity), (pathCircles = false)),
-    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, circles: pathCircles, colour: fillColour, at: drawn.length }),
+    beginPath: () => ((pathTop = Infinity), (pathBottom = -Infinity), (pathCircles = false)),
+    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, bottom: pathBottom, circles: pathCircles, colour: fillColour, at: drawn.length }),
     arc: () => (pathCircles = true),
     save: () => (saved.push(m.slice()), clips.push(clipped)),
     restore: () => ((m = saved.pop() || [1, 0, 0, 1, 0, 0]), (clipped = clips.pop() || false)),
@@ -475,6 +477,19 @@ async function started(search, tweak) {
   page.trace.length = 0;
   page.advance(16);
   out.whippyCoils = { early, late: turns() };
+  // D-030, seam fix (a): the turn being laid reaches down into the turn below, as a settled
+  // turn does, so no seam shows under it. Each turn is one fill in the stack's deep colour.
+  out.whippySeams = [];
+  for (let hold = 300; hold <= 1500; hold += 60) {
+    page = await started("?skin=icecream");
+    page.advance(500);
+    page.down(1);
+    page.advance(hold);
+    page.fills.length = 0;
+    page.advance(16);
+    const turnsDrawn = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+    out.whippySeams.push({ hold, turns: turnsDrawn.map((f) => ({ top: f.top, bottom: f.bottom })) });
+  }
   // What is seen is what is scored (Codex, round 1 of the coils): once poured, the top of the
   // soft serve (every shape a gradient fills: the turns and the curl) is the height the
   // result's bracket measures to.

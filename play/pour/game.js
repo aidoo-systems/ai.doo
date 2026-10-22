@@ -934,7 +934,9 @@
       if (full >= n || rest < 0.001) return;
       var c = coilAt(full, n);
       var floor = g.bottom - c.ch * full; // the top of the turns already laid
-      if (!topped) return drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * rest) / 1.12 }, rest);
+      // it reaches down into the turn below as a settled turn does, so no seam shows (D-030, fix a);
+      // its top is still the level, and at a whole turn it's exactly a settled turn
+      if (!topped) return drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * (rest + 0.12)) / 1.12 }, rest);
       var below = full > 0 ? coilAt(full - 1, n) : c;
       var hw = Math.min(c.hw, below.hw * 0.92);
       var t = dr.topping;
