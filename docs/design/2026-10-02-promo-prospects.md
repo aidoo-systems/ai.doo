@@ -47,6 +47,15 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 | 30 | Local bakeries and farm shops (walk in on a high street) | A quick yes or no |
 | 42 | Wine Down (owner's suggestion; not yet checked as trading) | Pour a glass of wine to the line. **Held until a wine skin exists** |
 | 43 | Wine Cellar (owner's suggestion; not yet checked as trading) | The same |
+| 44 | Gelatory (Ramsey, Douglas, Peel, Port Erin) | **Stamp card** pilot, the loyalty repo's first shop. Email drafted 2026-10-22 |
+| 45 | Porter's Kitchen (Douglas, Port Erin) | **Stamp card**: takeaway regulars. Email drafted |
+| 46 | Drewry's barbers (Duke Street, Tynwald Mills) | **Stamp card**: every tenth cut. Email drafted |
+| 47 | The Buttery (Duke Street, since 1992; not yet checked as trading) | **Stamp card**. Email drafted |
+| 48 | Laxey Beach Cafe (Laxey Ice Cream Company ices) | Held for the ice cream skin (P2.0u); seasonal |
+
+Stamp-card prospects (#44 to #47, and #23 Roots by the Sea) get the stamps pitch, not a pour
+game: one pitch per business. Their emails, and new pour-game emails for #11, #15 and #24, are
+in [the second outreach emails](2026-10-22-second-outreach-emails.md).
 
 ## Tier 3: charities and clubs (fundraising, shareable leaderboards)
 
