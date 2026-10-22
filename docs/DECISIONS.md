@@ -279,3 +279,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** One serve per skin (Claude's first suggestion, mock A); a skin per serve.
 - **Consequences:** The skin format grows a per-round serve, tested so the pub, café and dairy draw as before. Ice cream emails pitch the spring season: most island shops are quiet or closed until Easter, so a deposit before the 2026-11-26 read is unlikely. The next build is P2.0u, ahead of P2.1e.
 - **Revisit when:** The 2026-11-26 review, or an ice cream shop replies.
+
+## D-030 — Cards that move: "first three" read as homepage order, not the row's own examples
+
+- **Status:** Accepted (unattended build, 2026-10-22; owner review pending)
+- **Date:** 2026-10-22
+- **Decision:** P2.1e's row names three illustrative drawings ("a sonar sweep, a satellite on its orbit, a tomato that blinks") but says "first three games only" for scope. The homepage's games grid, in DOM order, is Submarine Panic, Thunee, Orbital Panic (Pomodorable, the tomato, is sixth). Built for those three: a sonar sweep (Submarine Panic), three fanned cards with one turning face up (Thunee), and an orbiting probe (Orbital Panic) — two of the three examples match directly; Thunee's cards stand in for the row's third example, which belongs to a card further down the grid.
+- **Why:** "First three" is unambiguous as written; the parenthetical examples read as illustrations of the kind of thing ("a drawing made from the game's own shapes"), not a literal game list, since two of the three already line up with the first three cards and the third (Pomodorable) doesn't sit at position three. Reordering the grid to put Pomodorable third, or building for Pomodorable instead of Thunee, would both go beyond "first three games only" as the row's own acceptance text defines it.
+- **Alternatives:** Build the three named examples (Submarine Panic, Orbital Panic, Pomodorable) regardless of position — rejected: contradicts "first three" read as a position rule, and skips Thunee, the actual second card. Ask before building — rejected: this is an unattended, owner-gated run; the row's wording is specific enough to proceed, and the owner's phone test is the actual gate.
+- **Consequences:** If the owner meant the three named examples rather than DOM order, Thunee's card-flip drawing would need swapping for a Pomodorable tomato-blink drawing (and Thunee's reverted to its store graphic) before this is Complete. Flagged here precisely so that correction is a small, visible swap rather than a silent guess.
+- **Revisit when:** The owner's phone review of this PR.

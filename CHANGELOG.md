@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Three of the homepage's game cards draw themselves** (P2.1e, stage 2 of D-018): Submarine Panic, Thunee and Orbital Panic show a small scene made in code from the game's own shapes, in place of their store graphic — a sonar sweep, a hand of cards turning face up, a probe circling its planet — each reacting to a tap. Still under `prefers-reduced-motion`, and paused while off screen
 - **The promo game pours milk too** (P2.0s): a made-up dairy, Sleepy Cow, at `/play/pour/?skin=dairy`. The milk comes from a carton that glugs, into a straight glass with no bubbles, and the prize is a week's milk
 - **Keeping a promo game live has a price**: £25 a month after the first three months, on the promo-games page and in the chatbot's answers
 - **The venue's name stays in sight in the promo game** (P2.0f): the pub's and the café's name and emblem now show while you play and on the results, and the emblem is on the tap's handle and the milk jug

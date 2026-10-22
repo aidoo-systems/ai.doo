@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-21
+Last updated: 2026-10-22
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (outreach follow-ups due 2026-10-27)
 
@@ -22,7 +22,7 @@ Two bets with pass and kill bars, read on 2026-11-26 (P2.0, D-010).
 
 ## Execution order
 
-1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. Next build, one item at a time: P2.0u (the whippy, rotating serves, D-029), then P2.0v, then P2.1e (cards that move).
+1. **Next action:** outreach began 2026-10-20: the owner sent the six drafted emails (logged in [the prospect list](design/2026-10-02-promo-prospects.md)'s contact log). Follow-ups are due 2026-10-27; two Villa Gaiety addresses bounced, so it needs a working address. Then 2 to 3 hours a week of new contacts; it is the one thing P2.0's services bet is measured on. Claude can draft the follow-ups on request. #37 (P2.0a, the showcase) merged 2026-10-11 and #38 (P2.1d: the quiet frame, play, the ball as the mark, privacy pages, share card) merged 2026-10-13; both are live and were checked on aidoo.biz. P2.1e (cards that move) built 2026-10-22 and is Ready For Test (owner gate): waits on the owner trying the three cards on a phone and merging. P2.0u (the whippy) is built and waits on the owner merging PR #72; P2.0v (the pub and café's rotating drinks) still waits on that merge.
    The offer page (`/promo-games/`, unlisted, £750 from, £300 deposit, Tea Tower as the example) merged in #20, took the D-012 look in P2.1c and is live. Prospects: [the prospect list](design/2026-10-02-promo-prospects.md).
 2. Studio bet: Reactor Panic, Submarine Panic and Pomodorable each have a Firebase analytics row on their roadmap (reactor-panic#15, submarine-panic#1, pomodorable-android#21). Firebase apps created (owner, 2026-10-20); the config files go into each repo, then `/next` in each; then free promotion (D-015: no paid campaigns, except about £50 for Submarine Panic once its analytics release is live).
 3. Weeks 2–8: owner's outreach to 40–60 contacts; fill the brief's Results table as it goes.
@@ -41,6 +41,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-22
+- P2.1e (cards that move, stage 2 of D-018), built unattended (`item/P2.1e-cards-that-move`): the first three homepage cards by DOM order (Submarine Panic, Thunee, Orbital Panic) draw inline SVG scenes in place of their store graphic — a sonar sweep over three contacts, three fanned cards with the front one turning face up, and a probe circling the planet near its sun — each reacting to a tap (a ping, a shuffle bump, a quick spin) that clears itself, and each reachable by keyboard. Every animation is defined only under `@media (prefers-reduced-motion:no-preference)`, so a reduced-motion visitor loads no rule that can move any of it; `studio.js` pauses a drawing once it leaves the screen (`IntersectionObserver`) and wires up the reactions. No new image files. Tests red first (7 failed), then green; full suite 202 passed; `bash scripts/gates.sh` all PASS. Codex round 1 (medium): 2 should-fix (keyboard access; a repeat tap could let a stale timeout cut the second reaction short), both fixed test-first, re-run clean. Headless Edge (CDP) at 375 and 1280 wide and under emulated reduced motion: no console errors, no sideways scroll, confirmed nothing animates. Owner gate (routine): marked **Ready For Test**, not Complete — the owner still needs to try the three cards on a phone and approve them, and merge the PR (left open; this was an unattended run, so it does not self-merge). Next: the owner tries `aidoo.biz`'s first three game cards on a phone, with and without reduced motion, and merges if happy.
 
 ### 2026-10-21
 - #68 (D-028) and #69 (outreach sent: six emails 2026-10-20, contact log, follow-ups 2026-10-27) merged after fixing Codex's findings (the Noa email's flat white recorded as a sent exception; the sprint no longer says outreach hasn't begun). The owner's wife's idea, a whippy skin for ice cream shops: three mocks (cone with flake, cup with sauce, strawberry twist with sprinkles); the owner chose all three, rotating per round (D-029). #70 merged: P2.0u (whippy) and P2.0v (the pub and café rotate their drinks). Next: build P2.0u; add ice cream shops to the prospect list.
