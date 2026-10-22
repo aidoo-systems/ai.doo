@@ -1169,6 +1169,18 @@
       ctx.ellipse(g.cx, g.counterY + 7, g.gw * 0.46, 6, 0, 0, 6.3);
       ctx.fill();
 
+      // With no glass round it, a soft silhouette of the finished serve stands up to the line,
+      // under the coils, so the line doesn't float over an empty vessel (D-030, line look c).
+      if (bare && line !== null && live) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(g.gx - 40, yAt(line), g.gw + 80, g.bottom - yAt(line) + 2);
+        ctx.clip();
+        poly(g.outer, 3);
+        ctx.fillStyle = rgba(th.ink, 0.09);
+        ctx.fill();
+        ctx.restore();
+      }
       if (coil) {
         since = live && !calm ? fx.since || 0 : 9;
         if (level > 0.004) drawCoils(level, topped);
@@ -1249,30 +1261,7 @@
         }
       }
 
-      if (line !== null) {
-        // dark under light, so the line shows against the glass, the drink and a pale head
-        var yl = yAt(line);
-        ctx.setLineDash([7, 6]);
-        ctx.lineCap = "butt";
-        ctx.strokeStyle = "rgba(0,0,0,.6)";
-        ctx.lineWidth = 5.5;
-        ctx.beginPath();
-        ctx.moveTo(g.gx, yl);
-        ctx.lineTo(g.gx + g.gw, yl);
-        ctx.stroke();
-        ctx.strokeStyle = th.ink;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-        ctx.setLineDash([]);
-        if (live && fx.glow > 0) {
-          ctx.strokeStyle = rgba(th.accent, fx.glow);
-          ctx.shadowColor = th.accent;
-          ctx.shadowBlur = 16 * fx.glow;
-          ctx.lineWidth = 4;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-        }
-      }
+      if (line !== null && !bare) drawLine(g.gx, g.gx + g.gw, yAt(line), live);
 
       // light on the glass
       var top = g.gy + g.gh * 0.07;
@@ -1317,6 +1306,9 @@
       if (line !== null) {
         var yy = yAt(line);
         var edge = xRange(g.outer, yy);
+        // Soft serve's line is one width, drawn over the rope: the swirl's taper at
+        // that height made it a stub on the tall serves (D-030, line look c).
+        if (bare && edge) edge = [g.cx - g.gw * 0.45, g.cx + g.gw * 0.45];
         if (!edge) {
           ctx.restore();
           return;
@@ -1332,9 +1324,35 @@
           ctx.closePath();
           ctx.fill();
         });
+        if (bare) drawLine(edge[0] + 2, edge[1] - 2, yy, live);
         if (live && fx.measure) drawMeasure(edge[1] + 30);
       }
       ctx.restore();
+    }
+
+    // The line to pour to: dark under light, so it shows against the glass, the drink and a
+    // pale head; it glows when a pour lands on it.
+    function drawLine(x0, x1, y, live) {
+      ctx.setLineDash([7, 6]);
+      ctx.lineCap = "butt";
+      ctx.strokeStyle = "rgba(0,0,0,.6)";
+      ctx.lineWidth = 5.5;
+      ctx.beginPath();
+      ctx.moveTo(x0, y);
+      ctx.lineTo(x1, y);
+      ctx.stroke();
+      ctx.strokeStyle = th.ink;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (live && fx.glow > 0) {
+        ctx.strokeStyle = rgba(th.accent, fx.glow);
+        ctx.shadowColor = th.accent;
+        ctx.shadowBlur = 16 * fx.glow;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
     }
 
     // After a pour: a bracket from where the head stopped to the line. The miss, drawn.

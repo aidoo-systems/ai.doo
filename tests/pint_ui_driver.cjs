@@ -42,6 +42,13 @@ function boot(search, tweak) {
   let pathTop = Infinity;
   let pathCircles = false;
   let gradientFill = false;
+  let fillColour = null;
+  // Every dashed straight line (the line to pour to): its ends, and whether a clip cuts it.
+  const dashes = [];
+  const clips = [];
+  let clipped = false;
+  let dashed = false;
+  let from = null;
   // Only what is drawn turned (a jug or a carton tipping) counts: the tap's pipe runs off the top on purpose.
   const at = (x, y) => {
     const yy = m[1] * x + m[3] * y + m[5];
@@ -50,10 +57,12 @@ function boot(search, tweak) {
   };
   const moves = {
     beginPath: () => ((pathTop = Infinity), (pathCircles = false)),
-    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, circles: pathCircles }),
+    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, circles: pathCircles, colour: fillColour, at: drawn.length }),
     arc: () => (pathCircles = true),
-    save: () => saved.push(m.slice()),
-    restore: () => (m = saved.pop() || [1, 0, 0, 1, 0, 0]),
+    save: () => (saved.push(m.slice()), clips.push(clipped)),
+    restore: () => ((m = saved.pop() || [1, 0, 0, 1, 0, 0]), (clipped = clips.pop() || false)),
+    clip: () => (clipped = true),
+    setLineDash: (d) => (dashed = d.length > 0),
     setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
     translate: (x, y) => ((m[4] += m[0] * x + m[2] * y), (m[5] += m[1] * x + m[3] * y)),
     scale: (x, y) => (m = [m[0] * x, m[1] * x, m[2] * y, m[3] * y, m[4], m[5]]),
@@ -62,8 +71,12 @@ function boot(search, tweak) {
       const s = Math.sin(r);
       m = [m[0] * c + m[2] * s, m[1] * c + m[3] * s, m[2] * c - m[0] * s, m[3] * c - m[1] * s, m[4], m[5]];
     },
-    moveTo: at,
-    lineTo: at,
+    moveTo: (x, y) => (at(x, y), (from = dashed ? [x, y] : null)),
+    lineTo: (x, y) => {
+      at(x, y);
+      if (from && Math.abs(from[1] - y) < 1e-6) dashes.push({ x0: from[0], x1: x, y, clipped, at: drawn.length });
+      from = null;
+    },
     arcTo: (x1, y1, x2, y2) => (at(x1, y1), at(x2, y2)),
     quadraticCurveTo: (x1, y1, x, y) => (at(x1, y1), at(x, y)),
     bezierCurveTo: (x1, y1, x2, y2, x, y) => (at(x1, y1), at(x2, y2), at(x, y)),
@@ -79,7 +92,7 @@ function boot(search, tweak) {
       gradient.addColorStop = (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour), gradient.stops.push(colour));
       return gradient;
     }),
-    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && (gradientFill = typeof v === "object" && v), trace.push(p + "=" + fmt(v)), true),
+    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && ((gradientFill = typeof v === "object" && v), (fillColour = typeof v === "string" ? v : null)), trace.push(p + "=" + fmt(v)), true),
   });
 
   function element(id) {
@@ -195,6 +208,7 @@ function boot(search, tweak) {
     trace,
     reach,
     fills,
+    dashes,
     settle,
     // Move the clock on, running whatever timers and animation frames fall due.
     advance(ms) {
@@ -557,6 +571,32 @@ async function started(search, tweak) {
     say: page.get("say").textContent,
     toppled: !page.trace.includes("lineWidth=7.00") && dollops.some((x) => x > 375 / 2 + 30),
   };
+
+  // D-030, line look (c): the line to pour to and the faint swirl under it, every round, at
+  // rest and mid-pour; and the pub's line beside it.
+  const lineFrame = () => {
+    page.dashes.length = 0;
+    page.fills.length = 0;
+    page.drawn.length = 0;
+    page.advance(16);
+    const coils = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles).map((f) => f.at);
+    return { dashes: page.dashes.slice(), colours: page.fills.map((f) => [f.colour, f.at]), coils: [Math.min(...coils), Math.max(...coils)] };
+  };
+  out.whippyLine = [];
+  page = await started("?skin=icecream");
+  for (let r = 0; r < whippy.rounds.length; r++) {
+    page.advance(500);
+    const rest = lineFrame();
+    page.down(1);
+    page.advance(600);
+    const pouring = lineFrame();
+    page.up(1);
+    page.advance(2000);
+    out.whippyLine.push({ rest, pouring });
+  }
+  page = await started("?skin=wobbly-gull");
+  page.advance(500);
+  out.pubLine = lineFrame().dashes;
 
   // P2.0w: the whippy's stream, frame by frame (every circle drawn, and what was already there
   // at rest), from pulling the lever to just after it's let go.

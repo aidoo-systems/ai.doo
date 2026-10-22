@@ -1029,6 +1029,47 @@ def test_the_finish_arrives_after_its_served(ui):
             assert round_["bySecond"], (n, round_)
 
 
+def _the_line(frame):
+    # The line to pour to: the dashed line nothing clips.
+    lines = [d for d in frame["dashes"] if not d["clipped"]]
+    assert len(lines) == 1, frame["dashes"]
+    return lines[0]
+
+
+def test_the_whippys_line_is_as_wide_on_every_serve(ui):
+    # D-030, line look (c): the line was as wide as the swirl's hidden taper, a stub on the
+    # tall serves (about 40px on a twist, 25px at 320). It is one width, as mocked: 0.9 of the
+    # serve's width, about half the span the pub's line is drawn across.
+    pub = max(d["x1"] - d["x0"] for d in ui["pubLine"])
+    widths = set()
+    for n, round_ in enumerate(ui["whippyLine"]):
+        for when in ("rest", "pouring"):
+            line = _the_line(round_[when])
+            widths.add(round(line["x1"] - line["x0"], 1))
+            assert line["x1"] - line["x0"] >= 0.45 * pub, (n, when, line, pub)
+    assert len(widths) == 1, widths
+
+
+def test_the_whippys_line_is_drawn_over_the_swirl(ui):
+    # The rope ran straight through the line just when it was needed.
+    for n, round_ in enumerate(ui["whippyLine"]):
+        frame = round_["pouring"]
+        assert _the_line(frame)["at"] > frame["coils"][1], (n, frame["coils"])
+
+
+def test_a_faint_swirl_stands_where_the_pub_has_its_glass(ui):
+    # D-030, line look (c): the line no longer floats over an empty cone; a soft silhouette of
+    # the finished swirl stands up to it, under the coils.
+    ink = _whippy()["theme"]["ink"].lstrip("#")
+    ghost = "rgba({},{},{},0.09)".format(*(int(ink[i : i + 2], 16) for i in (0, 2, 4)))
+    for n, round_ in enumerate(ui["whippyLine"]):
+        assert any(c == ghost for c, _ in round_["rest"]["colours"]), n
+        frame = round_["pouring"]
+        assert any(
+            c == ghost and at < frame["coils"][0] for c, at in frame["colours"]
+        ), n
+
+
 # --- P2.0w: the whippy's stream, out of the machine ------------------------------------
 
 
