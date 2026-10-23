@@ -37,6 +37,14 @@
     var n = parseInt(h.slice(0, 6), 16);
     return "rgba(" + (n >> 16) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
+  // A skin colour taken toward white (k above 0) or a dark wine (k below 0), for shading.
+  function shade(hex, k) {
+    var c = rgba(hex, 1).slice(5, -3).split(",").map(Number);
+    var to = k > 0 ? [255, 255, 255] : [40, 0, 10];
+    return "rgb(" + c.map(function (v, i) {
+      return Math.round(v + (to[i] - v) * Math.abs(k));
+    }).join(",") + ")";
+  }
 
   function skinId() {
     var asked = new URLSearchParams(location.search).get("skin");
@@ -239,7 +247,7 @@
   function makeScene(canvas, skin) {
     var ctx = canvas.getContext("2d");
     var th = skin.theme;
-    var dr = skin.drink;
+    var dr = skin.drink; // what this round serves: the skin's drink, or a round's own serve (serve())
     var W = 0;
     var H = 0;
     var g = null; // geometry, rebuilt by layout()
@@ -257,9 +265,25 @@
     var fizz = dr.fizz !== false;
     // A tap's stream comes out from under it; a jug or a carton is in front of its own.
     var inFront = dr.pourer === "jug" || dr.pourer === "carton";
+    // Soft serve: laid in coils (D-030) in place of a liquid top, with no glass round it.
+    var coil = dr.top === "coil";
+    var bare = dr.outline === "none";
+    // The scene is sized for the deepest vessel any round serves in, so nothing shrinks between rounds.
+    var deep = 1;
+    skin.rounds.forEach(function (r, i) {
+      deep = Math.max(deep, depth(E.serveOf(skin, i)));
+    });
+
+    // How far down a serve's vessel reaches, in glass heights: 1 when it has none below the glass.
+    function depth(d) {
+      if (!d.vessel) return 1;
+      return Math.max(1, Math.max.apply(null, d.vessel.points.map(function (p) {
+        return p[1];
+      })) / 100);
+    }
 
     function reset() {
-      fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null };
+      fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null, topped: false };
       bubbles = [];
       parts = [];
       floats = [];
@@ -281,26 +305,34 @@
 
       var counterH = clamp(H * 0.13, 22, 60);
       var counterY = H - counterH;
-      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330); // the room above is the tap's
+      var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330) / deep; // the room above is the tap's
       var gw = gh * 0.66;
       if (gw > W * 0.58) {
         gw = W * 0.58;
         gh = gw / 0.66;
       }
       var gx = (W - gw) / 2;
-      var gy = counterY - gh + 4;
-      var wall = Math.max(3, gw * 0.022);
-      var base = Math.max(6, gh * 0.045);
+      var gy = counterY - gh * deep + 4; // where the tallest serve's top is
+      var wall = bare ? 0 : Math.max(3, gw * 0.022);
+      var base = bare ? 0 : Math.max(6, gh * 0.045);
       var cx = W / 2;
       g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
-      g.outer = dr.glass.map(function (p) {
-        return [gx + (p[0] / 100) * gw, gy + (p[1] / 100) * gh];
-      });
+      fit(dr);
+    }
+
+    // Where a serve sits: its glass at the scene's size, its vessel on the counter.
+    function fit(d) {
+      var gy = (g.gy = g.counterY - g.gh * depth(d) + 4);
+      var place = function (p) {
+        return [g.gx + (p[0] / 100) * g.gw, gy + (p[1] / 100) * g.gh];
+      };
+      g.outer = d.glass.map(place);
       g.inner = g.outer.map(function (p) {
-        return [cx + (p[0] - cx) * (1 - (2 * wall) / gw), gy + (p[1] - gy) * (1 - base / gh)];
+        return [g.cx + (p[0] - g.cx) * (1 - (2 * g.wall) / g.gw), gy + (p[1] - gy) * (1 - g.base / g.gh)];
       });
+      g.vessel = d.vessel ? d.vessel.points.map(place) : null;
       g.top = gy;
-      g.bottom = gy + gh - base;
+      g.bottom = gy + g.gh - g.base;
     }
 
     // Where a level (0 empty, 1 the rim) sits on the canvas.
@@ -357,7 +389,8 @@
       ctx.translate(x - (skin.emblem.width * k) / 2, y - (skin.emblem.height * k) / 2);
       ctx.scale(k, k);
       ctx.fillStyle = colour;
-      ctx.fill(mark);
+      if (skin.emblem.rule) ctx.fill(mark, skin.emblem.rule);
+      else ctx.fill(mark);
       ctx.restore();
     }
 
@@ -542,26 +575,150 @@
       ctx.restore();
     }
 
+    // A soft-serve machine across the top of the scene: its front carries the badge, and the
+    // lever beside the nozzle is pulled down while it pours and kicks on each surge.
+    function drawMachine() {
+      var cx = g.cx;
+      var tip = g.tip;
+      var mw = clamp(g.gw * 1.4, 64, 170);
+      var foot = tip - 24; // the underside of the machine, where the nozzle hangs
+      ctx.fillStyle = th.metal;
+      box(cx - mw / 2, -12, mw, foot + 12, 10);
+      ctx.fill();
+      ctx.fillStyle = th.accent;
+      ctx.fillRect(cx - mw / 2, foot - Math.min(14, foot * 0.3), mw, Math.min(8, foot * 0.16));
+      ctx.fillStyle = "rgba(255,255,255,.35)";
+      ctx.fillRect(cx - mw / 2 + 6, -4, 5, foot - 8);
+      ctx.fillStyle = "rgba(0,0,0,.18)";
+      ctx.fillRect(cx + mw / 2 - 12, -4, 8, foot);
+      // the nozzle, with ridges that give the swirl its grooves
+      ctx.fillStyle = th.metal;
+      ctx.beginPath();
+      ctx.moveTo(cx - 11, foot - 2);
+      ctx.lineTo(cx + 11, foot - 2);
+      ctx.lineTo(cx + 7, tip);
+      ctx.lineTo(cx - 7, tip);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.22)";
+      for (var i = -1; i <= 1; i++) ctx.fillRect(cx + i * 5 - 1, foot + 2, 2, 20);
+      // the lever, smaller where there is less room above the nozzle
+      var s = clamp((tip - 6) / 62, 0.15, 1);
+      ctx.save();
+      ctx.translate(cx + 20 * s, tip - 22 * s);
+      ctx.rotate(lerp(0.3, 1.25, smooth(fx.handle)) + (fx.flow - 1) * 0.3 * fx.handle);
+      ctx.scale(s, s);
+      ctx.fillStyle = th.metal;
+      box(-3, -34, 6, 36, 3);
+      ctx.fill();
+      ctx.fillStyle = th.accent;
+      ctx.beginPath();
+      ctx.arc(0, -34, 7, 0, 6.3);
+      ctx.fill();
+      ctx.restore();
+      // the badge on the front, as big as the machine allows
+      var by = foot / 2;
+      var r = Math.min(16, by - 4, mw * 0.2);
+      if (mark && r >= 9) {
+        ctx.beginPath();
+        ctx.arc(cx, by, r, 0, 6.3);
+        ctx.fillStyle = th.accentInk;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = th.accent;
+        ctx.stroke();
+        drawMark(cx, by, r * 1.4, th.accent);
+      }
+    }
+
     function drawPourer(level) {
       if (dr.pourer === "jug") drawJug();
       else if (dr.pourer === "carton") drawCarton(level);
+      else if (dr.pourer === "machine") drawMachine();
       else drawTap();
+    }
+
+    // Soft serve comes out as a rope, grooved and lit like the turns it lays (P2.0w, mock B).
+    // It swings out towards the turn being laid and sways as it goes, and a surge swells it.
+    // Let go, it necks at the nozzle and snaps, and the last of it drops onto the top turn.
+    function drawRope(level) {
+      if (fx.head <= 0) return;
+      var target = level > 0.01 ? yAt(level) + 3 : g.bottom;
+      var neck = smooth(clamp(fx.tail / 0.35, 0, 1));
+      var drop = smooth(clamp((fx.tail - 0.35) / 0.65, 0, 1));
+      var y0 = lerp(g.tip, target, drop * 0.92);
+      var y1 = lerp(g.tip, target, fx.head);
+      if (y1 - y0 < 2) return;
+      var r0 = 9.6 * (1 + clamp(fx.flow - 1, -0.6, 0.6) * 0.75);
+      var land = coil ? landing(level) - g.cx : 0;
+      var pts = [];
+      var N = 36;
+      for (var i = 0; i <= N; i++) {
+        var y = lerp(y0, y1, i / N);
+        var k = (y - g.tip) / Math.max(1, target - g.tip);
+        var r = r0 * lerp(1, 0.86, k);
+        var below = y - y0; // how far down from the rope's top end
+        if (drop <= 0) r *= lerp(1, 0.18, neck * clamp(1 - below / (r0 * 2.6), 0, 1));
+        else r *= clamp(below / (r0 * 1.6), 0.25, 1); // the broken end comes to a point
+        pts.push({ x: g.cx + land * (1 - Math.pow(1 - k, 2.2)) * 0.95 + Math.sin(fx.t * 4.2) * 2.4 * k, y: y, r: r });
+      }
+      ctx.save();
+      ctx.beginPath();
+      pts.forEach(function (p) {
+        ctx.moveTo(p.x + p.r, p.y);
+        ctx.arc(p.x, p.y, p.r, 0, 6.3);
+      });
+      var mx = (pts[0].x + pts[N].x) / 2;
+      var grad = ctx.createLinearGradient(mx - r0, 0, mx + r0, 0);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(0.45, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      ctx.fillStyle = grad;
+      ctx.fill("nonzero");
+      ctx.clip("nonzero");
+      // its far side in the turns' shadow, their grooves, and their light
+      ctx.lineCap = "round";
+      [
+        [0.62, "rgba(120,80,20,.22)", r0 * 0.7],
+        [-0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.14)],
+        [0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.14)],
+        [-0.6, "rgba(255,255,255,.6)", 2],
+      ].forEach(function (s) {
+        ctx.strokeStyle = s[1];
+        ctx.lineWidth = s[2];
+        ctx.beginPath();
+        pts.forEach(function (p, i) {
+          if (i) ctx.lineTo(p.x + s[0] * p.r, p.y);
+          else ctx.moveTo(p.x + s[0] * p.r, p.y);
+        });
+        ctx.stroke();
+      });
+      ctx.restore();
+      // a little bead left on the nozzle once it's snapped
+      if (fx.tail > 0.35 && fx.tail < 0.9) {
+        ctx.fillStyle = dr.liquid;
+        ctx.beginPath();
+        ctx.arc(g.cx, g.tip + 1.5, r0 * 0.3 * (1 - drop), 0, 6.3);
+        ctx.fill();
+      }
     }
 
     // The stream is as wide as the flow is strong: a surge is a visibly fatter pour.
     function drawStream(level) {
+      if (dr.pourer === "machine") return drawRope(level);
       if (fx.head <= 0) return;
       var target = level > 0.01 ? yAt(level) + 3 : g.bottom;
       var y0 = lerp(g.tip, target, fx.tail);
       var y1 = lerp(g.tip, target, fx.head);
       if (y1 - y0 < 2) return;
       var fat = clamp(0.55 + 0.5 * fx.flow, 0.6, 1.5);
+      var land = coil ? landing(level) - g.cx : 0; // a coil's rope lands where the turn is being laid
       var left = [];
       var right = [];
       for (var y = y0; ; y += 6) {
         if (y > y1) y = y1;
         var k = (y - g.tip) / Math.max(1, target - g.tip);
-        var mid = g.cx + Math.sin(y * 0.045 + fx.t * 11) * 1.3 * k;
+        var mid = g.cx + Math.sin(y * 0.045 + fx.t * 11) * 1.3 * k + (coil ? land * k * k : 0);
         var half = lerp(5.4, 3.4, k) * fat;
         left.push([mid - half, y]);
         right.push([mid + half, y]);
@@ -591,8 +748,514 @@
       ctx.stroke();
     }
 
+    // Soft serve in coils (D-030). The rope lays a turn at a time where it lands, each turn a
+    // little narrower than the one below (the glass is their envelope) and tilted into the next,
+    // so it reads as one rope going round. The turn being laid rises as it goes round, so the top
+    // of the stack is the level. Poured and topped, that turn becomes a curl whose tip is exactly
+    // the scored height. Depends only on the level, shape, serve and whether it's topped.
+    function coilCount() {
+      return dr.coils || 5;
+    }
+
+    // Turn i of n: the top of its slot, half its width and its height.
+    function coilAt(i, n) {
+      var ch = (g.bottom - g.top) / n;
+      var edge = xRange(g.outer, g.bottom - ch * (i + 0.5)) || [g.cx - 10, g.cx + 10];
+      return { top: g.bottom - ch * (i + 1), hw: ((edge[1] - edge[0]) / 2) * lerp(1, 0.55, i / n), ch: ch };
+    }
+
+    // Where the rope lands while it pours: the end of the turn being laid.
+    function landing(level) {
+      var n = coilCount();
+      var laid = clamp(level, 0, 1) * n;
+      var i = Math.min(n - 1, Math.floor(laid));
+      var c = coilAt(i, n);
+      return g.cx - c.hw + 2 * c.hw * (laid - i);
+    }
+
+    // How long the serve has been topped, for the finish arriving in stages (D-030, look b).
+    // The glass sliding off, and a calm screen, have it all at once.
+    var since = 0;
+
+    // One light for the whole stack, from the upper left, in canvas space (not per turn).
+    function stackFill() {
+      var c0 = coilAt(0, coilCount());
+      var grad = ctx.createLinearGradient(g.cx - c0.hw, g.top, g.cx + c0.hw, g.bottom);
+      grad.addColorStop(0, dr.liquid);
+      grad.addColorStop(0.4, dr.liquid);
+      grad.addColorStop(1, dr.liquidDeep);
+      return grad;
+    }
+
+    function drawCoil(c, frac) {
+      var h = c.ch * 1.12;
+      var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+      var mid = c.top + c.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt);
+      ctx.save();
+      if (frac < 1) {
+        ctx.beginPath();
+        ctx.rect(g.cx - c.hw - 6, mid - c.ch * 2, (2 * c.hw + 12) * frac, c.ch * 4);
+        ctx.clip();
+      }
+      ctx.save();
+      ctx.translate(g.cx, mid);
+      ctx.rotate(-tilt);
+      box(-c.hw, -h / 2, 2 * c.hw, h, h / 2);
+      ctx.restore();
+      ctx.fillStyle = stackFill();
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      ctx.translate(g.cx, mid);
+      ctx.rotate(-tilt);
+      // the crease where it sits on the turn below: shade inside its own underside, no drop shadow
+      var sh = ctx.createLinearGradient(0, h * 0.05, 0, h / 2);
+      sh.addColorStop(0, "rgba(120,80,20,0)");
+      sh.addColorStop(1, "rgba(120,80,20,.2)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(-c.hw, 0, 2 * c.hw, h / 2);
+      // the rope turns away round the back: its right end rolls into shadow, no cap
+      var re = ctx.createLinearGradient(c.hw - h * 1.3, 0, c.hw, 0);
+      re.addColorStop(0, "rgba(120,80,20,0)");
+      re.addColorStop(0.65, "rgba(120,80,20,.12)");
+      re.addColorStop(1, "rgba(120,80,20,.34)");
+      ctx.fillStyle = re;
+      ctx.fillRect(c.hw - h * 1.3, -h / 2, h * 1.3, h);
+      // and a little light bounced up from below along its rim
+      ctx.strokeStyle = "rgba(255,250,235,.35)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(c.hw - h / 2, 0, h / 2 - 1.5, 0.15, 1.1);
+      ctx.stroke();
+      ctx.strokeStyle = rgba(dr.head, 0.7);
+      ctx.lineWidth = Math.max(1.3, h * 0.05);
+      [-0.15, 0.15].forEach(function (f) {
+        ctx.beginPath();
+        ctx.moveTo(-c.hw, f * h);
+        ctx.quadraticCurveTo(0, f * h + h * 0.28, c.hw, f * h);
+        ctx.stroke();
+      });
+      ctx.strokeStyle = "rgba(255,255,255,.6)";
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-c.hw * 0.7, -h * 0.3);
+      ctx.quadraticCurveTo(-c.hw * 0.2, -h * 0.42, c.hw * 0.1, -h * 0.36);
+      ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // The tip: the rope's own end, drawn like the turns, coming off the top turn's right-hand end
+    // and curling up over the middle. grow (0..1) is how much of it has come out; whatever it is,
+    // the whole tip is scaled so its highest point is exactly the scored height and its lowest is
+    // foot, the bottom of what it replaces: stretched up when there's room, and where there isn't,
+    // shrunk, less across than up, so it's a smaller, lower curl and not a dot (owner, 2026-10-23).
+    function drawTip(foot, tip, hw, r0, grow) {
+      var base = foot - r0 * 1.15;
+      var peak = Math.min(tip, base - r0);
+      var rEnd = r0 * 0.28;
+      var p0 = [g.cx + hw * 0.8, base + r0 * 0.15];
+      var p1 = [g.cx - hw * 1.05, base - (base - peak) * 0.2];
+      var p2 = [g.cx + hw * 0.08, peak];
+      var pts = [];
+      var N = 40;
+      for (var k = 0; k <= N; k++) {
+        var t = (k / N) * grow;
+        var u = 1 - t;
+        pts.push({
+          x: u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0],
+          y: u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1],
+          r: lerp(r0, rEnd, t),
+        });
+      }
+      var last = pts[pts.length - 1];
+      var top = Infinity;
+      var bottom = -Infinity;
+      pts.forEach(function (p) {
+        top = Math.min(top, p.y - p.r);
+        bottom = Math.max(bottom, p.y + p.r);
+      });
+      // from its foot, so its top is the tip, at every stage of growing
+      var ky = bottom - top > 0.5 ? (foot - tip) / (bottom - top) : 1;
+      var kx = Math.min(1, Math.sqrt(ky));
+      var X = function (x) {
+        return g.cx + (x - g.cx) * kx;
+      };
+      var Y = function (y) {
+        return foot - (bottom - y) * ky;
+      };
+      ctx.save();
+      ctx.beginPath();
+      pts.forEach(function (p) {
+        ctx.moveTo(X(p.x) + p.r * kx, Y(p.y));
+        ctx.ellipse(X(p.x), Y(p.y), p.r * kx, p.r * ky, 0, 0, 6.3);
+      });
+      ctx.fillStyle = stackFill();
+      ctx.fill("nonzero");
+      ctx.clip("nonzero");
+      // its underside's crease, its grooves and its light, as on the turns
+      var sh = ctx.createLinearGradient(0, Y(base - r0 * 2), 0, foot);
+      sh.addColorStop(0, "rgba(120,80,20,0)");
+      sh.addColorStop(1, "rgba(120,80,20,.18)");
+      ctx.fillStyle = sh;
+      ctx.fillRect(g.cx - hw * 1.5, Y(base - r0 * 2), hw * 3, foot - Y(base - r0 * 2));
+      // its foot, at the top turn's right-hand end, turns away into the same shadow
+      var fx0 = X(p0[0] + r0 * 0.4);
+      var fr = r0 * 1.6 * kx;
+      var fe = ctx.createRadialGradient(fx0, Y(p0[1]), 0, fx0, Y(p0[1]), fr);
+      fe.addColorStop(0, "rgba(120,80,20,.3)");
+      fe.addColorStop(1, "rgba(120,80,20,0)");
+      ctx.fillStyle = fe;
+      ctx.fillRect(fx0 - fr, Y(p0[1]) - fr, fr * 2, fr * 2);
+      ctx.lineCap = "round";
+      [
+        [-0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.1)],
+        [0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.1)],
+        [-0.62, "rgba(255,255,255,.6)", 2],
+      ].forEach(function (s) {
+        ctx.strokeStyle = s[1];
+        ctx.lineWidth = s[2];
+        ctx.beginPath();
+        for (var i = 1; i < pts.length; i++) {
+          var a = pts[i - 1];
+          var b = pts[i];
+          var dx = (b.x - a.x) * kx;
+          var dy = (b.y - a.y) * ky;
+          var len = Math.hypot(dx, dy) || 1;
+          var nx = dy / len;
+          var ny = -dx / len;
+          var x = X(b.x) + nx * s[0] * b.r * kx;
+          var y = Y(b.y) + ny * s[0] * b.r * ky;
+          if (i === 1) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+      return { x: X(last.x), y: Y(last.y), r: last.r * kx };
+    }
+
+    // How far one stage of the finish has got: it starts at from seconds and takes dur.
+    function stage(from, dur) {
+      return smooth(clamp((since - from) / dur, 0, 1));
+    }
+
+    // The turn being laid: it reaches down into the turn below as a settled turn does, so no seam
+    // shows (D-030, fix a); its top is still the level, and at a whole turn it's a settled turn.
+    function laying(level, c, rest) {
+      return { top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * (rest + 0.12)) / 1.12 };
+    }
+
+    // The lowest point of a turn as drawCoil draws it: the bottom of its lower, left-hand end.
+    function coilBottom(c) {
+      var h = c.ch * 1.12;
+      var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+      return c.top + c.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt) + (c.hw - h / 2) * Math.sin(tilt) + h / 2;
+    }
+
+    function drawCoils(level, topped) {
+      var n = coilCount();
+      var laid = clamp(level, 0, 1) * n;
+      var full = Math.min(n, Math.floor(laid));
+      var rest = laid - full;
+      for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
+      // served on a whole turn, it still gets its tip, a small one (Codex, round 1 of look b)
+      if (full >= n || (rest < 0.001 && !topped)) return;
+      var c = coilAt(full, n);
+      var floor = g.bottom - c.ch * full; // the top of the turns already laid
+      if (!topped) return drawCoil(laying(level, c, rest), rest);
+      // Served, the tip takes the place of the turn being laid and ends where it ended, so nothing
+      // below it moves (owner, 2026-10-23).
+      var foot = coilBottom(laying(level, c, rest));
+      var below = full > 0 ? coilAt(full - 1, n) : c;
+      var hw = Math.min(c.hw, below.hw * 0.92);
+      var t = dr.topping;
+      // a stick goes in before the tip is drawn over its foot, so it's partly hidden
+      if (t && t.kind === "stick") drawStick(floor, hw, stage(0.18, 0.22));
+      drawTip(foot, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
+      if (t && t.kind === "drizzle") drawSauce(floor, yAt(level), hw, n, full, since - 0.18);
+      if (t && t.kind === "scatter") drawScatter(floor, yAt(level), hw, n, full, since - 0.18);
+    }
+
+    function drawStick(floor, hw, q) {
+      var c = dr.topping.colours;
+      var len = g.gw * 0.55;
+      var w = Math.max(5, g.gw * 0.11);
+      if (q <= 0) return;
+      ctx.save();
+      ctx.translate(g.cx + hw * 0.3, floor - hw * 0.05);
+      ctx.rotate(0.42);
+      ctx.translate(0, -(1 - q) * len * 0.9); // slides in along its own length
+      ctx.globalAlpha = Math.min(1, q * 3);
+      ctx.fillStyle = c[0];
+      box(-w / 2, -len, w, len, 2);
+      ctx.fill();
+      ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      for (var k = 1; k < 4; k++) {
+        ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
+        ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // The top surface of the stack at x: the tip's hump, then the turns' tops on the way down.
+    function surfaceY(x, floor, tip, hw, n, full) {
+      var d = Math.abs(x - g.cx);
+      if (d < hw * 0.7) return lerp(tip + 4, floor + 2, smooth(d / (hw * 0.7)));
+      for (var j = full - 1; j >= 0; j--) {
+        var c = coilAt(j, n);
+        if (d < c.hw * 0.95) return c.top + 3 + (x > g.cx ? c.ch * 0.25 : 0);
+      }
+      return g.bottom;
+    }
+
+    // Sauce (D-030, sauce 1): a drop falls onto the tip, then spreads into a glossy ribbon over
+    // the top, thick in the middle and thin at its ends, shaded top to bottom, with a broken
+    // gloss along it and three drips that run down and end in round bulbs. None of it rises
+    // above the tip or reaches past the bottom turn.
+    function drawSauce(floor, tip, hw, n, full, s) {
+      var col = dr.topping.colours[0];
+      if (s <= 0) return;
+      var q = clamp(s / 0.4, 0, 1);
+      var lw = Math.max(3, g.gw * 0.06);
+      var y;
+      ctx.save();
+      if (q < 0.25) {
+        y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
+        ctx.beginPath();
+        ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(g.cx - lw * 0.3, y - lw * 0.4, lw * 0.22, lw * 0.35, -0.4, 0, 6.3);
+        ctx.fillStyle = "rgba(255,255,255,.7)";
+        ctx.fill();
+        ctx.restore();
+        return;
+      }
+      var room = coilAt(0, n).hw - lw; // the bulbs' edge stays inside the bottom turn
+      var wide = Math.min(hw * 1.25, room) * smooth((q - 0.25) / 0.3);
+      var run = smooth((q - 0.45) / 0.55);
+      var on = function (x) {
+        return surfaceY(x, floor, tip, hw, n, full);
+      };
+      [-0.75, 0.15, 0.9].forEach(function (f, i) {
+        var x = g.cx + f * Math.min(hw * 1.15, room);
+        if (Math.abs(x - g.cx) > wide) return;
+        drip(x, on(x) + lw * 0.4, run * g.gh * (0.1 + 0.07 * i), lw, col);
+      });
+      var top = [];
+      var bot = [];
+      for (var x = g.cx - wide; x <= g.cx + wide + 0.1; x += 2) {
+        y = on(x);
+        var edge = 1 - Math.pow(Math.abs(x - g.cx) / Math.max(1, wide), 3);
+        var th = lw * (0.5 + 0.9 * edge) * (1 + 0.18 * Math.sin(x * 0.35));
+        top.push([x, Math.max(tip, y - th * 0.45)]);
+        bot.push([x, y + th * 0.55]);
+      }
+      if (top.length < 2) {
+        ctx.restore();
+        return;
+      }
+      var trace = function (pts) {
+        pts.forEach(function (p, i) {
+          if (i) ctx.lineTo(p[0], p[1]);
+          else ctx.moveTo(p[0], p[1]);
+        });
+      };
+      var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
+      grad.addColorStop(0, shade(col, 0.15));
+      grad.addColorStop(0.5, col);
+      grad.addColorStop(1, shade(col, -0.4));
+      ctx.beginPath();
+      trace(top);
+      for (var k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0], bot[k][1]);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      // its underside darker where it sits on the cream
+      ctx.beginPath();
+      trace(bot);
+      ctx.lineWidth = Math.max(1, lw * 0.18);
+      ctx.strokeStyle = shade(col, -0.5);
+      ctx.stroke();
+      // a gloss along the top, broken in two
+      ctx.lineCap = "round";
+      ctx.lineWidth = Math.max(1.2, lw * 0.22);
+      ctx.strokeStyle = "rgba(255,255,255,.65)";
+      [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
+        var from = Math.floor(seg[0] * top.length);
+        ctx.beginPath();
+        for (var m = from; m < seg[1] * top.length; m++) {
+          if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
+          else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+        }
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // A drip of sauce from y0, tapering to a neck and ending in a round bulb, lit from the left.
+    function drip(x, y0, len, lw, col) {
+      if (len < 1) return;
+      var top = lw * 0.55;
+      var neck = lw * 0.32;
+      var r = lw * 0.62;
+      var grad = ctx.createLinearGradient(x - r, 0, x + r, 0);
+      grad.addColorStop(0, shade(col, -0.35));
+      grad.addColorStop(0.35, shade(col, 0.12));
+      grad.addColorStop(0.6, col);
+      grad.addColorStop(1, shade(col, -0.45));
+      ctx.beginPath();
+      ctx.moveTo(x - top, y0 - 2);
+      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - r, y0 + len - r, x - r, y0 + len);
+      ctx.arc(x, y0 + len, r, Math.PI, 0, true);
+      ctx.bezierCurveTo(x + r, y0 + len - r, x + neck, y0 + len * 0.5, x + top, y0 - 2);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x - r * 0.35, y0 + len - r * 0.15, r * 0.2, r * 0.38, -0.3, 0, 6.3);
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      ctx.fill();
+    }
+
+    // A scatter falls from above onto the stack, a few bits at a time.
+    function drawScatter(floor, tip, hw, n, full, s) {
+      var cols = dr.topping.colours;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineWidth = Math.max(2, g.gw * 0.025);
+      for (var k = 0; k < 26; k++) {
+        var at = s - (k / 26) * 0.2;
+        var q = clamp(at / 0.15, 0, 1);
+        if (q <= 0) continue;
+        var f = ((k * 0.382) % 1) * 2 - 1;
+        var x = g.cx + f * hw * 1.2;
+        var yEnd = surfaceY(x, floor, tip, hw, n, full) + ((bumps[(k * 7) % bumps.length] / BUMP_MAX) * 6) - 1;
+        var y = lerp(yEnd - g.gh * 0.35, yEnd, q * q);
+        var a = (bumps[k] / BUMP_MAX) * 6.3;
+        ctx.strokeStyle = cols[k % cols.length];
+        ctx.beginPath();
+        ctx.moveTo(x - Math.cos(a) * 3, y - Math.sin(a) * 3);
+        ctx.lineTo(x + Math.cos(a) * 3, y + Math.sin(a) * 3);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // What the serve is in: drawn, never filled with the drink, and in front of it.
+    function drawVessel() {
+      var v = dr.vessel;
+      poly(g.vessel, 3);
+      ctx.fillStyle = v.colour;
+      ctx.fill();
+      ctx.save();
+      ctx.clip();
+      if (v.grid) {
+        // a criss-cross, pressed into it
+        var step = Math.max(6, g.gw * 0.12);
+        ctx.strokeStyle = rgba(v.edge || th.ink, 0.7);
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (var x = g.gx - g.gh * 2; x < g.gx + g.gw + g.gh * 2; x += step) {
+          ctx.moveTo(x, g.gy);
+          ctx.lineTo(x + g.gh * 2, g.gy + g.gh * 2);
+          ctx.moveTo(x, g.gy);
+          ctx.lineTo(x - g.gh * 2, g.gy + g.gh * 2);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,255,255,.25)";
+      ctx.fillRect(g.gx + g.gw * 0.12, g.gy, g.gw * 0.07, g.gh * 2);
+      ctx.fillStyle = "rgba(0,0,0,.14)";
+      ctx.fillRect(g.gx + g.gw * 0.72, g.gy, g.gw * 0.3, g.gh * 2);
+      ctx.restore();
+      if (v.edge) {
+        poly(g.vessel, 3);
+        ctx.strokeStyle = v.edge;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    // How the serve is finished once it's poured, at the top of what was poured.
+    function drawTopping(level) {
+      var t = dr.topping;
+      var ys = yAt(level);
+      var c = t.colours;
+      ctx.save();
+      if (t.kind === "stick") {
+        // a bar pushed in at an angle beside the peak
+        var len = g.gw * 0.55;
+        var w = Math.max(5, g.gw * 0.11);
+        ctx.translate(g.cx + g.gw * 0.1, ys + g.gw * 0.12);
+        ctx.rotate(0.42);
+        ctx.fillStyle = c[0];
+        box(-w / 2, -len, w, len, 2);
+        ctx.fill();
+        ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for (var k = 1; k < 4; k++) {
+          ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
+          ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+        }
+        ctx.stroke();
+      } else {
+        poly(g.inner, 3);
+        ctx.clip();
+        var x0 = g.gx;
+        var x;
+        if (t.kind === "drizzle") {
+          // sauce run over the peak, with drips down the sides
+          ctx.strokeStyle = c[0];
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.lineWidth = Math.max(3, g.gw * 0.06);
+          ctx.beginPath();
+          for (x = x0; x <= x0 + g.gw; x += 4) {
+            var y = ys + 4 + Math.abs(x - g.cx) * 0.25 + Math.sin(x * 0.16) * 3;
+            if (x === x0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+          [-0.28, 0.05, 0.3].forEach(function (f, i) {
+            var dx = g.cx + f * g.gw;
+            var top = ys + 4 + Math.abs(dx - g.cx) * 0.25;
+            ctx.beginPath();
+            ctx.moveTo(dx, top);
+            ctx.lineTo(dx, top + g.gh * (0.12 + 0.07 * i));
+            ctx.stroke();
+          });
+        } else {
+          // a scatter of little strands over the top
+          ctx.lineCap = "round";
+          ctx.lineWidth = Math.max(2, g.gw * 0.025);
+          for (var n = 0; n < 26; n++) {
+            var fx0 = bumps[n] / BUMP_MAX;
+            var fy0 = bumps[(n * 7) % bumps.length] / BUMP_MAX;
+            var sx = x0 + g.gw * ((n * 0.382) % 1);
+            var sy = ys + 3 + fy0 * g.gh * 0.3;
+            var a = fx0 * 6.3;
+            ctx.strokeStyle = c[n % c.length];
+            ctx.beginPath();
+            ctx.moveTo(sx - Math.cos(a) * 3, sy - Math.sin(a) * 3);
+            ctx.lineTo(sx + Math.cos(a) * 3, sy + Math.sin(a) * 3);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.restore();
+    }
+
     // One glass at a sideways offset. live: the one being poured (bubbles, churn, marks).
-    function drawGlass(ox, level, line, live, pouring) {
+    // topped: poured and finished, so its topping goes on.
+    function drawGlass(ox, level, line, live, pouring, topped) {
       var span = g.bottom - g.top;
       ctx.save();
       ctx.translate(ox, 0);
@@ -602,14 +1265,31 @@
       ctx.ellipse(g.cx, g.counterY + 7, g.gw * 0.46, 6, 0, 0, 6.3);
       ctx.fill();
 
-      poly(g.inner, 3);
-      ctx.fillStyle = "rgba(255,255,255,.05)";
-      ctx.fill();
+      // With no glass round it, a soft silhouette of the finished serve stands up to the line,
+      // under the coils, so the line doesn't float over an empty vessel (D-030, line look c).
+      if (bare && line !== null && live) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(g.gx - 40, yAt(line), g.gw + 80, g.bottom - yAt(line) + 2);
+        ctx.clip();
+        poly(g.outer, 3);
+        ctx.fillStyle = rgba(th.ink, 0.09);
+        ctx.fill();
+        ctx.restore();
+      }
+      if (coil) {
+        since = live && !calm ? fx.since || 0 : 9;
+        if (level > 0.004) drawCoils(level, topped);
+      } else {
+        poly(g.inner, 3);
+        ctx.fillStyle = "rgba(255,255,255,.05)";
+        ctx.fill();
+      }
 
       ctx.save();
       poly(g.inner, 3);
       ctx.clip();
-      if (level > 0.004) {
+      if (level > 0.004 && !coil) {
         var ys = yAt(level);
         var headH = dr.headDepth * level * span;
         var bodyTop = ys + headH;
@@ -677,37 +1357,14 @@
         }
       }
 
-      if (line !== null) {
-        // dark under light, so the line shows against the glass, the drink and a pale head
-        var yl = yAt(line);
-        ctx.setLineDash([7, 6]);
-        ctx.lineCap = "butt";
-        ctx.strokeStyle = "rgba(0,0,0,.6)";
-        ctx.lineWidth = 5.5;
-        ctx.beginPath();
-        ctx.moveTo(g.gx, yl);
-        ctx.lineTo(g.gx + g.gw, yl);
-        ctx.stroke();
-        ctx.strokeStyle = th.ink;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-        ctx.setLineDash([]);
-        if (live && fx.glow > 0) {
-          ctx.strokeStyle = rgba(th.accent, fx.glow);
-          ctx.shadowColor = th.accent;
-          ctx.shadowBlur = 16 * fx.glow;
-          ctx.lineWidth = 4;
-          ctx.stroke();
-          ctx.shadowBlur = 0;
-        }
-      }
+      if (line !== null && !bare) drawLine(g.gx, g.gx + g.gw, yAt(line), live);
 
       // light on the glass
       var top = g.gy + g.gh * 0.07;
       var bot = g.gy + g.gh * 0.7;
       var a = xRange(g.inner, top);
       var b = xRange(g.inner, bot);
-      if (a && b) {
+      if (a && b && !bare) {
         ctx.lineCap = "round";
         ctx.strokeStyle = "rgba(255,255,255,.15)";
         ctx.lineWidth = g.gw * 0.05;
@@ -724,22 +1381,30 @@
       }
       ctx.restore();
 
-      // the glass itself: a thick base and a bright edge
-      ctx.save();
-      poly(g.outer, 5);
-      ctx.clip();
-      ctx.fillStyle = "rgba(255,255,255,.2)";
-      ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
-      ctx.restore();
-      poly(g.outer, 5);
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(255,255,255,.62)";
-      ctx.lineWidth = Math.max(2.5, g.wall);
-      ctx.stroke();
+      if (!bare) {
+        // the glass itself: a thick base and a bright edge
+        ctx.save();
+        poly(g.outer, 5);
+        ctx.clip();
+        ctx.fillStyle = "rgba(255,255,255,.2)";
+        ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
+        ctx.restore();
+        poly(g.outer, 5);
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "rgba(255,255,255,.62)";
+        ctx.lineWidth = Math.max(2.5, g.wall);
+        ctx.stroke();
+      }
+      // the finish, then what it's served in, so a cup hides the sauce that runs into it
+      if (!coil && topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
+      if (g.vessel) drawVessel();
 
       if (line !== null) {
         var yy = yAt(line);
         var edge = xRange(g.outer, yy);
+        // Soft serve's line is one width, drawn over the rope: the swirl's taper at
+        // that height made it a stub on the tall serves (D-030, line look c).
+        if (bare && edge) edge = [g.cx - g.gw * 0.45, g.cx + g.gw * 0.45];
         if (!edge) {
           ctx.restore();
           return;
@@ -755,9 +1420,35 @@
           ctx.closePath();
           ctx.fill();
         });
+        if (bare) drawLine(edge[0] + 2, edge[1] - 2, yy, live);
         if (live && fx.measure) drawMeasure(edge[1] + 30);
       }
       ctx.restore();
+    }
+
+    // The line to pour to: dark under light, so it shows against the glass, the drink and a
+    // pale head; it glows when a pour lands on it.
+    function drawLine(x0, x1, y, live) {
+      ctx.setLineDash([7, 6]);
+      ctx.lineCap = "butt";
+      ctx.strokeStyle = "rgba(0,0,0,.6)";
+      ctx.lineWidth = 5.5;
+      ctx.beginPath();
+      ctx.moveTo(x0, y);
+      ctx.lineTo(x1, y);
+      ctx.stroke();
+      ctx.strokeStyle = th.ink;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (live && fx.glow > 0) {
+        ctx.strokeStyle = rgba(th.accent, fx.glow);
+        ctx.shadowColor = th.accent;
+        ctx.shadowBlur = 16 * fx.glow;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
     }
 
     // After a pour: a bracket from where the head stopped to the line. The miss, drawn.
@@ -792,8 +1483,31 @@
       ctx.globalAlpha = 1;
     }
 
+    // Too much soft serve doesn't run down the sides: its top turn leans off to one side and
+    // falls onto the counter.
+    function drawTopple() {
+      var k = smooth(fx.spill);
+      var n = coilCount();
+      var c = coilAt(n - 1, n);
+      var x = g.cx + g.gw * (0.25 + 0.5 * k);
+      var y = lerp(g.top - c.ch * 0.5, g.counterY - c.ch * 0.45, k * k); // where its middle goes
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(0.6 + 1.2 * k);
+      ctx.translate(-g.cx, -(c.top + c.ch / 2));
+      drawCoil({ top: c.top, hw: c.hw * 0.9, ch: c.ch * 0.9 }, 1);
+      drawTip(c.top + c.ch * 0.2, c.top - c.ch * 0.8, c.hw * 0.6, c.ch * 0.5, 1);
+      ctx.restore();
+      // where it lands
+      ctx.fillStyle = rgba(dr.liquidDeep, 0.9 * k);
+      ctx.beginPath();
+      ctx.ellipse(x, g.counterY + 4, Math.max(1, c.hw * k), 4, 0, 0, 6.3);
+      ctx.fill();
+    }
+
     function drawSpill() {
       if (fx.spill <= 0) return;
+      if (coil) return drawTopple();
       ctx.fillStyle = rgba(dr.head, 0.9);
       ctx.beginPath();
       ctx.ellipse(g.cx, g.counterY + 8, g.gw * (0.3 + 0.36 * fx.spill), 5.5, 0, 0, 6.3);
@@ -891,6 +1605,7 @@
       fx.measure = { level: result.level, line: result.line, verdict: result.verdict, t: 0 };
       var size = clamp(g.gh * 0.13, 15, 34); // smaller on the title screen's little scene
       floats.push({ text: "+" + result.score, x: g.cx, y: Math.max(size * 2.4, yAt(result.level) - size * 0.8), size: size, life: 1 });
+      fx.topped = result.verdict !== "spill";
       if (result.verdict === "perfect") {
         fx.glow = 1;
         burst(24, g.cx, yl, { spread: g.gw * 0.4, vx: 190, vy: [-260, -60], gravity: 420, r: [2, 4.2], colors: [th.accent, dr.head, th.ink], star: true });
@@ -909,6 +1624,12 @@
       press: function () {
         fx.head = 0;
         fx.tail = 0;
+        fx.topped = false;
+      },
+      // What the next pour serves (E.serveOf): its glass, colours, vessel and topping.
+      serve: function (d) {
+        dr = d;
+        if (g) fit(d);
       },
       // Everything holds still for a moment, then the result lands.
       result: function (result) {
@@ -918,8 +1639,10 @@
         fx.wave = 0;
       },
       // The finished glass slides off along the counter as an empty one slides in.
+      // It slides off as it was served, whatever the next round serves.
       nextRound: function (level) {
-        fx.ghost = calm ? null : { level: level };
+        fx.ghost = calm ? null : { level: level, g: g && Object.assign({}, g), dr: dr, topped: fx.topped };
+        fx.topped = false;
         fx.slide = calm ? 0 : 1;
         fx.spilling = false;
         fx.spill = 0;
@@ -944,6 +1667,7 @@
           }
         }
         fx.t += dt;
+        fx.since = fx.topped ? (fx.since || 0) + dt : 0;
         fx.wave = toward(fx.wave, s.pouring ? (calm ? 0.5 : 1.6) : 0, dt * 9);
         fx.flow = toward(fx.flow, s.pouring ? s.flow : 1, dt * 16);
         fx.slosh *= Math.exp(-dt * 5);
@@ -981,12 +1705,18 @@
 
         if (!inFront) drawPourer(s.level);
         var e = smooth(1 - fx.slide);
-        if (fx.slide > 0 && fx.ghost) drawGlass(e * W * 0.95, fx.ghost.level, null, false, false);
-        else fx.ghost = null;
+        if (fx.slide > 0 && fx.ghost) {
+          var now = [g, dr];
+          if (fx.ghost.g) g = fx.ghost.g;
+          dr = fx.ghost.dr;
+          drawGlass(e * W * 0.95, fx.ghost.level, null, false, false, fx.ghost.topped);
+          g = now[0];
+          dr = now[1];
+        } else fx.ghost = null;
         var ox = fx.slide > 0 ? -(1 - e) * W * 0.95 : 0;
         if (ox === 0) drawStream(s.level);
         if (inFront) drawPourer(s.level);
-        drawGlass(ox, s.level, s.line, true, s.pouring);
+        drawGlass(ox, s.level, s.line, true, s.pouring, fx.topped);
         drawSpill();
         drawParts(dt);
         ctx.restore();
@@ -1023,6 +1753,7 @@
         var svg = $(id);
         svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
         svg.firstElementChild.setAttribute("d", skin.emblem.path);
+        if (skin.emblem.rule) svg.firstElementChild.setAttribute("fill-rule", skin.emblem.rule);
         svg.removeAttribute("hidden");
       });
     }
@@ -1085,6 +1816,9 @@
       });
     }
 
+    // The line under the scene keeps the tallest it has been at this width: a result shorter
+    // than the hint would grow the stage, and the refit would move the serve as it finishes.
+    var sayRoom = { width: 0, height: 0 };
     function say(strong, rest, verdict) {
       var el = $("say");
       el.textContent = "";
@@ -1097,6 +1831,17 @@
       var s = document.createElement("span");
       s.textContent = rest;
       el.appendChild(s);
+      var box = el.getBoundingClientRect();
+      if (box.width !== sayRoom.width) {
+        sayRoom.width = box.width;
+        sayRoom.height = 0;
+        el.style.minHeight = "";
+        box = el.getBoundingClientRect();
+      }
+      if (box.height > sayRoom.height) {
+        sayRoom.height = box.height;
+        el.style.minHeight = box.height + "px";
+      }
     }
 
     // Counts a number on screen from one value to another.
@@ -1142,10 +1887,13 @@
       }
     }
 
+    // A round that serves something of its own says what, over the hint.
     function beginRound() {
+      var serve = skin.rounds[game.round].serve;
+      scene.serve(E.serveOf(skin, game.round));
       $("round").textContent = E.roundLabel(skin, game.round);
       pills($("pips"), game.round);
-      say("", skin.copy.hint);
+      say(serve && serve.name ? serve.name : "", skin.copy.hint);
       pourBtn.textContent = skin.copy.hold;
       pourBtn.classList.remove("down", "wait");
     }
@@ -1415,6 +2163,7 @@
 
     var demo = E.createGame(skin);
     var attract = makeScene($("attract"), skin);
+    attract.serve(E.serveOf(skin, 0));
     var demoOn = true;
     var demoWait = 0.7;
     var demoLast = performance.now();

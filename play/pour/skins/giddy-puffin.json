@@ -1,0 +1,114 @@
+{
+  "id": "giddy-puffin",
+  "venue": "Giddy Puffin",
+  "tagline": "Pull the perfect 99",
+  "fictional": "Giddy Puffin is a made-up ice cream kiosk.",
+  "switchLabel": "See it as an ice cream kiosk",
+  "theme": {
+    "bg": "#1f4e79",
+    "panel": "#22588a",
+    "ink": "#fdfaf2",
+    "muted": "#c9dcef",
+    "accent": "#ffb0a5",
+    "accentInk": "#1b3352",
+    "counter": "#f3e9d2",
+    "counterEdge": "#d6c7a6",
+    "metal": "#eef1f4"
+  },
+  "emblem": {
+    "width": 64,
+    "height": 64,
+    "rule": "evenodd",
+    "path": "M63 32 A31 31 0 1 0 1 32 A31 31 0 1 0 63 32 Z M60 32 A28 28 0 1 0 4 32 A28 28 0 1 0 60 32 Z M57.5 32 A25.5 25.5 0 1 0 6.5 32 A25.5 25.5 0 1 0 57.5 32 Z M19 48 C15 40 16 27 27 23 C33 20.5 38 22.5 40 25 L52 33 L40 40 C38 43 39 46 41 48 Z M42 27.3 L42 38 L43.3 37.4 L43.3 27.9 Z M45.5 29.5 L45.5 36 L46.8 35.4 L46.8 30.3 Z M35.2 30 A2.2 2.2 0 1 0 30.8 30 A2.2 2.2 0 1 0 35.2 30 Z"
+  },
+  "drink": {
+    "liquid": "#fbf3dc",
+    "liquidDeep": "#e6d2a4",
+    "head": "#e9d3a6",
+    "headDepth": 0,
+    "pourer": "machine",
+    "stream": "#fbf3dc",
+    "fizz": false,
+    "top": "coil",
+    "coils": 5,
+    "outline": "none",
+    "glass": [[40, 0], [60, 0], [72, 14], [83, 40], [93, 70], [99, 100], [1, 100], [7, 70], [17, 40], [28, 14]]
+  },
+  "copy": {
+    "start": "Start serving",
+    "offer": "Top score this week wins a 99 on us",
+    "beat": "Beat {score} to top the board",
+    "round": "Serve {n} of {total}",
+    "hold": "Hold to pull",
+    "release": "Let go at the line",
+    "hint": "Hold the lever. It pushes in surges: let go as the swirl hits the line.",
+    "falseStart": "Keep holding to pull. Have another go.",
+    "again": "Serve again",
+    "perfect": "A perfect swirl",
+    "good": "A good swirl",
+    "short": "A bit small",
+    "over": "A bit big",
+    "spill": "It toppled off",
+    "total": "Your score",
+    "boardTitle": "This week at Giddy Puffin",
+    "you": "You",
+    "prize": "Top on Sunday wins a 99 on us.",
+    "rival": "{gap} more to pass {name}",
+    "rivalTop": "{gap} more to pass {name} and win a 99",
+    "top": "Top of the board. A 99 is on us.",
+    "best": "Your best today: {score}",
+    "newBest": "A new best for you today",
+    "claim": "A 99 on us"
+  },
+  "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
+  "rounds": [
+    {
+      "line": 0.78, "speed": 0.45, "surge": 0.4, "surgeHz": 1.4,
+      "serve": {
+        "name": "A 99 with a flake",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "stick", "colours": ["#7a4a24", "#5a3418"] }
+      }
+    },
+    {
+      "line": 0.62, "speed": 0.5, "surge": 0.45, "surgeHz": 1.6,
+      "serve": {
+        "name": "A cup with sauce",
+        "vessel": { "points": [[0, 92], [100, 92], [90, 158], [10, 158]], "colour": "#ffffff", "edge": "#d6c7a6" },
+        "topping": { "kind": "drizzle", "colours": ["#c4314b"] }
+      }
+    },
+    {
+      "line": 0.86, "speed": 0.5, "surge": 0.5, "surgeHz": 1.8,
+      "serve": {
+        "name": "A twist with sprinkles",
+        "head": "#f39ab8",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "scatter", "colours": ["#ffd166", "#6fd3ff", "#ff6b9a", "#9be36d", "#fffdf6"] }
+      }
+    },
+    {
+      "line": 0.74, "speed": 0.68, "surge": 0.5, "surgeHz": 2,
+      "serve": {
+        "name": "Another 99, quicker",
+        "vessel": { "points": [[0, 94], [100, 94], [98, 104], [53, 175], [47, 175], [2, 104]], "colour": "#d9a35b", "edge": "#b9823f", "grid": true },
+        "topping": { "kind": "stick", "colours": ["#7a4a24", "#5a3418"] }
+      }
+    },
+    {
+      "line": 0.9, "speed": 0.6, "surge": 0.55, "surgeHz": 2,
+      "serve": {
+        "name": "A twist in a cup",
+        "head": "#f39ab8",
+        "vessel": { "points": [[0, 92], [100, 92], [90, 158], [10, 158]], "colour": "#ffffff", "edge": "#d6c7a6" }
+      }
+    }
+  ],
+  "sampleScores": [
+    { "name": "Breesha", "score": 441 },
+    { "name": "Juan", "score": 412 },
+    { "name": "Orry", "score": 380 },
+    { "name": "Ealish", "score": 336 },
+    { "name": "Calum", "score": 290 }
+  ]
+}

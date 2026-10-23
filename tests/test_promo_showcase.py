@@ -30,7 +30,8 @@ DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
 # What the shipped code may not know about: any shipped skin's venue or drink.
 SKIN_WORDS = re.compile(
     r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]"
-    r"|sleepy|\bcow\b|dairy|milk|creamery",
+    r"|sleepy|\bcow\b|dairy|milk|creamery"
+    r"|giddy|puffin|whipp|ice cream|\bcones?\b|flake|kiosk|strawberr|sprinkle|wafer",
     re.IGNORECASE,
 )
 
@@ -94,6 +95,21 @@ LATTE = {
 }
 
 
+# P2.0u: a round's own serve, as the whippy writes one: a swirl over a cone, a stick in it.
+CONE = {
+    "name": "A test cone",
+    "liquid": "#fff6dc",
+    "glass": [[30, 0], [70, 0], [95, 100], [5, 100]],
+    "vessel": {
+        "points": [[0, 100], [100, 100], [50, 180]],
+        "colour": "#d9a55b",
+        "edge": "#a8742f",
+        "grid": True,
+    },
+    "topping": {"kind": "stick", "colours": ["#5a3218"]},
+}
+
+
 def run(skin_path, plays):
     node = shutil.which("node")
     assert node, "Node.js is needed to run play/pour/engine.js in the tests"
@@ -128,8 +144,13 @@ def _text(rel):
 # --- the rules -----------------------------------------------------------------
 
 
-def test_three_skins_ship():
-    assert [p.stem for p in SKINS] == ["dozy-otter", "sleepy-cow", "wobbly-gull"]
+def test_four_skins_ship():
+    assert [p.stem for p in SKINS] == [
+        "dozy-otter",
+        "giddy-puffin",
+        "sleepy-cow",
+        "wobbly-gull",
+    ]
 
 
 def test_the_skin_list_names_files_that_exist_and_ids_match_file_names():
@@ -270,6 +291,10 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["drink"].update(glass=[[0, 0], [100, 0]]),
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
+        # D-030, logo B: an emblem may name how its path fills, as one of the canvas's two ways.
+        lambda s: s.update(
+            emblem={"width": 10, "height": 10, "path": "M0 0 L9 9 Z", "rule": "holes"}
+        ),
         lambda s: s["theme"].pop("counter"),
         lambda s: s.pop("switchLabel"),
         lambda s: s["copy"].pop("offer"),
@@ -294,6 +319,44 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["drink"].update(stream="white"),
         # Fizz is on or off, nothing in between.
         lambda s: s["drink"].update(fizz="no"),
+        # P2.0u: the top and the outline are kinds game.js can draw.
+        lambda s: s["drink"].update(top="fizzy"),
+        lambda s: s["drink"].update(outline="dotted"),
+        # A round's serve is checked like the drink it stands in for.
+        lambda s: s["rounds"][1].update(serve="cone"),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, liquid="#12")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, name="")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, name="A" * 41)),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, headDepth=0.5)),
+        # What pours, the fizz, the top and the outline are the skin's, not a round's.
+        lambda s: s["rounds"][1].update(serve=dict(CONE, pourer="tap")),
+        lambda s: s["rounds"][1].update(serve=dict(CONE, fizz=True)),
+        # A serve's glass has to be open at its own round's line.
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, glass=[[45, 0], [55, 0], [55, 100], [45, 100]])
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(
+                CONE,
+                vessel=dict(CONE["vessel"], points=[[0, 100], [50, 250], [100, 100]]),
+            )
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, vessel=dict(CONE["vessel"], colour="tan"))
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, vessel={"points": [[0, 100]], "colour": "#d9a55b"})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "flake", "colours": ["#5a3218"]})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "stick", "colours": []})
+        ),
+        lambda s: s["rounds"][1].update(
+            serve=dict(CONE, topping={"kind": "scatter", "colours": ["red"]})
+        ),
+        lambda s: s["drink"].update(topping={"kind": "drizzle"}),
     ],
 )
 def test_a_broken_skin_is_refused(latte, change):
@@ -325,6 +388,7 @@ def test_the_shipped_venues_do_not_pour_from_the_same_thing():
         "wobbly-gull": "tap",
         "dozy-otter": "jug",
         "sleepy-cow": "carton",
+        "giddy-puffin": "machine",
     }
 
 
@@ -555,7 +619,7 @@ def test_a_link_can_name_the_kind_of_venue(ui):
         "skins/wobbly-gull.json",
     ]
     kinds = _text("play/pour/skins/default.js")
-    for kind in ("pub", "cafe", "dairy"):
+    for kind in ("pub", "cafe", "dairy", "icecream"):
         assert re.search(kind + r'\s*:\s*"[a-z0-9-]+"', kinds), kind
 
 
@@ -626,7 +690,11 @@ def test_without_a_name_the_game_is_as_it_was(ui):
     assert ui["plain"]["title"] == "The Wobbly Gull"
     assert ui["plain"]["fictional"] == "The Wobbly Gull is a made-up pub."
     assert ui["plain"]["emblem"]
-    assert ui["plainSwitch"] == ["?skin=dozy-otter", "?skin=sleepy-cow"]
+    assert ui["plainSwitch"] == [
+        "?skin=dozy-otter",
+        "?skin=sleepy-cow",
+        "?skin=giddy-puffin",
+    ]
 
 
 def test_a_long_name_wraps_and_is_never_cut_off():
@@ -644,6 +712,7 @@ def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     assert ui["namedSwitch"] == [
         "?skin=dozy-otter&name=Noa%20Bakehouse",
         "?skin=sleepy-cow&name=Noa%20Bakehouse",
+        "?skin=giddy-puffin&name=Noa%20Bakehouse",
     ]
     html = _text("play/pour/index.html")
     assert re.search(r'<meta name="referrer" content="no-referrer"', html)
@@ -711,12 +780,14 @@ def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
 # --- P2.0s: the dairy, poured from a carton ------------------------------------------
 
 
-def test_the_pub_and_the_cafe_draw_exactly_as_they_did(ui):
-    # Recorded from main before the carton was added: every canvas call and value of a
-    # frame at rest, a pour and its result, with the same "random" numbers each run.
+def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
+    # Recorded from main before the carton was added (the dairy's before the whippy): every
+    # canvas call and value of a frame at rest, a pour and its result, with the same
+    # "random" numbers each run.
     assert ui["traces"] == {
         "wobbly-gull": "a867258b2eba7df04b826032530d05da69ce5d6421c6b81ca6c7eba71c11c86b",
         "dozy-otter": "dd14a52b458c327219986d45cd13159663a5add2a1cb3640194cf69cd2f40219",
+        "sleepy-cow": "6d601f38861b8fdfaef1ec04aa18e944a7e5d6cea3dfd442b63559a694c15ed2",
     }
 
 
@@ -752,3 +823,438 @@ def test_the_dairy_is_plain_milk_with_a_week_of_it_on_us():
     # Every round glugs: a surge you learn to let go between (D-027).
     for r in skin["rounds"]:
         assert 0.5 <= r["surge"] <= 0.7 and 1.6 <= r["surgeHz"] <= 2.2, r
+
+
+# --- P2.0u: the whippy, and a serve that changes each round --------------------------
+
+
+def test_a_round_can_name_its_own_serve_over_the_skins(latte):
+    path = latte(lambda s: s["rounds"][1].update(serve=copy.deepcopy(CONE)))
+    result = run(path, ["line", "line"])
+    assert result["problems"] == []
+    first, second = result["serves"]
+    assert first == LATTE["drink"]
+    # The serve's own keys win; anything it doesn't say is the skin's.
+    assert second["liquid"] == CONE["liquid"] and second["glass"] == CONE["glass"]
+    assert second["vessel"] == CONE["vessel"] and second["topping"] == CONE["topping"]
+    assert second["head"] == LATTE["drink"]["head"]
+    assert second["liquidDeep"] == LATTE["drink"]["liquidDeep"]
+    assert [r["verdict"] for r in result["rounds"]] == ["perfect", "perfect"]
+
+
+def test_a_skin_whose_rounds_name_no_serve_pours_its_one_drink_each_round(latte):
+    result = run(latte(), ["line", "line"])
+    assert result["serves"] == [LATTE["drink"], LATTE["drink"]]
+
+
+def test_a_skin_can_pour_soft_serve_from_a_machine(latte):
+    def soft(s):
+        s["drink"].update(
+            pourer="machine", fizz=False, top="coil", outline="none", headDepth=0
+        )
+        s["drink"].update(vessel=CONE["vessel"], topping=CONE["topping"])
+
+    assert run(latte(soft), ["line", "line"])["problems"] == []
+    for kind in ("stick", "drizzle", "scatter"):
+        topped = latte(
+            lambda s: s["drink"].update(
+                topping={"kind": kind, "colours": ["#aa2244", "#ffffff"]}
+            )
+        )
+        assert run(topped, ["line", "line"])["problems"] == [], kind
+
+
+def _whippy():
+    path = GAME / "skins" / "giddy-puffin.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_the_whippy_is_soft_serve_with_a_99_on_us():
+    skin = _whippy()
+    drink = skin["drink"]
+    assert drink["pourer"] == "machine" and drink["fizz"] is False
+    assert drink["top"] == "coil" and drink["outline"] == "none"
+    for key in ("offer", "prize", "claim"):
+        assert "a 99" in skin["copy"][key].lower(), key
+    # The machine pushes in surges, like the milk's glug.
+    for r in skin["rounds"]:
+        assert r.get("surge", 0) >= 0.3, r
+
+
+def test_the_whippy_serves_rotate_as_the_owner_chose():
+    # D-029: a 99 with a flake, a cup with sauce, a strawberry twist with sprinkles,
+    # a faster 99, then a twist in a cup.
+    skin = _whippy()
+    rounds = skin["rounds"]
+    serves = [r["serve"] for r in rounds]
+    assert len(rounds) == 5
+    assert all(s["name"] for s in serves)
+    toppings = [s.get("topping", {}).get("kind") for s in serves]
+    assert toppings == ["stick", "drizzle", "scatter", "stick", None]
+    cone, cup = serves[0]["vessel"], serves[1]["vessel"]
+    assert cone != cup
+    assert [s["vessel"] for s in serves] == [cone, cup, cone, cone, cup]
+    assert rounds[3]["speed"] > rounds[0]["speed"]
+    # The twists are two colours swirled: a pink ridge on the vanilla.
+    plain = serves[0].get("head", skin["drink"]["head"])
+    assert serves[2]["head"] == serves[4]["head"] != plain
+
+
+def test_an_icecream_link_starts_on_the_whippy(ui):
+    assert ui["icecreamSkin"]["fetched"] == ["skins/giddy-puffin.json"]
+    assert ui["icecreamSkin"]["venue"] == _whippy()["venue"]
+
+
+def test_the_machine_is_drawn_and_carries_the_emblem(ui):
+    others = (ui["pourers"]["tap"], ui["pourers"]["jug"], ui["pourers"]["carton"])
+    assert ui["pourers"]["machine"] not in others
+    marked, plain = ui["marks"]["machine with"], ui["marks"]["machine without"]
+    assert set(marked["paths"]) == {ui["emblem"]}
+    assert marked["drawn"] != plain["drawn"]
+    assert plain["paths"] == []
+
+
+@pytest.mark.parametrize("tall", ["420", "200"])
+def test_the_machine_stays_on_the_canvas_at_rest_and_pouring(ui, tall):
+    seen = ui["machineTop"][tall]
+    assert 0 <= seen["rest"] < 1e9 and 0 <= seen["pouring"] < 1e9, seen
+
+
+def test_each_round_says_and_draws_its_own_serve(ui):
+    serves = [r["serve"] for r in _whippy()["rounds"]]
+    seen = ui["whippyRounds"]
+    assert len(seen) == len(serves)
+    for n, (serve, shown) in enumerate(zip(serves, seen)):
+        assert shown["say"].startswith(serve["name"]), (n, shown["say"])
+        assert shown["vessel"], n
+        # The finish goes on once it's poured, not while it pours.
+        if "topping" in serve:
+            assert not shown["toppingWhilePouring"], n
+            assert shown["toppingAfter"], n
+    # The serve changes what is drawn, not only what is said.
+    assert seen[0]["frame"] != seen[1]["frame"]
+
+
+def test_too_much_topples_off(ui):
+    spill = ui["whippySpill"]
+    assert spill["say"].startswith(_whippy()["copy"]["spill"])
+    assert spill["toppled"]
+
+
+def test_every_serve_name_fits_one_line_at_320():
+    # Said in 24px type over the hint: at 320px "A strawberry twist with sprinkles" took two
+    # lines and squeezed the stage between rounds. 22 letters fit, as the taglines do.
+    for r in _whippy()["rounds"]:
+        assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]
+
+
+# --- D-030: the whippy is built in coils, not filled like a glass ----------------------
+
+
+def test_soft_serve_can_be_built_in_coils(latte):
+    def coiled(s):
+        s["drink"].update(
+            pourer="machine",
+            fizz=False,
+            top="coil",
+            outline="none",
+            coils=5,
+            headDepth=0,
+        )
+        s["rounds"][1]["serve"] = dict(CONE, coils=4)
+
+    assert run(latte(coiled), ["line", "line"])["problems"] == []
+    for bad in (1, 13, 4.5, "5"):
+        skin = latte(lambda s: s["drink"].update(coils=bad))
+        assert run(skin, ["line"])["problems"], bad
+    # The glass-filling swirl and its faint outline are gone.
+    assert run(latte(lambda s: s["drink"].update(top="swirl")), ["line"])["problems"]
+    assert run(latte(lambda s: s["drink"].update(outline="faint")), ["line"])[
+        "problems"
+    ]
+
+
+def test_the_whippys_coils_narrow_smoothly_to_a_flat_top():
+    drink = _whippy()["drink"]
+    assert 3 <= drink["coils"] <= 8
+    glass = drink["glass"]
+    top = sorted(p[0] for p in glass if p[1] == 0)
+    assert len(top) == 2 and top[1] - top[0] >= 20, top
+    # No zig-zag: going down, the right-hand side only widens.
+    right = sorted((p for p in glass if p[0] > 50), key=lambda p: p[1])
+    assert all(a[0] <= b[0] for a, b in zip(right, right[1:])), right
+
+
+def test_no_coil_is_hidden_in_a_cup():
+    # The cup's rim meets the bottom of the stack (y 100), so every coil laid is seen.
+    for r in _whippy()["rounds"]:
+        rim = min(p[1] for p in r["serve"]["vessel"]["points"])
+        assert rim >= 88, (r["serve"]["name"], rim)
+
+
+def test_the_stack_is_laid_coil_by_coil(ui):
+    # Each coil is a tilted turn of the rope, so a longer pour draws more of them.
+    coils = ui["whippyCoils"]
+    assert coils["early"] < coils["late"], coils
+
+
+def test_the_turn_being_laid_reaches_into_the_turn_below(ui):
+    # D-030, seam fix (a): settled turns are drawn 12% taller than their slot and overlap the one
+    # below; the turn being laid stopped at the top of the stack, a seam until it settled (owner).
+    checked = 0
+    for seam in ui["whippySeams"]:
+        turns = seam["turns"]
+        if len(turns) < 3:
+            continue
+        laid, below, under = turns[-1], turns[-2], turns[-3]
+        slot = under["top"] - below["top"]
+        assert laid["bottom"] - below["top"] >= 0.12 * slot, seam
+        checked += 1
+    assert checked >= 5, ui["whippySeams"]
+
+
+def test_the_shops_badge_fills_evenodd_on_the_machine_and_every_screen(ui):
+    # D-030, logo B: a round badge with the puffin's head cut out of it. Drawn nonzero, the
+    # head and the ring would fill in solid. The pub, café and dairy are unchanged (traces).
+    seen = ui["whippyEmblem"]
+    assert seen["rule"] == "evenodd"
+    assert seen["path"].count("A") >= 6  # the three rings of the disc
+    assert seen["canvas"] == ["fill(object,evenodd)"], seen["canvas"]
+    for attrs in seen["svgs"]:
+        assert attrs == {"d": seen["path"], "fill-rule": "evenodd"}, attrs
+
+
+def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
+    # D-030, sauce 1 (owner, 2026-10-23, over sauce 3's cap): a glossy ribbon over the top with
+    # drips that end in round bulbs. Once the drop has landed, nothing of it, drips included,
+    # rises above the height scored or hangs out past the serve's widest turn, and it is filled
+    # (shaded), not stroked like the old line of sauce.
+    checked = 0
+    for run in ui["whippySauce"]:
+        coated = [f for f in run["frames"] if f["sauce"]]
+        assert coated, run["hold"]
+        bulbs = [shape for shape in coated[-1]["sauce"] if shape[3]]
+        assert len(bulbs) >= 3, (run["hold"], coated[-1]["sauce"])
+        for frame in coated:
+            left, right = frame["base"]
+            for top, x0, x1, _ in frame["sauce"]:
+                assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
+                assert x0 >= left - 0.5 and x1 <= right + 0.5, (
+                    run["hold"],
+                    x0,
+                    x1,
+                    left,
+                    right,
+                )
+        checked += 1
+    assert checked >= 5
+
+
+def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
+    # Owner, 2026-10-23: the base shifted down as a serve finished. The tip's foot reached most
+    # of a turn below the piece it replaced. Now the turns below stay exactly as poured, and the
+    # finished top ends where the turn being laid ended.
+    checked = 0
+    for run in ui["whippyRelease"]:
+        poured = run["poured"]
+        if len(poured) < 2:
+            continue
+        for frame in run["finish"]:
+            if not frame:
+                continue
+            kept = len(frame) - 1
+            assert kept == len(poured) - 1, run["hold"]
+            assert frame[:kept] == poured[:kept], run["hold"]
+            replaced = poured[-1][1]
+            assert frame[-1][1] <= replaced + 0.5, (run["hold"], frame[-1], poured)
+            # the driver reads a rounded turn's bottom from its corners, a few pixels low
+            assert frame[-1][1] >= replaced - 5, (run["hold"], frame[-1], poured)
+        checked += 1
+    assert checked >= 10, ui["whippyRelease"]
+
+
+def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
+    # Owner, 2026-10-23 (again): the base still shifted down as a serve finished. The whippy's
+    # hint is a serve's name and two lines; the result is two short ones. The line under the
+    # scene shrank, the stage grew 16px and the scene was refitted, cone and all. The line now
+    # keeps the tallest it has been, so the stage, and every turn below the top, stay put.
+    runs = ui["whippyReflow"]
+    assert len(runs) >= 5, runs
+    for run in runs:
+        assert run["result"] and run["poured"], run["hold"]
+        assert run["stages"][0] == run["stages"][1], run
+        for frame in run["finish"]:
+            assert frame, run["hold"]
+            assert frame[0] == run["poured"][0], (
+                run["hold"],
+                frame[0],
+                run["poured"][0],
+            )
+
+
+def test_the_top_of_the_serve_is_the_height_scored(ui):
+    # Tilted turns once rose above the scored height: at 0.60 the stack read 0.64, past a
+    # 0.62 line the engine still called short (Codex, round 1 of the coils).
+    measured = [p for p in ui["whippyPeaks"] if p["scored"] is not None]
+    assert len(measured) >= 10, ui["whippyPeaks"]
+    for peak in measured:
+        assert peak["top"] is not None and abs(peak["top"] - peak["scored"]) < 0.6, peak
+
+
+def test_the_tip_tops_out_at_the_height_scored_while_it_forms(ui):
+    # D-030, look b: the tip grows out of the top turn after release; at every stage of it,
+    # nothing drawn rises above the height the result measures.
+    for peak in (p for p in ui["whippyPeaks"] if p["scored"] is not None):
+        assert peak["frames"], peak
+        assert all(top >= peak["scored"] - 0.6 for top in peak["frames"]), peak
+
+
+def test_a_serve_on_a_whole_turn_still_gets_its_finish(ui):
+    # At exactly 0.6 of five turns the tip and the sauce were skipped (Codex, round 1 of look b).
+    seen = ui["whippyWholeTurn"]
+    assert seen["finish"], seen
+
+
+def test_the_finish_arrives_after_its_served(ui):
+    # D-030, look b: no flake, sauce or sprinkles on the frame the result lands; all of it
+    # within a second; one light over the stack, not a drop shadow under every turn.
+    staged = ui["whippyStaged"]
+    assert len(staged) == len(_whippy()["rounds"])
+    for n, round_ in enumerate(staged):
+        assert not round_["shadowed"], (n, round_)
+        if round_["topping"]:
+            assert not round_["atRelease"], (n, round_)
+            assert round_["bySecond"], (n, round_)
+
+
+def _the_line(frame):
+    # The line to pour to: the dashed line nothing clips.
+    lines = [d for d in frame["dashes"] if not d["clipped"]]
+    assert len(lines) == 1, frame["dashes"]
+    return lines[0]
+
+
+def test_the_whippys_line_is_as_wide_on_every_serve(ui):
+    # D-030, line look (c): the line was as wide as the swirl's hidden taper, a stub on the
+    # tall serves (about 40px on a twist, 25px at 320). It is one width, as mocked: 0.9 of the
+    # serve's width, about half the span the pub's line is drawn across.
+    pub = max(d["x1"] - d["x0"] for d in ui["pubLine"])
+    widths = set()
+    for n, round_ in enumerate(ui["whippyLine"]):
+        for when in ("rest", "pouring"):
+            line = _the_line(round_[when])
+            widths.add(round(line["x1"] - line["x0"], 1))
+            assert line["x1"] - line["x0"] >= 0.45 * pub, (n, when, line, pub)
+    assert len(widths) == 1, widths
+
+
+def test_the_whippys_line_is_drawn_over_the_swirl(ui):
+    # The rope ran straight through the line just when it was needed.
+    for n, round_ in enumerate(ui["whippyLine"]):
+        frame = round_["pouring"]
+        assert _the_line(frame)["at"] > frame["coils"][1], (n, frame["coils"])
+
+
+def test_a_faint_swirl_stands_where_the_pub_has_its_glass(ui):
+    # D-030, line look (c): the line no longer floats over an empty cone; a soft silhouette of
+    # the finished swirl stands up to it, under the coils.
+    ink = _whippy()["theme"]["ink"].lstrip("#")
+    ghost = "rgba({},{},{},0.09)".format(*(int(ink[i : i + 2], 16) for i in (0, 2, 4)))
+    for n, round_ in enumerate(ui["whippyLine"]):
+        assert any(c == ghost for c, _ in round_["rest"]["colours"]), n
+        frame = round_["pouring"]
+        assert any(
+            c == ghost and at < frame["coils"][0] for c, at in frame["colours"]
+        ), n
+
+
+# --- P2.0w: the whippy's stream, out of the machine ------------------------------------
+
+
+def _rope(frame, rest):
+    # The stream's circles, top to bottom: not the badge or the lever (there at rest), not a
+    # turn's rim light (drawn turned, at y 0), not the little bead left on the nozzle.
+    return sorted(
+        (a for a in frame["arcs"] if a not in rest and a[1] > 10 and a[2] >= 3),
+        key=lambda a: a[1],
+    )
+
+
+def test_the_whippys_stream_is_a_rope_like_its_turns(ui):
+    # Owner, 2026-10-22: the plain band "feels slightly out of place". It is now a rope of
+    # circles, grooved and lit like the turns (mock B).
+    seen = ui["whippyStream"]
+    for frame in (f for f in seen["pouring"] if f["held"] > 200):
+        assert len(_rope(frame, seen["rest"])) >= 20, frame["held"]
+
+
+def test_the_whippys_stream_swings_towards_the_turn_being_laid(ui):
+    # Mock B: halfway down, it is already most of the way across to where it lands.
+    seen = ui["whippyStream"]
+    swung = 0
+    for frame in (f for f in seen["pouring"] if f["held"] > 200):
+        rope = _rope(frame, seen["rest"])
+        top, bottom = rope[0], rope[-1]
+        if abs(bottom[0] - top[0]) <= 10:
+            continue
+        half = (top[1] + bottom[1]) / 2
+        middle = min(rope, key=lambda a: abs(a[1] - half))
+        assert (middle[0] - top[0]) / (bottom[0] - top[0]) > 0.5, frame["held"]
+        swung += 1
+    assert swung >= 5, swung
+
+
+def test_the_whippys_stream_swells_in_a_surge(ui):
+    # At the nozzle the rope is as fat as the flow: a peak of the first round's surge against
+    # the trough after it (each a little after the engine's, as the drawing eases towards it).
+    seen = ui["whippyStream"]
+    hz = _whippy()["rounds"][0]["surgeHz"]
+
+    def width(at_ms):
+        frame = min(seen["pouring"], key=lambda f: abs(f["held"] - at_ms))
+        return _rope(frame, seen["rest"])[0][2]
+
+    peak, trough = width(1250 / hz + 60), width(1750 / hz + 60)
+    assert peak > 1.3 * trough, (peak, trough)
+
+
+def test_the_whippys_stream_snaps_off_when_let_go(ui):
+    # On release it necks at the nozzle and snaps; the last of it drops onto the top turn,
+    # and then there's no stream at all.
+    seen = ui["whippyStream"]
+    top_while_pouring = _rope(seen["pouring"][-1], seen["rest"])[0][1]
+    falling = [
+        f
+        for f in seen["after"]
+        if (r := _rope(f, seen["rest"])) and r[0][1] > top_while_pouring + 10
+    ]
+    assert falling, "the stream never came away from the nozzle"
+    assert not _rope(seen["after"][-1], seen["rest"])
+
+
+def _luminance(hex_colour):
+    h = hex_colour[1:]
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+
+    def channel(v):
+        v /= 255
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (channel(int(h[i : i + 2], 16)) for i in (0, 2, 4))
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast(a, b):
+    hi, lo = sorted((_luminance(a), _luminance(b)), reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_every_shipped_accent_reads_against_the_room(path):
+    # The accent is text too (the kicker, the offer, the prize), on the room and its
+    # panels: Giddy Puffin's first coral was 1.75:1 on its panel (Codex, round 1).
+    theme = json.loads(path.read_text(encoding="utf-8"))["theme"]
+    for ground in ("bg", "panel"):
+        assert _contrast(theme["accent"], theme[ground]) >= 4, ground
+    assert _contrast(theme["accentInk"], theme["accent"]) >= 4.5

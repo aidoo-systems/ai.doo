@@ -44,5 +44,6 @@ if (out.problems.length === 0) {
   out.stars = engine.stars(skin, game.score);
   out.topScore = engine.topScore(skin);
   out.rival = engine.nextRival(skin, game.score);
+  out.serves = skin.rounds.map((_, i) => engine.serveOf(skin, i));
 }
 process.stdout.write(JSON.stringify(out));
