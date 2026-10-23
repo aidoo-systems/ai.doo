@@ -44,6 +44,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-23
+- Owner on a phone (2026-10-23): "looking proper polished", but when a serve finishes, the base shifts slightly down. Not yet reproduced. **Fix first, before logo B and sauce 3:** find which part moves at release (the vessel, the bottom turns or the whole stack; check `drawCoils`'s topped branch, the seam fix's `rest + 0.12` and the finish stages), pin it with a red-first test that nothing below the top turn moves between the last pouring frame and the topped frames, then fix.
 - Owner played the whippy from the PC over the LAN (`http://192.168.1.11:8828/play/pour/?skin=icecream`): looking good. Asked for a better shop logo and a sauce that doesn't look like MS Paint. Mocks drawn by the real game on a stepped clock (`.loop/whippy-logo-sauce-options.png`; the harness, a mock `game.js` and the sauce code in `.loop/logo-sauce-mock/`); owner picked **logo B** (round badge) and **sauce 3** (dripping cap), D-030. **Next:** build both test-first on #72 (a test that the emblem's `rule` reaches both the canvas and the SVGs, and that the pub, café and dairy traces are unchanged; a test that the sauce stays at or below the scored height and inside the serve's width), port the paths and `drawSauce` from the mock, bump `game.js?v=`, stills at 390 and 320, gates, Codex; then the owner plays it and merges #72.
 
 ### 2026-10-22
