@@ -97,11 +97,13 @@
       if (!isText(skin[key], 160)) problems.push(key + " is missing");
     });
 
-    // The emblem is optional: one SVG path, drawn above the venue's name.
+    // The emblem is optional: one SVG path, drawn above the venue's name. It may say how the
+    // path fills, so a shape can have holes cut in it (D-030).
     if (skin.emblem !== undefined) {
       var em = isObj(skin.emblem) ? skin.emblem : {};
       var emOk = isNum(em.width, 1, 512) && isNum(em.height, 1, 512) && typeof em.path === "string" && em.path.length <= 1200 && EMBLEM.test(em.path);
       if (!emOk) problems.push("emblem needs a width, a height and an SVG path of drawing commands only");
+      if (em.rule !== undefined && em.rule !== "nonzero" && em.rule !== "evenodd") problems.push("emblem rule must be nonzero or evenodd");
     }
 
     var theme = isObj(skin.theme) ? skin.theme : {};

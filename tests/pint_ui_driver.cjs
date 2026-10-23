@@ -121,7 +121,7 @@ function boot(search, tweak) {
     e.setPointerCapture = () => {};
     e.getBoundingClientRect = () => ({ width: 375, height: stage, left: 0, top: 0, right: 375, bottom: stage });
     e.getContext = () => paint;
-    e.firstElementChild = { setAttribute() {} };
+    e.firstElementChild = { attrs: {}, setAttribute: (k, v) => (e.firstElementChild.attrs[k] = String(v)) };
     e.parentNode = { id: id + "-parent" };
     return e;
   }
@@ -490,6 +490,17 @@ async function started(search, tweak) {
     const turnsDrawn = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
     out.whippySeams.push({ hold, turns: turnsDrawn.map((f) => ({ top: f.top, bottom: f.bottom })) });
   }
+  // D-030, logo B: the shop's badge is the puffin's head cut out of a ringed disc, so its path
+  // fills evenodd, on the machine's badge and on every screen's emblem alike.
+  page = await started("?skin=icecream");
+  page.trace.length = 0;
+  page.advance(16);
+  out.whippyEmblem = {
+    path: whippy.emblem && whippy.emblem.path,
+    rule: whippy.emblem && whippy.emblem.rule,
+    canvas: page.trace.filter((t) => t.startsWith("fill(object")),
+    svgs: ["emblem", "playEmblem", "doneEmblem", "claimEmblem"].map((id) => page.get(id).firstElementChild.attrs),
+  };
   // Owner, 2026-10-23: when a serve finished, its base shifted down. Every turn of the stack, on
   // the last frame poured and on each frame of the finish, top and bottom, bottom turn first.
   out.whippyRelease = [];

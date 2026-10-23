@@ -291,6 +291,8 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["drink"].update(glass=[[0, 0], [100, 0]]),
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
+        # D-030, logo B: an emblem may name how its path fills, as one of the canvas's two ways.
+        lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0 L9 9 Z", "rule": "holes"}),
         lambda s: s["theme"].pop("counter"),
         lambda s: s.pop("switchLabel"),
         lambda s: s["copy"].pop("offer"),
@@ -1007,6 +1009,17 @@ def test_the_turn_being_laid_reaches_into_the_turn_below(ui):
         assert laid["bottom"] - below["top"] >= 0.12 * slot, seam
         checked += 1
     assert checked >= 5, ui["whippySeams"]
+
+
+def test_the_shops_badge_fills_evenodd_on_the_machine_and_every_screen(ui):
+    # D-030, logo B: a round badge with the puffin's head cut out of it. Drawn nonzero, the
+    # head and the ring would fill in solid. The pub, café and dairy are unchanged (traces).
+    seen = ui["whippyEmblem"]
+    assert seen["rule"] == "evenodd"
+    assert seen["path"].count("A") >= 6  # the three rings of the disc
+    assert seen["canvas"] == ["fill(object,evenodd)"], seen["canvas"]
+    for attrs in seen["svgs"]:
+        assert attrs == {"d": seen["path"], "fill-rule": "evenodd"}, attrs
 
 
 def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):

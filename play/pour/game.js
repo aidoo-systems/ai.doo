@@ -381,7 +381,8 @@
       ctx.translate(x - (skin.emblem.width * k) / 2, y - (skin.emblem.height * k) / 2);
       ctx.scale(k, k);
       ctx.fillStyle = colour;
-      ctx.fill(mark);
+      if (skin.emblem.rule) ctx.fill(mark, skin.emblem.rule);
+      else ctx.fill(mark);
       ctx.restore();
     }
 
@@ -1681,6 +1682,7 @@
         var svg = $(id);
         svg.setAttribute("viewBox", "0 0 " + skin.emblem.width + " " + skin.emblem.height);
         svg.firstElementChild.setAttribute("d", skin.emblem.path);
+        if (skin.emblem.rule) svg.firstElementChild.setAttribute("fill-rule", skin.emblem.rule);
         svg.removeAttribute("hidden");
       });
     }
