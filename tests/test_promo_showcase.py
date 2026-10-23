@@ -1070,6 +1070,25 @@ def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
     assert checked >= 10, ui["whippyRelease"]
 
 
+def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
+    # Owner, 2026-10-23 (again): the base still shifted down as a serve finished. The whippy's
+    # hint is a serve's name and two lines; the result is two short ones. The line under the
+    # scene shrank, the stage grew 16px and the scene was refitted, cone and all. The line now
+    # keeps the tallest it has been, so the stage, and every turn below the top, stay put.
+    runs = ui["whippyReflow"]
+    assert len(runs) >= 5, runs
+    for run in runs:
+        assert run["result"] and run["poured"], run["hold"]
+        assert run["stages"][0] == run["stages"][1], run
+        for frame in run["finish"]:
+            assert frame, run["hold"]
+            assert frame[0] == run["poured"][0], (
+                run["hold"],
+                frame[0],
+                run["poured"][0],
+            )
+
+
 def test_the_top_of_the_serve_is_the_height_scored(ui):
     # Tilted turns once rose above the scored height: at 0.60 the stack read 0.64, past a
     # 0.62 line the engine still called short (Codex, round 1 of the coils).

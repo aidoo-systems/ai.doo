@@ -16,6 +16,10 @@ const settle = () => new Promise((r) => setImmediate(r));
 // How tall the stand-in canvas is; a scenario may shorten it to a small phone's.
 let stage = 420;
 let snapLevel = null;
+// sayFlex: the stage gives up whatever height the line under it (#say) takes, as the page's
+// flex column does; at the whippy's hint (a serve's name and two lines) the stage is 420.
+let sayFlex = false;
+const SAY_HINT = 70.2;
 
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
 function boot(search, tweak) {
@@ -23,6 +27,8 @@ function boot(search, tweak) {
   let frames = [];
   let timers = [];
   const elements = {};
+  const observers = [];
+  let seenStage = null;
   const fetched = [];
   const sounds = [];
   const drawn = []; // every canvas call, by name, in order
@@ -124,11 +130,24 @@ function boot(search, tweak) {
     e.removeAttribute = (k) => (k === "hidden" ? (e.hidden = false) : delete e.attrs[k]);
     e.focus = () => {};
     e.setPointerCapture = () => {};
-    e.getBoundingClientRect = () => ({ width: 375, height: stage, left: 0, top: 0, right: 375, bottom: stage });
+    e.getBoundingClientRect = () => {
+      const height = !sayFlex ? stage : id === "say" ? sayHeight(e) : stage + SAY_HINT - sayHeight(elements.say);
+      return { width: 375, height, left: 0, top: 0, right: 375, bottom: height };
+    };
     e.getContext = () => paint;
     e.firstElementChild = { attrs: {}, setAttribute: (k, v) => (e.firstElementChild.attrs[k] = String(v)) };
     e.parentNode = { id: id + "-parent" };
     return e;
+  }
+
+  // The line's height at 335px across: a strong line of 24px type, then the rest at 15px,
+  // never under the 54px the page's CSS gives it, nor under a min-height the game sets.
+  function sayHeight(e) {
+    if (!e) return SAY_HINT;
+    const strong = e.kids.length > 1 ? 31.2 : 0;
+    const rest = e.kids.length ? e.kids[e.kids.length - 1].textContent : e.own;
+    const content = strong + Math.ceil((rest.length * 7.4) / 335) * 19.5;
+    return Math.max(54, parseFloat(e.style.minHeight) || 0, content);
   }
 
   const param = () => ({ value: 0, setValueAtTime() {}, exponentialRampToValueAtTime() {}, setTargetAtTime() {}, cancelScheduledValues() {} });
@@ -174,6 +193,12 @@ function boot(search, tweak) {
     URLSearchParams,
     console,
     matchMedia: () => ({ matches: false }),
+    ResizeObserver: sayFlex
+      ? function (fn) {
+          observers.push(fn);
+          this.observe = () => {};
+        }
+      : undefined,
     requestAnimationFrame: (fn) => frames.push(fn),
     setTimeout: (fn, ms) => timers.push({ at: clock + ms, fn }),
     fetch: (url) => {
@@ -224,6 +249,11 @@ function boot(search, tweak) {
         const due = timers.filter((t) => t.at <= clock);
         timers = timers.filter((t) => t.at > clock);
         due.forEach((t) => t.fn());
+        if (sayFlex) {
+          const h = get("stage").getBoundingClientRect().height;
+          if (seenStage !== null && h !== seenStage) observers.forEach((fn) => fn([]));
+          seenStage = h;
+        }
         if (!document.hidden) {
           const run = frames;
           frames = [];
@@ -552,6 +582,28 @@ async function started(search, tweak) {
     for (let t = 0; t < 900; t += 16) finish.push(stackNow());
     out.whippyRelease.push({ hold, say: page.get("say").textContent, poured, finish });
   }
+  // Owner, 2026-10-23 (again): the base still shifted as a serve finished. The result's line is
+  // shorter than the hint's (a serve's name and two lines), so the stage grew and the whole scene
+  // was refitted, cone and all. The same pours, with the stage giving the line its height.
+  out.whippyReflow = [];
+  sayFlex = true;
+  for (let hold = 600; hold <= 1500; hold += 150) {
+    page = await started("?skin=icecream");
+    page.advance(500);
+    const hint = page.get("stage").getBoundingClientRect().height;
+    page.down(1);
+    page.advance(hold);
+    const poured = stackNow();
+    page.up(1);
+    const finish = [];
+    for (let t = 0; t < 900; t += 16) finish.push(stackNow());
+    const result = page.get("say").textContent;
+    // and on into the next round's hint
+    page.advance(3000);
+    out.whippyReflow.push({ hold, hint, result, poured, finish, stages: [hint, page.get("stage").getBoundingClientRect().height] });
+  }
+  sayFlex = false;
+
   // What is seen is what is scored (Codex, round 1 of the coils): once poured, the top of the
   // soft serve (every shape a gradient fills: the turns and the curl) is the height the
   // result's bracket measures to.

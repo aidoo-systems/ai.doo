@@ -1778,6 +1778,9 @@
       });
     }
 
+    // The line under the scene keeps the tallest it has been at this width: a result shorter
+    // than the hint would grow the stage, and the refit would move the serve as it finishes.
+    var sayRoom = { width: 0, height: 0 };
     function say(strong, rest, verdict) {
       var el = $("say");
       el.textContent = "";
@@ -1790,6 +1793,17 @@
       var s = document.createElement("span");
       s.textContent = rest;
       el.appendChild(s);
+      var box = el.getBoundingClientRect();
+      if (box.width !== sayRoom.width) {
+        sayRoom.width = box.width;
+        sayRoom.height = 0;
+        el.style.minHeight = "";
+        box = el.getBoundingClientRect();
+      }
+      if (box.height > sayRoom.height) {
+        sayRoom.height = box.height;
+        el.style.minHeight = box.height + "px";
+      }
     }
 
     // Counts a number on screen from one value to another.
