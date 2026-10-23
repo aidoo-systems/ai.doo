@@ -73,8 +73,9 @@ Douglas City Council has a December deadline, so it goes this week.
 > Keith
 > ai.doo · hello@aidoo.biz · aidoo.biz/about/
 
-Note: the ice cream chat (P2.0u) may pitch Gelatory a pour game too. Send one pitch only:
-this one, since the loyalty repo is built around their pilot.
+Note: Gelatory gets this pitch only, not an ice cream game (the owner, 2026-10-23). The
+loyalty repo is built around their pilot; leave them off the ice cream skin's (P2.0u)
+prospect list.
 
 ### S2. Porter's Kitchen (#45), burgers, Douglas and Port Erin
 
