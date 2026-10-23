@@ -1037,8 +1037,13 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
         assert len(bulbs) >= 3, (run["hold"], coated[-1]["sauce"])
         for frame in coated:
             left, right = frame["base"]
-            for top, x0, x1, _ in frame["sauce"]:
-                assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
+            for top, x0, x1, _, thread in frame["sauce"]:
+                # only the falling thread (plain-filled, P2.0x) may be above the line
+                assert thread or top >= frame["top"] - 0.6, (
+                    run["hold"],
+                    top,
+                    frame["top"],
+                )
                 assert x0 >= left - 0.5 and x1 <= right + 0.5, (
                     run["hold"],
                     x0,
@@ -1048,6 +1053,143 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
                 )
         checked += 1
     assert checked >= 5
+
+
+def _drizzle(ui):
+    # P2.0x: every frame from release (16ms apart) of the cup's sauce, and the frame the drop or
+    # thread first touches the tip (the sauce's clock starts there, and contact is 100ms in).
+    frames = ui["whippyDrizzle"]["frames"]
+    first = next(f["t"] for f in frames if f["sauce"])
+    return frames, first + 96
+
+
+def _widths(pts, bands=12):
+    # The width of a path in bands from its top to its bottom (the leading end of a falling thread).
+    ys = [p[1] for p in pts]
+    top, bottom = min(ys), max(ys)
+    height = bottom - top
+    out = []
+    for i in range(bands):
+        lo, hi = top + height * i / bands, top + height * (i + 1) / bands
+        xs = [p[0] for p in pts if lo <= p[1] <= hi + 1e-9]
+        out.append(max(xs) - min(xs) if len(xs) > 1 else 0.0)
+    return height, out
+
+
+def test_the_sauce_is_strawberry_pink_not_crimson(ui):
+    # P2.0x (owner, 2026-10-23: sauce 1 "reads a bit like blood"): brighter and pinker than #c4314b.
+    colour = ui["whippyDrizzle"]["colour"].lstrip("#")
+    r, g, b = (int(colour[i : i + 2], 16) for i in (0, 2, 4))
+    assert r + g + b >= 420, colour
+    assert b >= 0.5 * r and g <= 0.5 * r, colour
+
+
+def test_the_sauce_falls_as_a_tapered_thread_with_a_rounded_end(ui):
+    # P2.0x: not a drop. Just before it touches, a plain-filled thread: much longer than wide,
+    # wide at its leading (lower) end and narrowing to a thin tail, the leading end rounded
+    # (not cut off flat).
+    frames, contact = _drizzle(ui)
+    before = [f for f in frames if contact - 48 <= f["t"] < contact - 8]
+    assert before, contact
+    for frame in before:
+        threads = [shape for shape in frame["sauce"] if shape["plain"] and shape["pts"]]
+        assert threads, frame["t"]
+        thread = max(threads, key=lambda shape: shape["bottom"] - shape["top"])
+        height, bands = _widths(thread["pts"])
+        widest = max(bands)
+        assert widest > 0 and height >= 2.5 * widest, (frame["t"], height, widest)
+        # bands run top to bottom: the tail is thin, the leading end is wide
+        assert sum(bands[-5:]) >= 1.8 * sum(bands[:5]), (frame["t"], bands)
+        fine = _widths(thread["pts"], 24)[1]
+        assert fine[-1] <= 0.75 * widest, (frame["t"], fine)
+
+
+def test_the_landing_pools_into_a_round_blob_that_spreads_into_the_ribbon(ui):
+    # P2.0x: where the thread touches, a round blob swells (it is not a flat bar), then it flattens
+    # and spreads out into the ribbon, so the sauce's width never shrinks as it hands over. Always
+    # fully opaque: nothing fades out, so no translucent halo is ever on the cream.
+    frames, contact = _drizzle(ui)
+    for frame in frames:
+        for shape in frame["sauce"]:
+            assert shape["alpha"] >= 0.999, (frame["t"], shape)
+    settled = [
+        (f["t"], [x for x in f["sauce"] if not x["plain"] and not x["circles"]])
+        for f in frames
+        if contact <= f["t"] <= contact + 700
+    ]
+    blobs = []
+    for t, shapes in settled:
+        for shape in shapes:
+            w, h = shape["right"] - shape["left"], shape["bottom"] - shape["top"]
+            if t <= contact + 200 and h > 0 and 0.6 <= w / h <= 2.0:
+                blobs.append((t, w))
+    # round from the moment it lands, and for a good while (the old ribbon was only that shape for the
+    # first few frames of a quick spread)
+    assert len(blobs) >= 8 and blobs[0][0] <= contact + 48, blobs
+    assert blobs[-1][1] >= 1.3 * blobs[0][1], blobs
+    widths = [
+        (t, max(x["right"] for x in shapes) - min(x["left"] for x in shapes))
+        for t, shapes in settled
+        if shapes
+    ]
+    assert widths
+    for (t0, w0), (t1, w1) in zip(widths, widths[1:]):
+        assert w1 >= w0 * 0.96 - 1.0, (t0, w0, t1, w1)
+    assert widths[-1][1] >= max(w for _, w in blobs), (widths[-1], blobs)
+
+
+def test_the_three_drips_differ_in_length_and_in_when_they_start(ui):
+    # P2.0x: less posed: three bulbs of three lengths, let go at three different moments.
+    frames, _ = _drizzle(ui)
+    starts, ends = {}, {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in starts if abs(k - centre) < 6), round(centre))
+                starts.setdefault(key, f["t"])
+                ends[key] = shape["bottom"] - shape["top"]
+    assert len(starts) == 3, starts
+    first = sorted(starts.values())
+    assert first[1] - first[0] >= 30 and first[2] - first[1] >= 30, starts
+    lengths = sorted(ends.values())
+    assert (
+        lengths[1] - lengths[0] >= 0.08 * lengths[2]
+        and lengths[2] - lengths[1] >= 0.08 * lengths[2]
+    ), ends
+
+
+def test_a_glint_runs_along_the_sauce_and_is_done_by_700ms(ui):
+    # P2.0x: the shine moves once the sauce has settled, and is over about 700ms after contact,
+    # before the next glass slides in.
+    frames, contact = _drizzle(ui)
+    glints = [f["t"] for f in frames if f["glint"]]
+    assert len(glints) >= 5, glints
+    assert min(glints) >= contact + 250, (min(glints), contact)
+    assert max(glints) <= contact + 740, (max(glints), contact)
+
+
+def test_the_thread_is_the_only_sauce_above_the_line_and_it_is_gone_by_the_end(ui):
+    # P2.0x (D-030's rule kept): the settled sauce never rises above the scored height or out past
+    # the serve; only the falling thread (plain-filled) may cross the line, and it is absorbed.
+    frames, contact = _drizzle(ui)
+    for f in (f for f in frames if f["top"] is not None and f["base"]):
+        left, right = f["base"]
+        for shape in f["sauce"]:
+            assert shape["left"] >= left - 0.5 and shape["right"] <= right + 0.5, (
+                f["t"],
+                shape,
+            )
+            if not shape["plain"]:
+                assert shape["top"] >= f["top"] - 0.6, (f["t"], shape["top"], f["top"])
+    assert any(
+        shape["plain"] and shape["top"] < frames[-1]["top"] - 3
+        for f in frames
+        for shape in f["sauce"]
+    )
+    for f in frames:
+        if f["t"] >= contact + 400:
+            assert not [x for x in f["sauce"] if x["plain"]], (f["t"], f["sauce"])
 
 
 def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
