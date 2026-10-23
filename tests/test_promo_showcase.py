@@ -292,7 +292,9 @@ def test_stars_follow_the_share_of_the_best_score(latte):
         lambda s: s["sampleScores"].append({"name": "Zed", "score": 999}),
         lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0<script>"}),
         # D-030, logo B: an emblem may name how its path fills, as one of the canvas's two ways.
-        lambda s: s.update(emblem={"width": 10, "height": 10, "path": "M0 0 L9 9 Z", "rule": "holes"}),
+        lambda s: s.update(
+            emblem={"width": 10, "height": 10, "path": "M0 0 L9 9 Z", "rule": "holes"}
+        ),
         lambda s: s["theme"].pop("counter"),
         lambda s: s.pop("switchLabel"),
         lambda s: s["copy"].pop("offer"),
@@ -1034,7 +1036,13 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
             left, right = frame["base"]
             for top, x0, x1 in frame["sauce"]:
                 assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
-                assert x0 >= left - 0.5 and x1 <= right + 0.5, (run["hold"], x0, x1, left, right)
+                assert x0 >= left - 0.5 and x1 <= right + 0.5, (
+                    run["hold"],
+                    x0,
+                    x1,
+                    left,
+                    right,
+                )
         checked += 1
     assert checked >= 5
 
