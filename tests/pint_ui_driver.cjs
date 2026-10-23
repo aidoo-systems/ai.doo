@@ -538,7 +538,7 @@ async function started(search, tweak) {
     canvas: page.trace.filter((t) => t.startsWith("fill(object")),
     svgs: ["emblem", "playEmblem", "doneEmblem", "claimEmblem"].map((id) => page.get(id).firstElementChild.attrs),
   };
-  // D-030, sauce 3: the cup's sauce coats the top like a cap and drips off its edge. Once the
+  // D-030, sauce 1: the cup's sauce is a glossy ribbon over the top, with drips that end in bulbs. Once the
   // drop has landed, every frame: the sauce's shapes, the serve's top and its bottom turn.
   out.whippySauce = [];
   const sauce = whippy.rounds[1] && whippy.rounds[1].serve.topping.colours[0];
@@ -559,7 +559,7 @@ async function started(search, tweak) {
       page.advance(16);
       const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
       const coat = page.fills.filter((f) => (f.stops.includes(sauce) || f.colour === sauce) && f.top < Infinity);
-      if (stack.length) frames.push({ top: Math.min(...stack.map((f) => f.top)), base: [stack[0].left, stack[0].right], sauce: coat.map((f) => [f.top, f.left, f.right]) });
+      if (stack.length) frames.push({ top: Math.min(...stack.map((f) => f.top)), base: [stack[0].left, stack[0].right], sauce: coat.map((f) => [f.top, f.left, f.right, f.circles]) });
     }
     out.whippySauce.push({ hold, say: page.get("say").textContent, frames });
   }

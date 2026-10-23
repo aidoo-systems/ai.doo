@@ -1025,16 +1025,19 @@ def test_the_shops_badge_fills_evenodd_on_the_machine_and_every_screen(ui):
 
 
 def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
-    # D-030, sauce 3: a dripping cap. Once the drop has landed, nothing of it rises above the
-    # height scored or hangs out past the serve's widest turn, and it is filled (shaded), not
-    # stroked like the old line of sauce.
+    # D-030, sauce 1 (owner, 2026-10-23, over sauce 3's cap): a glossy ribbon over the top with
+    # drips that end in round bulbs. Once the drop has landed, nothing of it, drips included,
+    # rises above the height scored or hangs out past the serve's widest turn, and it is filled
+    # (shaded), not stroked like the old line of sauce.
     checked = 0
     for run in ui["whippySauce"]:
         coated = [f for f in run["frames"] if f["sauce"]]
         assert coated, run["hold"]
+        bulbs = [shape for shape in coated[-1]["sauce"] if shape[3]]
+        assert len(bulbs) >= 3, (run["hold"], coated[-1]["sauce"])
         for frame in coated:
             left, right = frame["base"]
-            for top, x0, x1 in frame["sauce"]:
+            for top, x0, x1, _ in frame["sauce"]:
                 assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
                 assert x0 >= left - 0.5 and x1 <= right + 0.5, (
                     run["hold"],

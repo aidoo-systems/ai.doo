@@ -1013,17 +1013,18 @@
       return g.bottom;
     }
 
-    // Sauce (D-030, sauce 3): a drop falls onto the tip, then coats the top like a cap, thinning
-    // to nothing at both ends, with a scalloped edge of drips, shaded across, a broad shine and a
-    // bead on each long drip. None of it rises above the tip or hangs past the bottom turn.
+    // Sauce (D-030, sauce 1): a drop falls onto the tip, then spreads into a glossy ribbon over
+    // the top, thick in the middle and thin at its ends, shaded top to bottom, with a broken
+    // gloss along it and three drips that run down and end in round bulbs. None of it rises
+    // above the tip or reaches past the bottom turn.
     function drawSauce(floor, tip, hw, n, full, s) {
       var col = dr.topping.colours[0];
       if (s <= 0) return;
-      var q = clamp(s / 0.45, 0, 1);
+      var q = clamp(s / 0.4, 0, 1);
       var lw = Math.max(3, g.gw * 0.06);
       var y;
       ctx.save();
-      if (q < 0.2) {
+      if (q < 0.25) {
         y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
         ctx.beginPath();
         ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
@@ -1036,54 +1037,91 @@
         ctx.restore();
         return;
       }
-      var flow = smooth((q - 0.2) / 0.8);
-      var wide = Math.min(hw * 1.2, coilAt(0, n).hw - lw) * smooth((q - 0.2) / 0.35);
+      var room = coilAt(0, n).hw - lw; // the bulbs' edge stays inside the bottom turn
+      var wide = Math.min(hw * 1.25, room) * smooth((q - 0.25) / 0.3);
+      var run = smooth((q - 0.45) / 0.55);
       var on = function (x) {
-        return Math.max(tip, surfaceY(x, floor, tip, hw, n, full) - lw * 0.35);
+        return surfaceY(x, floor, tip, hw, n, full);
       };
-      var drips = [-0.85, -0.45, -0.05, 0.4, 0.8];
-      var lens = [0.11, 0.05, 0.14, 0.07, 0.12];
-      var x;
-      ctx.beginPath();
-      for (x = g.cx - wide; x <= g.cx + wide + 0.1; x += 1.5) {
-        if (x === g.cx - wide) ctx.moveTo(x, on(x));
-        else ctx.lineTo(x, on(x));
+      [-0.75, 0.15, 0.9].forEach(function (f, i) {
+        var x = g.cx + f * Math.min(hw * 1.15, room);
+        if (Math.abs(x - g.cx) > wide) return;
+        drip(x, on(x) + lw * 0.4, run * g.gh * (0.1 + 0.07 * i), lw, col);
+      });
+      var top = [];
+      var bot = [];
+      for (var x = g.cx - wide; x <= g.cx + wide + 0.1; x += 2) {
+        y = on(x);
+        var edge = 1 - Math.pow(Math.abs(x - g.cx) / Math.max(1, wide), 3);
+        var th = lw * (0.5 + 0.9 * edge) * (1 + 0.18 * Math.sin(x * 0.35));
+        top.push([x, Math.max(tip, y - th * 0.45)]);
+        bot.push([x, y + th * 0.55]);
       }
-      // back along the lower edge: thickest in the middle, a drip hanging wherever there's one
-      for (x = g.cx + wide; x >= g.cx - wide - 0.1; x -= 1.5) {
-        var d = 0;
-        drips.forEach(function (f, i) {
-          var k = Math.max(0, 1 - Math.pow((x - (g.cx + f * wide)) / (lw * 0.9), 2));
-          d = Math.max(d, Math.sqrt(k) * lens[i] * g.gh * flow);
+      if (top.length < 2) {
+        ctx.restore();
+        return;
+      }
+      var trace = function (pts) {
+        pts.forEach(function (p, i) {
+          if (i) ctx.lineTo(p[0], p[1]);
+          else ctx.moveTo(p[0], p[1]);
         });
-        var e = Math.sqrt(Math.max(0, 1 - Math.pow((x - g.cx) / Math.max(1, wide), 2)));
-        ctx.lineTo(x, on(x) + (lw * 1.05 + d) * e);
-      }
+      };
+      var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
+      grad.addColorStop(0, shade(col, 0.15));
+      grad.addColorStop(0.5, col);
+      grad.addColorStop(1, shade(col, -0.4));
+      ctx.beginPath();
+      trace(top);
+      for (var k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0], bot[k][1]);
       ctx.closePath();
-      var grad = ctx.createLinearGradient(g.cx - wide, 0, g.cx + wide, 0);
-      grad.addColorStop(0, shade(col, -0.3));
-      grad.addColorStop(0.3, shade(col, 0.1));
-      grad.addColorStop(0.6, col);
-      grad.addColorStop(1, shade(col, -0.45));
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.lineWidth = Math.max(1, lw * 0.16);
+      // its underside darker where it sits on the cream
+      ctx.beginPath();
+      trace(bot);
+      ctx.lineWidth = Math.max(1, lw * 0.18);
       ctx.strokeStyle = shade(col, -0.5);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.ellipse(g.cx - wide * 0.35, on(g.cx - wide * 0.35) + lw * 0.45, wide * 0.22, lw * 0.22, -0.25, 0, 6.3);
-      ctx.fillStyle = "rgba(255,255,255,.55)";
-      ctx.fill();
-      drips.forEach(function (f, i) {
-        if (lens[i] < 0.1) return;
-        var bx = g.cx + f * wide;
-        var by = on(bx) + lw * 1.05 + lens[i] * g.gh * flow;
+      // a gloss along the top, broken in two
+      ctx.lineCap = "round";
+      ctx.lineWidth = Math.max(1.2, lw * 0.22);
+      ctx.strokeStyle = "rgba(255,255,255,.65)";
+      [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
+        var from = Math.floor(seg[0] * top.length);
         ctx.beginPath();
-        ctx.ellipse(bx - lw * 0.2, by - lw * 0.35, lw * 0.13, lw * 0.25, -0.3, 0, 6.3);
-        ctx.fillStyle = "rgba(255,255,255,.7)";
-        ctx.fill();
+        for (var m = from; m < seg[1] * top.length; m++) {
+          if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
+          else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+        }
+        ctx.stroke();
       });
       ctx.restore();
+    }
+
+    // A drip of sauce from y0, tapering to a neck and ending in a round bulb, lit from the left.
+    function drip(x, y0, len, lw, col) {
+      if (len < 1) return;
+      var top = lw * 0.55;
+      var neck = lw * 0.32;
+      var r = lw * 0.62;
+      var grad = ctx.createLinearGradient(x - r, 0, x + r, 0);
+      grad.addColorStop(0, shade(col, -0.35));
+      grad.addColorStop(0.35, shade(col, 0.12));
+      grad.addColorStop(0.6, col);
+      grad.addColorStop(1, shade(col, -0.45));
+      ctx.beginPath();
+      ctx.moveTo(x - top, y0 - 2);
+      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - r, y0 + len - r, x - r, y0 + len);
+      ctx.arc(x, y0 + len, r, Math.PI, 0, true);
+      ctx.bezierCurveTo(x + r, y0 + len - r, x + neck, y0 + len * 0.5, x + top, y0 - 2);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x - r * 0.35, y0 + len - r * 0.15, r * 0.2, r * 0.38, -0.3, 0, 6.3);
+      ctx.fillStyle = "rgba(255,255,255,.75)";
+      ctx.fill();
     }
 
     // A scatter falls from above onto the stack, a few bits at a time.
