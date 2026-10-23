@@ -839,12 +839,16 @@
 
     // The tip: the rope's own end, drawn like the turns, coming off the top turn's right-hand end
     // and curling up over the middle. grow (0..1) is how much of it has come out; whatever it is,
-    // the whole tip is scaled so its highest point is exactly the scored height.
-    function drawTip(base, tip, hw, r0, grow) {
+    // the whole tip is scaled so its highest point is exactly the scored height and its lowest is
+    // foot, the bottom of what it replaces: stretched up when there's room, and where there isn't,
+    // shrunk, less across than up, so it's a smaller, lower curl and not a dot (owner, 2026-10-23).
+    function drawTip(foot, tip, hw, r0, grow) {
+      var base = foot - r0 * 1.15;
+      var peak = Math.min(tip, base - r0);
       var rEnd = r0 * 0.28;
       var p0 = [g.cx + hw * 0.8, base + r0 * 0.15];
-      var p1 = [g.cx - hw * 1.05, base - (base - tip) * 0.2];
-      var p2 = [g.cx + hw * 0.08, tip];
+      var p1 = [g.cx - hw * 1.05, base - (base - peak) * 0.2];
+      var p2 = [g.cx + hw * 0.08, peak];
       var pts = [];
       var N = 40;
       for (var k = 0; k <= N; k++) {
@@ -858,35 +862,43 @@
       }
       var last = pts[pts.length - 1];
       var top = Infinity;
+      var bottom = -Infinity;
       pts.forEach(function (p) {
         top = Math.min(top, p.y - p.r);
+        bottom = Math.max(bottom, p.y + p.r);
       });
-      // scale it up or down from its base so its top is the tip, at every stage of growing
-      var k0 = base - top > 0.5 ? (base - tip) / (base - top) : 1;
+      // from its foot, so its top is the tip, at every stage of growing
+      var ky = bottom - top > 0.5 ? (foot - tip) / (bottom - top) : 1;
+      var kx = Math.min(1, Math.sqrt(ky));
+      var X = function (x) {
+        return g.cx + (x - g.cx) * kx;
+      };
       var Y = function (y) {
-        return base - (base - y) * k0;
+        return foot - (bottom - y) * ky;
       };
       ctx.save();
       ctx.beginPath();
       pts.forEach(function (p) {
-        ctx.moveTo(p.x + p.r, Y(p.y));
-        ctx.ellipse(p.x, Y(p.y), p.r, p.r * k0, 0, 0, 6.3);
+        ctx.moveTo(X(p.x) + p.r * kx, Y(p.y));
+        ctx.ellipse(X(p.x), Y(p.y), p.r * kx, p.r * ky, 0, 0, 6.3);
       });
       ctx.fillStyle = stackFill();
       ctx.fill("nonzero");
       ctx.clip("nonzero");
       // its underside's crease, its grooves and its light, as on the turns
-      var sh = ctx.createLinearGradient(0, Y(base - r0 * 2), 0, base + r0);
+      var sh = ctx.createLinearGradient(0, Y(base - r0 * 2), 0, foot);
       sh.addColorStop(0, "rgba(120,80,20,0)");
       sh.addColorStop(1, "rgba(120,80,20,.18)");
       ctx.fillStyle = sh;
-      ctx.fillRect(g.cx - hw * 1.5, Y(base - r0 * 2), hw * 3, r0 * 4);
+      ctx.fillRect(g.cx - hw * 1.5, Y(base - r0 * 2), hw * 3, foot - Y(base - r0 * 2));
       // its foot, at the top turn's right-hand end, turns away into the same shadow
-      var fe = ctx.createRadialGradient(p0[0] + r0 * 0.4, Y(p0[1]), 0, p0[0] + r0 * 0.4, Y(p0[1]), r0 * 1.6);
+      var fx0 = X(p0[0] + r0 * 0.4);
+      var fr = r0 * 1.6 * kx;
+      var fe = ctx.createRadialGradient(fx0, Y(p0[1]), 0, fx0, Y(p0[1]), fr);
       fe.addColorStop(0, "rgba(120,80,20,.3)");
       fe.addColorStop(1, "rgba(120,80,20,0)");
       ctx.fillStyle = fe;
-      ctx.fillRect(p0[0] - r0 * 2, Y(p0[1]) - r0 * 2, r0 * 4, r0 * 4);
+      ctx.fillRect(fx0 - fr, Y(p0[1]) - fr, fr * 2, fr * 2);
       ctx.lineCap = "round";
       [
         [-0.3, rgba(dr.head, 0.7), Math.max(1.3, r0 * 0.1)],
@@ -899,20 +911,20 @@
         for (var i = 1; i < pts.length; i++) {
           var a = pts[i - 1];
           var b = pts[i];
-          var dx = b.x - a.x;
-          var dy = (b.y - a.y) * k0;
+          var dx = (b.x - a.x) * kx;
+          var dy = (b.y - a.y) * ky;
           var len = Math.hypot(dx, dy) || 1;
           var nx = dy / len;
           var ny = -dx / len;
-          var x = b.x + nx * s[0] * b.r;
-          var y = Y(b.y) + ny * s[0] * b.r * k0;
+          var x = X(b.x) + nx * s[0] * b.r * kx;
+          var y = Y(b.y) + ny * s[0] * b.r * ky;
           if (i === 1) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
       });
       ctx.restore();
-      return { x: last.x, y: Y(last.y), r: last.r };
+      return { x: X(last.x), y: Y(last.y), r: last.r * kx };
     }
 
     // How far one stage of the finish has got: it starts at from seconds and takes dur.
@@ -920,29 +932,39 @@
       return smooth(clamp((since - from) / dur, 0, 1));
     }
 
+    // The turn being laid: it reaches down into the turn below as a settled turn does, so no seam
+    // shows (D-030, fix a); its top is still the level, and at a whole turn it's a settled turn.
+    function laying(level, c, rest) {
+      return { top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * (rest + 0.12)) / 1.12 };
+    }
+
+    // The lowest point of a turn as drawCoil draws it: the bottom of its lower, left-hand end.
+    function coilBottom(c) {
+      var h = c.ch * 1.12;
+      var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+      return c.top + c.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt) + (c.hw - h / 2) * Math.sin(tilt) + h / 2;
+    }
+
     function drawCoils(level, topped) {
       var n = coilCount();
       var laid = clamp(level, 0, 1) * n;
       var full = Math.min(n, Math.floor(laid));
       var rest = laid - full;
-      // served on a whole turn, its tip forms in place of the last turn (Codex, round 1 of look b)
-      if (topped && full > 0 && rest < 0.001) {
-        full -= 1;
-        rest = 1;
-      }
       for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
-      if (full >= n || rest < 0.001) return;
+      // served on a whole turn, it still gets its tip, a small one (Codex, round 1 of look b)
+      if (full >= n || (rest < 0.001 && !topped)) return;
       var c = coilAt(full, n);
       var floor = g.bottom - c.ch * full; // the top of the turns already laid
-      // it reaches down into the turn below as a settled turn does, so no seam shows (D-030, fix a);
-      // its top is still the level, and at a whole turn it's exactly a settled turn
-      if (!topped) return drawCoil({ top: yAt(level), hw: c.hw, ch: Math.max(3, c.ch * (rest + 0.12)) / 1.12 }, rest);
+      if (!topped) return drawCoil(laying(level, c, rest), rest);
+      // Served, the tip takes the place of the turn being laid and ends where it ended, so nothing
+      // below it moves (owner, 2026-10-23).
+      var foot = coilBottom(laying(level, c, rest));
       var below = full > 0 ? coilAt(full - 1, n) : c;
       var hw = Math.min(c.hw, below.hw * 0.92);
       var t = dr.topping;
       // a stick goes in before the tip is drawn over its foot, so it's partly hidden
       if (t && t.kind === "stick") drawStick(floor, hw, stage(0.18, 0.22));
-      drawTip(floor + c.ch * 0.25, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
+      drawTip(foot, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
       if (t && t.kind === "drizzle") drawSauce(floor, yAt(level), hw, n, full, since - 0.18);
       if (t && t.kind === "scatter") drawScatter(floor, yAt(level), hw, n, full, since - 0.18);
     }

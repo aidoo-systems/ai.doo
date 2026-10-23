@@ -1009,6 +1009,29 @@ def test_the_turn_being_laid_reaches_into_the_turn_below(ui):
     assert checked >= 5, ui["whippySeams"]
 
 
+def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
+    # Owner, 2026-10-23: the base shifted down as a serve finished. The tip's foot reached most
+    # of a turn below the piece it replaced. Now the turns below stay exactly as poured, and the
+    # finished top ends where the turn being laid ended.
+    checked = 0
+    for run in ui["whippyRelease"]:
+        poured = run["poured"]
+        if len(poured) < 2:
+            continue
+        for frame in run["finish"]:
+            if not frame:
+                continue
+            kept = len(frame) - 1
+            assert kept == len(poured) - 1, run["hold"]
+            assert frame[:kept] == poured[:kept], run["hold"]
+            replaced = poured[-1][1]
+            assert frame[-1][1] <= replaced + 0.5, (run["hold"], frame[-1], poured)
+            # the driver reads a rounded turn's bottom from its corners, a few pixels low
+            assert frame[-1][1] >= replaced - 5, (run["hold"], frame[-1], poured)
+        checked += 1
+    assert checked >= 10, ui["whippyRelease"]
+
+
 def test_the_top_of_the_serve_is_the_height_scored(ui):
     # Tilted turns once rose above the scored height: at 0.60 the stack read 0.64, past a
     # 0.62 line the engine still called short (Codex, round 1 of the coils).

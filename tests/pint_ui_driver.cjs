@@ -490,6 +490,25 @@ async function started(search, tweak) {
     const turnsDrawn = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
     out.whippySeams.push({ hold, turns: turnsDrawn.map((f) => ({ top: f.top, bottom: f.bottom })) });
   }
+  // Owner, 2026-10-23: when a serve finished, its base shifted down. Every turn of the stack, on
+  // the last frame poured and on each frame of the finish, top and bottom, bottom turn first.
+  out.whippyRelease = [];
+  const stackNow = () => {
+    page.fills.length = 0;
+    page.advance(16);
+    return page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity).map((f) => [f.top, f.bottom]);
+  };
+  for (let hold = 300; hold <= 1700; hold += 80) {
+    page = await started("?skin=icecream");
+    page.advance(500);
+    page.down(1);
+    page.advance(hold);
+    const poured = stackNow();
+    page.up(1);
+    const finish = [];
+    for (let t = 0; t < 900; t += 16) finish.push(stackNow());
+    out.whippyRelease.push({ hold, say: page.get("say").textContent, poured, finish });
+  }
   // What is seen is what is scored (Codex, round 1 of the coils): once poured, the top of the
   // soft serve (every shape a gradient fills: the turns and the curl) is the height the
   // result's bracket measures to.
