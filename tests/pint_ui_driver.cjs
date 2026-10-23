@@ -600,8 +600,9 @@ async function started(search, tweak) {
       t: t + 16,
       top: stack.length ? Math.min(...stack.map((f) => f.top)) : null,
       base: stack.length ? [stack[0].left, stack[0].right] : null,
+      turn: stack.length ? stack.map((f) => f.bottom - f.top).sort((x, y) => x - y)[Math.floor(stack.length / 2)] : null,
       glint: page.trace.some((l) => /^strokeStyle=rgba\(255,255,255,0\.([7-9]\d*)\)/.test(l)),
-      sauce: coat.map((f) => ({ top: f.top, bottom: f.bottom, left: f.left, right: f.right, circles: f.circles, alpha: f.alpha, plain: f.colour === sauce, pts: f.colour === sauce ? f.pts : null })),
+      sauce: coat.map((f) => ({ top: f.top, bottom: f.bottom, left: f.left, right: f.right, circles: f.circles, alpha: f.alpha, plain: f.colour === sauce, pts: f.pts })),
     });
   }
   page.capturing(false);

@@ -4,6 +4,7 @@ The game's rules live in play/pour/engine.js and are run here under Node, so a
 skin is proved to be data: the tests hand the same engine a skin it has never seen.
 """
 
+import math
 import copy
 import json
 import os
@@ -1100,8 +1101,10 @@ def test_the_sauce_falls_as_a_tapered_thread_with_a_rounded_end(ui):
         assert widest > 0 and height >= 2.5 * widest, (frame["t"], height, widest)
         # bands run top to bottom: the tail is thin, the leading end is wide
         assert sum(bands[-5:]) >= 1.8 * sum(bands[:5]), (frame["t"], bands)
-        fine = _widths(thread["pts"], 24)[1]
-        assert fine[-1] <= 0.75 * widest, (frame["t"], fine)
+        # the lowest half pixel of it is a point, not a flat cut
+        lowest = max(p[1] for p in thread["pts"])
+        end = [p[0] for p in thread["pts"] if p[1] >= lowest - 0.5]
+        assert max(end) - min(end) <= 0.5 * widest, (frame["t"], end)
 
 
 def test_the_landing_pools_into_a_round_blob_that_spreads_into_the_ribbon(ui):
@@ -1136,6 +1139,114 @@ def test_the_landing_pools_into_a_round_blob_that_spreads_into_the_ribbon(ui):
     for (t0, w0), (t1, w1) in zip(widths, widths[1:]):
         assert w1 >= w0 * 0.96 - 1.0, (t0, w0, t1, w1)
     assert widths[-1][1] >= max(w for _, w in blobs), (widths[-1], blobs)
+
+
+def _turn(ui):
+    # One turn of the stack, as drawn, in pixels: the sizes below are fractions of it.
+    turns = sorted(f["turn"] for f in ui["whippyDrizzle"]["frames"] if f["turn"])
+    return turns[len(turns) // 2]
+
+
+def test_the_sauce_is_a_fine_drizzle_not_big_drops(ui):
+    # P2.0x (owner on a phone, 2026-10-23: "the drops feel a bit large, feels less like a drizzle"):
+    # a thin thread, a small bead where it lands, a ribbon about as thick as sauce 1's, and small,
+    # short drips that have all finished by 700ms after contact. Sizes are fractions of a turn.
+    frames, contact = _drizzle(ui)
+    turn = _turn(ui)
+    # the thread, widest, just before it lands
+    widest = 0.0
+    for f in frames:
+        if contact - 48 <= f["t"] < contact - 8:
+            for shape in f["sauce"]:
+                if shape["plain"] and shape["pts"]:
+                    xs = [p[0] for p in shape["pts"]]
+                    widest = max(widest, max(xs) - min(xs))
+    assert 0 < widest <= 0.13 * turn, (widest, turn)
+    # the blob (a path of two curves), before it spreads into the ribbon
+    blobs = [
+        shape["right"] - shape["left"]
+        for f in frames
+        if contact <= f["t"] <= contact + 200
+        for shape in f["sauce"]
+        if not shape["plain"]
+        and not shape["circles"]
+        and shape["pts"]
+        and len(shape["pts"]) <= 9
+    ]
+    assert blobs and max(blobs) <= 0.34 * turn, (max(blobs, default=0), turn)
+    # the ribbon, once settled: its median thickness (the top edge to the bottom edge, side by side)
+    settled = next(f for f in frames if f["t"] >= contact + 600)
+    ribbon = max(
+        (
+            x
+            for x in settled["sauce"]
+            if not x["plain"] and not x["circles"] and len(x["pts"]) > 20
+        ),
+        key=lambda x: x["right"] - x["left"],
+    )
+    # top edge, an eleven-point cap, the bottom edge back, an eleven-point cap
+    pts = ribbon["pts"]
+    body = (len(pts) - 22) // 2
+    gaps = sorted(
+        b[1] - t[1] for t, b in zip(pts[:body], pts[body + 11 : 2 * body + 11][::-1])
+    )
+    assert 0.12 * turn <= gaps[len(gaps) // 2] <= 0.18 * turn, (
+        gaps[len(gaps) // 2],
+        turn,
+    )
+    # the drips: small bulbs, at most 0.62 of a turn long, each at rest by 700ms after contact
+    drips = {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in drips if abs(k - centre) < 6), round(centre))
+                length = shape["bottom"] - shape["top"]
+                row = drips.setdefault(
+                    key, {"width": 0.0, "length": 0.0, "moved": 0, "last": length}
+                )
+                row["width"] = max(row["width"], shape["right"] - shape["left"])
+                if abs(length - row["last"]) > 0.4:
+                    row["moved"] = f["t"]
+                row["last"], row["length"] = length, length
+    assert len(drips) == 3, drips
+    for key, row in drips.items():
+        assert row["width"] <= 0.15 * turn, (key, row, turn)
+        assert row["length"] <= 0.62 * turn, (key, row, turn)
+        assert row["moved"] <= contact + 700, (key, row, contact)
+
+
+def test_the_ribbon_has_no_square_ends_or_steps(ui):
+    # P2.0x (owner, 2026-10-23: the drizzle "sort of squares off"): the ribbon ends in rounded
+    # tips and dips over a turn's edge in one smooth curve. Its outline (a path of many points;
+    # the blob, the drips and the thread are not it) turns by no more than 60 degrees at any
+    # point, so no corner is sharper than 120 degrees, from 180 to 760ms after contact.
+    frames, contact = _drizzle(ui)
+    checked = 0
+    for f in frames:
+        if not contact + 180 <= f["t"] <= contact + 760:
+            continue
+        for shape in f["sauce"]:
+            pts = shape["pts"]
+            if shape["plain"] or shape["circles"] or not pts or len(pts) < 20:
+                continue
+            # drop points that sit on top of each other
+            line = [
+                p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 0.3
+            ]
+            for i in range(len(line)):
+                a, b, c = line[i - 1], line[i], line[(i + 1) % len(line)]
+                v1, v2 = (b[0] - a[0], b[1] - a[1]), (c[0] - b[0], c[1] - b[1])
+                turn = abs(
+                    math.degrees(
+                        math.atan2(
+                            v1[0] * v2[1] - v1[1] * v2[0], v1[0] * v2[0] + v1[1] * v2[1]
+                        )
+                    )
+                )
+                assert turn <= 60, (f["t"], round(turn), b, a, c)
+            checked += 1
+    assert checked >= 25, checked
 
 
 def test_the_three_drips_differ_in_length_and_in_when_they_start(ui):
