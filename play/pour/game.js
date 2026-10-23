@@ -37,6 +37,14 @@
     var n = parseInt(h.slice(0, 6), 16);
     return "rgba(" + (n >> 16) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")";
   }
+  // A skin colour taken toward white (k above 0) or a dark wine (k below 0), for shading.
+  function shade(hex, k) {
+    var c = rgba(hex, 1).slice(5, -3).split(",").map(Number);
+    var to = k > 0 ? [255, 255, 255] : [40, 0, 10];
+    return "rgb(" + c.map(function (v, i) {
+      return Math.round(v + (to[i] - v) * Math.abs(k));
+    }).join(",") + ")";
+  }
 
   function skinId() {
     var asked = new URLSearchParams(location.search).get("skin");
@@ -1005,49 +1013,74 @@
       return g.bottom;
     }
 
-    // Sauce: a drop falls onto the tip, spreads over it, then runs down the turns in three drips.
+    // Sauce (D-030, sauce 3): a drop falls onto the tip, then coats the top like a cap, thinning
+    // to nothing at both ends, with a scalloped edge of drips, shaded across, a broad shine and a
+    // bead on each long drip. None of it rises above the tip or hangs past the bottom turn.
     function drawSauce(floor, tip, hw, n, full, s) {
       var col = dr.topping.colours[0];
       if (s <= 0) return;
-      var q = clamp(s / 0.4, 0, 1);
-      ctx.save();
-      ctx.fillStyle = col;
-      ctx.strokeStyle = col;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
+      var q = clamp(s / 0.45, 0, 1);
       var lw = Math.max(3, g.gw * 0.06);
-      if (q < 0.25) {
-        var y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
+      var y;
+      ctx.save();
+      if (q < 0.2) {
+        y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
         ctx.beginPath();
         ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.ellipse(g.cx - lw * 0.3, y - lw * 0.4, lw * 0.22, lw * 0.35, -0.4, 0, 6.3);
+        ctx.fillStyle = "rgba(255,255,255,.7)";
         ctx.fill();
         ctx.restore();
         return;
       }
-      var spread = smooth(clamp((q - 0.25) / 0.3, 0, 1));
-      var wide = hw * 1.25 * spread;
-      ctx.lineWidth = lw;
+      var flow = smooth((q - 0.2) / 0.8);
+      var wide = Math.min(hw * 1.2, coilAt(0, n).hw - lw) * smooth((q - 0.2) / 0.35);
+      var on = function (x) {
+        return Math.max(tip, surfaceY(x, floor, tip, hw, n, full) - lw * 0.35);
+      };
+      var drips = [-0.85, -0.45, -0.05, 0.4, 0.8];
+      var lens = [0.11, 0.05, 0.14, 0.07, 0.12];
+      var x;
       ctx.beginPath();
-      for (var x = g.cx - wide; x <= g.cx + wide; x += 3) {
-        var yy = surfaceY(x, floor, tip, hw, n, full) + Math.sin(x * 0.2) * 1.5;
-        if (x === g.cx - wide) ctx.moveTo(x, yy);
-        else ctx.lineTo(x, yy);
+      for (x = g.cx - wide; x <= g.cx + wide + 0.1; x += 1.5) {
+        if (x === g.cx - wide) ctx.moveTo(x, on(x));
+        else ctx.lineTo(x, on(x));
       }
+      // back along the lower edge: thickest in the middle, a drip hanging wherever there's one
+      for (x = g.cx + wide; x >= g.cx - wide - 0.1; x -= 1.5) {
+        var d = 0;
+        drips.forEach(function (f, i) {
+          var k = Math.max(0, 1 - Math.pow((x - (g.cx + f * wide)) / (lw * 0.9), 2));
+          d = Math.max(d, Math.sqrt(k) * lens[i] * g.gh * flow);
+        });
+        var e = Math.sqrt(Math.max(0, 1 - Math.pow((x - g.cx) / Math.max(1, wide), 2)));
+        ctx.lineTo(x, on(x) + (lw * 1.05 + d) * e);
+      }
+      ctx.closePath();
+      var grad = ctx.createLinearGradient(g.cx - wide, 0, g.cx + wide, 0);
+      grad.addColorStop(0, shade(col, -0.3));
+      grad.addColorStop(0.3, shade(col, 0.1));
+      grad.addColorStop(0.6, col);
+      grad.addColorStop(1, shade(col, -0.45));
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.lineWidth = Math.max(1, lw * 0.16);
+      ctx.strokeStyle = shade(col, -0.5);
       ctx.stroke();
-      var run = smooth(clamp((q - 0.45) / 0.55, 0, 1));
-      [-0.75, 0.15, 0.9].forEach(function (f, i) {
-        var dx = g.cx + f * hw * 1.15;
-        if (Math.abs(dx - g.cx) > wide) return;
-        var y0 = surfaceY(dx, floor, tip, hw, n, full);
-        var len = run * g.gh * (0.1 + 0.07 * i);
-        if (len < 1) return;
+      ctx.beginPath();
+      ctx.ellipse(g.cx - wide * 0.35, on(g.cx - wide * 0.35) + lw * 0.45, wide * 0.22, lw * 0.22, -0.25, 0, 6.3);
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.fill();
+      drips.forEach(function (f, i) {
+        if (lens[i] < 0.1) return;
+        var bx = g.cx + f * wide;
+        var by = on(bx) + lw * 1.05 + lens[i] * g.gh * flow;
         ctx.beginPath();
-        ctx.moveTo(dx, y0);
-        // it bulges a little where it goes over each turn's edge
-        for (var yy2 = y0; yy2 <= y0 + len; yy2 += 2) ctx.lineTo(dx + Math.sin((yy2 - y0) * 0.18) * 1.6, yy2);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.arc(dx, y0 + len + 1, lw * 0.62, 0, 6.3);
+        ctx.ellipse(bx - lw * 0.2, by - lw * 0.35, lw * 0.13, lw * 0.25, -0.3, 0, 6.3);
+        ctx.fillStyle = "rgba(255,255,255,.7)";
         ctx.fill();
       });
       ctx.restore();

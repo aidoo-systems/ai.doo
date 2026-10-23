@@ -41,6 +41,8 @@ function boot(search, tweak) {
   const fills = [];
   let pathTop = Infinity;
   let pathBottom = -Infinity;
+  let pathLeft = Infinity;
+  let pathRight = -Infinity;
   let pathCircles = false;
   let gradientFill = false;
   let fillColour = null;
@@ -55,11 +57,14 @@ function boot(search, tweak) {
     const yy = m[1] * x + m[3] * y + m[5];
     pathTop = Math.min(pathTop, yy);
     pathBottom = Math.max(pathBottom, yy);
+    const xx = m[0] * x + m[2] * y + m[4];
+    pathLeft = Math.min(pathLeft, xx);
+    pathRight = Math.max(pathRight, xx);
     return Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, yy));
   };
   const moves = {
-    beginPath: () => ((pathTop = Infinity), (pathBottom = -Infinity), (pathCircles = false)),
-    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, bottom: pathBottom, circles: pathCircles, colour: fillColour, at: drawn.length }),
+    beginPath: () => ((pathTop = Infinity), (pathBottom = -Infinity), (pathLeft = Infinity), (pathRight = -Infinity), (pathCircles = false)),
+    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, bottom: pathBottom, left: pathLeft, right: pathRight, circles: pathCircles, colour: fillColour, at: drawn.length }),
     arc: () => (pathCircles = true),
     save: () => (saved.push(m.slice()), clips.push(clipped)),
     restore: () => ((m = saved.pop() || [1, 0, 0, 1, 0, 0]), (clipped = clips.pop() || false)),
@@ -441,7 +446,9 @@ async function started(search, tweak) {
   stage = 420;
   const whippyFile = path.join(GAME, "skins", "giddy-puffin.json");
   const whippy = fs.existsSync(whippyFile) ? JSON.parse(fs.readFileSync(whippyFile, "utf8")) : { rounds: [], drink: {} };
-  const paints = (trace, colours) => colours.some((c) => trace.includes("fillStyle=" + c) || trace.includes("strokeStyle=" + c));
+  // a colour painted plain, or as a stop of a gradient (the sauce is shaded, D-030)
+  const paints = (trace, colours) =>
+    colours.some((c) => trace.includes("fillStyle=" + c) || trace.includes("strokeStyle=" + c) || trace.some((t) => t.startsWith("stop(") && t.endsWith("," + c + ")")));
   out.whippyRounds = [];
   page = await started("?skin=icecream");
   for (const r of whippy.rounds) {
@@ -501,6 +508,31 @@ async function started(search, tweak) {
     canvas: page.trace.filter((t) => t.startsWith("fill(object")),
     svgs: ["emblem", "playEmblem", "doneEmblem", "claimEmblem"].map((id) => page.get(id).firstElementChild.attrs),
   };
+  // D-030, sauce 3: the cup's sauce coats the top like a cap and drips off its edge. Once the
+  // drop has landed, every frame: the sauce's shapes, the serve's top and its bottom turn.
+  out.whippySauce = [];
+  const sauce = whippy.rounds[1] && whippy.rounds[1].serve.topping.colours[0];
+  for (let hold = 560; hold <= 1060; hold += 100) {
+    page = await started("?skin=icecream");
+    page.advance(500);
+    page.down(1);
+    page.advance(700);
+    page.up(1);
+    page.advance(2500);
+    page.down(1);
+    page.advance(hold);
+    page.up(1);
+    page.advance(420);
+    const frames = [];
+    for (let t = 0; t < 600; t += 16) {
+      page.fills.length = 0;
+      page.advance(16);
+      const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+      const coat = page.fills.filter((f) => (f.stops.includes(sauce) || f.colour === sauce) && f.top < Infinity);
+      if (stack.length) frames.push({ top: Math.min(...stack.map((f) => f.top)), base: [stack[0].left, stack[0].right], sauce: coat.map((f) => [f.top, f.left, f.right]) });
+    }
+    out.whippySauce.push({ hold, say: page.get("say").textContent, frames });
+  }
   // Owner, 2026-10-23: when a serve finished, its base shifted down. Every turn of the stack, on
   // the last frame poured and on each frame of the finish, top and bottom, bottom turn first.
   out.whippyRelease = [];
