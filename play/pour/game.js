@@ -1013,113 +1013,370 @@
       return g.bottom;
     }
 
-    // Sauce (D-030, sauce 1): a drop falls onto the tip, then spreads into a glossy ribbon over
-    // the top, thick in the middle and thin at its ends, shaded top to bottom, with a broken
-    // gloss along it and three drips that run down and end in round bulbs. None of it rises
-    // above the tip or reaches past the bottom turn.
+    // Sauce (D-030, sauce 1, then C3 on P2.0x): a thread of sauce falls onto the tip, wide and
+    // rounded at its leading end and thin at its tail. Where it lands the end pools into a round
+    // blob that swells as the thread feeds it; the thread necks, breaks, and its tail drops in.
+    // The blob then levels off and spreads out into a glossy ribbon over the top (thick where it
+    // landed, shaded top to bottom, thinning as it runs, sagging into the grooves between the
+    // turns), and three short, fat drips gather, creep and stop, each a different length and let
+    // go at a different moment. One glint travels along it once it has settled, and is over by
+    // 700ms. Only the falling thread is ever above the tip; none of the rest rises above it, or
+    // reaches past the bottom turn.
+    function eOut(t) {
+      return 1 - Math.pow(1 - clamp(t, 0, 1), 2.2);
+    }
+    function eIn(t) {
+      t = clamp(t, 0, 1);
+      return t * t;
+    }
+
     function drawSauce(floor, tip, hw, n, full, s) {
       var col = dr.topping.colours[0];
       if (s <= 0) return;
-      var q = clamp(s / 0.4, 0, 1);
+      var T0 = 0.1; // the thread's leading end touches the tip
       var lw = Math.max(3, g.gw * 0.06);
-      var y;
-      ctx.save();
-      if (q < 0.25) {
-        y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
-        ctx.beginPath();
-        ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
-        ctx.fillStyle = col;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(g.cx - lw * 0.3, y - lw * 0.4, lw * 0.22, lw * 0.35, -0.4, 0, 6.3);
-        ctx.fillStyle = "rgba(255,255,255,.7)";
-        ctx.fill();
-        ctx.restore();
-        return;
-      }
+      var lwd = lw * 0.85; // the drips' scale: small bulbs
       var room = coilAt(0, n).hw - lw; // the bulbs' edge stays inside the bottom turn
-      var wide = Math.min(hw * 1.25, room) * smooth((q - 0.25) / 0.3);
-      var run = smooth((q - 0.45) / 0.55);
+      var wide = Math.min(hw * 1.25, room);
       var on = function (x) {
         return surfaceY(x, floor, tip, hw, n, full);
       };
-      [-0.75, 0.15, 0.9].forEach(function (f, i) {
-        var x = g.cx + f * Math.min(hw * 1.15, room);
-        if (Math.abs(x - g.cx) > wide) return;
-        drip(x, on(x) + lw * 0.4, run * g.gh * (0.1 + 0.07 * i), lw, col);
-      });
-      var top = [];
-      var bot = [];
-      for (var x = g.cx - wide; x <= g.cx + wide + 0.1; x += 2) {
-        y = on(x);
-        var edge = 1 - Math.pow(Math.abs(x - g.cx) / Math.max(1, wide), 3);
-        var th = lw * (0.5 + 0.9 * edge) * (1 + 0.18 * Math.sin(x * 0.35));
-        top.push([x, Math.max(tip, y - th * 0.45)]);
-        bot.push([x, y + th * 0.55]);
+      // The cream's top edge, blurred: the turns' tops step down in a stair, and the sauce lies
+      // along it as one smooth curve over a turn's edge, not a stair of its own.
+      var bx = g.cx - wide - lw * 2;
+      var raw = [];
+      for (var i = 0; i * 2 <= 2 * wide + lw * 4; i++) raw.push(on(bx + i * 2));
+      for (var pass = 0; pass < 3; pass++) {
+        raw = raw.map(function (v, j) {
+          var sum = 0;
+          for (var d = -3; d <= 3; d++) sum += raw[Math.max(0, Math.min(raw.length - 1, j + d))];
+          return sum / 7;
+        });
       }
-      if (top.length < 2) {
+      // and never steeper than a gentle drape, so no end of it can run straight down
+      var mid0 = Math.round((g.cx - bx) / 2);
+      for (var q = mid0 + 1; q < raw.length; q++) raw[q] = clamp(raw[q], raw[q - 1] - 1.4, raw[q - 1] + 1.4);
+      for (var q2 = mid0 - 1; q2 >= 0; q2--) raw[q2] = clamp(raw[q2], raw[q2 + 1] - 1.4, raw[q2 + 1] + 1.4);
+      var lie = function (x) {
+        var f = clamp((x - bx) / 2, 0, raw.length - 1.001);
+        var k = Math.floor(f);
+        return lerp(raw[k], raw[k + 1], f - k);
+      };
+      var x0 = g.cx - 0.12 * wide; // where it lands: off the middle, so it runs one way
+      var a = s - T0; // seconds since contact
+      ctx.save();
+      if (a < 0) {
+        sauceThread(x0, tip, lw, col, s, T0, a);
         ctx.restore();
         return;
       }
-      var trace = function (pts) {
-        pts.forEach(function (p, i) {
-          if (i) ctx.lineTo(p[0], p[1]);
-          else ctx.moveTo(p[0], p[1]);
-        });
+      var lag = 0.05; // the ribbon starts once the blob has begun to swell
+      var frontL = function (t) {
+        return lerp(x0, g.cx - wide * 0.92, eOut(t / 0.6));
       };
-      var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
-      grad.addColorStop(0, shade(col, 0.15));
-      grad.addColorStop(0.5, col);
-      grad.addColorStop(1, shade(col, -0.4));
-      ctx.beginPath();
-      trace(top);
-      for (var k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0], bot[k][1]);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-      // its underside darker where it sits on the cream
-      ctx.beginPath();
-      trace(bot);
-      ctx.lineWidth = Math.max(1, lw * 0.18);
-      ctx.strokeStyle = shade(col, -0.5);
-      ctx.stroke();
-      // a gloss along the top, broken in two
-      ctx.lineCap = "round";
-      ctx.lineWidth = Math.max(1.2, lw * 0.22);
-      ctx.strokeStyle = "rgba(255,255,255,.65)";
-      [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
-        var from = Math.floor(seg[0] * top.length);
-        ctx.beginPath();
-        for (var m = from; m < seg[1] * top.length; m++) {
-          if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
-          else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+      var frontR = function (t) {
+        return lerp(x0, g.cx + wide, eOut(t / 0.45));
+      };
+      var xL = frontL(Math.max(0, a - lag));
+      var xR = frontR(Math.max(0, a - lag));
+      var settle = smooth((a - 0.15) / 0.5); // the ribbon sinking into the grooves
+      var period = g.gw * 0.2;
+      var groove = function (x) {
+        return 0.5 + 0.5 * Math.sin(((x - g.cx) / period) * 6.283 - 1.2);
+      };
+      sauceThread(x0, tip, lw, col, s, T0, a);
+      // the drips: each lets go when the ribbon's front passes it, a bead gathering first
+      var drips = [];
+      [[-0.75, 0.235, 0.6, 0], [0.15, 0.22, 0.38, 0.12], [0.9, 0.235, 0.5, 0.06]].forEach(function (sp) {
+        var x = g.cx + sp[0] * Math.min(hw * 1.15, room);
+        var reach = -1;
+        for (var t = 0; t <= 1.2; t += 0.01) {
+          if (x >= frontL(t) && x <= frontR(t)) {
+            reach = t + lag;
+            break;
+          }
         }
-        ctx.stroke();
+        if (reach < 0) return;
+        var len = coilAt(0, n).ch * sp[2]; // short: well within a turn
+        var start = reach + sp[3];
+        var gather = 0.08;
+        var dur = sp[1] * 0.85;
+        var u = (a - start - gather) / dur;
+        if (u <= 0) {
+          var bead = smooth((a - start) / gather);
+          if (bead > 0) sauceBead(x, lie(x) + lw * 0.4, lwd, col, bead);
+          return;
+        }
+        var k = Math.min(u, 1);
+        // slow in, speed up, ease as the bulb fills; a hair of overshoot, then rest
+        var base = k < 1 ? Math.pow(k, 1.8) * (1 - k) + smooth(k) * k : 1;
+        var settled = u > 1 ? (u - 1) * dur : 0;
+        var over = Math.exp(-settled / 0.07) * Math.sin(settled * 38);
+        var wob = Math.exp(-settled / 0.12) * Math.sin(settled * 30);
+        var vel = k < 1 ? Math.sin(k * 3.14159) * 0.5 : 0;
+        var sway = Math.sin(a * 11 + sp[0]) * 0.9 * (1 - k);
+        drips.push(function () {
+          drip(x + sway, lie(x) + lw * 0.4, len * (base + (u > 1 ? 0.06 * over : 0)), lwd, col, vel, wob);
+        });
       });
+      drips.forEach(function (draw) {
+        draw();
+      });
+      // the ribbon: thick where it landed, thinning as it runs; sagging into the grooves
+      if (xR - xL >= 2 * lw) {
+        var mid = (xL + xR) / 2;
+        var half = (xR - xL) / 2;
+        // thickness at x: thick where it landed and mid-run, the same either side of a groove
+        var thick = function (x) {
+          var edge = 1 - Math.pow(Math.min(1, Math.abs(x - mid) / Math.max(1, half)), 3);
+          var th = lw * (0.85 + 0.45 * edge) * (1 + 0.12 * Math.sin(x * 0.35));
+          th *= 1 + 0.9 * Math.exp(-Math.pow((x - x0) / (lw * 2.2), 2)) * Math.exp(-a / 0.5);
+          return th * (0.55 + 0.45 * smooth((a - lag) / 0.15));
+        };
+        // each end is a round cap of its own thickness; the body runs between them
+        var rL = thick(xL) / 2;
+        var rR = thick(xR) / 2;
+        var top = [];
+        var bot = [];
+        var edgeAt = function (x) {
+          var th = thick(x);
+          var yt = Math.max(tip, lie(x) - th * 0.45 + lw * 0.5 * settle * groove(x));
+          return [[x, yt], [x, yt + th]];
+        };
+        var x1 = Math.max(xL + rL, xR - rR);
+        for (var x = xL + rL; x < x1 + 1; x += 2) {
+          var e2 = edgeAt(Math.min(x, x1));
+          top.push(e2[0]);
+          bot.push(e2[1]);
+        }
+        // a cap rounds an end along the ribbon's own direction there, so it joins the edges
+        // without a corner even where the ribbon is steep, dipping over a turn's edge
+        var cap = function (i1, i0) {
+          var c1 = [(top[i1][0] + bot[i1][0]) / 2, (top[i1][1] + bot[i1][1]) / 2];
+          var c0 = top.length > 1 ? [(top[i0][0] + bot[i0][0]) / 2, (top[i0][1] + bot[i0][1]) / 2] : [c1[0] - 1, c1[1]];
+          var tx = c1[0] - c0[0];
+          var ty = c1[1] - c0[1];
+          var tl = Math.hypot(tx, ty) || 1;
+          var ux = (bot[i1][0] - top[i1][0]) / 2;
+          var uy = (bot[i1][1] - top[i1][1]) / 2;
+          var r = Math.hypot(ux, uy);
+          var out = [];
+          for (var ang = -75; ang <= 75; ang += 15) {
+            var rad = (ang * Math.PI) / 180;
+            out.push([c1[0] + ux * Math.sin(rad) + (tx / tl) * r * Math.cos(rad), c1[1] + uy * Math.sin(rad) + (ty / tl) * r * Math.cos(rad)]);
+          }
+          return out;
+        };
+        var capR = cap(top.length - 1, Math.max(0, top.length - 2));
+        var capL = cap(0, Math.min(1, top.length - 1)).reverse();
+        var outline = top.concat(capR, bot.slice().reverse(), capL);
+        var trace = function (pts) {
+          pts.forEach(function (p, i) {
+            if (i) ctx.lineTo(p[0], p[1]);
+            else ctx.moveTo(p[0], p[1]);
+          });
+        };
+        var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
+        grad.addColorStop(0, shade(col, 0.25));
+        grad.addColorStop(0.5, col);
+        grad.addColorStop(1, shade(col, -0.22));
+        ctx.beginPath();
+        trace(outline);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+        // its underside a little darker where it sits on the cream, its top edge lit
+        ctx.beginPath();
+        trace(bot);
+        ctx.lineWidth = Math.max(1, lw * 0.18);
+        ctx.strokeStyle = shade(col, -0.28);
+        ctx.stroke();
+        ctx.beginPath();
+        trace(top);
+        ctx.lineWidth = Math.max(1, lw * 0.2);
+        ctx.strokeStyle = shade(col, 0.4);
+        ctx.stroke();
+        sauceBlob(x0, tip, lw, col, a, xL, xR);
+        // a gloss along the top, broken in two; it dims as one glint travels along it
+        ctx.lineCap = "round";
+        ctx.lineWidth = Math.max(1.2, lw * 0.22);
+        var dim = 0.65 - 0.3 * smooth(((a - 0.4) / 0.3) * 1.3);
+        ctx.strokeStyle = "rgba(255,255,255," + dim * smooth((a - 0.05) / 0.2) + ")";
+        [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
+          var from = Math.floor(seg[0] * top.length);
+          ctx.beginPath();
+          for (var m = from; m < seg[1] * top.length; m++) {
+            if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
+            else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+          }
+          ctx.stroke();
+        });
+        var gp = (a - 0.3) / 0.4; // the glint: from 300ms to 700ms after contact
+        if (gp > 0 && gp < 1) {
+          var gc = lerp(0.05, 0.95, smooth(gp)) * (top.length - 1);
+          var span = Math.max(3, top.length * 0.12);
+          var m0 = Math.max(0, Math.floor(gc - span / 2));
+          ctx.lineWidth = Math.max(1.6, lw * 0.3);
+          ctx.strokeStyle = "rgba(255,255,255," + 0.95 * Math.sin(gp * 3.14159) + ")";
+          ctx.beginPath();
+          for (var m2 = m0; m2 < Math.min(top.length, gc + span / 2); m2++) {
+            if (m2 === m0) ctx.moveTo(top[m2][0], top[m2][1] + lw * 0.3);
+            else ctx.lineTo(top[m2][0], top[m2][1] + lw * 0.3);
+          }
+          ctx.stroke();
+        }
+      } else {
+        sauceBlob(x0, tip, lw, col, a, xL, xR);
+      }
       ctx.restore();
     }
 
-    // A drip of sauce from y0, tapering to a neck and ending in a round bulb, lit from the left.
-    function drip(x, y0, len, lw, col) {
+    // A soft tapered thread: a round, wide leading end narrowing up to a thin tail, with curved
+    // sides. neck (0 to 1) pinches it where it will break.
+    function threadShape(x, hy, ty, R, neckAt, neck) {
+      var len = hy - ty;
+      if (len < 2) return;
+      R = Math.min(R, len / 2);
+      var N = 30;
+      var left = [];
+      var right = [];
+      for (var i = 0; i <= N; i++) {
+        var d = (i / N) * len;
+        var w = d < R ? Math.sqrt(Math.max(0, R * R - (R - d) * (R - d))) : R * (0.2 + 0.8 * Math.exp(-(d - R) / (0.45 * len)));
+        w *= Math.pow(Math.max(0, Math.min(1, (len - d) / (0.28 * len + 1e-3))), 0.7);
+        if (neck > 0) w *= 1 - neck * Math.exp(-Math.pow((d - neckAt * len) / (0.09 * len + 1), 2));
+        var y = hy - d;
+        var sx = Math.sin(y * 0.09) * 0.5 * (d / len);
+        left.push([x + sx - w, y]);
+        right.push([x + sx + w, y]);
+      }
+      ctx.beginPath();
+      left.forEach(function (p, i) {
+        if (i) ctx.lineTo(p[0], p[1]);
+        else ctx.moveTo(p[0], p[1]);
+      });
+      for (var k = right.length - 1; k >= 0; k--) ctx.lineTo(right[k][0], right[k][1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      for (var m = 2; m < N * 0.6; m++) {
+        var hx = left[m][0] + (right[m][0] - left[m][0]) * 0.3;
+        if (m === 2) ctx.moveTo(hx, left[m][1]);
+        else ctx.lineTo(hx, left[m][1]);
+      }
+      ctx.lineWidth = Math.max(1, R * 0.25);
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(255,255,255,.5)";
+      ctx.stroke();
+    }
+
+    // The thread falling (s seconds in, a seconds since it touched): it reaches the tip, its end
+    // sinks into the blob, it necks and breaks, and the two pieces are absorbed.
+    function sauceThread(x0, tip, lw, col, s, T0, a) {
+      var src = tip - g.gh * 0.3;
+      var floorY = tip - lw * 0.2;
+      var inY = tip + lw * 0.8;
+      var R = lw * 0.45; // a fine thread
+      var fall = function (t) {
+        return lerp(src, floorY, eIn(t / T0));
+      };
+      var length = function (t) {
+        return lerp(lw * 1.6, g.gh * 0.2, smooth(t / T0));
+      };
+      var head = function (aa) {
+        return aa <= 0 ? fall(s) : lerp(floorY, inY, smooth(aa / 0.1));
+      };
+      var tail0 = floorY - length(T0);
+      var tailAt = function (aa) {
+        return tail0 + (floorY - tail0) * 0.25 * smooth(aa / 0.09);
+      };
+      var SPLIT = 0.09;
+      ctx.fillStyle = col;
+      if (a <= 0) {
+        var h = fall(s);
+        threadShape(x0, h, h - length(s), R, 0.45, 0);
+      } else if (a < SPLIT) {
+        threadShape(x0, head(a), tailAt(a), R * (1 - 0.15 * smooth(a / SPLIT)), 0.45, smooth((a - 0.02) / 0.07) * 0.97);
+      } else {
+        var b = a - SPLIT;
+        var h12 = head(SPLIT);
+        var t12 = tailAt(SPLIT);
+        var pinch = h12 - 0.45 * (h12 - t12);
+        var t1 = lerp(pinch, head(a) - lw * 0.2, smooth(b / 0.1));
+        if (head(a) - t1 > 2) threadShape(x0, head(a), t1, R * 0.85, 0.5, 0);
+        var h2 = lerp(pinch - lw * 0.1, inY, eIn(b / 0.13));
+        var t2 = lerp(t12, inY - lw * 0.15, eIn(b / 0.16));
+        if (h2 - t2 > 2 && b < 0.16) threadShape(x0, h2, t2, R * 0.7, 0.5, 0);
+      }
+    }
+
+    // The blob the thread pools into: round and domed, swelling as it is fed, its top at the tip.
+    // From 200ms after contact it levels off and spreads out to the ribbon's width, staying opaque
+    // all the way, until it is the ribbon's own thickness and the ribbon is all there is.
+    function sauceBlob(x0, tip, lw, col, a, xL, xR) {
+      var t = smooth((a - 0.2) / 0.3);
+      if (t >= 1) return;
+      var rx0 = lw * (0.35 + 0.75 * smooth(a / 0.25)); // a small bead
+      var rx = lerp(rx0, Math.max(rx0, (xR - xL) / 2), t);
+      var cx = lerp(x0, (xL + xR) / 2, t);
+      var yb = lerp(tip + lw * (0.25 + 0.65 * smooth(a / 0.22)), tip + lw * 0.45, t);
+      var h = yb - tip; // its control points reach the tip, and the curve itself 1/4 short of it
+      var depth = lerp(rx0 * 0.675, lw * 0.4, t);
+      var gr = ctx.createLinearGradient(0, tip, 0, yb + depth);
+      gr.addColorStop(0, shade(col, 0.28));
+      gr.addColorStop(0.5, col);
+      gr.addColorStop(1, shade(col, -0.2));
+      ctx.beginPath();
+      ctx.moveTo(cx - rx, yb);
+      ctx.bezierCurveTo(cx - rx, yb - h, cx + rx, yb - h, cx + rx, yb);
+      ctx.bezierCurveTo(cx + rx, yb + depth * 1.33, cx - rx, yb + depth * 1.33, cx - rx, yb);
+      ctx.closePath();
+      ctx.fillStyle = gr;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx - rx * 0.35, yb - h * 0.4, rx * 0.2 * (1 - t), Math.max(0.8, h * 0.14) * (1 - t * 0.6), -0.2, 0, 6.3);
+      ctx.fillStyle = "rgba(255,255,255,.6)";
+      ctx.fill();
+    }
+
+    // A bead gathering under the ribbon before a drip lets go.
+    function sauceBead(x, y0, lw, col, k) {
+      var r = lw * 0.5 * k;
+      ctx.beginPath();
+      ctx.ellipse(x, y0 + r * 0.6, r, r * 0.85, 0, 0, 6.3);
+      var lit = ctx.createLinearGradient(x - r, 0, x + r, 0);
+      lit.addColorStop(0, shade(col, -0.2));
+      lit.addColorStop(0.4, shade(col, 0.2));
+      lit.addColorStop(1, col);
+      ctx.fillStyle = lit;
+      ctx.fill();
+    }
+
+    // A drip of sauce from y0: a fat neck ending in a round bulb, lit from the left. It stretches
+    // while it moves (vel) and wobbles as it stops (wob).
+    function drip(x, y0, len, lw, col, vel, wob) {
       if (len < 1) return;
-      var top = lw * 0.55;
-      var neck = lw * 0.32;
-      var r = lw * 0.62;
-      var grad = ctx.createLinearGradient(x - r, 0, x + r, 0);
-      grad.addColorStop(0, shade(col, -0.35));
-      grad.addColorStop(0.35, shade(col, 0.12));
+      var top = lw * 0.42;
+      var neck = lw * 0.2 * (1 - 0.35 * vel);
+      var r = lw * 0.62 * (1 - 0.12 * vel);
+      var ry = r * (1 + 0.35 * vel + 0.14 * wob);
+      var rx = r * (1 - 0.1 * wob);
+      var cy = y0 + len;
+      var grad = ctx.createLinearGradient(x - rx, 0, x + rx, 0);
+      grad.addColorStop(0, shade(col, -0.2));
+      grad.addColorStop(0.35, shade(col, 0.22));
       grad.addColorStop(0.6, col);
-      grad.addColorStop(1, shade(col, -0.45));
+      grad.addColorStop(1, shade(col, -0.25));
       ctx.beginPath();
       ctx.moveTo(x - top, y0 - 2);
-      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - r, y0 + len - r, x - r, y0 + len);
-      ctx.arc(x, y0 + len, r, Math.PI, 0, true);
-      ctx.bezierCurveTo(x + r, y0 + len - r, x + neck, y0 + len * 0.5, x + top, y0 - 2);
+      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - rx, cy - ry, x - rx, cy);
+      ctx.ellipse(x, cy, rx, ry, 0, Math.PI, 0, true);
+      ctx.bezierCurveTo(x + rx, cy - ry, x + neck, y0 + len * 0.5, x + top, y0 - 2);
       ctx.closePath();
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.beginPath();
-      ctx.ellipse(x - r * 0.35, y0 + len - r * 0.15, r * 0.2, r * 0.38, -0.3, 0, 6.3);
+      ctx.ellipse(x - rx * 0.35, cy - ry * 0.15, rx * 0.2, ry * 0.38, -0.3, 0, 6.3);
       ctx.fillStyle = "rgba(255,255,255,.75)";
       ctx.fill();
     }
