@@ -38,12 +38,13 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
-- For the About page (P2.1g, D-023): a photo you're happy with, and a few sentences on why you make games.
+- For the About page (P2.1g, D-023): read it on a phone with the photos in, and approve the photos and every sentence.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
 
 ### 2026-10-26
+- **P2.1g, the photos (`item/P2.1g-about-photos`).** The owner picked two from the shoot's clean set (`Photoshoot/WhatsApp Image 2026-10-25 at 08.38.31.jpeg` and `... (4).jpeg`). Cropped to `images/about/keith.webp` (720x900, 4:5, the hero's second column back at 300px) and `images/about/keith-bineeta.webp` (1000x800, under "Why games", captioned "Bineeta and me."), no metadata kept. Test red first (`test_the_about_page_shows_keith_and_keith_with_bineeta`), then green; browser at 1280 and 375, both photos loaded, `scrollWidth == clientWidth`, no console errors. Gates: lint, build, site, audit, docs PASS; tests have 5 local-only failures from stale worktrees under `.claude/worktrees/` (same on `main`, not in CI). Next: Stage 5, then the owner reads it on a phone.
 - **P2.0x, the designer's final check, the hold and sprinkles A (2026-10-24 to 26, on #77; `game.js?v=39`).** The owner played v37 ("looking good") and asked for a game-designer check before going live. Verdict: ship with small fixes. The drizzle is right as it is; the settled finish was up only about 150 ms before the next cone slid in; the sprinkles clumped on the top 15% of the swirl; the upright flake pokes above the line on a short serve (P2.0y fixes it); the "+N" fades into a grey smudge over the white machine; the greyed button between rounds is a muddy mauve (same as the pub, cosmetic). Built, red first each time: a topped serve holds 350 ms longer (v38); sprinkles spread A, picked by the owner from three mocks on the real cone (46 strands over the tip and two turns, resting on the turns' faces, one shake after the sparkle, fading in; v39). All gates pass. Stage 5 (2026-10-26): Codex round 2 (gpt-6-astra, medium) on the whole PR at `1625ced`, these two commits included: no findings; all gates pass. Not yet done: the smudge and the mauve button are not captured as items.
 
 ### 2026-10-23
