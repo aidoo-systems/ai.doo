@@ -373,6 +373,25 @@ def test_every_page_that_counts_clicks_loads_the_analytics():
         ).as_posix()
 
 
+def test_the_about_page_shows_keith_and_keith_with_bineeta():
+    # P2.1g: the photos the owner picked from the shoot, in place of the dashed placeholder
+    html = _text("about/index.html")
+    assert 'class="photo"' not in html
+    hero = html[html.index('<section class="hero aboutHero">') :]
+    hero = hero[: hero.index("</section>")]
+    assert re.search(
+        r'<img [^>]*src="\.\./images/about/keith\.webp"[^>]*width="720" height="900"',
+        hero,
+    )
+    family = re.search(
+        r'<img [^>]*src="\.\./images/about/keith-bineeta\.webp"[^>]*>', html
+    )
+    assert family and 'width="1000" height="800"' in family.group(0)
+    assert re.search(r'alt="[^"]*Bineeta[^"]*"', family.group(0))
+    for name in ("keith.webp", "keith-bineeta.webp"):
+        assert (REPO_ROOT / "images" / "about" / name).stat().st_size < 150_000, name
+
+
 def test_the_about_page_shows_three_games_with_their_art_uncropped():
     # the card art is Play feature graphics (1024x500); a 16:10 crop cut the titles off
     html = _text("about/index.html")

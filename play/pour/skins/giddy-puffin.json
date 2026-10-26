@@ -75,7 +75,7 @@
       "serve": {
         "name": "A cup with sauce",
         "vessel": { "points": [[0, 92], [100, 92], [90, 158], [10, 158]], "colour": "#ffffff", "edge": "#d6c7a6" },
-        "topping": { "kind": "drizzle", "colours": ["#c4314b"] }
+        "topping": { "kind": "drizzle", "colours": ["#ec5b83"] }
       }
     },
     {
