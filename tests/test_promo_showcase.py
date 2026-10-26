@@ -1336,6 +1336,16 @@ def test_a_topped_serve_holds_long_enough_to_see_its_finish(ui):
     assert holds["topped"]["ms"] >= holds["pub"]["ms"] + 300, holds
 
 
+def test_sprinkles_cover_the_tip_and_two_turns(ui):
+    # Owner picked spread A (2026-10-26): the sprinkles reach about 40% down the swirl, not just
+    # the tip, and none sits above the top of the serve.
+    s = ui["sprinkles"]
+    assert len(s["ys"]) >= 80, s  # 46 strands, two ends each
+    tip, lowest = min(s["tops"]), max(s["tops"])
+    assert min(s["ys"]) >= tip - 1, s
+    assert max(s["ys"]) - min(s["ys"]) >= 0.3 * (lowest - tip), s
+
+
 def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
     # Owner, 2026-10-23 (again): the base still shifted down as a serve finished. The whippy's
     # hint is a serve's name and two lines; the result is two short ones. The line under the

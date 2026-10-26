@@ -1382,26 +1382,51 @@
       ctx.fill();
     }
 
-    // A scatter falls from above onto the stack, a few bits at a time.
+    // A scatter is shaken over the stack once the sparkle has gone (owner, spread A, 2026-10-26):
+    // most on the tip, fewer on each of the two turns below, resting on the turns' faces.
     function drawScatter(floor, tip, hw, n, full, s) {
+      var plan = [24, 14, 8]; // strands on the tip, then on each turn going down
       var cols = dr.topping.colours;
+      s = s - 0.17; // after the sparkle burst
       ctx.save();
       ctx.lineCap = "round";
       ctx.lineWidth = Math.max(2, g.gw * 0.025);
-      for (var k = 0; k < 26; k++) {
-        var at = s - (k / 26) * 0.2;
-        var q = clamp(at / 0.15, 0, 1);
-        if (q <= 0) continue;
-        var f = ((k * 0.382) % 1) * 2 - 1;
-        var x = g.cx + f * hw * 1.2;
-        var yEnd = surfaceY(x, floor, tip, hw, n, full) + ((bumps[(k * 7) % bumps.length] / BUMP_MAX) * 6) - 1;
-        var y = lerp(yEnd - g.gh * 0.35, yEnd, q * q);
-        var a = (bumps[k] / BUMP_MAX) * 6.3;
-        ctx.strokeStyle = cols[k % cols.length];
-        ctx.beginPath();
-        ctx.moveTo(x - Math.cos(a) * 3, y - Math.sin(a) * 3);
-        ctx.lineTo(x + Math.cos(a) * 3, y + Math.sin(a) * 3);
-        ctx.stroke();
+      var src = { x: g.cx, y: tip - g.gh * 0.28 }; // one shake, a turn above the tip
+      var k = 0, total = plan.reduce(function (a, b) { return a + b; }, 0);
+      for (var band = 0; band < plan.length; band++) {
+        for (var i = 0; i < plan[band]; i++, k++) {
+          var r1 = bumps[(k * 7) % bumps.length] / BUMP_MAX, r2 = bumps[(k * 13 + 5) % bumps.length] / BUMP_MAX;
+          var x, y, slope;
+          if (band === 0) {
+            var f = ((k * 0.382) % 1) * 2 - 1;
+            x = g.cx + f * hw * 0.6;
+            y = Math.max(tip + 10, surfaceY(x, floor, tip, hw, n, full) + 3 + r1 * 6);
+            slope = Math.atan2(y - (tip + 4), x - g.cx) * 0.6;
+          } else {
+            var j = full - band;
+            if (j < 0) break;
+            var c = coilAt(j, n);
+            var f2 = (((i + 0.5) / plan[band] + r2 * 0.12 + band * 0.31) % 1) * 2 - 1;
+            x = g.cx + f2 * c.hw * 0.85;
+            var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+            // the lit upper ledge of the turn, just above its seam with the turn below
+            y = c.top + c.ch * (0.42 + 0.62 * r1) - (x - g.cx) * Math.tan(tilt);
+            slope = -tilt;
+          }
+          var at = s - (k / total) * 0.25;
+          var q = clamp(at / 0.22, 0, 1);
+          if (q <= 0) continue;
+          var e = 1 - (1 - q) * (1 - q);
+          var px = lerp(src.x + (x - g.cx) * 0.15, x, e);
+          var py = lerp(src.y, y, q * q);
+          var a = slope + (r2 - 0.5) * 1.2; // along the slope, about 35 degrees either way
+          ctx.globalAlpha = clamp(q / 0.3, 0, 1);
+          ctx.strokeStyle = cols[k % cols.length];
+          ctx.beginPath();
+          ctx.moveTo(px - Math.cos(a) * 3, py - Math.sin(a) * 3);
+          ctx.lineTo(px + Math.cos(a) * 3, py + Math.sin(a) * 3);
+          ctx.stroke();
+        }
       }
       ctx.restore();
     }

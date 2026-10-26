@@ -509,9 +509,9 @@ async function started(search, tweak) {
     seen.toppingWhilePouring = paints(page.trace, finish);
     page.up(1);
     page.trace.length = 0;
-    page.advance(400);
+    page.advance(700); // a scatter waits for the sparkle to go (spread A)
     seen.toppingAfter = paints(page.trace, finish);
-    page.advance(1400);
+    page.advance(1100);
     out.whippyRounds.push(seen);
   }
   // D-030: the stack is laid coil by coil, each a tilted turn, so a longer pour draws more.
@@ -828,6 +828,32 @@ async function started(search, tweak) {
         break;
       }
     }
+  }
+
+  // The whippy's third serve, settled: each sprinkle's ends, and the tops of the swirl's shapes.
+  {
+    const bits = whippy.rounds[2].serve.topping.colours;
+    page = await started("?skin=icecream");
+    page.advance(500);
+    for (const hold of [700, 800, 900]) {
+      page.down(1);
+      page.advance(hold);
+      page.up(1);
+      if (hold < 900) page.advance(2600);
+    }
+    page.advance(1300);
+    page.fills.length = 0;
+    page.trace.length = 0;
+    page.advance(16);
+    const strands = [];
+    let colour = null;
+    for (const t of page.trace) {
+      if (t.startsWith("strokeStyle=")) colour = t.slice(12);
+      else if (t.startsWith("restore(")) colour = null;
+      else if (bits.includes(colour) && (t.startsWith("moveTo(") || t.startsWith("lineTo("))) strands.push(t.slice(7, -1).split(",").map(Number));
+    }
+    const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+    out.sprinkles = { say: page.get("say").textContent, ys: strands.map((p) => p[1]), tops: stack.map((f) => f.top) };
   }
 
   process.stdout.write(JSON.stringify(out));
