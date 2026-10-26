@@ -856,5 +856,37 @@ async function started(search, tweak) {
     out.sprinkles = { say: page.get("say").textContent, ys: strands.map((p) => p[1]), tops: stack.map((f) => f.top) };
   }
 
+  // The 99's flake (P2.0y), short of the line, on it and over: in every frame from release to a
+  // second after, its outline and the top of the swirl; and once settled, whether it is drawn
+  // before the turns (behind them) and where the stack's middle is.
+  out.flakes = [];
+  {
+    const bar = whippy.rounds[0].serve.topping.colours[0];
+    for (let hold = 500; hold <= 1700; hold += 200) {
+      page = await started("?skin=icecream");
+      page.capturing(true);
+      page.advance(500);
+      page.down(1);
+      page.advance(hold);
+      page.up(1);
+      const frames = [];
+      for (let t = 0; t < 1000; t += 16) {
+        page.fills.length = 0;
+        page.advance(16);
+        const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+        const flake = page.fills.filter((f) => f.colour === bar);
+        frames.push({
+          top: stack.length ? Math.min(...stack.map((f) => f.top)) : null,
+          bottom: stack.length ? Math.max(...stack.map((f) => f.bottom)) : null,
+          middle: stack.length ? (Math.min(...stack.map((f) => f.left)) + Math.max(...stack.map((f) => f.right))) / 2 : null,
+          firstTurn: stack.length ? Math.min(...stack.map((f) => f.at)) : null,
+          flake: flake.length ? { pts: flake[0].pts, at: flake[0].at, top: flake[0].top, bottom: flake[0].bottom } : null,
+        });
+      }
+      page.capturing(false);
+      out.flakes.push({ hold, say: page.get("say").textContent, frames });
+    }
+  }
+
   process.stdout.write(JSON.stringify(out));
 })();

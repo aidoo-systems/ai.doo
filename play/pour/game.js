@@ -960,6 +960,9 @@
       var laid = clamp(level, 0, 1) * n;
       var full = Math.min(n, Math.floor(laid));
       var rest = laid - full;
+      var t = dr.topping;
+      // a stick is pushed in behind the turns, so only what stands out of the stack shows
+      if (topped && full < n && t && t.kind === "stick") drawStick(level, n, full, stage(0.18, 0.22));
       for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
       // served on a whole turn, it still gets its tip, a small one (Codex, round 1 of look b)
       if (full >= n || (rest < 0.001 && !topped)) return;
@@ -971,33 +974,43 @@
       var foot = coilBottom(laying(level, c, rest));
       var below = full > 0 ? coilAt(full - 1, n) : c;
       var hw = Math.min(c.hw, below.hw * 0.92);
-      var t = dr.topping;
-      // a stick goes in before the tip is drawn over its foot, so it's partly hidden
-      if (t && t.kind === "stick") drawStick(floor, hw, stage(0.18, 0.22));
       drawTip(foot, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
       if (t && t.kind === "drizzle") drawSauce(floor, yAt(level), hw, n, full, since - 0.18);
       if (t && t.kind === "scatter") drawScatter(floor, yAt(level), hw, n, full, since - 0.18);
     }
 
-    function drawStick(floor, hw, q) {
-      var c = dr.topping.colours;
-      var len = g.gw * 0.55;
-      var w = Math.max(5, g.gw * 0.11);
+    // A stick (P2.0y, look E, owner 2026-10-26): pushed into the side of the stack a turn
+    // below the top, leaning out about 25 degrees, as a real one goes in. Its foot is behind the turns,
+    // and its highest corner stays under the top of the serve, so a short serve never looks as if
+    // it reached the line.
+    function drawStick(level, n, full, q) {
       if (q <= 0) return;
+      var c = dr.topping.colours;
+      var turn = coilAt(Math.max(0, full - 2), n);
+      var h = turn.ch * 1.12;
+      var tilt = Math.atan2(turn.ch * 0.42, 2 * turn.hw);
+      var mid = turn.top + turn.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt);
+      var lean = 0.44;
+      var w = Math.max(5, g.gw * 0.11);
+      var x0 = g.cx + turn.hw * 0.65;
+      var y0 = mid - (x0 - g.cx) * Math.tan(tilt) - h * 0.08;
+      var room = (y0 - (w / 2) * Math.sin(lean) - (yAt(level) + 2)) / Math.cos(lean);
+      var len = Math.max(w, Math.min(g.gw * 0.46, room * 0.85));
+      var slide = (1 - q) * Math.max(0, room - len); // slides in along its own length
+      var bury = w * 2;
       ctx.save();
-      ctx.translate(g.cx + hw * 0.3, floor - hw * 0.05);
-      ctx.rotate(0.42);
-      ctx.translate(0, -(1 - q) * len * 0.9); // slides in along its own length
+      ctx.translate(x0 + Math.sin(lean) * slide, y0 - Math.cos(lean) * slide);
+      ctx.rotate(lean);
       ctx.globalAlpha = Math.min(1, q * 3);
       ctx.fillStyle = c[0];
-      box(-w / 2, -len, w, len, 2);
+      box(-w / 2, -len, w, len + bury, 2);
       ctx.fill();
       ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
       ctx.lineWidth = 1.2;
       ctx.beginPath();
       for (var k = 1; k < 4; k++) {
         ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
-        ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+        ctx.lineTo(-w / 2 + (w * k) / 4, bury - 2);
       }
       ctx.stroke();
       ctx.restore();
