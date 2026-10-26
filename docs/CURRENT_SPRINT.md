@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-23
+Last updated: 2026-10-26
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (P2.0x PR waits for the owner to play and merge; outreach follow-ups due 2026-10-27)
 
