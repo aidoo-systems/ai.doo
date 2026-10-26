@@ -805,5 +805,30 @@ async function started(search, tweak) {
     out.traces[id] = require("crypto").createHash("sha256").update(page.trace.join("\n")).digest("hex");
   }
 
+  // How long a first round's result stays up, from the score showing to the next round's label:
+  // the pub's plain pint against the whippy's first serve, which has a topping.
+  out.resultHolds = {};
+  for (const [id, search] of [["pub", ""], ["topped", "?skin=icecream"]]) {
+    page = await started(search);
+    page.advance(500);
+    const label = page.get("round").textContent;
+    page.down(1);
+    page.advance(700);
+    page.up(1);
+    let shown = null;
+    let said = "";
+    for (let t = 16; t <= 4000; t += 16) {
+      page.advance(16);
+      if (shown === null && page.get("say").textContent.includes("+")) {
+        shown = t;
+        said = page.get("say").textContent;
+      }
+      if (shown !== null && page.get("round").textContent !== label) {
+        out.resultHolds[id] = { said, ms: t - shown };
+        break;
+      }
+    }
+  }
+
   process.stdout.write(JSON.stringify(out));
 })();

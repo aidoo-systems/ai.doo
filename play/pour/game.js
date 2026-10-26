@@ -12,6 +12,7 @@
   var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var HOLD = 1150; // ms a result stays up before the next glass slides in
   var HOLD_SPILL = 1600;
+  var HOLD_TOPPED = 350; // and this much longer when the serve has a topping, so its finish is seen
   var STAR = "M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z";
 
   function clamp(v, lo, hi) {
@@ -2169,7 +2170,8 @@
       pourBtn.classList.remove("down");
       pourBtn.classList.add("wait");
       // No button between rounds: the result holds for a beat, then the game moves on.
-      later(r.verdict === "spill" ? HOLD_SPILL : HOLD, function () {
+      var topped = E.serveOf(skin, game.round).topping;
+      later(r.verdict === "spill" ? HOLD_SPILL : HOLD + (topped ? HOLD_TOPPED : 0), function () {
         var level = game.level;
         game.next();
         if (game.phase === "done") results();

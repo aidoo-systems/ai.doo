@@ -1326,6 +1326,16 @@ def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
     assert checked >= 10, ui["whippyRelease"]
 
 
+def test_a_topped_serve_holds_long_enough_to_see_its_finish(ui):
+    # P2.0x review (2026-10-24): the settled sauce was up for about 150ms before the next cone
+    # slid in. A serve with a topping holds about 350ms longer; a plain pour keeps its beat.
+    holds = ui["resultHolds"]
+    assert set(holds) == {"pub", "topped"}, holds
+    assert all("+" in h["said"] for h in holds.values()), holds
+    assert 1100 <= holds["pub"]["ms"] <= 1200, holds
+    assert holds["topped"]["ms"] >= holds["pub"]["ms"] + 300, holds
+
+
 def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
     # Owner, 2026-10-23 (again): the base still shifted down as a serve finished. The whippy's
     # hint is a serve's name and two lines; the result is two short ones. The line under the
