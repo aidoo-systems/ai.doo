@@ -4,6 +4,7 @@ The game's rules live in play/pour/engine.js and are run here under Node, so a
 skin is proved to be data: the tests hand the same engine a skin it has never seen.
 """
 
+import math
 import copy
 import json
 import os
@@ -1037,8 +1038,13 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
         assert len(bulbs) >= 3, (run["hold"], coated[-1]["sauce"])
         for frame in coated:
             left, right = frame["base"]
-            for top, x0, x1, _ in frame["sauce"]:
-                assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
+            for top, x0, x1, _, thread in frame["sauce"]:
+                # only the falling thread (plain-filled, P2.0x) may be above the line
+                assert thread or top >= frame["top"] - 0.6, (
+                    run["hold"],
+                    top,
+                    frame["top"],
+                )
                 assert x0 >= left - 0.5 and x1 <= right + 0.5, (
                     run["hold"],
                     x0,
@@ -1048,6 +1054,253 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
                 )
         checked += 1
     assert checked >= 5
+
+
+def _drizzle(ui):
+    # P2.0x: every frame from release (16ms apart) of the cup's sauce, and the frame the drop or
+    # thread first touches the tip (the sauce's clock starts there, and contact is 100ms in).
+    frames = ui["whippyDrizzle"]["frames"]
+    first = next(f["t"] for f in frames if f["sauce"])
+    return frames, first + 96
+
+
+def _widths(pts, bands=12):
+    # The width of a path in bands from its top to its bottom (the leading end of a falling thread).
+    ys = [p[1] for p in pts]
+    top, bottom = min(ys), max(ys)
+    height = bottom - top
+    out = []
+    for i in range(bands):
+        lo, hi = top + height * i / bands, top + height * (i + 1) / bands
+        xs = [p[0] for p in pts if lo <= p[1] <= hi + 1e-9]
+        out.append(max(xs) - min(xs) if len(xs) > 1 else 0.0)
+    return height, out
+
+
+def test_the_sauce_is_strawberry_pink_not_crimson(ui):
+    # P2.0x (owner, 2026-10-23: sauce 1 "reads a bit like blood"): brighter and pinker than #c4314b.
+    colour = ui["whippyDrizzle"]["colour"].lstrip("#")
+    r, g, b = (int(colour[i : i + 2], 16) for i in (0, 2, 4))
+    assert r + g + b >= 420, colour
+    assert b >= 0.5 * r and g <= 0.5 * r, colour
+
+
+def test_the_sauce_falls_as_a_tapered_thread_with_a_rounded_end(ui):
+    # P2.0x: not a drop. Just before it touches, a plain-filled thread: much longer than wide,
+    # wide at its leading (lower) end and narrowing to a thin tail, the leading end rounded
+    # (not cut off flat).
+    frames, contact = _drizzle(ui)
+    before = [f for f in frames if contact - 48 <= f["t"] < contact - 8]
+    assert before, contact
+    for frame in before:
+        threads = [shape for shape in frame["sauce"] if shape["plain"] and shape["pts"]]
+        assert threads, frame["t"]
+        thread = max(threads, key=lambda shape: shape["bottom"] - shape["top"])
+        height, bands = _widths(thread["pts"])
+        widest = max(bands)
+        assert widest > 0 and height >= 2.5 * widest, (frame["t"], height, widest)
+        # bands run top to bottom: the tail is thin, the leading end is wide
+        assert sum(bands[-5:]) >= 1.8 * sum(bands[:5]), (frame["t"], bands)
+        # the lowest half pixel of it is a point, not a flat cut
+        lowest = max(p[1] for p in thread["pts"])
+        end = [p[0] for p in thread["pts"] if p[1] >= lowest - 0.5]
+        assert max(end) - min(end) <= 0.5 * widest, (frame["t"], end)
+
+
+def test_the_landing_pools_into_a_round_blob_that_spreads_into_the_ribbon(ui):
+    # P2.0x: where the thread touches, a round blob swells (it is not a flat bar), then it flattens
+    # and spreads out into the ribbon, so the sauce's width never shrinks as it hands over. Always
+    # fully opaque: nothing fades out, so no translucent halo is ever on the cream.
+    frames, contact = _drizzle(ui)
+    for frame in frames:
+        for shape in frame["sauce"]:
+            assert shape["alpha"] >= 0.999, (frame["t"], shape)
+    settled = [
+        (f["t"], [x for x in f["sauce"] if not x["plain"] and not x["circles"]])
+        for f in frames
+        if contact <= f["t"] <= contact + 700
+    ]
+    blobs = []
+    for t, shapes in settled:
+        for shape in shapes:
+            w, h = shape["right"] - shape["left"], shape["bottom"] - shape["top"]
+            if t <= contact + 200 and h > 0 and 0.6 <= w / h <= 2.0:
+                blobs.append((t, w))
+    # round from the moment it lands, and for a good while (the old ribbon was only that shape for the
+    # first few frames of a quick spread)
+    assert len(blobs) >= 8 and blobs[0][0] <= contact + 48, blobs
+    assert blobs[-1][1] >= 1.3 * blobs[0][1], blobs
+    widths = [
+        (t, max(x["right"] for x in shapes) - min(x["left"] for x in shapes))
+        for t, shapes in settled
+        if shapes
+    ]
+    assert widths
+    for (t0, w0), (t1, w1) in zip(widths, widths[1:]):
+        assert w1 >= w0 * 0.96 - 1.0, (t0, w0, t1, w1)
+    assert widths[-1][1] >= max(w for _, w in blobs), (widths[-1], blobs)
+
+
+def _turn(ui):
+    # One turn of the stack, as drawn, in pixels: the sizes below are fractions of it.
+    turns = sorted(f["turn"] for f in ui["whippyDrizzle"]["frames"] if f["turn"])
+    return turns[len(turns) // 2]
+
+
+def test_the_sauce_is_a_fine_drizzle_not_big_drops(ui):
+    # P2.0x (owner on a phone, 2026-10-23: "the drops feel a bit large, feels less like a drizzle"):
+    # a thin thread, a small bead where it lands, a ribbon about as thick as sauce 1's, and small,
+    # short drips that have all finished by 700ms after contact. Sizes are fractions of a turn.
+    frames, contact = _drizzle(ui)
+    turn = _turn(ui)
+    # the thread, widest, just before it lands
+    widest = 0.0
+    for f in frames:
+        if contact - 48 <= f["t"] < contact - 8:
+            for shape in f["sauce"]:
+                if shape["plain"] and shape["pts"]:
+                    xs = [p[0] for p in shape["pts"]]
+                    widest = max(widest, max(xs) - min(xs))
+    assert 0 < widest <= 0.13 * turn, (widest, turn)
+    # the blob (a path of two curves), before it spreads into the ribbon
+    blobs = [
+        shape["right"] - shape["left"]
+        for f in frames
+        if contact <= f["t"] <= contact + 200
+        for shape in f["sauce"]
+        if not shape["plain"]
+        and not shape["circles"]
+        and shape["pts"]
+        and len(shape["pts"]) <= 9
+    ]
+    assert blobs and max(blobs) <= 0.34 * turn, (max(blobs, default=0), turn)
+    # the ribbon, once settled: its median thickness (the top edge to the bottom edge, side by side)
+    settled = next(f for f in frames if f["t"] >= contact + 600)
+    ribbon = max(
+        (
+            x
+            for x in settled["sauce"]
+            if not x["plain"] and not x["circles"] and len(x["pts"]) > 20
+        ),
+        key=lambda x: x["right"] - x["left"],
+    )
+    # top edge, an eleven-point cap, the bottom edge back, an eleven-point cap
+    pts = ribbon["pts"]
+    body = (len(pts) - 22) // 2
+    gaps = sorted(
+        b[1] - t[1] for t, b in zip(pts[:body], pts[body + 11 : 2 * body + 11][::-1])
+    )
+    assert 0.12 * turn <= gaps[len(gaps) // 2] <= 0.18 * turn, (
+        gaps[len(gaps) // 2],
+        turn,
+    )
+    # the drips: small bulbs, at most 0.62 of a turn long, each at rest by 700ms after contact
+    drips = {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in drips if abs(k - centre) < 6), round(centre))
+                length = shape["bottom"] - shape["top"]
+                row = drips.setdefault(
+                    key, {"width": 0.0, "length": 0.0, "moved": 0, "last": length}
+                )
+                row["width"] = max(row["width"], shape["right"] - shape["left"])
+                if abs(length - row["last"]) > 0.4:
+                    row["moved"] = f["t"]
+                row["last"], row["length"] = length, length
+    assert len(drips) == 3, drips
+    for key, row in drips.items():
+        assert row["width"] <= 0.15 * turn, (key, row, turn)
+        assert row["length"] <= 0.62 * turn, (key, row, turn)
+        assert row["moved"] <= contact + 700, (key, row, contact)
+
+
+def test_the_ribbon_has_no_square_ends_or_steps(ui):
+    # P2.0x (owner, 2026-10-23: the drizzle "sort of squares off"): the ribbon ends in rounded
+    # tips and dips over a turn's edge in one smooth curve. Its outline (a path of many points;
+    # the blob, the drips and the thread are not it) turns by no more than 60 degrees at any
+    # point, so no corner is sharper than 120 degrees, from 180 to 760ms after contact.
+    frames, contact = _drizzle(ui)
+    checked = 0
+    for f in frames:
+        if not contact + 180 <= f["t"] <= contact + 760:
+            continue
+        for shape in f["sauce"]:
+            pts = shape["pts"]
+            if shape["plain"] or shape["circles"] or not pts or len(pts) < 20:
+                continue
+            # drop points that sit on top of each other
+            line = [
+                p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 0.3
+            ]
+            for i in range(len(line)):
+                a, b, c = line[i - 1], line[i], line[(i + 1) % len(line)]
+                v1, v2 = (b[0] - a[0], b[1] - a[1]), (c[0] - b[0], c[1] - b[1])
+                turn = abs(
+                    math.degrees(
+                        math.atan2(
+                            v1[0] * v2[1] - v1[1] * v2[0], v1[0] * v2[0] + v1[1] * v2[1]
+                        )
+                    )
+                )
+                assert turn <= 60, (f["t"], round(turn), b, a, c)
+            checked += 1
+    assert checked >= 25, checked
+
+
+def test_the_three_drips_differ_in_length_and_in_when_they_start(ui):
+    # P2.0x: less posed: three bulbs of three lengths, let go at three different moments.
+    frames, _ = _drizzle(ui)
+    starts, ends = {}, {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in starts if abs(k - centre) < 6), round(centre))
+                starts.setdefault(key, f["t"])
+                ends[key] = shape["bottom"] - shape["top"]
+    assert len(starts) == 3, starts
+    first = sorted(starts.values())
+    assert first[1] - first[0] >= 30 and first[2] - first[1] >= 30, starts
+    lengths = sorted(ends.values())
+    assert (
+        lengths[1] - lengths[0] >= 0.08 * lengths[2]
+        and lengths[2] - lengths[1] >= 0.08 * lengths[2]
+    ), ends
+
+
+def test_a_glint_runs_along_the_sauce_and_is_done_by_700ms(ui):
+    # P2.0x: the shine moves once the sauce has settled, and is over about 700ms after contact,
+    # before the next glass slides in.
+    frames, contact = _drizzle(ui)
+    glints = [f["t"] for f in frames if f["glint"]]
+    assert len(glints) >= 5, glints
+    assert min(glints) >= contact + 250, (min(glints), contact)
+    assert max(glints) <= contact + 740, (max(glints), contact)
+
+
+def test_the_thread_is_the_only_sauce_above_the_line_and_it_is_gone_by_the_end(ui):
+    # P2.0x (D-030's rule kept): the settled sauce never rises above the scored height or out past
+    # the serve; only the falling thread (plain-filled) may cross the line, and it is absorbed.
+    frames, contact = _drizzle(ui)
+    for f in (f for f in frames if f["top"] is not None and f["base"]):
+        left, right = f["base"]
+        for shape in f["sauce"]:
+            assert shape["left"] >= left - 0.5 and shape["right"] <= right + 0.5, (
+                f["t"],
+                shape,
+            )
+            if not shape["plain"]:
+                assert shape["top"] >= f["top"] - 0.6, (f["t"], shape["top"], f["top"])
+    assert any(
+        shape["plain"] and shape["top"] < frames[-1]["top"] - 3
+        for f in frames
+        for shape in f["sauce"]
+    )
+    for f in frames:
+        if f["t"] >= contact + 400:
+            assert not [x for x in f["sauce"] if x["plain"]], (f["t"], f["sauce"])
 
 
 def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
@@ -1071,6 +1324,76 @@ def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
             assert frame[-1][1] >= replaced - 5, (run["hold"], frame[-1], poured)
         checked += 1
     assert checked >= 10, ui["whippyRelease"]
+
+
+def test_a_topped_serve_holds_long_enough_to_see_its_finish(ui):
+    # P2.0x review (2026-10-24): the settled sauce was up for about 150ms before the next cone
+    # slid in. A serve with a topping holds about 350ms longer; a plain pour keeps its beat.
+    holds = ui["resultHolds"]
+    assert set(holds) == {"pub", "topped"}, holds
+    assert all("+" in h["said"] for h in holds.values()), holds
+    assert 1100 <= holds["pub"]["ms"] <= 1200, holds
+    assert holds["topped"]["ms"] >= holds["pub"]["ms"] + 300, holds
+
+
+def test_sprinkles_cover_the_tip_and_two_turns(ui):
+    # Owner picked spread A (2026-10-26): the sprinkles reach about 40% down the swirl, not just
+    # the tip, and none sits above the top of the serve.
+    s = ui["sprinkles"]
+    assert len(s["ys"]) >= 80, s  # 46 strands, two ends each
+    tip, lowest = min(s["tops"]), max(s["tops"])
+    assert min(s["ys"]) >= tip - 1, s
+    assert max(s["ys"]) - min(s["ys"]) >= 0.3 * (lowest - tip), s
+
+
+def _lean(pts):
+    # The bar's long axis, from its points' spread, in degrees off upright (positive leans right).
+    n = len(pts)
+    mx = sum(p[0] for p in pts) / n
+    my = sum(p[1] for p in pts) / n
+    sxx = sum((p[0] - mx) ** 2 for p in pts)
+    syy = sum((p[1] - my) ** 2 for p in pts)
+    sxy = sum((p[0] - mx) * (p[1] - my) for p in pts)
+    axis = 0.5 * math.atan2(2 * sxy, sxx - syy)
+    ux, uy = math.cos(axis), math.sin(axis)
+    if uy > 0:  # point it up the screen
+        ux, uy = -ux, -uy
+    return math.degrees(math.atan2(ux, -uy))
+
+
+def test_the_flake_goes_in_like_a_real_one(ui):
+    # P2.0y, look E (owner, 2026-10-26): the 99's flake is pushed into the side of the swirl a
+    # turn below the top, leaning out about 25 degrees, behind the turns; and, short or on the
+    # line, no part of it ever rises above the top of the serve (it once stood over a short one).
+    # A serve too short to stand one in under its top goes without (Codex, round 1).
+    runs = ui["flakes"]
+    assert len(runs) >= 12, runs
+    for run in runs:
+        seen = [f for f in run["frames"] if f["flake"] and f["top"] is not None]
+        assert seen or run["hold"] < 500, run["hold"]
+        for f in seen:
+            assert f["flake"]["top"] >= f["top"] - 0.6, (
+                run["hold"],
+                f["flake"]["top"],
+                f["top"],
+            )
+        if not seen:
+            continue
+        last = seen[-1]
+        bar = last["flake"]
+        assert bar["at"] < last["firstTurn"], run["hold"]  # behind the turns
+        lean = _lean(bar["pts"])
+        assert 18 <= lean <= 32, (run["hold"], lean)
+        assert (bar["top"] + bar["bottom"]) / 2 > last["top"], run["hold"]
+        # its foot is well down the swirl, not at the top turn
+        assert bar["bottom"] >= last["top"] + 0.35 * (last["bottom"] - last["top"]), (
+            run["hold"],
+            bar,
+            last,
+        )
+        assert sum(p[0] for p in bar["pts"]) / len(bar["pts"]) > last["middle"], run[
+            "hold"
+        ]
 
 
 def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
