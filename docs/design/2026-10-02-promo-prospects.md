@@ -111,5 +111,9 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 | 2026-10-20 | 29 | Isle of Man Creamery | Email (owner) | | | | |
 | 2026-10-20 | 27 | Okell's Inns | Email (owner) | | | | |
 | 2026-10-20 | 31 | Hospice Isle of Man | Email (owner) | | | | |
+| 2026-10-23 | 44 | Gelatory | Email (owner), stamp card | | | | |
+| 2026-10-23 | 45 | Porter's Kitchen | Email (owner), stamp card | | | | |
+| 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
+| 2026-10-23 | 23 | Roots by the Sea | Email (owner), stamp card | | | | |
 
 Sources: Visit Isle of Man (what's on; cafés and tearooms), Castletown Commissioners events, Manx National Heritage community events, IOM Today and Manx Radio reports on the Chamber of Commerce and Hospice Isle of Man events, gov.im food and drink event notices. Retrieved 2026-10-02.
