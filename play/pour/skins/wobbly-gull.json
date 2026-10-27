@@ -25,7 +25,7 @@
     "liquidDeep": "#b4650c",
     "head": "#fff6dc",
     "headDepth": 0.1,
-    "glass": [[2, 0], [98, 0], [100, 22], [84, 100], [16, 100], [0, 22]]
+    "glass": [[3, 0], [97, 0], [99, 9], [100, 19], [97, 30], [85, 100], [15, 100], [3, 30], [0, 19], [1, 9]]
   },
   "copy": {
     "start": "Start pouring",
@@ -56,10 +56,10 @@
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [
     {"line": 0.84, "speed": 0.5, "serve": {"name": "A pint of lager"}},
-    {"line": 0.66, "speed": 0.62, "serve": {"name": "A pint of ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14}},
-    {"line": 0.88, "speed": 0.52, "surge": 0.45, "surgeHz": 1, "serve": {"name": "A pint of cider", "liquid": "#ecc75a", "liquidDeep": "#c4932a", "head": "#fffbea", "headDepth": 0.03}},
+    {"line": 0.66, "speed": 0.62, "serve": {"name": "A pint of ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14, "glass": [[11, 0], [89, 0], [87, 12], [92, 26], [96, 41], [91, 58], [78, 77], [69, 91], [67, 100], [33, 100], [31, 91], [22, 77], [9, 58], [4, 41], [8, 26], [13, 12]]}},
+    {"line": 0.88, "speed": 0.52, "surge": 0.45, "surgeHz": 1, "serve": {"name": "A pint of cider", "liquid": "#ecc75a", "liquidDeep": "#c4932a", "head": "#fffbea", "headDepth": 0.03, "glass": [[16, 0], [84, 0], [91, 10], [97, 29], [99, 50], [95, 70], [85, 87], [72, 100], [28, 100], [15, 87], [5, 70], [1, 50], [3, 29], [9, 10]]}},
     {"line": 0.78, "speed": 0.85, "serve": {"name": "Another lager, quicker"}},
-    {"line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2, "serve": {"name": "One more ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14}}
+    {"line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2, "serve": {"name": "One more ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14, "glass": [[11, 0], [89, 0], [87, 12], [92, 26], [96, 41], [91, 58], [78, 77], [69, 91], [67, 100], [33, 100], [31, 91], [22, 77], [9, 58], [4, 41], [8, 26], [13, 12]]}}
   ],
   "sampleScores": [
     { "name": "Juan", "score": 446 },

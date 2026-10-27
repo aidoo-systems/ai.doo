@@ -788,10 +788,12 @@ def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
     # that differ are the "+N" float's (its fading globalAlpha gone, its outline's strokeStyle).
     # Re-recorded for P2.0v: the café's first round is a flat white now. With its colours and
     # foam taken out (its name kept), the café's trace is main's hash again.
+    # Re-recorded again for P2.0v: every glass is drawn soft (rounded to its curve, light along
+    # its wall, a lit rim, a domed base), and the pub and the café give each drink its own glass.
     assert ui["traces"] == {
-        "wobbly-gull": "2dab41fd281b68843008d279954886627ee1f6e26b36bb9f1786fb6ad03836c1",
-        "dozy-otter": "c4adf0f35776e85f48873e77d765bd335bfaa52caac806d10229befbc32e75c2",
-        "sleepy-cow": "d9daa5cceb03d677123c4ff3984d089d5dd95b677f21e12702345ad380c8b84e",
+        "wobbly-gull": "961484c5428e8595d4cc0cdb6cf38fc9287d0a869fa0814a81f3f7b198b855ee",
+        "dozy-otter": "6eaf03c5989c9fd9aaa60230726a2dd7866d446408c092dae4e0dd50cfa6f3e3",
+        "sleepy-cow": "7db85e78fcc30e55d2d642d259c8ce2825c36b7a32cc3bd1774c074721076911",
     }
 
 

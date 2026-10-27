@@ -373,6 +373,38 @@
       ctx.closePath();
     }
 
+    // An outline with every corner rounded as far as its shorter side allows, up to cap, so
+    // the arcs meet halfway along each side and a many-pointed outline reads as one curve.
+    // A hard turn (a heel, a shoulder) keeps a small, crisp corner, and so do corners on rimY.
+    function soft(pts, cap, rimY, rimT) {
+      var n = pts.length;
+      ctx.beginPath();
+      ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+      for (var i = 0; i < n; i++) {
+        var a = pts[(i + n - 1) % n];
+        var p = pts[i];
+        var b = pts[(i + 1) % n];
+        var ax = a[0] - p[0];
+        var ay = a[1] - p[1];
+        var bx = b[0] - p[0];
+        var by = b[1] - p[1];
+        var la = Math.hypot(ax, ay);
+        var lb = Math.hypot(bx, by);
+        var angle = Math.acos(clamp((ax * bx + ay * by) / (la * lb || 1), -1, 1)); // PI on a straight run
+        var hard = clamp((Math.PI - angle - 0.6) / 0.6, 0, 1);
+        var t = Math.min(Math.min(la, lb) * 0.5, cap * (1 - hard) + g.gw * 0.045 * hard);
+        if (rimY !== undefined && Math.abs(p[1] - rimY) < 0.5) t = Math.min(t, rimT);
+        var r = t * Math.tan(angle / 2);
+        if (!isFinite(r) || r < 0.01) ctx.lineTo(p[0], p[1]);
+        else ctx.arcTo(p[0], p[1], b[0], b[1], r);
+      }
+      ctx.closePath();
+    }
+    // The glass's outline: soft, with a crisp lip.
+    function glassPath(pts) {
+      soft(pts, g.gw * 0.2, g.top, Math.max(2, g.gw * 0.015));
+    }
+
     function box(x, y, w, h, r) {
       ctx.beginPath();
       ctx.moveTo(x + r, y);
@@ -1448,7 +1480,7 @@
     // What the serve is in: drawn, never filled with the drink, and in front of it.
     function drawVessel() {
       var v = dr.vessel;
-      poly(g.vessel, 3);
+      soft(g.vessel, g.gw * 0.12);
       ctx.fillStyle = v.colour;
       ctx.fill();
       ctx.save();
@@ -1473,7 +1505,7 @@
       ctx.fillRect(g.gx + g.gw * 0.72, g.gy, g.gw * 0.3, g.gh * 2);
       ctx.restore();
       if (v.edge) {
-        poly(g.vessel, 3);
+        soft(g.vessel, g.gw * 0.12);
         ctx.strokeStyle = v.edge;
         ctx.lineWidth = 2;
         ctx.stroke();
@@ -1504,7 +1536,7 @@
         }
         ctx.stroke();
       } else {
-        poly(g.inner, 3);
+        glassPath(g.inner);
         ctx.clip();
         var x0 = g.gx;
         var x;
@@ -1569,7 +1601,7 @@
         ctx.beginPath();
         ctx.rect(g.gx - 40, yAt(line), g.gw + 80, g.bottom - yAt(line) + 2);
         ctx.clip();
-        poly(g.outer, 3);
+        glassPath(g.outer);
         ctx.fillStyle = rgba(th.ink, 0.09);
         ctx.fill();
         ctx.restore();
@@ -1578,13 +1610,13 @@
         since = live && !calm ? fx.since || 0 : 9;
         if (level > 0.004) drawCoils(level, topped);
       } else {
-        poly(g.inner, 3);
+        glassPath(g.inner);
         ctx.fillStyle = "rgba(255,255,255,.05)";
         ctx.fill();
       }
 
       ctx.save();
-      poly(g.inner, 3);
+      glassPath(g.inner);
       ctx.clip();
       if (level > 0.004 && !coil) {
         var ys = yAt(level);
@@ -1663,34 +1695,59 @@
       var b = xRange(g.inner, bot);
       if (a && b && !bare) {
         ctx.lineCap = "round";
-        ctx.strokeStyle = "rgba(255,255,255,.15)";
-        ctx.lineWidth = g.gw * 0.05;
-        ctx.beginPath();
-        ctx.moveTo(a[0] + g.gw * 0.12, top);
-        ctx.lineTo(b[0] + g.gw * 0.12, bot);
-        ctx.stroke();
-        ctx.strokeStyle = "rgba(255,255,255,.14)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(a[1] - g.gw * 0.08, top + 10);
-        ctx.lineTo(b[1] - g.gw * 0.08, bot - 30);
-        ctx.stroke();
+        ctx.lineJoin = "round";
+        var along = function (side, inset, y0, y1, width, alpha) {
+          ctx.strokeStyle = "rgba(255,255,255," + alpha + ")";
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          for (var k = 0; k <= 24; k++) {
+            var yk = y0 + ((y1 - y0) * k) / 24;
+            var e = xRange(g.inner, yk);
+            if (!e) continue;
+            var xk = side < 0 ? e[0] + inset : e[1] - inset;
+            if (k) ctx.lineTo(xk, yk);
+            else ctx.moveTo(xk, yk);
+          }
+          ctx.stroke();
+        };
+        along(-1, g.gw * 0.09, top, bot, g.gw * 0.045, 0.16);
+        along(1, g.gw * 0.06, top + g.gh * 0.05, g.gy + g.gh * 0.42, 2, 0.16);
       }
       ctx.restore();
 
       if (!bare) {
         // the glass itself: a thick base and a bright edge
         ctx.save();
-        poly(g.outer, 5);
+        glassPath(g.outer);
         ctx.clip();
         ctx.fillStyle = "rgba(255,255,255,.2)";
-        ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
+        ctx.beginPath();
+        ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
+        ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
+        ctx.lineTo(g.gx + g.gw + 4, g.bottom + g.base + 4);
+        ctx.lineTo(g.gx - 4, g.bottom + g.base + 4);
+        ctx.closePath();
+        ctx.fill();
         ctx.restore();
-        poly(g.outer, 5);
+        var shade = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+        shade.addColorStop(0, "rgba(255,255,255,.8)");
+        shade.addColorStop(0.5, "rgba(255,255,255,.6)");
+        shade.addColorStop(1, "rgba(255,255,255,.42)");
+        glassPath(g.outer);
         ctx.lineJoin = "round";
-        ctx.strokeStyle = "rgba(255,255,255,.62)";
+        ctx.strokeStyle = shade;
         ctx.lineWidth = Math.max(2.5, g.wall);
         ctx.stroke();
+        var rim = xRange(g.outer, g.top + 0.5);
+        if (rim) {
+          ctx.lineCap = "round";
+          ctx.strokeStyle = "rgba(255,255,255,.9)";
+          ctx.lineWidth = Math.max(1.5, g.wall * 0.55);
+          ctx.beginPath();
+          ctx.moveTo(rim[0] + g.wall, g.top + 0.5);
+          ctx.lineTo(rim[1] - g.wall, g.top + 0.5);
+          ctx.stroke();
+        }
       }
       // the finish, then what it's served in, so a cup hides the sauce that runs into it
       if (!coil && topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
