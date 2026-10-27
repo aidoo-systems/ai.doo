@@ -517,6 +517,28 @@ async function started(search, tweak) {
     page.advance(1100);
     out.whippyRounds.push(seen);
   }
+  // P2.0v: the pub and the café rotate their drinks. Each round says its drink and pours it
+  // in its own colour, mid-pour.
+  out.drinkRounds = {};
+  for (const id of ["wobbly-gull", "dozy-otter"]) {
+    const skin = JSON.parse(fs.readFileSync(path.join(GAME, "skins", id + ".json"), "utf8"));
+    out.drinkRounds[id] = [];
+    page = await started("?skin=" + id);
+    for (const r of skin.rounds) {
+      const own = Object.assign({}, skin.drink, r.serve || {});
+      page.advance(500);
+      const seen = { say: page.get("say").textContent };
+      page.down(1);
+      page.advance(600);
+      page.trace.length = 0;
+      page.advance(16);
+      seen.liquid = paints(page.trace, [own.liquid]);
+      seen.head = paints(page.trace, [own.head]);
+      page.up(1);
+      page.advance(1800);
+      out.drinkRounds[id].push(seen);
+    }
+  }
   // D-030: the stack is laid coil by coil, each a tilted turn, so a longer pour draws more.
   page = await started("?skin=icecream");
   page.advance(500);
