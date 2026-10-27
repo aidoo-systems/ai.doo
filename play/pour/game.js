@@ -283,6 +283,18 @@
       })) / 100);
     }
 
+    // How far a serve's vessel or handle stands from the glass's middle, in glass widths (0.5 is the
+    // glass's own side): the scene is sized so the widest of them fits the canvas.
+    var reach = 0.5;
+    skin.rounds.forEach(function (r, i) {
+      var d = E.serveOf(skin, i);
+      [d.vessel && d.vessel.points, d.handle && d.handle.points].forEach(function (pts) {
+        (pts || []).forEach(function (p) {
+          reach = Math.max(reach, Math.abs(p[0] - 50) / 100);
+        });
+      });
+    });
+
     function reset() {
       fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null, topped: false };
       bubbles = [];
@@ -308,8 +320,9 @@
       var counterY = H - counterH;
       var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330) / deep; // the room above is the tap's
       var gw = gh * 0.66;
-      if (gw > W * 0.58) {
-        gw = W * 0.58;
+      var wide = Math.min(W * 0.58, (W / 2 - 6) / reach);
+      if (gw > wide) {
+        gw = wide;
         gh = gw / 0.66;
       }
       var gx = (W - gw) / 2;
@@ -332,6 +345,7 @@
         return [g.cx + (p[0] - g.cx) * (1 - (2 * g.wall) / g.gw), gy + (p[1] - gy) * (1 - g.base / g.gh)];
       });
       g.vessel = d.vessel ? d.vessel.points.map(place) : null;
+      g.handle = d.handle ? d.handle.points.map(place) : null;
       g.top = gy;
       g.bottom = gy + g.gh - g.base;
     }
@@ -806,8 +820,8 @@
       return g.cx - c.hw + 2 * c.hw * (laid - i);
     }
 
-    // How long the serve has been topped, for the finish arriving in stages (D-030, look b).
-    // The glass sliding off, and a calm screen, have it all at once.
+    // How long the serve has been topped, for the finish arriving in stages (D-030, look b; the dust
+    // and steam, P2.1h). The glass sliding off, and a calm screen, have it all at once.
     var since = 0;
 
     // One light for the whole stack, from the upper left, in canvas space (not per turn).
@@ -1512,6 +1526,100 @@
       }
     }
 
+    // A fine dusting sifted from above (owner, 2026-10-27): grains fall a little way and settle on the
+    // top of the drink, thickest in the middle, each a hair after the last, all still by about half
+    // a second. The same grains every time, so a frame is the same frame.
+    function drawDust(ys, colour) {
+      var e = xRange(g.inner, ys + 2);
+      if (!e) return;
+      var seed = 7;
+      var rnd = function () {
+        seed = (seed * 16807) % 2147483647;
+        return seed / 2147483647;
+      };
+      ctx.fillStyle = colour;
+      for (var i = 0; i < 160; i++) {
+        var u = rnd();
+        var mid = 1 - Math.abs(u - 0.5) * 2;
+        var keep = rnd() > 0.35 + mid * 0.6;
+        var size = 0.8 + rnd() * 1.1;
+        var fade = 0.45 + rnd() * 0.4;
+        var depth = rnd() * 6 * (0.4 + mid);
+        if (keep) continue;
+        var q = clamp((since - 0.1 - (i / 160) * 0.15) / 0.25, 0, 1);
+        if (q <= 0) continue;
+        ctx.globalAlpha = fade * Math.min(1, q * 3);
+        ctx.beginPath();
+        ctx.arc(e[0] + 3 + (e[1] - e[0] - 6) * u, ys + 4 + depth - (1 - q) * (1 - q) * g.gh * 0.2, size, 0, 6.3);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Steam rising off a poured serve, three slow wisps that arrive a moment after it's served.
+    function drawSteam(level) {
+      var a = smooth(clamp((since - 0.2) / 0.6, 0, 1));
+      if (a <= 0) return;
+      var y0 = yAt(level) - 8;
+      var now = calm ? 0 : fx.t;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      [-0.17, 0.03, 0.21].forEach(function (dx, k) {
+        var x0 = g.cx + g.gw * dx;
+        var rise = Math.min(g.gh * (0.36 + k * 0.05), y0 - 6);
+        if (rise < 8) return;
+        var grad = ctx.createLinearGradient(0, y0, 0, y0 - rise);
+        grad.addColorStop(0, "rgba(255,248,236,0)");
+        grad.addColorStop(0.25, "rgba(255,248,236,.34)");
+        grad.addColorStop(1, "rgba(255,248,236,0)");
+        var wisp = function () {
+          ctx.beginPath();
+          for (var s = 0; s <= 40; s++) {
+            var f = s / 40;
+            var x = x0 + Math.sin(f * 5.2 + now * 1.6 + k * 2) * g.gw * 0.045 * (0.3 + f);
+            if (s) ctx.lineTo(x, y0 - rise * f);
+            else ctx.moveTo(x, y0 - rise * f);
+          }
+        };
+        ctx.strokeStyle = grad;
+        ctx.globalAlpha = 0.35 * a;
+        ctx.lineWidth = Math.max(6, g.gw * 0.08);
+        wisp();
+        ctx.stroke();
+        ctx.globalAlpha = a;
+        ctx.lineWidth = Math.max(2.5, g.gw * 0.028);
+        wisp();
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // A handle standing off the glass's side, drawn like the glass: a soft wide body and a lit edge.
+    function drawHandle() {
+      var h = g.handle;
+      var path = function () {
+        ctx.beginPath();
+        ctx.moveTo(h[0][0], h[0][1]);
+        for (var i = 1; i < h.length - 1; i++) {
+          ctx.quadraticCurveTo(h[i][0], h[i][1], (h[i][0] + h[i + 1][0]) / 2, (h[i][1] + h[i + 1][1]) / 2);
+        }
+        ctx.lineTo(h[h.length - 1][0], h[h.length - 1][1]);
+      };
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      path();
+      ctx.strokeStyle = "rgba(255,255,255,.16)";
+      ctx.lineWidth = g.gw * 0.085;
+      ctx.stroke();
+      path();
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
+      ctx.lineWidth = Math.max(2.5, g.wall);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     // How the serve is finished once it's poured, at the top of what was poured.
     function drawTopping(level) {
       var t = dr.topping;
@@ -1535,6 +1643,8 @@
           ctx.lineTo(-w / 2 + (w * k) / 4, -4);
         }
         ctx.stroke();
+      } else if (t.kind === "dust") {
+        drawDust(ys, c[0]);
       } else {
         glassPath(g.inner);
         ctx.clip();
@@ -1586,6 +1696,8 @@
     // topped: poured and finished, so its topping goes on.
     function drawGlass(ox, level, line, live, pouring, topped) {
       var span = g.bottom - g.top;
+      // how long this serve has been finished, for its finish arriving (a ghost sliding off, or a calm screen, has it all)
+      since = live && !calm ? fx.since || 0 : 9;
       ctx.save();
       ctx.translate(ox, 0);
 
@@ -1607,7 +1719,6 @@
         ctx.restore();
       }
       if (coil) {
-        since = live && !calm ? fx.since || 0 : 9;
         if (level > 0.004) drawCoils(level, topped);
       } else {
         glassPath(g.inner);
@@ -1752,6 +1863,8 @@
       // the finish, then what it's served in, so a cup hides the sauce that runs into it
       if (!coil && topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
       if (g.vessel) drawVessel();
+      if (g.handle) drawHandle();
+      if (dr.steam && topped && level > 0.004) drawSteam(level);
 
       if (line !== null) {
         var yy = yAt(line);
