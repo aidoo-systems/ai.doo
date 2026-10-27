@@ -322,3 +322,11 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Why:** A banner is friction with no legal gain, and its absence says we don't track. Loading Google Fonts sends each visitor's IP to Google, which a German court fined a site for in 2022.
 - **Alternatives:** A banner anyway, "to be safe" (rejected: it would claim tracking we don't do).
 - **Consequences:** Anything new that sets a cookie, adds third-party analytics or embeds a third party (a video, a map, a social widget) reopens this, and needs a banner or a self-hosted alternative. Not checked: whether the Isle of Man has its own cookie rule; the site meets the UK and EU one.
+
+## D-033 — Each drink pours into its own glass, and every glass is drawn soft
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** In the pour showcase a round's drink names its own glass (skin data, `serve.glass`): the pub's lager in a nonic, ale in a tulip, cider in a balloon; the café's flat white in a Gibraltar, latte in a tall glass, cappuccino in a stemless bowl. Every outline is drawn soft in `game.js` (corners rounded as far as each side allows, crisp heels and rim, light along the wall, a lit rim, a domed base), for every skin.
+- **Why:** The owner wanted a glass to match each drink, then found the first mocks "very geometric"; a designer review traced that to the drawing (straight segments, a fixed small corner), not the shapes.
+- **Alternatives:** Stems, handles and saucers (rejected for now: anything below the glass shrinks the whole venue's scene, and a vessel is one opaque colour); more points per outline without the drawing change (still faceted).
+- **Consequences:** A new glass is a point list in a skin; gentle turns between points read as curves. The pour line's arrows still measure the straight outline, 1 to 2px off a curve.
