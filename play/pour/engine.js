@@ -16,9 +16,9 @@
   var POURERS = ["tap", "jug", "carton", "machine"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
   var TOPS = ["liquid", "coil"]; // what the top of the drink looks like; a skin that doesn't say gets the first
   var OUTLINES = ["glass", "none"]; // a glass round the drink, or nothing round it (soft serve stands up on its own)
-  var TOPPINGS = ["stick", "drizzle", "scatter"]; // how a serve can be finished once it's poured
+  var TOPPINGS = ["stick", "drizzle", "scatter", "dust"]; // how a serve can be finished once it's poured
   // What a round's serve can say for itself. What pours it, its fizz, top and outline stay the skin's.
-  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "topping", "coils"];
+  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "handle", "steam", "topping", "coils"];
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
@@ -52,10 +52,11 @@
     return hi >= lo ? hi - lo : 0;
   }
 
-  // 3 to 24 points, each [x, y] from 0 to (by default) 100.
-  function isOutline(pts, maxY) {
+  // 3 to 24 points, each [x, y] from 0 to (by default) 100. wide: x may run from -40 to 140,
+  // past the glass's sides (a saucer is wider than the base it holds, a handle stands off the side).
+  function isOutline(pts, maxY, wide) {
     return Array.isArray(pts) && pts.length >= 3 && pts.length <= 24 && pts.every(function (p) {
-      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, maxY || 100);
+      return Array.isArray(p) && p.length === 2 && isNum(p[0], wide ? -40 : 0, wide ? 140 : 100) && isNum(p[1], 0, maxY || 100);
     });
   }
 
@@ -72,9 +73,13 @@
     // it, a stem under a bowl. Its points are in the glass's units, down to y 200 below it.
     if (d.vessel !== undefined) {
       var v = isObj(d.vessel) ? d.vessel : {};
-      var ok = isOutline(v.points, 200) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
-      if (!ok) problems.push(at + "vessel needs 3 to 24 points (x 0 to 100, y 0 to 200), a hex colour, and may have a hex edge and a grid");
+      var ok = isOutline(v.points, 200, true) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
+      if (!ok) problems.push(at + "vessel needs 3 to 24 points (x -40 to 140, y 0 to 200), a hex colour, and may have a hex edge and a grid");
     }
+    // A handle stands off the glass's side: an open line through 3 to 24 points, x from -40 to 140 and
+    // y down the glass (0 to 100). Steam rises off a serve once it's poured.
+    if (d.handle !== undefined && !(isObj(d.handle) && isOutline(d.handle.points, 100, true))) problems.push(at + "handle needs 3 to 24 points (x -40 to 140, y 0 to 100)");
+    if (d.steam !== undefined && typeof d.steam !== "boolean") problems.push(at + "steam must be true or false");
     // How many coils of soft serve fill the glass, from its bottom to its top.
     if (d.coils !== undefined && !(Number.isInteger(d.coils) && d.coils >= 2 && d.coils <= 12)) problems.push(at + "coils must be a whole number from 2 to 12");
     // How it's finished once it's poured: a kind and its colours.

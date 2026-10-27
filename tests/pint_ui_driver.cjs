@@ -816,10 +816,48 @@ async function started(search, tweak) {
     out.whippyStream.after.push({ since: since + 16, arcs: page.arcs.slice() });
   }
 
+  // P2.1h: the café looks like a café. Each round of ?skin=cafe: a handle drawn like the glass,
+  // steam once it's poured and not before, cocoa that is sifted on and settled within about
+  // half a second. The markers are the paints the new drawing uses and nothing else does.
+  const cafeSkin = JSON.parse(fs.readFileSync(path.join(GAME, "skins", "dozy-otter.json"), "utf8"));
+  const HANDLE = "strokeStyle=rgba(255,255,255,.55)";
+  const STEAM = "stop(0.25,rgba(255,248,236,.34))";
+  out.cafeLook = [];
+  page = await started("?skin=cafe");
+  for (const r of cafeSkin.rounds) {
+    const serve = r.serve || {};
+    const dust = serve.topping && serve.topping.kind === "dust" ? serve.topping.colours[0] : null;
+    const look = () => {
+      page.trace.length = 0;
+      page.fills.length = 0;
+      page.advance(16);
+      return {
+        handle: page.trace.includes(HANDLE),
+        steam: page.trace.includes(STEAM),
+        dust: dust ? page.fills.filter((f) => f.colour === dust).map((f) => Math.round(f.top * 10) / 10 + "/" + f.alpha.toFixed(2)) : [],
+      };
+    };
+    page.advance(500);
+    const rest = look();
+    page.down(1);
+    page.advance(700);
+    const pouring = look();
+    page.up(1);
+    page.advance(134);
+    const atRelease = look();
+    page.advance(150);
+    const early = look();
+    page.advance(450);
+    const settled = look();
+    page.advance(250);
+    const later = look();
+    out.cafeLook.push({ name: serve.name, dust: !!dust, rest, pouring, atRelease, early, settled, later });
+    page.advance(1400);
+  }
   // Each shipped skin, call for call: a frame at rest, then a pour held to the end and
   // its result, so a change to one pourer can't quietly redraw another venue.
   out.traces = {};
-  for (const id of ["wobbly-gull", "dozy-otter", "sleepy-cow"]) {
+  for (const id of ["wobbly-gull", "dozy-otter", "sleepy-cow", "giddy-puffin"]) {
     page = await started("?skin=" + id);
     page.trace.length = 0;
     page.advance(16);

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **The café looks like a café** (P2.1h, D-034): every coffee stands on a cream saucer and steams once poured; the cappuccinos have a glass handle and cocoa dusted on the foam. A skin can now give a serve a handle and steam, a saucer wider than the glass, and a fine dust finish
 - **The pub and the café change drinks each round** (P2.0v): the pub pours a lager, an ale and a cider; the café a flat white, a latte and a cappuccino, each in its own colour and with its own head or foam
 - **The promo game pours milk too** (P2.0s): a made-up dairy, Sleepy Cow, at `/play/pour/?skin=dairy`. The milk comes from a carton that glugs, into a straight glass with no bubbles, and the prize is a week's milk
 - **Keeping a promo game live has a price**: £25 a month after the first three months, on the promo-games page and in the chatbot's answers

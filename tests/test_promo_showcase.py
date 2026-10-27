@@ -790,10 +790,13 @@ def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
     # foam taken out (its name kept), the café's trace is main's hash again.
     # Re-recorded again for P2.0v: every glass is drawn soft (rounded to its curve, light along
     # its wall, a lit rim, a domed base), and the pub and the café give each drink its own glass.
+    # Re-recorded for P2.1h: only the café's changed (saucer, steam, handle, cocoa); the pub, the dairy
+    # and the kiosk are main's hashes (the kiosk's added here, recorded from main).
     assert ui["traces"] == {
         "wobbly-gull": "961484c5428e8595d4cc0cdb6cf38fc9287d0a869fa0814a81f3f7b198b855ee",
-        "dozy-otter": "6eaf03c5989c9fd9aaa60230726a2dd7866d446408c092dae4e0dd50cfa6f3e3",
+        "dozy-otter": "f989b13c9942e681b62562f273d1fc5ba8b5cb046f7a965f8f6e0bbf95f8cadf",
         "sleepy-cow": "7db85e78fcc30e55d2d642d259c8ce2825c36b7a32cc3bd1774c074721076911",
+        "giddy-puffin": "345f46593eb96f2dfdb4971c2e1f6ffc7772821d27e8d888d44d87dfe94fef92",
     }
 
 
@@ -1727,3 +1730,117 @@ def test_the_waiting_button_stays_in_the_venues_own_colours(path):
         colours[prop] = theme[key.group(1)]
         assert _opaque(colours[prop]), (prop, colours[prop])
     assert _contrast(colours["color"], colours["background"]) >= 4.5
+
+
+# --- P2.1h: the café looks like a café -----------------------------------------------
+
+
+def _cafe():
+    path = GAME / "skins" / "dozy-otter.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _cappuccinos(skin):
+    return [
+        r["serve"] for r in skin["rounds"] if "cappuccino" in r["serve"]["name"].lower()
+    ]
+
+
+def test_every_coffee_stands_on_a_cream_saucer_and_steams():
+    skin = _cafe()
+    saucer = skin["drink"]["vessel"]
+    xs = [p[0] for p in saucer["points"]]
+    assert min(xs) < 0 and max(xs) > 100, "a saucer is wider than the base it holds"
+
+    assert skin["drink"]["steam"] is True
+    for r in skin["rounds"]:
+        assert "vessel" not in r["serve"] or r["serve"]["vessel"] == saucer
+
+
+def test_the_cappuccinos_have_a_handle_and_cocoa_and_nothing_else_does():
+    skin = _cafe()
+    cups = _cappuccinos(skin)
+    assert len(cups) == 2
+    for serve in cups:
+        assert 3 <= len(serve["handle"]["points"]) <= 24
+        assert serve["topping"]["kind"] == "dust"
+        assert serve["topping"]["colours"] == ["#5b3521"]
+    others = [r["serve"] for r in skin["rounds"] if r["serve"] not in cups]
+    assert all("handle" not in s and "topping" not in s for s in others)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda s: s["drink"].update(steam=True),
+        lambda s: s["drink"].update(
+            vessel={
+                "points": [[-40, 99], [140, 99], [100, 108], [0, 108]],
+                "colour": "#f3eadf",
+            }
+        ),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [115, 30], [88, 56]]}),
+        lambda s: s["rounds"][1].update(
+            serve={
+                "name": "A latte",
+                "topping": {"kind": "dust", "colours": ["#5b3521"]},
+                "steam": False,
+            }
+        ),
+    ],
+)
+def test_steam_handles_dust_and_a_wide_saucer_validate(latte, change):
+    assert run(latte(change), ["line", "line"])["problems"] == []
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda s: s["drink"].update(steam="yes"),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [115, 30]]}),
+        lambda s: s["drink"].update(
+            handle={"points": [[90, 17], [115, 30], [88, 160]]}
+        ),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [215, 30], [88, 56]]}),
+        lambda s: s["drink"].update(handle=[[90, 17], [115, 30], [88, 56]]),
+        lambda s: s["drink"].update(
+            vessel={"points": [[-60, 99], [140, 99], [100, 108]], "colour": "#f3eadf"}
+        ),
+        lambda s: s["drink"].update(
+            vessel={"points": [[0, 99], [160, 99], [100, 108]], "colour": "#f3eadf"}
+        ),
+        lambda s: s["rounds"][1].update(
+            serve={"name": "A latte", "topping": {"kind": "dust", "colours": []}}
+        ),
+        lambda s: s["rounds"][1].update(serve={"name": "A latte", "steam": 1}),
+    ],
+)
+def test_nonsense_steam_handles_and_saucers_are_refused(latte, change):
+    assert run(latte(change), ["line", "line"])["problems"] != []
+
+
+def test_the_cafe_draws_its_handle_steam_and_cocoa_as_they_arrive(ui):
+    looks = ui["cafeLook"]
+    assert len(looks) == len(_cafe()["rounds"])
+    for n, look in enumerate(looks):
+        cup = look["dust"]
+        for when in ("rest", "pouring", "atRelease", "early", "settled", "later"):
+            # the handle is part of the glass: there whenever the serve has one
+            assert look[when]["handle"] == cup, (n, when)
+        # nothing steams or is dusted until it is poured and served
+        for when in ("rest", "pouring", "atRelease"):
+            assert not look[when]["steam"], (n, when)
+            assert look[when]["dust"] == [], (n, when)
+        assert look["settled"]["steam"] and look["later"]["steam"], n
+        if cup:
+            early, settled, later = (
+                look["early"]["dust"],
+                look["settled"]["dust"],
+                look["later"]["dust"],
+            )
+            assert settled, n
+            # sifted on, then still: every grain has stopped within about half a second
+            assert early != settled, n
+            assert settled == later, n
+        else:
+            assert look["settled"]["dust"] == [], n
