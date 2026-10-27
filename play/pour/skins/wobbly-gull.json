@@ -55,11 +55,11 @@
   },
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [
-    { "line": 0.84, "speed": 0.5 },
-    { "line": 0.66, "speed": 0.62 },
-    { "line": 0.88, "speed": 0.52, "surge": 0.45, "surgeHz": 1 },
-    { "line": 0.78, "speed": 0.85 },
-    { "line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2 }
+    {"line": 0.84, "speed": 0.5, "serve": {"name": "A pint of lager"}},
+    {"line": 0.66, "speed": 0.62, "serve": {"name": "A pint of ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14}},
+    {"line": 0.88, "speed": 0.52, "surge": 0.45, "surgeHz": 1, "serve": {"name": "A pint of cider", "liquid": "#ecc75a", "liquidDeep": "#c4932a", "head": "#fffbea", "headDepth": 0.03}},
+    {"line": 0.78, "speed": 0.85, "serve": {"name": "Another lager, quicker"}},
+    {"line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2, "serve": {"name": "One more ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14}}
   ],
   "sampleScores": [
     { "name": "Juan", "score": 446 },
