@@ -2494,7 +2494,7 @@
       pills($("chips"), -1);
 
       shownBoard = "";
-      showBoard(game.score, null);
+      showBoard(game.score);
       if (best === null) $("mine").textContent = "";
       else if (game.score > best) {
         $("mine").textContent = skin.copy.newBest;
@@ -2503,12 +2503,11 @@
       best = best === null ? game.score : Math.max(best, game.score);
       // On the real board too, once the server has it: then the board shows the week as it is.
       if (nick) {
-        var mine = { name: nick, score: game.score };
         var asOf = turn;
         getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })
           .then(function (got) {
             gotBoard(got);
-            if (asOf === turn) showBoard(game.score, mine);
+            if (asOf === turn) showBoard(game.score);
           })
           .catch(function () {});
       }
@@ -2516,10 +2515,12 @@
       againBtn.focus({ preventScroll: true });
     }
 
-    // The board for a finished score: the samples, this week's live scores, and the player.
+    // The board for a finished score: the samples, this week's live scores, and the player
+    // at their place this week, which a lower replay doesn't take from them.
     var shownBoard = "";
-    function showBoard(score, mine) {
-      var withWeek = E.withLive(skin, live, mine);
+    function showBoard(score) {
+      var withWeek = E.withLive(skin, live, nick);
+      score = E.standing(live, nick, score);
       // What to play again for: the next name up the board, and this visit's own best.
       var rival = E.nextRival(withWeek, score);
       $("goal").textContent = rival

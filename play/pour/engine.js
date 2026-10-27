@@ -258,20 +258,31 @@
     return pick(words.adjectives) + " " + pick(words.animals);
   }
 
-  // The skin with this week's live scores among its sample ones. The player's own
-  // score (mine) comes off once, because board() ranks it back in as theirs.
-  function withLive(skin, live, mine) {
-    var rows = (Array.isArray(live) ? live : []).filter(function (s) {
+  function liveRows(live) {
+    return (Array.isArray(live) ? live : []).filter(function (s) {
       return isObj(s) && isText(s.name, 20) && isNum(s.score, 0, Infinity) && Math.floor(s.score) === s.score;
     });
-    var own = mine ? rows.findIndex(function (s) {
-      return s.name === mine.name && s.score === mine.score;
-    }) : -1;
-    if (own >= 0) rows.splice(own, 1);
-    var rest = rows.map(function (s) {
-      return { name: s.name, score: s.score };
-    });
+  }
+
+  // The skin with this week's live scores among its sample ones. The player's own row
+  // (their name) comes off, because board() ranks them back in as "You".
+  function withLive(skin, live, name) {
+    var rest = liveRows(live)
+      .filter(function (s) {
+        return s.name !== name;
+      })
+      .map(function (s) {
+        return { name: s.name, score: s.score };
+      });
     return Object.assign({}, skin, { sampleScores: skin.sampleScores.concat(rest) });
+  }
+
+  // The player's place on the week's board: the best the server keeps for their name,
+  // or this game's score when it is higher (or the server hasn't seen it yet).
+  function standing(live, name, score) {
+    return liveRows(live).reduce(function (best, s) {
+      return s.name === name ? Math.max(best, s.score) : best;
+    }, score);
   }
 
   // The sample board with the player's score ranked into it. The player wins a tie.
@@ -369,6 +380,7 @@
     board: board,
     nickname: nickname,
     withLive: withLive,
+    standing: standing,
     stars: stars,
     flowAt: flowAt,
     nextRival: nextRival,

@@ -1085,5 +1085,25 @@ async function started(search, tweak, live) {
   remember.blocked = { nick: page.get("nick").textContent, named: page.get("named").hidden };
   out.remember = remember;
 
+  // A lower replay: the server keeps this name's 500, so the player stays top as "You".
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", scores: [{ name: "Brave Heron", score: 500 }, { name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.lowerReplay = {
+    done: !page.get("done").hidden,
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+    goal: page.get("goal").textContent,
+    topLine: JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")).copy.top,
+  };
+
   process.stdout.write(JSON.stringify(out));
 })();

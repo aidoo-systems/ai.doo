@@ -1926,7 +1926,7 @@ def test_live_scores_join_the_samples_and_the_players_own_comes_off_once(latte):
     ]
     got = _engine(
         f"const s = {json.dumps(skin)};"
-        f"const w = E.withLive(s, {json.dumps(live)}, {{ name: 'Brave Heron', score: 120 }});"
+        f"const w = E.withLive(s, {json.dumps(live)}, 'Brave Heron');"
         "return { rows: E.board(w, 120), top: E.topScore(E.withLive(s, [{ name: 'Calm Owl', score: 190 }])), none: E.withLive(s, null).sampleScores.length };"
     )
     assert [(r["name"], r["score"], r.get("you", False)) for r in got["rows"]] == [
@@ -1937,6 +1937,30 @@ def test_live_scores_join_the_samples_and_the_players_own_comes_off_once(latte):
     ]
     assert got["top"] == 190
     assert got["none"] == len(skin["sampleScores"])
+
+
+def test_a_players_place_is_their_best_this_week(latte):
+    # The server keeps a name's best, so a lower replay leaves the player where they were.
+    skin = json.loads(latte().read_text(encoding="utf-8"))
+    live = [{"name": "Brave Heron", "score": 190}, {"name": "Calm Owl", "score": 170}]
+    got = _engine(
+        f"const s = {json.dumps(skin)}; const l = {json.dumps(live)};"
+        "const w = E.withLive(s, l, 'Brave Heron');"
+        "return { names: w.sampleScores.map(r => r.name), at: E.standing(l, 'Brave Heron', 120),"
+        " higher: E.standing(l, 'Brave Heron', 200), stranger: E.standing(l, 'Keen Vole', 60),"
+        " none: E.standing(null, 'Brave Heron', 60) };"
+    )
+    assert "Brave Heron" not in got["names"] and "Calm Owl" in got["names"]
+    assert (got["at"], got["higher"], got["stranger"], got["none"]) == (190, 200, 60, 60)
+
+
+def test_after_a_lower_replay_the_board_shows_the_players_best_as_theirs(ui):
+    got = ui["lowerReplay"]
+    assert got["done"] and got["total"] < 500
+    names = [row[1] for row in got["board"] if len(row) > 1]
+    assert "Brave Heron" not in names
+    assert got["board"][0] == ["1.", "You", "500"]
+    assert got["goal"] == got["topLine"]
 
 
 def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui):
