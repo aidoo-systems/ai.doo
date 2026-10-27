@@ -139,3 +139,11 @@ def test_the_nickname_words_are_clean_and_short():
         assert all(w.isalpha() and w[0].isupper() for w in words[key])
     longest = max(map(len, words["adjectives"])) + 1 + max(map(len, words["animals"]))
     assert longest <= 20
+
+
+@pytest.mark.parametrize("body", [[1], "hello", 7, None])
+def test_a_body_that_is_not_an_object_is_refused(client, body):
+    resp = client.post(
+        "/api/pour/score", json=body, environ_base={"REMOTE_ADDR": "203.0.113.5"}
+    )
+    assert resp.status_code in (400, 404)

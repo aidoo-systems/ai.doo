@@ -124,7 +124,9 @@ def post_score():
 
     if _too_many(_visitor_key(request.remote_addr)):
         return jsonify({"error": "Too many scores. Please try again later."}), 429
-    data = request.get_json(silent=True) or {}
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"error": "Send a JSON object"}), 400
     skin, name, score = data.get("skin"), data.get("name"), data.get("score")
     best = _best_possible(skin) if isinstance(skin, str) else None
     if best is None:
