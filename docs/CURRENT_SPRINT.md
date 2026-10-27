@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-27
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (outreach follow-ups merged in #90, to send today; P2.1e (#75) waits for the owner to test; #89 needs a rebase; P2.1h (the café look) is built and Ready For Test: the owner plays `?skin=cafe` on a phone, then merges)
+State: ready-for-owner (P2.1h, the cafe look, merged in #93 and live; P2.1e (#75) on hold: the owner isn't a fan of the living tiles (D-035); P2.1i, a flash when a pour is let go: #94 fades the button but the flash remains, and the owner sends a screen recording)
 
 ## Goal
 

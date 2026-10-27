@@ -338,3 +338,11 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Why:** The owner wanted the café to look more like a café. Mocks from the real game of four looks (a handle; a saucer; steam and cocoa; all three) showed the handle takes no room and, drawn like the glass, doesn't read as stuck on, and the saucer costs about 7% of the scene; the owner chose all three.
 - **Alternatives:** A china cup with a handle (rejected: it hides the pour, and seeing the fill rise is the game); latte art (rejected: the glass is seen side on, so a heart on the foam can't show; cocoa reads instead); the glass alone (as D-033).
 - **Consequences:** Supersedes D-033's "rejected for now" on handles and saucers, for the café. A saucer is a vessel wider than the glass, so the skin format must let a vessel reach past the glass's sides. Built in P2.1h: a vessel's x runs from -40 to 140, a `handle` is an open line of 3 to 24 points, `steam` is a boolean, and `dust` is a finish of its own (not the sprinkles' strands) so its grains can be fine and settle in half a second. The scene is sized so the widest vessel or handle fits the canvas (a no-op for today's skins).
+
+## D-035 — The living tiles (#75) don't go in as built
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** P2.1e's drawn-in-code cards (#75: a sonar sweep, fanned cards, a probe in orbit) are not merged. The owner tried them on a phone: "not a fan"; they look nothing like the games. P2.1e is on hold.
+- **Why:** A card that moves but doesn't look like its game says less than the game's own picture.
+- **Alternatives:** Redrawing them from each game's own art, or dropping P2.1e; the owner's call, and #75 stays open until then.
+- **Consequences:** The homepage keeps its store graphics. The cafe work (P2.1h) went first.
