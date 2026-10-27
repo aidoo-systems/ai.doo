@@ -1105,5 +1105,22 @@ async function started(search, tweak, live) {
     topLine: JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")).copy.top,
   };
 
+  // Off the top ten: the board doesn't list them, but the score back says their best.
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", best: 400, scores: [{ name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.offTheTop = {
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
+
   process.stdout.write(JSON.stringify(out));
 })();

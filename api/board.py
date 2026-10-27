@@ -169,4 +169,9 @@ def post_score():
         conn.execute(
             "DELETE FROM scores WHERE week < ?", (week,)
         )  # the board starts empty each Monday
-        return jsonify({"week": week, "scores": _top(conn, skin, week)})
+        # The name's best too, so a player off the top ten still knows where they stand.
+        (kept,) = conn.execute(
+            "SELECT score FROM scores WHERE skin = ? AND week = ? AND name = ?",
+            (skin, week, name),
+        ).fetchone()
+        return jsonify({"week": week, "scores": _top(conn, skin, week), "best": kept})

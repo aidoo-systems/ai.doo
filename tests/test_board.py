@@ -237,3 +237,12 @@ def test_workers_opening_a_new_board_at_once_all_get_it(db):
     for t in threads:
         t.join()
     assert errors == []
+
+
+def test_a_score_back_says_the_names_best_even_off_the_top_ten(client):
+    for i in range(10):
+        post(client, name=NAMES[i + 1], score=410 + i, ip=f"203.0.113.{i}")
+    assert post(client, score=400, ip="198.51.100.1").get_json()["best"] == 400
+    got = post(client, score=100, ip="198.51.100.1").get_json()
+    assert got["best"] == 400
+    assert "Brave Heron" not in [row["name"] for row in got["scores"]]

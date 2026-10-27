@@ -2278,6 +2278,7 @@
     var nick = null; // this visit's name on the board, given by the game; null until its words load
     var words = null;
     var live = null; // this week's scores from the server; null while it can't be reached
+    var kept = null; // this name's best this week, as the server keeps it, once a score is in
 
     // The phone keeps its given name, and nothing else, so a player keeps theirs all week.
     // Where storage is blocked (a private window) the name lasts the visit, as before.
@@ -2287,6 +2288,7 @@
     }
     function rename() {
       var was = nick;
+      kept = null;
       var many = words.adjectives.length * words.animals.length > 1;
       do show(E.nickname(words, Math.random));
       while (many && nick === was);
@@ -2320,6 +2322,7 @@
     }
     function gotBoard(got) {
       live = got.scores;
+      if (Number.isInteger(got.best)) kept = got.best;
       $("sample").textContent = "Live this week";
       showBeat();
     }
@@ -2520,7 +2523,7 @@
     var shownBoard = "";
     function showBoard(score) {
       var withWeek = E.withLive(skin, live, nick);
-      score = E.standing(live, nick, score);
+      score = E.standing(live, nick, kept === null ? score : Math.max(score, kept));
       // What to play again for: the next name up the board, and this visit's own best.
       var rival = E.nextRival(withWeek, score);
       $("goal").textContent = rival

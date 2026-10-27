@@ -1951,7 +1951,12 @@ def test_a_players_place_is_their_best_this_week(latte):
         " none: E.standing(null, 'Brave Heron', 60) };"
     )
     assert "Brave Heron" not in got["names"] and "Calm Owl" in got["names"]
-    assert (got["at"], got["higher"], got["stranger"], got["none"]) == (190, 200, 60, 60)
+    assert (got["at"], got["higher"], got["stranger"], got["none"]) == (
+        190,
+        200,
+        60,
+        60,
+    )
 
 
 def test_after_a_lower_replay_the_board_shows_the_players_best_as_theirs(ui):
@@ -1961,6 +1966,13 @@ def test_after_a_lower_replay_the_board_shows_the_players_best_as_theirs(ui):
     assert "Brave Heron" not in names
     assert got["board"][0] == ["1.", "You", "500"]
     assert got["goal"] == got["topLine"]
+
+
+def test_off_the_top_ten_the_player_still_stands_at_their_best(ui):
+    got = ui["offTheTop"]
+    assert got["total"] < 400
+    you = [row for row in got["board"] if len(row) > 1 and row[1] == "You"]
+    assert you and you[0][2] == "400"
 
 
 def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui):
