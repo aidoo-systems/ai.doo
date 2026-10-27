@@ -1346,6 +1346,56 @@ def test_sprinkles_cover_the_tip_and_two_turns(ui):
     assert max(s["ys"]) - min(s["ys"]) >= 0.3 * (lowest - tip), s
 
 
+def _lean(pts):
+    # The bar's long axis, from its points' spread, in degrees off upright (positive leans right).
+    n = len(pts)
+    mx = sum(p[0] for p in pts) / n
+    my = sum(p[1] for p in pts) / n
+    sxx = sum((p[0] - mx) ** 2 for p in pts)
+    syy = sum((p[1] - my) ** 2 for p in pts)
+    sxy = sum((p[0] - mx) * (p[1] - my) for p in pts)
+    axis = 0.5 * math.atan2(2 * sxy, sxx - syy)
+    ux, uy = math.cos(axis), math.sin(axis)
+    if uy > 0:  # point it up the screen
+        ux, uy = -ux, -uy
+    return math.degrees(math.atan2(ux, -uy))
+
+
+def test_the_flake_goes_in_like_a_real_one(ui):
+    # P2.0y, look E (owner, 2026-10-26): the 99's flake is pushed into the side of the swirl a
+    # turn below the top, leaning out about 25 degrees, behind the turns; and, short or on the
+    # line, no part of it ever rises above the top of the serve (it once stood over a short one).
+    # A serve too short to stand one in under its top goes without (Codex, round 1).
+    runs = ui["flakes"]
+    assert len(runs) >= 12, runs
+    for run in runs:
+        seen = [f for f in run["frames"] if f["flake"] and f["top"] is not None]
+        assert seen or run["hold"] < 500, run["hold"]
+        for f in seen:
+            assert f["flake"]["top"] >= f["top"] - 0.6, (
+                run["hold"],
+                f["flake"]["top"],
+                f["top"],
+            )
+        if not seen:
+            continue
+        last = seen[-1]
+        bar = last["flake"]
+        assert bar["at"] < last["firstTurn"], run["hold"]  # behind the turns
+        lean = _lean(bar["pts"])
+        assert 18 <= lean <= 32, (run["hold"], lean)
+        assert (bar["top"] + bar["bottom"]) / 2 > last["top"], run["hold"]
+        # its foot is well down the swirl, not at the top turn
+        assert bar["bottom"] >= last["top"] + 0.35 * (last["bottom"] - last["top"]), (
+            run["hold"],
+            bar,
+            last,
+        )
+        assert sum(p[0] for p in bar["pts"]) / len(bar["pts"]) > last["middle"], run[
+            "hold"
+        ]
+
+
 def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
     # Owner, 2026-10-23 (again): the base still shifted down as a serve finished. The whippy's
     # hint is a serve's name and two lines; the result is two short ones. The line under the
