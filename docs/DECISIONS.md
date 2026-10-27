@@ -346,3 +346,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Why:** A card that moves but doesn't look like its game says less than the game's own picture.
 - **Alternatives:** Redrawing them from each game's own art, or dropping P2.1e; the owner's call, and #75 stays open until then.
 - **Consequences:** The homepage keeps its store graphics. The cafe work (P2.1h) went first.
+
+## D-036 — The demo's board is live, with names the game gives
+
+- **Status:** Accepted (owner, 2026-10-27); amends D-017 for the demo game
+- **Date:** 2026-10-27
+- **Decision:** The demo (`/play/pour/`) has a real weekly board (P2.0c). Each visit is given a random name from a fixed word list; a finished game sends the skin, that name and the score to the site's own API, which stores those and the week, nothing else, and empties each Monday. The game's line "Nothing is stored or sent" becomes "Your score and a name the game picks go on this week's board. Nothing else is stored." D-017's other half stands: the game loads no analytics, and the board is not used to count or identify players.
+- **Why:** The owner: "our demo of the thing that we are trying to sell should have a leaderboard". The demo has no prize and no real money, so P2.0b's claim codes and discount aren't needed for it. Given names remove the riskiest part of a public board (what people type) without a filter.
+- **Alternatives:** Typed nicknames with a profanity filter (P2.0b, for clients). Waiting for the first paid game (the demo keeps showing a fake board to every prospect until then). Keeping the names in the phone's storage so a player keeps theirs (more to explain on the page for little gain in a demo).
+- **Consequences:** A public write endpoint on the VPS. The database lives in the service user's `~/.local/share/aidoo-api/` (or `AIDOO_BOARD_DB`), outside the deploy's rsync. The privacy policy gets section 4b. The chatbot no longer calls the board samples.
+- **Revisit when:** P2.0b is built for a client, which may reuse this API with typed names.

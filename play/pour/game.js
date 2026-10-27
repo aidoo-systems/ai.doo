@@ -54,13 +54,19 @@
     return asked && /^[a-z0-9-]+$/.test(asked) ? asked : window.POUR_SKIN;
   }
 
+  // Every request the game makes: its skin, its nickname words, and the week's board.
+  // A POST carries the skin, the nickname and the score, and nothing else.
+  function getJSON(url, body) {
+    var init = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-cache" };
+    return fetch(url, init).then(function (res) {
+      if (!res.ok) throw new Error(url + " " + res.status);
+      return res.json();
+    });
+  }
+
   // A skin by name, or a rejection if it is missing or not playable.
   function loadSkin(id) {
-    return fetch("skins/" + id + ".json", { cache: "no-cache" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("skin " + res.status);
-        return res.json();
-      })
+    return getJSON("skins/" + id + ".json")
       .then(function (skin) {
         if (E.validateSkin(skin).length) throw new Error("skin invalid");
         return skin;
@@ -82,9 +88,11 @@
 
   // A name nobody has (a typo, a retired skin on old artwork) plays the default skin.
   var asked = skinId();
+  var skinName = asked;
   loadSkin(asked)
     .catch(function (err) {
       if (asked === window.POUR_SKIN) throw err;
+      skinName = window.POUR_SKIN;
       return loadSkin(window.POUR_SKIN);
     })
     .then(function (skin) {
@@ -2265,6 +2273,36 @@
     var shown = 0; // the score the HUD is showing, on its way to the real one
     var best = null; // this visit's best score: a variable, gone when the page is
     var turn = 0; // goes up whenever the screen changes, so a late timer does nothing
+    var nick = null; // this visit's name on the board, given by the game; null until its words load
+    var words = null;
+    var live = null; // this week's scores from the server; null while it can't be reached
+
+    function rename() {
+      nick = E.nickname(words, Math.random);
+      $("nick").textContent = nick;
+    }
+    getJSON("nicknames.json")
+      .then(function (got) {
+        words = got;
+        rename();
+        $("named").hidden = false;
+      })
+      .catch(function () {});
+    $("rename").addEventListener("click", rename);
+
+    // The score to beat counts this week's real players as well as the samples.
+    function showBeat() {
+      var top = E.topScore(E.withLive(skin, live));
+      $("beat").textContent = top > 0 ? skin.copy.beat.replace("{score}", String(top)) : "";
+    }
+    function gotBoard(got) {
+      live = got.scores;
+      $("sample").textContent = "Live this week";
+      showBeat();
+    }
+    getJSON("/api/pour/board?skin=" + skinName)
+      .then(gotBoard)
+      .catch(function () {});
 
     dress(skin);
     offerOthers(skin);
@@ -2432,20 +2470,43 @@
       });
       pills($("chips"), -1);
 
-      // What to play again for: the next name up the board, and this visit's own best.
-      var rival = E.nextRival(skin, game.score);
-      $("goal").textContent = rival
-        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
-        : skin.copy.top;
+      shownBoard = "";
+      showBoard(game.score, null);
       if (best === null) $("mine").textContent = "";
       else if (game.score > best) {
         $("mine").textContent = skin.copy.newBest;
         sound.best();
       } else $("mine").textContent = skin.copy.best.replace("{score}", String(best));
       best = best === null ? game.score : Math.max(best, game.score);
+      // On the real board too, once the server has it: then the board shows the week as it is.
+      if (nick) {
+        var mine = { name: nick, score: game.score };
+        var asOf = turn;
+        getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })
+          .then(function (got) {
+            gotBoard(got);
+            if (asOf === turn) showBoard(game.score, mine);
+          })
+          .catch(function () {});
+      }
+      $("doneBody").scrollTop = 0;
+      againBtn.focus({ preventScroll: true });
+    }
 
+    // The board for a finished score: the samples, this week's live scores, and the player.
+    var shownBoard = "";
+    function showBoard(score, mine) {
+      var withWeek = E.withLive(skin, live, mine);
+      // What to play again for: the next name up the board, and this visit's own best.
+      var rival = E.nextRival(withWeek, score);
+      $("goal").textContent = rival
+        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
+        : skin.copy.top;
       // The top three, then the player and whoever is just ahead of them.
-      var rows = E.board(skin, game.score);
+      var rows = E.board(withWeek, score);
+      var key = JSON.stringify(rows);
+      if (key === shownBoard) return; // the server agreed with what's shown: don't deal it again
+      shownBoard = key;
       var me = rows.findIndex(function (row) {
         return row.you;
       });
@@ -2475,8 +2536,6 @@
         li.style.animationDelay = 0.5 + shownRows++ * 0.06 + "s";
         list.appendChild(li);
       });
-      $("doneBody").scrollTop = 0;
-      againBtn.focus({ preventScroll: true });
     }
 
     function loop(now) {

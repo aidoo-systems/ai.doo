@@ -249,6 +249,31 @@
     return rival ? { name: rival.name, gap: rival.score - score, top: rival.score === topScore(skin) } : null;
   }
 
+  // This visit's name on the board: an adjective and an animal from nicknames.json,
+  // picked with rand (Math.random in the game). Nobody types a name, so none is rude.
+  function nickname(words, rand) {
+    function pick(list) {
+      return list[Math.floor(rand() * list.length) % list.length];
+    }
+    return pick(words.adjectives) + " " + pick(words.animals);
+  }
+
+  // The skin with this week's live scores among its sample ones. The player's own
+  // score (mine) comes off once, because board() ranks it back in as theirs.
+  function withLive(skin, live, mine) {
+    var rows = (Array.isArray(live) ? live : []).filter(function (s) {
+      return isObj(s) && isText(s.name, 20) && isNum(s.score, 0, Infinity) && Math.floor(s.score) === s.score;
+    });
+    var own = mine ? rows.findIndex(function (s) {
+      return s.name === mine.name && s.score === mine.score;
+    }) : -1;
+    if (own >= 0) rows.splice(own, 1);
+    var rest = rows.map(function (s) {
+      return { name: s.name, score: s.score };
+    });
+    return Object.assign({}, skin, { sampleScores: skin.sampleScores.concat(rest) });
+  }
+
   // The sample board with the player's score ranked into it. The player wins a tie.
   function board(skin, score) {
     var rows = [{ name: skin.copy.you, score: score, you: true }];
@@ -342,6 +367,8 @@
     roundLabel: roundLabel,
     serveOf: serveOf,
     board: board,
+    nickname: nickname,
+    withLive: withLive,
     stars: stars,
     flowAt: flowAt,
     nextRival: nextRival,

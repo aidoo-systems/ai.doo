@@ -22,7 +22,7 @@ let sayFlex = false;
 const SAY_HINT = 70.2;
 
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
-function boot(search, tweak) {
+function boot(search, tweak, live) {
   let clock = 1000;
   let frames = [];
   let timers = [];
@@ -30,6 +30,7 @@ function boot(search, tweak) {
   const observers = [];
   let seenStage = null;
   const fetched = [];
+  const sent = [];
   const sounds = [];
   const drawn = []; // every canvas call, by name, in order
   const stops = []; // every colour a gradient was given
@@ -220,7 +221,15 @@ function boot(search, tweak) {
       : undefined,
     requestAnimationFrame: (fn) => frames.push(fn),
     setTimeout: (fn, ms) => timers.push({ at: clock + ms, fn }),
-    fetch: (url) => {
+    fetch: (url, init) => {
+      // The week's board and its nickname words, when a scenario serves them (live);
+      // otherwise they're unreachable, as on a page opened from a file.
+      if (url === "nicknames.json" || url.startsWith("/api/")) {
+        sent.push({ url, body: init && init.body ? JSON.parse(init.body) : null });
+        if (!live) return Promise.resolve({ ok: false, status: 404 });
+        const got = url === "nicknames.json" ? live.words : live.board;
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(got) });
+      }
       fetched.push(url);
       const file = path.join(GAME, url.split("?")[0]);
       if (!fs.existsSync(file)) return Promise.resolve({ ok: false, status: 404 });
@@ -251,6 +260,7 @@ function boot(search, tweak) {
     window,
     document,
     fetched,
+    sent,
     sounds,
     drawn,
     stops,
@@ -291,8 +301,8 @@ function boot(search, tweak) {
   };
 }
 
-async function started(search, tweak) {
-  const page = boot(search || "", tweak);
+async function started(search, tweak, live) {
+  const page = boot(search || "", tweak, live);
   for (let i = 0; i < 6; i++) await page.settle();
   page.get("start").fire("click", {});
   page.advance(100);
@@ -997,6 +1007,33 @@ async function started(search, tweak) {
     }
   }
   sayFlex = false;
+
+  // P2.0c: the week's board, served. The title names the player and the best real score
+  // to beat; a finished game posts its score, and the board ranks the server's rows in.
+  const live = {
+    words: { adjectives: ["Brave"], animals: ["Heron"] },
+    board: { week: "2026-W44", scores: [{ name: "Calm Owl", score: 480 }] },
+  };
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.liveTitle = { named: page.get("named").hidden, nick: page.get("nick").textContent, beat: page.get("beat").textContent, badge: page.get("sample").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const posted = page.sent.find((s) => s.url === "/api/pour/score");
+  out.liveDone = {
+    done: !page.get("done").hidden,
+    posted: posted ? posted.body : null,
+    total: Number(page.get("total").textContent) || null,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
+  out.offlineSent = (await started()).sent.map((s) => s.url).sort();
 
   process.stdout.write(JSON.stringify(out));
 })();
