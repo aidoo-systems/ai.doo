@@ -330,3 +330,11 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Why:** The owner wanted a glass to match each drink, then found the first mocks "very geometric"; a designer review traced that to the drawing (straight segments, a fixed small corner), not the shapes.
 - **Alternatives:** Stems, handles and saucers (rejected for now: anything below the glass shrinks the whole venue's scene, and a vessel is one opaque colour); more points per outline without the drawing change (still faceted).
 - **Consequences:** A new glass is a point list in a skin; gentle turns between points read as curves. The pour line's arrows still measure the straight outline, 1 to 2px off a curve.
+
+## D-034 — The café's coffees get a saucer, steam and a handle
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** In the pour showcase the café's coffees stand on a cream saucer and steam once poured; the cappuccino's glass has a glass handle and cocoa on its foam (P2.1h). Handles and saucers are skin data, drawn generically.
+- **Why:** The owner wanted the café to look more like a café. Mocks from the real game of four looks (a handle; a saucer; steam and cocoa; all three) showed the handle takes no room and, drawn like the glass, doesn't read as stuck on, and the saucer costs about 7% of the scene; the owner chose all three.
+- **Alternatives:** A china cup with a handle (rejected: it hides the pour, and seeing the fill rise is the game); latte art (rejected: the glass is seen side on, so a heart on the foam can't show; cocoa reads instead); the glass alone (as D-033).
+- **Consequences:** Supersedes D-033's "rejected for now" on handles and saucers, for the café. A saucer is a vessel wider than the glass, so the skin format must let a vessel reach past the glass's sides.
