@@ -1365,17 +1365,20 @@ def test_the_flake_goes_in_like_a_real_one(ui):
     # P2.0y, look E (owner, 2026-10-26): the 99's flake is pushed into the side of the swirl a
     # turn below the top, leaning out about 25 degrees, behind the turns; and, short or on the
     # line, no part of it ever rises above the top of the serve (it once stood over a short one).
+    # A serve too short to stand one in under its top goes without (Codex, round 1).
     runs = ui["flakes"]
-    assert len(runs) >= 6, runs
+    assert len(runs) >= 12, runs
     for run in runs:
         seen = [f for f in run["frames"] if f["flake"] and f["top"] is not None]
-        assert seen, run["hold"]
+        assert seen or run["hold"] < 500, run["hold"]
         for f in seen:
             assert f["flake"]["top"] >= f["top"] - 0.6, (
                 run["hold"],
                 f["flake"]["top"],
                 f["top"],
             )
+        if not seen:
+            continue
         last = seen[-1]
         bar = last["flake"]
         assert bar["at"] < last["firstTurn"], run["hold"]  # behind the turns

@@ -862,7 +862,7 @@ async function started(search, tweak) {
   out.flakes = [];
   {
     const bar = whippy.rounds[0].serve.topping.colours[0];
-    for (let hold = 500; hold <= 1700; hold += 200) {
+    for (const hold of [16, 116, 216, 316, 416, 500, 700, 900, 1100, 1300, 1500, 1700]) {
       page = await started("?skin=icecream");
       page.capturing(true);
       page.advance(500);

@@ -995,7 +995,8 @@
       var x0 = g.cx + turn.hw * 0.65;
       var y0 = mid - (x0 - g.cx) * Math.tan(tilt) - h * 0.08;
       var room = (y0 - (w / 2) * Math.sin(lean) - (yAt(level) + 2)) / Math.cos(lean);
-      var len = Math.max(w, Math.min(g.gw * 0.46, room * 0.85));
+      var len = Math.min(g.gw * 0.46, room * 0.85);
+      if (len < w) return; // a serve too short to stand one in under its top goes without (Codex)
       var slide = (1 - q) * Math.max(0, room - len); // slides in along its own length
       var bury = w * 2;
       ctx.save();
