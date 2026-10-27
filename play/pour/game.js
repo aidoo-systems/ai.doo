@@ -1864,16 +1864,17 @@
         f.life -= dt / 1.1;
         if (f.life <= 0) return false;
         var y = f.y - (1 - f.life) * f.size * 1.4;
-        ctx.globalAlpha = Math.min(1, f.life * 2.4);
-        ctx.font = "900 " + f.size + "px Inter, system-ui, sans-serif";
+        // Drawn whole to the end, in a solid outline, so it never greys over the machine (P2.0z):
+        // it goes by shrinking away, not fading.
+        var size = f.size * Math.min(1, f.life / 0.25);
+        ctx.font = "900 " + size + "px Inter, system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.lineJoin = "round";
-        ctx.lineWidth = f.size * 0.18;
-        ctx.strokeStyle = "rgba(0,0,0,.5)";
+        ctx.lineWidth = size * 0.18;
+        ctx.strokeStyle = th.accentInk;
         ctx.strokeText(f.text, f.x, y);
         ctx.fillStyle = th.accent;
         ctx.fillText(f.text, f.x, y);
-        ctx.globalAlpha = 1;
         return true;
       });
     }

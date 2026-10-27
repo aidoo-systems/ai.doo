@@ -50,7 +50,7 @@
     /* The one big control: a button with some travel in it */
     .btn{position:relative;flex:none;display:flex;align-items:center;justify-content:center;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
     .btn:active,.btn.down{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.3)}
-    .btn.wait{opacity:.45}
+    .btn.wait{background:var(--panel);color:var(--muted)}
     .btn.second{min-height:52px;padding:11px 18px;background:transparent;color:var(--ink);font-size:16.5px;box-shadow:inset 0 0 0 2px var(--muted);touch-action:manipulation}
     .btn.second:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--ink)}
     .others{flex:none;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;min-height:0}
@@ -205,6 +205,6 @@
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=12"></script>
 <script src="engine.js?v=16"></script>
-<script src="game.js?v=40"></script>
+<script src="game.js?v=41"></script>
 </body>
 </html>

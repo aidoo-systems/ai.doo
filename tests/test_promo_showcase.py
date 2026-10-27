@@ -784,11 +784,12 @@ def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
 def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
     # Recorded from main before the carton was added (the dairy's before the whippy): every
     # canvas call and value of a frame at rest, a pour and its result, with the same
-    # "random" numbers each run.
+    # "random" numbers each run. Re-recorded for P2.0z: against main's traces, the only lines
+    # that differ are the "+N" float's (its fading globalAlpha gone, its outline's strokeStyle).
     assert ui["traces"] == {
-        "wobbly-gull": "a867258b2eba7df04b826032530d05da69ce5d6421c6b81ca6c7eba71c11c86b",
-        "dozy-otter": "dd14a52b458c327219986d45cd13159663a5add2a1cb3640194cf69cd2f40219",
-        "sleepy-cow": "6d601f38861b8fdfaef1ec04aa18e944a7e5d6cea3dfd442b63559a694c15ed2",
+        "wobbly-gull": "2dab41fd281b68843008d279954886627ee1f6e26b36bb9f1786fb6ad03836c1",
+        "dozy-otter": "0f04fc9252d3647464d9e610f6b75cb277dee6ef82ff6a2fc93f62829375a4d7",
+        "sleepy-cow": "d9daa5cceb03d677123c4ff3984d089d5dd95b677f21e12702345ad380c8b84e",
     }
 
 
@@ -1581,3 +1582,67 @@ def test_every_shipped_accent_reads_against_the_room(path):
     for ground in ("bg", "panel"):
         assert _contrast(theme["accent"], theme[ground]) >= 4, ground
     assert _contrast(theme["accentInk"], theme["accent"]) >= 4.5
+
+
+def _opaque(colour):
+    return isinstance(colour, str) and re.fullmatch(
+        r"#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6}", colour
+    )
+
+
+@pytest.mark.parametrize("venue", ["pub", "?skin=icecream"])
+def test_a_pours_score_reads_over_whatever_is_behind_it(ui, venue):
+    # P2.0z: the whippy's "+N" faded into a grey smudge over the white machine: a half-black
+    # outline, and the whole float fading out. Every frame it is drawn, it is drawn whole, with
+    # a solid outline; over the machine's metal and over the room, the outline or the fill
+    # stands 3:1 off what is behind it.
+    skin = "giddy-puffin" if venue != "pub" else "wobbly-gull"
+    theme = json.loads(
+        (REPO_ROOT / "play" / "pour" / "skins" / f"{skin}.json").read_text(
+            encoding="utf-8"
+        )
+    )["theme"]
+    seen = ui["floats"][venue]
+    drawn = [f for f in seen["frames"] if f]
+    assert len(drawn) > 30, seen["say"]  # it is up for most of a second
+    assert not seen["frames"][-1], "the float has gone by 1.6 s"
+    for frame in drawn:
+        outline = [x for x in frame if x["op"] == "strokeText"]
+        fill = [x for x in frame if x["op"] == "fillText"]
+        assert outline and fill
+        for x in frame:
+            assert x["alpha"] == 1, x
+        for x in outline:
+            assert _opaque(x["stroke"]), x
+            size = float(re.match(r"\d+ ([\d.]+)px", x["font"]).group(1))
+            assert x["width"] >= size * 0.15, x
+            for ground in ("metal", "bg", "panel"):
+                if ground in theme:
+                    best = max(
+                        _contrast(x["stroke"], theme[ground]),
+                        _contrast(fill[0]["fill"], theme[ground]),
+                    )
+                    assert best >= 3, (ground, x)
+            assert _contrast(x["stroke"], fill[0]["fill"]) >= 3, x
+
+
+def _rule(css, selector):
+    m = re.search(re.escape(selector) + r"\{([^}]*)\}", css)
+    assert m, selector
+    return dict(p.split(":", 1) for p in m.group(1).split(";") if ":" in p)
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_the_waiting_button_stays_in_the_venues_own_colours(path):
+    # P2.0z: between pours the button sat at 45% opacity over the room, a muddy mauve on every
+    # venue. Waiting, it is painted in the skin's own solid colours, and its words still read.
+    theme = json.loads(path.read_text(encoding="utf-8"))["theme"]
+    wait = _rule(_text("play/pour/index.html"), ".btn.wait")
+    assert "opacity" not in wait or float(wait["opacity"]) >= 1, wait
+    colours = {}
+    for prop in ("background", "color"):
+        key = re.fullmatch(r"var\(--(\w+)\)", wait.get(prop, "").strip())
+        assert key, (prop, wait)
+        colours[prop] = theme[key.group(1)]
+        assert _opaque(colours[prop]), (prop, colours[prop])
+    assert _contrast(colours["color"], colours["background"]) >= 4.5

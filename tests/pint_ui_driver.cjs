@@ -36,6 +36,7 @@ function boot(search, tweak) {
   const paths = []; // every SVG path the canvas was asked to build
   const arcs = []; // every circle drawn: x, y and radius
   const trace = []; // every canvas call and setting, with its values, to compare frames exactly
+  const texts = []; // P2.0z: every line of text drawn, with the paint and alpha it was drawn in
   const fmt = (v) => (typeof v === "number" ? v.toFixed(2) : typeof v === "string" ? v : typeof v);
 
   // Where the canvas's own transform puts a point, so a test can ask how high a pourer reaches.
@@ -112,6 +113,7 @@ function boot(search, tweak) {
 
   const paint = new Proxy({}, {
     get: (t, p) => (p in t ? t[p] : (...args) => {
+      (p === "fillText" || p === "strokeText") && texts.push({ op: p, text: args[0], alpha, fill: t.fillStyle, stroke: t.strokeStyle, width: t.lineWidth, font: t.font }),
       moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3));
       const gradient = { stops: [] };
       gradient.addColorStop = (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour), gradient.stops.push(colour));
@@ -250,6 +252,7 @@ function boot(search, tweak) {
     paths,
     arcs,
     trace,
+    texts,
     reach,
     capturing: (on) => (capture = on),
     fills,
@@ -886,6 +889,23 @@ async function started(search, tweak) {
       page.capturing(false);
       out.flakes.push({ hold, say: page.get("say").textContent, frames });
     }
+  }
+
+  // P2.0z: a pour's "+N", frame by frame from letting go until it has gone, on the pub and the whippy.
+  out.floats = {};
+  for (const search of ["", "?skin=icecream"]) {
+    page = await started(search);
+    page.advance(500);
+    page.down(1);
+    page.advance(900);
+    page.up(1);
+    const frames = [];
+    for (let t = 0; t < 1600; t += 16) {
+      page.texts.length = 0;
+      page.advance(16);
+      frames.push(page.texts.filter((x) => String(x.text).startsWith("+")));
+    }
+    out.floats[search || "pub"] = { say: page.get("say").textContent, frames };
   }
 
   process.stdout.write(JSON.stringify(out));
