@@ -54,6 +54,8 @@
     return asked && /^[a-z0-9-]+$/.test(asked) ? asked : window.POUR_SKIN;
   }
 
+  var NAME_KEY = "pour.name"; // the one thing the game keeps on the phone: its given name
+
   // Every request the game makes: its skin, its nickname words, and the week's board.
   // A POST carries the skin, the nickname and the score, and nothing else.
   function getJSON(url, body) {
@@ -2277,14 +2279,35 @@
     var words = null;
     var live = null; // this week's scores from the server; null while it can't be reached
 
-    function rename() {
-      nick = E.nickname(words, Math.random);
+    // The phone keeps its given name, and nothing else, so a player keeps theirs all week.
+    // Where storage is blocked (a private window) the name lasts the visit, as before.
+    function show(name) {
+      nick = name;
       $("nick").textContent = nick;
+    }
+    function rename() {
+      var was = nick;
+      var many = words.adjectives.length * words.animals.length > 1;
+      do show(E.nickname(words, Math.random));
+      while (many && nick === was);
+      try {
+        window.localStorage.setItem(NAME_KEY, nick);
+      } catch (e) {}
+    }
+    function remembered() {
+      try {
+        var name = window.localStorage.getItem(NAME_KEY);
+        var parts = typeof name === "string" ? name.split(" ") : [];
+        if (parts.length === 2 && words.adjectives.indexOf(parts[0]) >= 0 && words.animals.indexOf(parts[1]) >= 0) return name;
+      } catch (e) {}
+      return null;
     }
     getJSON("nicknames.json")
       .then(function (got) {
         words = got;
-        rename();
+        var kept = remembered();
+        if (kept) show(kept);
+        else rename();
         $("named").hidden = false;
       })
       .catch(function () {});

@@ -59,9 +59,13 @@ def test_a_score_goes_on_this_weeks_board(client):
     assert got["week"] == board._week()
 
 
+WORDS = json.loads((REPO_ROOT / "play/pour/nicknames.json").read_text(encoding="utf-8"))
+NAMES = [f"{a} Heron" for a in WORDS["adjectives"]]
+
+
 def test_the_board_is_the_top_ten_highest_first(client):
     for i in range(12):
-        post(client, score=i * 10, ip=f"203.0.113.{i}")
+        post(client, name=NAMES[i], score=i * 10, ip=f"203.0.113.{i}")
     scores = [
         row["score"]
         for row in client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"]
@@ -147,3 +151,68 @@ def test_a_body_that_is_not_an_object_is_refused(client, body):
         "/api/pour/score", json=body, environ_base={"REMOTE_ADDR": "203.0.113.5"}
     )
     assert resp.status_code in (400, 404)
+
+
+def test_a_name_keeps_only_its_best_score_of_the_week(client, db):
+    for score in (300, 500, 200):
+        post(client, score=score)
+    post(client, name="Calm Owl", score=400)
+    got = client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"]
+    assert got == [
+        {"name": "Brave Heron", "score": 500},
+        {"name": "Calm Owl", "score": 400},
+    ]
+    conn = sqlite3.connect(db)
+    assert conn.execute(
+        "SELECT name, score FROM scores ORDER BY score DESC"
+    ).fetchall() == [
+        ("Brave Heron", 500),
+        ("Calm Owl", 400),
+    ]
+    conn.close()
+
+
+def test_one_player_cannot_fill_the_board(client):
+    for i in range(board.POST_LIMIT):
+        post(client, score=100 + i)
+    got = client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"]
+    assert got == [{"name": "Brave Heron", "score": 100 + board.POST_LIMIT - 1}]
+
+
+def test_the_same_name_on_another_skin_or_week_is_its_own_row(client, db, monkeypatch):
+    other = next(
+        p.stem for p in (REPO_ROOT / "play/pour/skins").glob("*.json") if p.stem != PUB
+    )
+    post(client, score=300)
+    post(client, skin=other, score=100)
+    assert client.get(f"/api/pour/board?skin={other}").get_json()["scores"] == [
+        {"name": "Brave Heron", "score": 100}
+    ]
+    monkeypatch.setattr(board, "_week", lambda: "2099-W01")
+    post(client, score=50)
+    assert client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"] == [
+        {"name": "Brave Heron", "score": 50}
+    ]
+
+
+def test_a_board_from_before_keeps_each_names_best(client, db):
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "CREATE TABLE scores (skin TEXT NOT NULL, week TEXT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)"
+    )
+    week = board._week()
+    for score in (200, 450, 300):
+        conn.execute(
+            "INSERT INTO scores VALUES (?, ?, ?, ?)", (PUB, week, "Brave Heron", score)
+        )
+    conn.commit()
+    conn.close()
+    assert client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"] == [
+        {"name": "Brave Heron", "score": 450}
+    ]
+    post(client, score=400)
+    conn = sqlite3.connect(db)
+    assert conn.execute("SELECT name, score FROM scores").fetchall() == [
+        ("Brave Heron", 450)
+    ]
+    conn.close()

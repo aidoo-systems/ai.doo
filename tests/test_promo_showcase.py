@@ -409,7 +409,6 @@ def test_the_game_keeps_and_sends_nothing():
     for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
         text = _text(rel)
         for api in (
-            "localStorage",
             "sessionStorage",
             "indexedDB",
             "document.cookie",
@@ -436,6 +435,15 @@ def test_the_game_keeps_and_sends_nothing():
         in js
     )
     assert "/^[a-z0-9-]+$/" in js
+    # The one thing kept on the phone is its given name, under one key (D-036).
+    assert "localStorage" not in _text("play/pour/engine.js") + _text(
+        "play/pour/index.html"
+    )
+    assert sorted(re.findall(r"localStorage\.(\w+)\(\s*([^,)]+)", js)) == [
+        ("getItem", "NAME_KEY"),
+        ("setItem", "NAME_KEY"),
+    ]
+    assert 'var NAME_KEY = "pour.name";' in js
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
@@ -1949,6 +1957,29 @@ def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui)
     )
     assert done["board"][0] == ["1.", "Calm Owl", "480"]
     assert ["You"] == [row[1] for row in done["board"] if row and row[1] == "You"]
+
+
+def test_the_phone_remembers_its_name_and_change_replaces_it(ui):
+    got = ui["remember"]
+    assert got["fresh"] == {"nick": "Brave Heron", "stored": "Brave Heron"}
+    assert got["kept"]["nick"] == "Calm Owl"
+    assert got["kept"]["posted"] == "Calm Owl"
+    assert got["changed"]["nick"] != "Calm Owl"
+    assert got["changed"]["stored"] == got["changed"]["nick"]
+    # A stored name the game couldn't give is replaced, not shown.
+    assert got["junk"]["nick"] in {"Brave Heron", "Brave Owl", "Calm Heron", "Calm Owl"}
+    assert got["junk"]["stored"] == got["junk"]["nick"]
+    # Only the name is kept, under its one key.
+    assert got["keys"] == ["pour.name"]
+    # Where storage is blocked, the visit still gets a name.
+    assert got["blocked"]["nick"] == "Brave Heron" and got["blocked"]["named"] is False
+
+
+def test_the_page_says_the_phone_keeps_its_name():
+    html = _text("play/pour/index.html")
+    assert "This phone remembers its name" in html
+    policy = _text("privacy/index.html")
+    assert "remembers the name" in policy and "Change" in policy
 
 
 def test_offline_the_game_asks_for_the_board_and_posts_nothing(ui):

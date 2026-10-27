@@ -2,7 +2,8 @@
 
 Each row is a skin, a name the game assigned from play/pour/nicknames.json, a score
 and the week. Nothing else is stored: no address, no device, no time of day. A name
-nobody could be given, or a score the skin can't produce, is refused.
+nobody could be given, or a score the skin can't produce, is refused. A name has one
+row per skin per week, its best, so a replay only lifts its own score.
 """
 
 import json
@@ -47,6 +48,18 @@ def _connect():
     conn.execute(
         "CREATE TABLE IF NOT EXISTS scores (skin TEXT NOT NULL, week TEXT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)"
     )
+    # One row per name, held by the database so two workers can't both add one. A board
+    # made before that kept every score, so it keeps each name's best first.
+    if not conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE name = 'one_per_name'"
+    ).fetchone():
+        conn.execute(
+            "DELETE FROM scores WHERE EXISTS (SELECT 1 FROM scores b WHERE b.skin = scores.skin"
+            " AND b.week = scores.week AND b.name = scores.name"
+            " AND (b.score > scores.score OR (b.score = scores.score AND b.rowid < scores.rowid)))"
+        )
+        conn.execute("CREATE UNIQUE INDEX one_per_name ON scores (skin, week, name)")
+        conn.commit()
     return conn
 
 
@@ -138,7 +151,9 @@ def post_score():
     week = _week()
     with _lock, closing(_connect()) as conn, conn:
         conn.execute(
-            "INSERT INTO scores VALUES (?, ?, ?, ?)", (skin, week, name, score)
+            "INSERT INTO scores VALUES (?, ?, ?, ?) ON CONFLICT (skin, week, name)"
+            " DO UPDATE SET score = excluded.score WHERE excluded.score > score",
+            (skin, week, name, score),
         )
         conn.execute(
             "DELETE FROM scores WHERE week < ?", (week,)

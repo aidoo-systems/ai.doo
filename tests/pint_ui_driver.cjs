@@ -199,6 +199,13 @@ function boot(search, tweak, live) {
   document.createTextNode = (text) => ({ textContent: text });
 
   const window = element("window");
+  // The phone's own storage: what a scenario stored before (live.stored), or blocked
+  // (live.blocked), as in a private window that throws on every call.
+  const stored = new Map(Object.entries((live && live.stored) || {}));
+  const storage = {
+    getItem: (k) => (stored.has(k) ? stored.get(k) : null),
+    setItem: (k, v) => void stored.set(k, String(v)),
+  };
   Object.assign(window, {
     window,
     document,
@@ -238,6 +245,12 @@ function boot(search, tweak, live) {
       return Promise.resolve({ ok: true, json: () => Promise.resolve(skin) });
     },
   });
+  Object.defineProperty(window, "localStorage", {
+    get() {
+      if (live && live.blocked) throw new Error("SecurityError");
+      return storage;
+    },
+  });
   vm.createContext(window);
   // The same "random" numbers every run, so a whole pour can be compared call for call.
   vm.runInContext("Math.random = (function () { var s = 7; return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; }; })()", window);
@@ -258,6 +271,7 @@ function boot(search, tweak, live) {
   return {
     get,
     window,
+    stored,
     document,
     fetched,
     sent,
@@ -1034,6 +1048,42 @@ async function started(search, tweak, live) {
     board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
   };
   out.offlineSent = (await started()).sent.map((s) => s.url).sort();
+
+  // The phone remembers its given name; "Change" replaces it; a stored name the game
+  // couldn't give is replaced; blocked storage still gives the visit a name.
+  const four = { adjectives: ["Brave", "Calm"], animals: ["Heron", "Owl"] };
+  const nameOf = async (more) => {
+    const p = boot("", null, Object.assign({ words: four, board: live.board }, more));
+    for (let i = 0; i < 6; i++) await p.settle();
+    return p;
+  };
+  const remember = {};
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.fresh = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  remember.kept = { nick: page.get("nick").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const keptPost = page.sent.find((s) => s.url === "/api/pour/score");
+  remember.kept.posted = keptPost ? keptPost.body.name : null;
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  page.get("rename").fire("click", {});
+  remember.changed = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Keith" } });
+  remember.junk = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  remember.keys = [...page.stored.keys()];
+  page = boot("", null, Object.assign({ blocked: true }, live));
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.blocked = { nick: page.get("nick").textContent, named: page.get("named").hidden };
+  out.remember = remember;
 
   process.stdout.write(JSON.stringify(out));
 })();
