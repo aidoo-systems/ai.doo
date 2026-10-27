@@ -27,20 +27,20 @@
     "headDepth": 0.16,
     "pourer": "jug",
     "stream": "#fffaf0",
-    "glass": [[7, 0], [93, 0], [85, 100], [15, 100]]
+    "glass": [[17, 0], [83, 0], [81, 55], [79, 90], [74, 100], [26, 100], [21, 90], [19, 55]]
   },
   "copy": {
     "start": "Start pouring",
     "offer": "Top score this week: coffee and cake on us",
     "beat": "Beat {score} to top the board",
-    "round": "Latte {n} of {total}",
+    "round": "Coffee {n} of {total}",
     "hold": "Hold to pour",
     "release": "Let go at the line",
     "hint": "Hold to pour. Let go as the foam hits the line.",
     "falseStart": "Keep holding to pour. Have another go.",
     "again": "Pour again",
-    "perfect": "A perfect latte",
-    "good": "A good latte",
+    "perfect": "A perfect coffee",
+    "good": "A good coffee",
     "short": "A bit short",
     "over": "A bit full",
     "spill": "All over the counter",
@@ -57,11 +57,11 @@
   },
   "scoring": { "window": 0.16, "perfect": 0.012, "falseStart": 0.08 },
   "rounds": [
-    { "line": 0.8, "speed": 0.5 },
-    { "line": 0.62, "speed": 0.62 },
-    { "line": 0.86, "speed": 0.52, "surge": 0.45, "surgeHz": 1 },
-    { "line": 0.74, "speed": 0.85 },
-    { "line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2 }
+    {"line": 0.8, "speed": 0.5, "serve": {"name": "A flat white", "liquid": "#b07f55", "liquidDeep": "#82573a", "headDepth": 0.06, "glass": [[6, 0], [94, 0], [93, 38], [90, 70], [84, 90], [74, 100], [26, 100], [16, 90], [10, 70], [7, 38]]}},
+    {"line": 0.62, "speed": 0.62, "serve": {"name": "A latte"}},
+    {"line": 0.86, "speed": 0.52, "surge": 0.45, "surgeHz": 1, "serve": {"name": "A cappuccino", "liquid": "#a2724b", "liquidDeep": "#744c30", "head": "#fff6e8", "headDepth": 0.28, "glass": [[8, 0], [92, 0], [95, 16], [94, 36], [86, 60], [75, 82], [68, 100], [32, 100], [25, 82], [14, 60], [6, 36], [5, 16]]}},
+    {"line": 0.74, "speed": 0.85, "serve": {"name": "A flat white, quicker", "liquid": "#b07f55", "liquidDeep": "#82573a", "headDepth": 0.06, "glass": [[6, 0], [94, 0], [93, 38], [90, 70], [84, 90], [74, 100], [26, 100], [16, 90], [10, 70], [7, 38]]}},
+    {"line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2, "serve": {"name": "One more cappuccino", "liquid": "#a2724b", "liquidDeep": "#744c30", "head": "#fff6e8", "headDepth": 0.28, "glass": [[8, 0], [92, 0], [95, 16], [94, 36], [86, 60], [75, 82], [68, 100], [32, 100], [25, 82], [14, 60], [6, 36], [5, 16]]}}
   ],
   "sampleScores": [
     { "name": "Aalin", "score": 441 },

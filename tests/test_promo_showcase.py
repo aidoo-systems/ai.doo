@@ -786,10 +786,14 @@ def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
     # canvas call and value of a frame at rest, a pour and its result, with the same
     # "random" numbers each run. Re-recorded for P2.0z: against main's traces, the only lines
     # that differ are the "+N" float's (its fading globalAlpha gone, its outline's strokeStyle).
+    # Re-recorded for P2.0v: the café's first round is a flat white now. With its colours and
+    # foam taken out (its name kept), the café's trace is main's hash again.
+    # Re-recorded again for P2.0v: every glass is drawn soft (rounded to its curve, light along
+    # its wall, a lit rim, a domed base), and the pub and the café give each drink its own glass.
     assert ui["traces"] == {
-        "wobbly-gull": "2dab41fd281b68843008d279954886627ee1f6e26b36bb9f1786fb6ad03836c1",
-        "dozy-otter": "0f04fc9252d3647464d9e610f6b75cb277dee6ef82ff6a2fc93f62829375a4d7",
-        "sleepy-cow": "d9daa5cceb03d677123c4ff3984d089d5dd95b677f21e12702345ad380c8b84e",
+        "wobbly-gull": "961484c5428e8595d4cc0cdb6cf38fc9287d0a869fa0814a81f3f7b198b855ee",
+        "dozy-otter": "6eaf03c5989c9fd9aaa60230726a2dd7866d446408c092dae4e0dd50cfa6f3e3",
+        "sleepy-cow": "7db85e78fcc30e55d2d642d259c8ce2825c36b7a32cc3bd1774c074721076911",
     }
 
 
@@ -948,6 +952,83 @@ def test_every_serve_name_fits_one_line_at_320():
     # lines and squeezed the stage between rounds. 22 letters fit, as the taglines do.
     for r in _whippy()["rounds"]:
         assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]
+
+
+# --- P2.0v: the pub and the café rotate their drinks ---------------------------------
+
+
+def _skin(id):
+    return json.loads((GAME / "skins" / (id + ".json")).read_text(encoding="utf-8"))
+
+
+def _drinks(skin):
+    # Each round's drink: its serve over the skin's, as the game pours it.
+    return [{**skin["drink"], **r.get("serve", {})} for r in skin["rounds"]]
+
+
+@pytest.mark.parametrize(
+    "id, order",
+    [
+        ("wobbly-gull", ["lager", "ale", "cider", "lager", "ale"]),
+        (
+            "dozy-otter",
+            ["flat white", "latte", "cappuccino", "flat white", "cappuccino"],
+        ),
+    ],
+)
+def test_the_pub_and_the_cafe_rotate_their_drinks(id, order):
+    skin = _skin(
+        id
+    )  # valid, as every shipped skin is (test_every_shipped_skin_is_valid...)
+    names = [r["serve"]["name"].lower() for r in skin["rounds"]]
+    assert [next(d for d in order if d in n) for n in names] == order, names
+    for name in names:
+        assert len(name) <= 22, name
+    # A drink looks its own: the three kinds pour three colours.
+    drinks = _drinks(skin)
+    first = {kind: drinks[order.index(kind)] for kind in order}
+    assert len({d["liquid"] for d in first.values()}) == 3
+    # The same drink pours the same, whichever round it comes back in.
+    for n, kind in enumerate(order):
+        assert drinks[n]["liquid"] == first[kind]["liquid"], (n, kind)
+
+
+def test_a_cider_has_hardly_any_head_and_an_ale_more_than_a_lager():
+    depth = {
+        d["name"].lower(): d["headDepth"] for d in _drinks(_skin("wobbly-gull"))[:3]
+    }
+    lager, ale, cider = (
+        next(v for k, v in depth.items() if kind in k)
+        for kind in ("lager", "ale", "cider")
+    )
+    assert cider <= 0.04 < lager < ale, depth
+
+
+def test_a_cappuccino_is_deep_foam_and_a_flat_white_thin():
+    depth = {
+        d["name"].lower(): d["headDepth"] for d in _drinks(_skin("dozy-otter"))[:3]
+    }
+    flat, latte_, capp = (
+        next(v for k, v in depth.items() if kind in k)
+        for kind in ("flat white", "latte", "cappuccino")
+    )
+    assert flat < latte_ < capp and capp >= 0.25, depth
+
+
+def test_the_cafe_doesnt_call_every_round_a_latte():
+    copy = _skin("dozy-otter")["copy"]
+    for key in ("round", "perfect", "good"):
+        assert "latte" not in copy[key].lower(), key
+
+
+@pytest.mark.parametrize("id", ["wobbly-gull", "dozy-otter"])
+def test_each_round_says_and_pours_its_own_drink(ui, id):
+    rounds = _skin(id)["rounds"]
+    seen = ui["drinkRounds"][id]
+    assert len(seen) == len(rounds)
+    for n, (r, shown) in enumerate(zip(rounds, seen)):
+        assert shown["say"].startswith(r["serve"]["name"]), (n, shown["say"])
+        assert shown["liquid"] and shown["head"], (n, shown)
 
 
 # --- D-030: the whippy is built in coils, not filled like a glass ----------------------
