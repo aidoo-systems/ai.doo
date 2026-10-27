@@ -44,6 +44,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-27
+- **P2.0z merged (#88).** The owner played the pub and the whippy on a phone and merged; row marked Complete. Settled; the primary checkout is back on `main`. Next: the outreach follow-ups (due today; Laxey Beach Cafe and Silverdale were held for the ice cream skin), then P2.0v.
 - **P2.0z built (`item/P2.0z-float-button`, `/next P2.0z`; `game.js?v=41`).** The whippy's "+N" no longer greys over the white machine: it is drawn whole to the end in a solid `accentInk` outline and shrinks away instead of fading (on every venue). The button between rounds is the venue's own `panel` with `muted` words, not the accent at 45% (the mauve). Red first (6 failed), then green; the pub, café and dairy trace hashes re-recorded after a diff against main showed only the float's two lines changed. All gates pass (gate cycles: 2, format and those hashes). Stills before and after at 390 and 320: `.loop/p20z-before-after.png`. Stage 5: Codex at its usage limit; Gemini round 1, one P1 rejected (a variable it thought undefined is declared at `tests/pint_ui_driver.cjs:56`); `review.py` queues Codex's re-check. Seen in passing, not changed: the stills show the pour button's focus ring after a scripted start (`.btn:focus-visible`, as on main). **Next:** the owner plays the pub and `?skin=icecream` on a phone, then merges.
 
 ### 2026-10-26
