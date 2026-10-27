@@ -49,18 +49,29 @@ def _connect():
         "CREATE TABLE IF NOT EXISTS scores (skin TEXT NOT NULL, week TEXT NOT NULL, name TEXT NOT NULL, score INTEGER NOT NULL)"
     )
     # One row per name, held by the database so two workers can't both add one. A board
-    # made before that kept every score, so it keeps each name's best first.
-    if not conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE name = 'one_per_name'"
-    ).fetchone():
-        conn.execute(
-            "DELETE FROM scores WHERE EXISTS (SELECT 1 FROM scores b WHERE b.skin = scores.skin"
-            " AND b.week = scores.week AND b.name = scores.name"
-            " AND (b.score > scores.score OR (b.score = scores.score AND b.rowid < scores.rowid)))"
-        )
-        conn.execute("CREATE UNIQUE INDEX one_per_name ON scores (skin, week, name)")
+    # made before that kept every score, so it keeps each name's best first, inside one
+    # write transaction so a second worker waits and then finds the index made.
+    if not _has_index(conn):
+        conn.execute("BEGIN IMMEDIATE")
+        if not _has_index(conn):
+            conn.execute(
+                "DELETE FROM scores WHERE EXISTS (SELECT 1 FROM scores b WHERE b.skin = scores.skin"
+                " AND b.week = scores.week AND b.name = scores.name"
+                " AND (b.score > scores.score OR (b.score = scores.score AND b.rowid < scores.rowid)))"
+            )
+            conn.execute(
+                "CREATE UNIQUE INDEX IF NOT EXISTS one_per_name ON scores (skin, week, name)"
+            )
         conn.commit()
     return conn
+
+
+def _has_index(conn):
+    return bool(
+        conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE name = 'one_per_name'"
+        ).fetchone()
+    )
 
 
 def _week():

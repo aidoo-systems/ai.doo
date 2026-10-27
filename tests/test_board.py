@@ -216,3 +216,24 @@ def test_a_board_from_before_keeps_each_names_best(client, db):
         ("Brave Heron", 450)
     ]
     conn.close()
+
+
+def test_workers_opening_a_new_board_at_once_all_get_it(db):
+    import threading
+
+    start = threading.Barrier(8)
+    errors = []
+
+    def open_it():
+        start.wait()
+        try:
+            board._connect().close()
+        except Exception as e:  # noqa: BLE001
+            errors.append(e)
+
+    threads = [threading.Thread(target=open_it) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert errors == []
