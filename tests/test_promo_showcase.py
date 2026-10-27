@@ -1732,6 +1732,21 @@ def test_the_waiting_button_stays_in_the_venues_own_colours(path):
     assert _contrast(colours["color"], colours["background"]) >= 4.5
 
 
+def test_the_pour_button_fades_between_its_colours():
+    # The owner saw a flash on every venue when a pour was let go: since P2.0z the button
+    # swapped from the accent to the panel in one frame (and back for the next round).
+    btn = _rule(_text("play/pour/index.html"), ".btn")
+    parts = {
+        p.split()[0]: p.split()[1]
+        for p in btn.get("transition", "").split(",")
+        if p.strip()
+    }
+    for prop in ("background-color", "color"):
+        assert prop in parts, btn.get("transition")
+        assert 0.15 <= float(parts[prop].rstrip("s")) <= 0.3, parts[prop]
+    assert "transition" not in _rule(_text("play/pour/index.html"), ".btn.wait")
+
+
 # --- P2.1h: the café looks like a café -----------------------------------------------
 
 
