@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-27
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (P2.1h, the cafe look, merged in #93 and live; P2.1e (#75) on hold: the owner isn't a fan of the living tiles (D-035); P2.1i, the flash when a pour is let go, is built and Ready For Test on `item/P2.1i-release-flash`: the owner pours a few on the desktop browser from the recording and on a phone, then merges)
+State: ready-for-owner (P2.1h, the cafe look, merged in #93 and live; P2.1e (#75) on hold: the owner isn't a fan of the living tiles (D-035); P2.1i, the flash when a pour is let go, merged in #96; #94, the button fade, is still open and no longer needed for the flash: the owner keeps or closes it)
 
 ## Goal
 
@@ -44,6 +44,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-10-27
+- **P2.1i merged (#96).** The owner played the branch over the LAN and merged; row marked Complete. Banked.
 - **P2.1i built (`item/P2.1i-release-flash`, `game.js?v=44`).** The owner's screen recording, scanned frame by frame: one blank frame about 0.23s after every release (pub and café). The verdict's pop scales it to 110%, past the screen's edge; `.play` scrolled sideways (`overflow-y:auto` alone allows it), so a desktop browser's scrollbar took height from the stage, the canvas was resized, and a resized canvas stays blank until the next frame. Fixed twice over: the scrolling screens set `overflow-x:hidden`, and `layout()` repaints as soon as it resizes the canvas. Red first (2 failed), then `190 passed`, every trace hash unchanged. #94 (the button fade) is separate. **Waits for the owner:** pour a few on the same desktop browser and on a phone, then merge.
 - **P2.1h built (`item/P2.1h-cafe-look`).** The café's coffees stand on a cream saucer and steam once poured; the cappuccinos have a glass handle drawn like the glass and cocoa sifted on (fine, slow, thickest in the middle, still within half a second). Generic in `game.js`: a serve can name `handle` and `steam`, a vessel may reach to x -40 and 140, `dust` is a finish; no venue word in the shipped code. 188 tests pass, all gates pass, trace hashes of the pub, dairy and kiosk equal `main`'s; Gemini reviewed (Codex out of quota): no blockers. Stills at 390 and 320 matched the owner's mock E. **Waits for the owner:** play `?skin=cafe` on a phone, then merge.
 - **P2.0v merged (#91)** after Codex round 2 on the glasses (no findings); the owner played both venues. Mocked five café looks from the real game (as now, a handle, a saucer, steam and cocoa, all three); the owner chose all three: **P2.1h** and D-034 (#92), the dust to arrive like the sprinkles. #78 and #90 merged. **Next:** send today's follow-ups; rebase and merge #89; the owner tests #75; then `/next P2.1h`.
