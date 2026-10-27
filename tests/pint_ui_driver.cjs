@@ -149,6 +149,11 @@ function boot(search, tweak) {
       return { width: 375, height, left: 0, top: 0, right: 375, bottom: height };
     };
     e.getContext = () => paint;
+    // P2.1i: sizing a canvas wipes it, as a browser does, so a test can see what is drawn after.
+    for (const side of ["width", "height"]) {
+      let size = 0;
+      Object.defineProperty(e, side, { get: () => size, set: (v) => ((size = v), drawn.push("resized:" + id)) });
+    }
     e.firstElementChild = { attrs: {}, setAttribute: (k, v) => (e.firstElementChild.attrs[k] = String(v)) };
     e.parentNode = { id: id + "-parent" };
     return e;
@@ -967,6 +972,31 @@ async function started(search, tweak) {
     }
     out.floats[search || "pub"] = { say: page.get("say").textContent, frames };
   }
+
+  // P2.1i: the stage resized while pouring and just after letting go (on a desktop the result's
+  // pop once brought up a scrollbar; a phone's address bar does it too). What the scene's canvas
+  // gets between the resize and the next animation frame: a browser shows that frame as it is.
+  out.resizeRepaint = [];
+  sayFlex = true;
+  for (const search of ["", "?skin=cafe", "?skin=icecream"]) {
+    for (const when of ["pouring", "released"]) {
+      page = await started(search);
+      page.advance(500);
+      page.down(1);
+      page.advance(700);
+      if (when === "released") {
+        page.up(1);
+        page.advance(220);
+      }
+      page.drawn.length = 0;
+      page.get("say").style.minHeight = "90px"; // the stage gives up 20px or more
+      page.window.fire("resize", {});
+      const drawn = page.drawn.slice();
+      const wiped = drawn.lastIndexOf("resized:scene");
+      out.resizeRepaint.push({ search, when, wiped: wiped >= 0, after: wiped >= 0 ? drawn.slice(wiped + 1).filter((p) => p === "fill" || p === "fillRect" || p === "stroke").length : 0 });
+    }
+  }
+  sayFlex = false;
 
   process.stdout.write(JSON.stringify(out));
 })();
