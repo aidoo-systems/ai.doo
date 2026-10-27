@@ -22,7 +22,7 @@ let sayFlex = false;
 const SAY_HINT = 70.2;
 
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
-function boot(search, tweak) {
+function boot(search, tweak, live) {
   let clock = 1000;
   let frames = [];
   let timers = [];
@@ -30,6 +30,7 @@ function boot(search, tweak) {
   const observers = [];
   let seenStage = null;
   const fetched = [];
+  const sent = [];
   const sounds = [];
   const drawn = []; // every canvas call, by name, in order
   const stops = []; // every colour a gradient was given
@@ -198,6 +199,13 @@ function boot(search, tweak) {
   document.createTextNode = (text) => ({ textContent: text });
 
   const window = element("window");
+  // The phone's own storage: what a scenario stored before (live.stored), or blocked
+  // (live.blocked), as in a private window that throws on every call.
+  const stored = new Map(Object.entries((live && live.stored) || {}));
+  const storage = {
+    getItem: (k) => (stored.has(k) ? stored.get(k) : null),
+    setItem: (k, v) => void stored.set(k, String(v)),
+  };
   Object.assign(window, {
     window,
     document,
@@ -220,13 +228,27 @@ function boot(search, tweak) {
       : undefined,
     requestAnimationFrame: (fn) => frames.push(fn),
     setTimeout: (fn, ms) => timers.push({ at: clock + ms, fn }),
-    fetch: (url) => {
+    fetch: (url, init) => {
+      // The week's board and its nickname words, when a scenario serves them (live);
+      // otherwise they're unreachable, as on a page opened from a file.
+      if (url === "nicknames.json" || url.startsWith("/api/")) {
+        sent.push({ url, body: init && init.body ? JSON.parse(init.body) : null });
+        if (!live) return Promise.resolve({ ok: false, status: 404 });
+        const got = url === "nicknames.json" ? live.words : live.board;
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(got) });
+      }
       fetched.push(url);
       const file = path.join(GAME, url.split("?")[0]);
       if (!fs.existsSync(file)) return Promise.resolve({ ok: false, status: 404 });
       const skin = JSON.parse(fs.readFileSync(file, "utf8"));
       if (tweak) tweak(skin);
       return Promise.resolve({ ok: true, json: () => Promise.resolve(skin) });
+    },
+  });
+  Object.defineProperty(window, "localStorage", {
+    get() {
+      if (live && live.blocked) throw new Error("SecurityError");
+      return storage;
     },
   });
   vm.createContext(window);
@@ -249,8 +271,10 @@ function boot(search, tweak) {
   return {
     get,
     window,
+    stored,
     document,
     fetched,
+    sent,
     sounds,
     drawn,
     stops,
@@ -291,8 +315,8 @@ function boot(search, tweak) {
   };
 }
 
-async function started(search, tweak) {
-  const page = boot(search || "", tweak);
+async function started(search, tweak, live) {
+  const page = boot(search || "", tweak, live);
   for (let i = 0; i < 6; i++) await page.settle();
   page.get("start").fire("click", {});
   page.advance(100);
@@ -997,6 +1021,106 @@ async function started(search, tweak) {
     }
   }
   sayFlex = false;
+
+  // P2.0c: the week's board, served. The title names the player and the best real score
+  // to beat; a finished game posts its score, and the board ranks the server's rows in.
+  const live = {
+    words: { adjectives: ["Brave"], animals: ["Heron"] },
+    board: { week: "2026-W44", scores: [{ name: "Calm Owl", score: 480 }] },
+  };
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.liveTitle = { named: page.get("named").hidden, nick: page.get("nick").textContent, beat: page.get("beat").textContent, badge: page.get("sample").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const posted = page.sent.find((s) => s.url === "/api/pour/score");
+  out.liveDone = {
+    done: !page.get("done").hidden,
+    posted: posted ? posted.body : null,
+    total: Number(page.get("total").textContent) || null,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
+  out.offlineSent = (await started()).sent.map((s) => s.url).sort();
+
+  // The phone remembers its given name; "Change" replaces it; a stored name the game
+  // couldn't give is replaced; blocked storage still gives the visit a name.
+  const four = { adjectives: ["Brave", "Calm"], animals: ["Heron", "Owl"] };
+  const nameOf = async (more) => {
+    const p = boot("", null, Object.assign({ words: four, board: live.board }, more));
+    for (let i = 0; i < 6; i++) await p.settle();
+    return p;
+  };
+  const remember = {};
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.fresh = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  remember.kept = { nick: page.get("nick").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const keptPost = page.sent.find((s) => s.url === "/api/pour/score");
+  remember.kept.posted = keptPost ? keptPost.body.name : null;
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  page.get("rename").fire("click", {});
+  remember.changed = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Keith" } });
+  remember.junk = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  remember.keys = [...page.stored.keys()];
+  page = boot("", null, Object.assign({ blocked: true }, live));
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.blocked = { nick: page.get("nick").textContent, named: page.get("named").hidden };
+  out.remember = remember;
+
+  // A lower replay: the server keeps this name's 500, so the player stays top as "You".
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", scores: [{ name: "Brave Heron", score: 500 }, { name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.lowerReplay = {
+    done: !page.get("done").hidden,
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+    goal: page.get("goal").textContent,
+    topLine: JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")).copy.top,
+  };
+
+  // Off the top ten: the board doesn't list them, but the score back says their best.
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", best: 400, scores: [{ name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.offTheTop = {
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
 
   process.stdout.write(JSON.stringify(out));
 })();

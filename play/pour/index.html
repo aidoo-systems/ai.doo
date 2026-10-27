@@ -46,6 +46,9 @@
     .offer{margin:0 auto;max-width:28ch;color:var(--accent);font-size:17px;font-weight:900;letter-spacing:-.2px;line-height:1.25;text-wrap:balance}
     .how{margin:0 auto;color:var(--muted);font-size:15.5px}
     .beat{margin:0 0 8px;color:var(--muted);font-weight:700;font-size:14.5px}
+    .named{margin:0 0 8px;color:var(--muted);font-size:13.5px}
+    .named strong{color:var(--ink)}
+    .named button{margin:0 0 0 4px;padding:6px 4px;border:0;background:none;color:var(--ink);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 
     /* The one big control: a button with some travel in it */
     .btn{position:relative;flex:none;display:flex;align-items:center;justify-content:center;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
@@ -147,12 +150,13 @@
     <div class="attract"><canvas id="attract" aria-hidden="true"></canvas></div>
     <p class="offer" id="offer"></p>
     <p class="beat" id="beat"></p>
+    <p class="named" id="named" hidden>On the board as <strong id="nick"></strong><button id="rename" type="button">Change</button></p>
     <button class="btn" id="start" type="button" hidden></button>
     <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
     <div class="others" id="othersTitle"></div>
     <p class="credit">
       <span id="fictional"></span>
-      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Nothing is stored or sent.
+      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Your score and a name the game picks go on this week's board. This phone remembers its name until you tap Change. Nothing else is stored.
       <a href="/promo-games/?from=demo#price">Want one with your name on it?</a>
     </p>
   </section>
@@ -178,7 +182,7 @@
       <p class="goal" id="goal"></p>
       <p class="mine" id="mine"></p>
       <div class="panel">
-        <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
+        <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample" id="sample">Sample scores</span></div>
         <ol class="board" id="board"></ol>
         <p class="small"><span id="prize"></span> In your game, the board is your customers and the prize is yours to set.</p>
       </div>
@@ -204,7 +208,7 @@
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=12"></script>
-<script src="engine.js?v=17"></script>
-<script src="game.js?v=44"></script>
+<script src="engine.js?v=19"></script>
+<script src="game.js?v=47"></script>
 </body>
 </html>

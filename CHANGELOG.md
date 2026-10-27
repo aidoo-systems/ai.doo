@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **A live board on the demo game** (P2.0c, D-036): each visit gets a random name like "Brave Heron", every finished game goes on that week's board, and the board shows the week's real top ten among the sample scores. It stores the venue, name, score and week, and nothing else; the privacy policy says so (4b)
+
 ### Fixed
 
 - **No flash when a pour is let go** (P2.1i): the result's pop no longer pushes a scrollbar under the game on a desktop browser, and the scene repaints at once whenever its size changes, so it never shows a blank frame

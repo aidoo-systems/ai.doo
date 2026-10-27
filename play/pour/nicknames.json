@@ -1,0 +1,12 @@
+{
+  "adjectives": [
+    "Brave", "Quiet", "Swift", "Lucky", "Sunny", "Jolly", "Nimble", "Bold", "Clever", "Mighty",
+    "Plucky", "Zesty", "Breezy", "Cheery", "Dapper", "Gentle", "Happy", "Keen", "Merry", "Steady",
+    "Snappy", "Spry", "Tidy", "Witty", "Zippy", "Chirpy", "Cosy", "Daring", "Eager", "Calm"
+  ],
+  "animals": [
+    "Heron", "Badger", "Fox", "Hare", "Robin", "Kestrel", "Newt", "Stoat", "Vole", "Lynx",
+    "Panda", "Koala", "Gecko", "Moose", "Yak", "Crab", "Seal", "Owl", "Finch", "Raven",
+    "Toad", "Mole", "Shrew", "Bison", "Llama", "Lemur", "Tapir", "Ibex", "Hedgehog", "Magpie"
+  ]
+}
