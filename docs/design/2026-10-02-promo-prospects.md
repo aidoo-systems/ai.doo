@@ -51,7 +51,28 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 | 45 | Porter's Kitchen (Douglas, Port Erin) | **Stamp card**: takeaway regulars. Email drafted |
 | 46 | Drewry's barbers (Duke Street, Tynwald Mills) | **Stamp card**: every tenth cut. Email drafted |
 | 47 | The Buttery (Duke Street, since 1992; not yet checked as trading) | **Stamp card**. Email drafted |
-| 48 | Laxey Beach Cafe (Laxey Ice Cream Company ices) | Held for the ice cream skin (P2.0u); seasonal |
+| 48 | Laxey Beach Cafe (Laxey Ice Cream Company ices) | Held for the ice cream skin (P2.0u); seasonal. Visit Isle of Man lists it as **Laxey Beach Stop Cafe**: check the name on its sign before sending, since the demo link prints it |
+
+## Tier 2b: ice cream (added 2026-10-27, for the whippy skin)
+
+All seasonal unless noted, so these pitch **next season** (a winter conversation, ready for
+Easter); none is likely to pay a deposit before 2026-11-26. Before contacting any of them:
+check it still trades, and **whether it serves soft serve**, since the demo pours a whippy.
+A counter that only scoops waits for a scoop skin (not built), like Davisons (#28).
+
+| # | Organisation | Angle |
+|---|---|---|
+| 49 | Roberto's Ice Cream Parlour & Cafeteria (Port Erin promenade) | Beach queue in summer; "pull the perfect 99" with a weekly top score |
+| 50 | Holy Crepe (Port Erin) | Crêpes and Manx Moos ice cream; the wait while a crêpe cooks |
+| 51 | Northern Pool Cafe (Ramsey pool, Mooragh Promenade) | Families after a swim; Mooragh Park footfall |
+| 52 | Manx Ices (served at Silverdale Glen's café) | A **brand** game, like the Creamery (#29): their name on the 99, for every counter that sells it. Pair with Silverdale (#16): find out who runs the café |
+| 53 | Manx Moos (maker; sold across the Island and on the Steam Packet) | A brand game across its stockists. It already makes bespoke flavours for businesses, so it's used to co-branded work |
+| 54 | Laxey Ice Cream Company (maker) | Only if it isn't the same business as #48; if it is, one email |
+| 55 | The Gelato Shed (Manx Menu listing; not yet checked as trading) | Likely scoops gelato: check before drafting |
+| 56 | Peel beach kiosks (Shore Road; walk in) | Promenade footfall; a quick yes or no in person next season |
+
+Not here, on purpose: **Gelatory** (#44) serves soft serve but has the stamp card pitch
+already (one pitch per business); **Davisons** (#28) scoops.
 
 Stamp-card prospects (#44 to #47, and #23 Roots by the Sea) get the stamps pitch, not a pour
 game: one pitch per business. Their emails, and new pour-game emails for #11, #15 and #24, are
@@ -115,5 +136,10 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 | 2026-10-23 | 45 | Porter's Kitchen | Email (owner), stamp card | | | | |
 | 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
 | 2026-10-23 | 23 | Roots by the Sea | Email (owner), stamp card | | | | |
+
+Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
+(Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
+manx.life's ice cream shops directory (Manx Ices, the Peel kiosks), IOM Today on Gelatory's soft
+serve.
 
 Sources: Visit Isle of Man (what's on; cafés and tearooms), Castletown Commissioners events, Manx National Heritage community events, IOM Today and Manx Radio reports on the Chamber of Commerce and Hospice Isle of Man events, gov.im food and drink event notices. Retrieved 2026-10-02.
