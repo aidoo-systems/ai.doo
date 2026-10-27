@@ -42,7 +42,7 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 | 25 | The Breakwater Café (Peel) | Promenade footfall |
 | 26 | Conrod's (Ramsey) | TT-connected owner; a race-week game |
 | 27 | Okell's Brewery | Pub-quiz-night or anniversary game across its pubs |
-| 28 | Davisons Ice Cream | A summer "stack the scoops" game at its parlours |
+| 28 | Davisons Ice Cream | "Pull the perfect 99" at its parlours, and a brand game wherever its ice cream is sold. No longer held: the owner knows it has served soft serve (2026-10-27). Email drafted 2026-10-27 |
 | 29 | Isle of Man Creamery | Pour the perfect glass of milk: a family brand game. The milk skin shipped (P2.0s, #65, 2026-10-20): email drafted |
 | 30 | Local bakeries and farm shops (walk in on a high street) | A quick yes or no |
 | 42 | Wine Down (owner's suggestion; not yet checked as trading) | Pour a glass of wine to the line. **Held until a wine skin exists** |
@@ -58,7 +58,7 @@ Aim for 40–60 contacts by 2026-11-26. Log every contact in the table at the en
 All seasonal unless noted, so these pitch **next season** (a winter conversation, ready for
 Easter); none is likely to pay a deposit before 2026-11-26. Before contacting any of them:
 check it still trades, and **whether it serves soft serve**, since the demo pours a whippy.
-A counter that only scoops waits for a scoop skin (not built), like Davisons (#28).
+A counter that only scoops waits for a scoop skin (not built).
 
 | # | Organisation | Angle |
 |---|---|---|
@@ -72,7 +72,7 @@ A counter that only scoops waits for a scoop skin (not built), like Davisons (#2
 | 56 | Peel beach kiosks (Shore Road; walk in) | Promenade footfall; a quick yes or no in person next season |
 
 Not here, on purpose: **Gelatory** (#44) serves soft serve but has the stamp card pitch
-already (one pitch per business); **Davisons** (#28) scoops.
+already (one pitch per business); **Davisons** is #28, in Tier 2.
 
 Stamp-card prospects (#44 to #47, and #23 Roots by the Sea) get the stamps pitch, not a pour
 game: one pitch per business. Their emails, and new pour-game emails for #11, #15 and #24, are
@@ -136,6 +136,14 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 | 2026-10-23 | 45 | Porter's Kitchen | Email (owner), stamp card | | | | |
 | 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
 | 2026-10-23 | 23 | Roots by the Sea | Email (owner), stamp card | | | | |
+| 2026-10-27 | 19 | Noa Bakehouse | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 20 | Café 360 | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 6 | Villa Marina and Gaiety Theatre | Follow-up (owner) | | | | |
+| 2026-10-27 | 29 | Isle of Man Creamery | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 27 | Okell's Inns | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 31 | Hospice Isle of Man | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 48 | Laxey Beach Cafe | Email (owner), whippy | | | | |
+| 2026-10-27 | 16 | Silverdale Glen | Email (owner), whippy | | | | |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
