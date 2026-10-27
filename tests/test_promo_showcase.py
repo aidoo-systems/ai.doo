@@ -1844,3 +1844,25 @@ def test_the_cafe_draws_its_handle_steam_and_cocoa_as_they_arrive(ui):
             assert settled == later, n
         else:
             assert look["settled"]["dust"] == [], n
+
+
+def test_a_resize_never_leaves_the_scene_blank_for_a_frame(ui):
+    # P2.1i (owner's screen recording, 2026-10-27): one frame after letting go, the whole scene
+    # went blank. The stage had resized, which wipes a canvas, and nothing drew on it until the
+    # next animation frame, so the browser showed it empty. A resize now repaints at once.
+    runs = ui["resizeRepaint"]
+    assert len(runs) == 6, runs
+    for run in runs:
+        assert run["wiped"], run
+        assert run["after"] > 0, run
+
+
+def test_no_screen_can_scroll_sideways():
+    # P2.1i: the result's pop scales the verdict to 110%, past the screen's edge. A screen that
+    # scrolls (overflow-y:auto) scrolls sideways too unless told not to, so a desktop browser
+    # put a scrollbar under it for a moment, which took height from the stage and wiped the scene.
+    html = _text("play/pour/index.html")
+    for selector in (r"\.title", r"\.claim", r"\.play", r"\.doneBody"):
+        rule = re.search(r"\n    " + selector + r"\{([^}]*)\}", html).group(1)
+        assert "overflow-y:auto" in rule, selector
+        assert "overflow-x:hidden" in rule, selector

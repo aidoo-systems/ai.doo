@@ -252,6 +252,7 @@
     var W = 0;
     var H = 0;
     var g = null; // geometry, rebuilt by layout()
+    var drawn = null; // the last frame's state, to paint it again after a resize
     var fx;
     var bubbles = [];
     var parts = [];
@@ -332,6 +333,9 @@
       var cx = W / 2;
       g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
       fit(dr);
+      // Sizing the canvas wiped it: paint the same moment again now, or the browser shows a
+      // blank frame before the next animation frame (P2.1i).
+      if (drawn) api.frame(0, drawn);
     }
 
     // Where a serve sits: its glass at the scene's size, its vessel on the counter.
@@ -2086,7 +2090,7 @@
       }
     }
 
-    return {
+    var api = {
       layout: layout,
       reset: reset,
       press: function () {
@@ -2126,6 +2130,7 @@
       frame: function (dt, s) {
         if (!g) layout();
         if (!g) return;
+        drawn = s;
         if (fx.freeze > 0) {
           fx.freeze -= dt;
           dt = 0;
@@ -2190,6 +2195,7 @@
         ctx.restore();
       },
     };
+    return api;
   }
 
   // ---------------------------------------------------------------- the game

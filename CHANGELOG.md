@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **No flash when a pour is let go** (P2.1i): the result's pop no longer pushes a scrollbar under the game on a desktop browser, and the scene repaints at once whenever its size changes, so it never shows a blank frame
+
 ### Changed
 
 - **The café looks like a café** (P2.1h, D-034): every coffee stands on a cream saucer and steams once poured; the cappuccinos have a glass handle and cocoa dusted on the foam. A skin can now give a serve a handle and steam, a saucer wider than the glass, and a fine dust finish
