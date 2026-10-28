@@ -368,3 +368,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Free until the Gelatory pilot (the `/stamps/` page's position since 2026-10-22); a setup fee.
 - **Consequences:** A stamp card yes can't meet D-010's services bar (one deposit of £300 or more), so the 2026-11-26 read counts "a shop agreed to pay for stamps" as its own signal and doesn't blur it with the promo-game bet. The `/stamps/` page still says only "a free pilot"; any price on it is the owner's call. Promises nothing beyond what's built: the start date waits on the build.
 - **Revisit when:** The 2026-11-26 review, or the first shop's pilot ends.
+
+## D-038 — The demo's start screen is the venue, the prize and the glass
+
+- **Status:** Accepted (owner, 2026-10-28, picked mock A of three phone stills)
+- **Date:** 2026-10-28
+- **Decision:** The pour demo's title screen carries only the venue, the prize, the score to beat, Start, and one credit line naming the venue as made up and ai.doo as its maker. The board name ("On the board as … · Change"), the other venues and D-036's privacy line live on the results: the name under the score, the privacy line in the board's panel, the venue links where they already were. A name changed on the results is for the next game. `test_the_title_screen_leaves_the_room_to_the_glass` holds it (#104).
+- **Why:** On a phone the glass gets what the text leaves, and it had about 140px of a 390×664 screen (its 120px floor on a small Android), smaller than the demo's own explaining. Trimmed, it gets about 336px.
+- **Alternatives:** The credit as a line at the top (mock B); also dropping the kicker and shrinking the emblem (mock C, the most glass); a "Try another venue" link on the title (not wanted: outreach links pour the prospect's own drink, and the results is where switching makes sense).
+- **Consequences:** A visitor can't switch venue before playing; the way to all four before a round is the offer page's "Try one now" (P2.0aa).
+
