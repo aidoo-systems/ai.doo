@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Split the mark: emblem stills</title>
+<style>
+  @font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2) format("woff2");font-weight:100 900}
+  @font-face{font-family:Brico;src:url(../../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
+  body{margin:0;background:#141312;color:#eee;font-family:Inter,system-ui,sans-serif;padding:20px}
+  h1{font:700 22px Brico,sans-serif;margin:0 0 4px}
+  p.note{color:#aaa;margin:0 0 18px;font-size:14px;max-width:900px}
+  .row{display:flex;gap:14px;margin-bottom:22px;flex-wrap:wrap;align-items:flex-start}
+  .row h2{width:100%;font:600 16px Brico,sans-serif;margin:0}
+  figure{margin:0}
+  figcaption{font-size:13px;color:#bbb;margin-top:6px;text-align:center}
+  canvas{display:block;border-radius:14px}
+</style>
+</head>
+<body>
+<h1>Split the mark: where the gap goes</h1>
+<p class="note">The settled line sits in the gap in each still. A: the emblem in a ring with the gap cut on the right (the prototype). B: a slit cut through the emblem itself. C: the gap between the emblem and the venue's name.</p>
+<div id="out"></div>
+<script>
+// Stills for P2.0ac. The owner picked A, the ring (2026-10-28); the mode is the pub's, with dark ales only.
+const SKINS = ["wobbly-gull"];
+// The drink each venue serves in this mode, and the glass it's in.
+const SPLIT = {
+  "wobbly-gull": { name: "A stout", liquid: "#22100a", liquidDeep: "#120703", head: "#efe2c4", headDepth: 0.09, print: null },
+  "dozy-otter": { name: "A latte", liquid: "#b8875c", liquidDeep: "#8a5e3c", head: "#fff6e6", headDepth: 0.14, print: null },
+  "sleepy-cow": { name: "A glass of milk", liquid: "#fbf8f0", liquidDeep: "#ece4d2", head: "#ffffff", headDepth: 0.03, print: "#2f6a45", halo: "#fbf7ea" },
+  "giddy-puffin": { name: "A strawberry shake", liquid: "#f4b3bd", liquidDeep: "#e38b9a", head: "#fff1ef", headDepth: 0.1, print: "#1f4e79", halo: "#fdfaf2",
+    glass: [[6,0],[94,0],[90,40],[80,70],[66,86],[62,100],[38,100],[34,86],[20,70],[10,40]], straw: true }
+};
+const LOOKS = ["A", "B", "C"];
+const TW = 300, TH = 500;
+const DPR = Math.min(devicePixelRatio || 1, 2);
+
+function soft(ctx, pts, cap) {
+  const n = pts.length;
+  ctx.beginPath();
+  ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+  for (let i = 0; i < n; i++) {
+    const a = pts[(i + n - 1) % n], p = pts[i], b = pts[(i + 1) % n];
+    const ax = a[0] - p[0], ay = a[1] - p[1], bx = b[0] - p[0], by = b[1] - p[1];
+    const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+    const ang = Math.acos(Math.max(-1, Math.min(1, (ax * bx + ay * by) / (la * lb || 1))));
+    const hard = Math.max(0, Math.min(1, (Math.PI - ang - 0.6) / 0.6));
+    let t = Math.min(Math.min(la, lb) * 0.5, cap * (1 - hard) + 4 * hard);
+    if (Math.abs(p[1] - pts[0][1]) < 0.5) t = Math.min(t, 3);
+    const r = t * Math.tan(ang / 2);
+    if (!isFinite(r) || r < 0.01) ctx.lineTo(p[0], p[1]); else ctx.arcTo(p[0], p[1], b[0], b[1], r);
+  }
+  ctx.closePath();
+}
+
+function xRange(pts, y) {
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    if ((a[1] - y) * (b[1] - y) <= 0 && a[1] !== b[1]) {
+      const x = a[0] + ((y - a[1]) / (b[1] - a[1])) * (b[0] - a[0]);
+      lo = Math.min(lo, x); hi = Math.max(hi, x);
+    }
+  }
+  return lo < hi ? [lo, hi] : null;
+}
+
+function rgba(hex, a) {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+function tile(skin, look) {
+  const sp = SPLIT[skin.id] || SPLIT[skin._file];
+  const th = skin.theme;
+  const cv = document.createElement("canvas");
+  cv.width = TW * DPR; cv.height = TH * DPR;
+  cv.style.width = TW + "px"; cv.style.height = TH + "px";
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = th.bg; ctx.fillRect(0, 0, TW, TH);
+
+  // the counter
+  const counterY = TH - 64;
+  ctx.fillStyle = th.counter; ctx.fillRect(0, counterY, TW, TH - counterY);
+  ctx.fillStyle = th.counterEdge; ctx.fillRect(0, counterY, TW, 5);
+
+  // the glass box, as the game sizes it
+  const gh = 300, gw = gh * 0.66, gx = (TW - gw) / 2, gy = counterY - gh + 2;
+  const P = pts => pts.map(p => [gx + (p[0] / 100) * gw, gy + (p[1] / 100) * gh]);
+  const outer = P(sp.glass || skin.drink.glass);
+  const wall = Math.max(3, gw * 0.022), base = Math.max(6, gh * 0.045);
+  const inner = outer.map(p => [p[0] + (p[0] < gx + gw / 2 ? wall : -wall), p[1] >= gy + gh - 0.5 ? p[1] - base : p[1]]);
+
+  // shadow
+  ctx.fillStyle = "rgba(0,0,0,.3)";
+  ctx.beginPath(); ctx.ellipse(TW / 2, counterY + 7, gw * 0.46, 6, 0, 0, 6.3); ctx.fill();
+
+  // where the gap sits: 60% up the glass, like the prototype's 92 of 150mm
+  const gapY = gy + gh * 0.4, gapH = gh * 0.034;
+  const off = { A: 0.25, B: -0.2, C: 0.1 }[look] * gapH; // where it settled, inside the gap
+  const lineY = gapY + off;
+  const headH = gh * sp.headDepth * 0.6;
+  const topY = lineY - headH;
+
+  soft(ctx, inner, gw * 0.2);
+  ctx.fillStyle = "rgba(255,255,255,.05)"; ctx.fill();
+  ctx.save(); soft(ctx, inner, gw * 0.2); ctx.clip();
+  const grad = ctx.createLinearGradient(0, lineY, 0, gy + gh);
+  grad.addColorStop(0, sp.liquid); grad.addColorStop(1, sp.liquidDeep);
+  ctx.fillStyle = grad; ctx.fillRect(gx - 4, lineY, gw + 8, gh);
+  const hg = ctx.createLinearGradient(0, topY, 0, lineY);
+  hg.addColorStop(0, sp.head); hg.addColorStop(1, rgba(sp.head, 0.85));
+  ctx.fillStyle = hg; ctx.fillRect(gx - 4, topY, gw + 8, lineY - topY);
+  for (let x = gx; x < gx + gw; x += 9) { ctx.beginPath(); ctx.arc(x, topY + 2, 3.2, 0, 6.3); ctx.fill(); }
+  // lacing left above, from the sip
+  ctx.strokeStyle = rgba(sp.head, 0.22); ctx.lineWidth = 1.5;
+  for (const f of [0.1, 0.27, 0.36, 0.55, 0.71]) {
+    const y = topY - 10 - (topY - gy - 24) * f;
+    const r = xRange(inner, y); if (!r) continue;
+    ctx.beginPath();
+    for (let x = r[0]; x <= r[1]; x += 4) { const yy = y + Math.sin(x * 0.12 + y) * 1.6; x === r[0] ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy); }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // the straw
+  if (sp.straw) {
+    ctx.save(); ctx.lineCap = "round";
+    ctx.strokeStyle = th.accent; ctx.lineWidth = 7;
+    ctx.beginPath(); ctx.moveTo(gx + gw * 0.74, gy + gh * 0.84); ctx.lineTo(gx + gw * 0.86, gy - 40); ctx.lineTo(gx + gw * 1.02, gy - 58); ctx.stroke();
+    ctx.restore();
+  }
+
+  // the print: the emblem, its gap, on the glass
+  const print = sp.print || th.accent;
+  const em = skin.emblem, mark = new Path2D(em.path);
+  const cx = TW / 2;
+  const drawMark = (x, y, size) => {
+    const k = size / Math.max(em.width, em.height);
+    ctx.save(); ctx.translate(x - (em.width * k) / 2, y - (em.height * k) / 2); ctx.scale(k, k);
+    if (sp.halo) { ctx.strokeStyle = sp.halo; ctx.lineWidth = 2.4 / k; ctx.lineJoin = 'round'; ctx.stroke(mark); }
+    ctx.fillStyle = print; em.rule ? ctx.fill(mark, em.rule) : ctx.fill(mark); ctx.restore();
+  };
+  ctx.save();
+  ctx.globalAlpha = 0.93;
+  const wr = xRange(inner, gapY), win = wr[1] - wr[0];
+  const S = win * 0.56;
+  const fitFont = (txt, w, max) => { let f = max; ctx.font = `800 ${f}px Brico, sans-serif`; while (ctx.measureText(txt).width > w && f > 7) { f--; ctx.font = `800 ${f}px Brico, sans-serif`; } };
+  if (look === "A") {
+    const R = S * 0.64, w = S * 0.085;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, TW, TH); ctx.rect(cx, gapY - gapH / 2, TW, gapH); ctx.clip("evenodd");
+    ctx.beginPath(); ctx.arc(cx, gapY, R, 0, 6.3); ctx.arc(cx, gapY, R - w, 0, 6.3, true);
+    if (sp.halo) { ctx.strokeStyle = sp.halo; ctx.lineWidth = 2.4; ctx.stroke(); }
+    ctx.fillStyle = print; ctx.fill();
+    ctx.restore();
+    drawMark(cx, gapY, S * 0.78);
+    ctx.fillStyle = print; ctx.textAlign = "center";
+    ctx.font = `700 ${Math.round(gw * 0.06)}px Brico, sans-serif`;
+    sp.halo && (ctx.strokeStyle = sp.halo, ctx.lineWidth = 2.4, ctx.lineJoin = 'round', ctx.strokeText(skin.venue.toUpperCase(), cx, gapY - R - 8)); ctx.fillText(skin.venue.toUpperCase(), cx, gapY - R - 8);
+  } else if (look === "B") {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, TW, TH); ctx.rect(0, gapY - gapH / 2, TW, gapH); ctx.clip("evenodd");
+    drawMark(cx, gapY, S * 1.45);
+    ctx.restore();
+    ctx.fillStyle = print; ctx.textAlign = "center";
+    ctx.font = `700 ${Math.round(gw * 0.06)}px Brico, sans-serif`;
+    sp.halo && (ctx.strokeStyle = sp.halo, ctx.lineWidth = 2.4, ctx.lineJoin = 'round', ctx.strokeText(skin.venue.toUpperCase(), cx, gapY + S * 0.95 + 4)); ctx.fillText(skin.venue.toUpperCase(), cx, gapY + S * 0.95 + 4);
+  } else {
+    drawMark(cx, gapY - gapH / 2 - S * 0.45, S * 0.95);
+    ctx.fillStyle = print; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    fitFont(skin.venue.toUpperCase(), win * 0.86, Math.round(gw * 0.075));
+    sp.halo && (ctx.strokeStyle = sp.halo, ctx.lineWidth = 2.4, ctx.lineJoin = 'round', ctx.strokeText(skin.venue.toUpperCase(), cx, gapY + gapH / 2 + 1)); ctx.fillText(skin.venue.toUpperCase(), cx, gapY + gapH / 2 + 1);
+  }
+  ctx.restore();
+
+  // the glass itself: lit left, dimmer right, bright rim
+  ctx.lineJoin = "round";
+  soft(ctx, outer, gw * 0.2);
+  ctx.strokeStyle = "rgba(255,255,255,.38)"; ctx.lineWidth = 2; ctx.stroke();
+  const a = xRange(inner, gy + gh * 0.08), b = xRange(inner, gy + gh * 0.7);
+  if (a && b) {
+    ctx.strokeStyle = "rgba(255,255,255,.14)"; ctx.lineWidth = 5; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(a[0] + 7, gy + gh * 0.08); ctx.lineTo(b[0] + 7, gy + gh * 0.7); ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(255,255,255,.6)"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(outer[0][0] + 1, gy + 1); ctx.lineTo(outer[1][0] - 1, gy + 1); ctx.stroke();
+
+  // the title and the drink
+  ctx.fillStyle = th.ink; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+  ctx.font = "700 22px Brico, sans-serif"; ctx.fillText("Split the mark", cx, 36);
+  ctx.fillStyle = th.muted; ctx.font = "500 13px Inter, sans-serif"; ctx.fillText(sp.name + " at " + skin.venue, cx, 56);
+  ctx.fillStyle = parseInt(th.counter.slice(1, 3), 16) > 150 ? th.accentInk : th.ink; ctx.font = "800 20px Brico, sans-serif";
+  ctx.fillText(`Split it: ${Math.abs(off / gh * 150).toFixed(1).replace(/\.0$/, "")}mm off`, cx, counterY + 40);
+  return cv;
+}
+
+(async () => {
+  await document.fonts.load("700 20px Brico");
+  await document.fonts.load("500 13px Inter");
+  const out = document.getElementById("out");
+  for (const id of SKINS) {
+    const skin = await (await fetch(`../../play/pour/skins/${id}.json`)).json();
+    skin._file = id;
+    const row = document.createElement("div"); row.className = "row";
+    row.innerHTML = `<h2>${skin.venue}: ${SPLIT[id].name.toLowerCase()}</h2>`;
+    for (const look of LOOKS) {
+      const f = document.createElement("figure");
+      f.appendChild(tile(skin, look));
+      const c = document.createElement("figcaption"); c.textContent = look; f.appendChild(c);
+      row.appendChild(f);
+    }
+    out.appendChild(row);
+  }
+  document.body.dataset.ready = "1";
+})();
+</script>
+</body>
+</html>

@@ -378,3 +378,12 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** The credit as a line at the top (mock B); also dropping the kicker and shrinking the emblem (mock C, the most glass); a "Try another venue" link on the title (not wanted: outreach links pour the prospect's own drink, and the results is where switching makes sense).
 - **Consequences:** A visitor can't switch venue before playing; the way to all four before a round is the offer page's "Try one now" (P2.0aa).
 
+
+## D-039 — Split the mark is the pub's, with dark ales only
+
+- **Status:** Accepted (owner, 2026-10-28, picked look A of the stills)
+- **Date:** 2026-10-28
+- **Decision:** P2.0ac's second way to play is for pubs, with a dark ale only (a stout, a porter, a dark ale), never the café, dairy or ice cream kiosk. The mark is the venue's emblem inside a printed ring with the gap cut on its right, the venue's name over the ring. The rules stay in `engine.js` with no venue or drink words; a skin opts in with its mark, gap and dark ale.
+- **Why:** The game is a nod to a pub ritual; on a latte, a glass of milk or a shake it is a different and weaker joke, and the stills showed it.
+- **Alternatives:** Every venue from its own emblem (the row as first written); a slit through the emblem (look B, lost in the thin gull); the gap between emblem and name (look C, clean but less of the ritual).
+- **Consequences:** Only a pub prospect is pitched it. A pub prospect's own skin needs a dark ale and an emblem that reads inside a ring.
