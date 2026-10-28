@@ -1074,6 +1074,13 @@ async function started(search, tweak, live) {
   for (let i = 0; i < 6; i++) await page.settle();
   const keptPost = page.sent.find((s) => s.url === "/api/pour/score");
   remember.kept.posted = keptPost ? keptPost.body.name : null;
+  // Changed on the results, the new name is for the next game: the score is in under the old one.
+  remember.after = { lead: page.get("namedLead").textContent };
+  page.get("rename").fire("click", {});
+  remember.after.renamed = page.get("namedLead").textContent;
+  page.get("again").fire("click", {});
+  page.advance(100);
+  remember.after.next = page.get("namedLead").textContent;
   page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
   page.get("rename").fire("click", {});
   remember.changed = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };

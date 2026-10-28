@@ -2285,9 +2285,11 @@
       nick = name;
       $("nick").textContent = nick;
     }
+    // On the results the score is already in under the old name, so a new one is for the next game.
     function rename() {
       var was = nick;
       kept = null;
+      if (!$("done").hidden) $("namedLead").textContent = "Next game as";
       var many = words.adjectives.length * words.animals.length > 1;
       do show(E.nickname(words, Math.random));
       while (many && nick === was);
@@ -2351,6 +2353,7 @@
       ["title", "play", "done", "claim"].forEach(function (name) {
         $(name).hidden = name !== id;
       });
+      if (id === "play") $("namedLead").textContent = "On the board as";
     }
 
     // The line under the scene keeps the tallest it has been at this width: a result shorter
@@ -2506,8 +2509,11 @@
       // On the real board too, once the server has it: then the board shows the week as it is.
       if (nick) {
         var asOf = turn;
+        var sentAs = nick;
         getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })
           .then(function (got) {
+            // Renamed while it was on its way: the week's scores still count, the old name's best doesn't.
+            if (nick !== sentAs) return gotBoard({ scores: got.scores });
             gotBoard(got);
             if (asOf === turn) showBoard(game.score);
           })

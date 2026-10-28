@@ -2006,6 +2006,15 @@ def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui)
     assert ["You"] == [row[1] for row in done["board"] if row and row[1] == "You"]
 
 
+def test_a_name_changed_on_the_results_is_for_the_next_game(ui):
+    # The score is already on the board under the old name (Codex, round 1).
+    assert ui["remember"]["after"] == {
+        "lead": "On the board as",
+        "renamed": "Next game as",
+        "next": "On the board as",
+    }
+
+
 def test_the_phone_remembers_its_name_and_change_replaces_it(ui):
     got = ui["remember"]
     assert got["fresh"] == {"nick": "Brave Heron", "stored": "Brave Heron"}
