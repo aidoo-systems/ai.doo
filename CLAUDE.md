@@ -149,6 +149,7 @@ Two-job GitHub Actions workflow on push to `main`:
 3. Install systemd unit at `/etc/systemd/system/aidoo-api.service`
 4. Add `reverse_proxy /api/* localhost:8765` to Caddy vhost
 5. Add sudoers rule so deploy user can `sudo systemctl restart aidoo-api`
+6. The pour demo's board (D-036): `sudo mkdir -p /var/lib/aidoo-api`, `chown` it to the service user (`systemctl show -p User --value aidoo-api`), and add `AIDOO_BOARD_DB=/var/lib/aidoo-api/board.db` to `/etc/aidoo-api.env`. Without it `/api/pour/*` returns 500 (the user's home is `/var/www`), and the game quietly shows its sample board
 
 ## Products
 
