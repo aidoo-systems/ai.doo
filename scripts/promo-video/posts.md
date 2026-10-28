@@ -109,6 +109,32 @@ All of these say it's a demo and a free pilot: the product isn't built.
 >
 > Watch the demo at aidoo.biz/stamps. If you run a shop and want in, email hello@aidoo.biz.
 
+## Pour board cut
+
+For players, not venues: `pour-board-9x16.mp4` (`--cut board`), the same file on all three.
+Queued in Buffer on 2026-10-28: Facebook that morning, Instagram that evening, TikTok on the 31st.
+The link is the game itself, `aidoo.biz/play/pour`, not the offer page.
+
+**Facebook**
+
+> This week's top pour is up for grabs. 🍺 Our demo game now keeps a real weekly leaderboard, fresh every Monday. Have a go on your phone: aidoo.biz/play/pour
+
+**Instagram**
+
+> Can you pour the perfect pint? 🍺
+>
+> Our little pour game now has a real leaderboard. Hold to pour, let go at the line, and see where you land this week. The board starts fresh every Monday.
+>
+> It's the demo for the promo games we build for pubs, cafés and kiosks: customers scan a QR code, play while they wait, and chase a prize the venue sets.
+>
+> Play it on your phone: aidoo.biz/play/pour
+>
+> #aidoo #IsleOfMan #IndieDev #ShopLocal #MobileGame
+
+**TikTok**
+
+> Can you pour the perfect pint? 🍺 Our little pour game now has a real leaderboard. Hold to pour, let go at the line, and see where you land this week. The board starts fresh every Monday. Play it on your phone: aidoo.biz/play/pour #aidoo #IsleOfMan #IndieDev #ShopLocal #MobileGame
+
 ## What to post next
 
 Daily on Facebook and Instagram, two or three times a week on LinkedIn, TikTok and Shorts
