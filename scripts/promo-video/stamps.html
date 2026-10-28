@@ -67,6 +67,7 @@ html.land,.land body{width:960px;height:540px}
   <div class="mail">hello@aidoo.biz</div>
 </div>
 
+<script src="/stamps/card.js"></script>
 <script>
 var q = new URLSearchParams(location.search);
 if (q.has('land')) document.documentElement.classList.add('land');
@@ -88,19 +89,39 @@ if (SHOP) {
   $('#end .mail').textContent = '';
 }
 
-// Times in seconds. loop: when the demo's own loop starts. caps: [from, to, caption, sub-line time].
-// short skips from the first stamp to the full card (skip) and leaves out the card starting again.
-var CUTS = {
-  full: {
-    dur: 34, hook: [0, 0.5, 1.0], hookOut: 2.5, loop: 2.8, endIn: 29.5,
-    caps: [[2.8, 9.2, 'scan', 5.6], [9.2, 17.0, 'stamp', 11.4], [17.0, 20.4, 'visits'], [20.4, 29.5, 'full', 24.8]],
-  },
-  short: {
-    dur: 21, hook: [0, 0.4, 0.8], hookOut: 1.8, loop: 2.0, endIn: 17.0, skip: 12.8,
-    caps: [[2.0, 8.4, 'scan', 4.8], [8.4, 12.8, 'stamp', 10.6], [12.8, 17.0, 'full', 14.8]],
-  },
-};
-var CUT = window.CUT = CUTS[q.get('cut') || 'full'];
+// The demo's own beats, in seconds from the start of its loop: a copy of timeline() and
+// visits() in stamps/index.html, so keep the two in step. The card fills in visits of 1, 2,
+// then 5 stamps, so 4 to 8 stamps take three visits and 9 to 12 take four.
+function demoBeats(need) {
+  var pace = [1, 2, 5], adds = [], n = 0;
+  while (n < need) { var add = Math.min(pace[Math.min(adds.length, pace.length - 1)], need - n); adds.push(add); n += add; }
+  var t = 2.8 + 1.7 + 1.9, visits = [];   // the sign, the page, Wallet
+  adds.forEach(function (add, i) {
+    var first = i === 0, fill = i === adds.length - 1;
+    var staff = first ? 2.2 : 1.7, land = first || fill ? 2.2 : 1.7;
+    visits.push({ start: t, land: t + staff, end: t + staff + land });
+    t += staff + land;
+  });
+  return { visits: visits, give: t, end: t + 2.0 + 3.2 };   // give the reward, the card starts again
+}
+
+// Times in seconds. loop: when the demo's loop starts on the video's clock. caps: [from, to,
+// caption, sub-line time]. short skips from the first stamp to the full card and leaves out
+// the card starting again; full plays the whole loop.
+function cut(name) {
+  var B = demoBeats(StampCard.settings(Object.fromEntries(SHOPQ)).stamps), v = B.visits, last = v[v.length - 1];
+  if (name === 'short') {
+    var L = 2.0, skip = L + v[0].end, endIn = skip + 2.2 + 2.0;   // the full card lands, the reward is given
+    return { dur: endIn + 4.0, hook: [0, 0.4, 0.8], hookOut: 1.8, loop: L, endIn: endIn, skip: skip,
+      caps: [[L, L + 6.4, 'scan', L + 2.8], [L + 6.4, skip, 'stamp', L + v[0].land], [skip, endIn, 'full', skip + 2.0]] };
+  }
+  var L = 2.8;
+  var caps = [[L, L + 6.4, 'scan', L + 2.8], [L + v[0].start, L + v[1].end, 'stamp', L + v[0].land]];
+  if (v.length > 3) caps.push([L + v[1].end, L + last.start, 'visits']);
+  caps.push([L + last.start, L + B.end, 'full', L + B.give + 0.5]);
+  return { dur: L + B.end + 4.5, hook: [0, 0.5, 1.0], hookOut: 2.5, loop: L, endIn: L + B.end, caps: caps };
+}
+var CUT = window.CUT = cut(q.get('cut') || 'full');
 if (q.get('cut') === 'short') $('#stampSub').textContent = 'The stamp lands on their phone.';
 
 function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }

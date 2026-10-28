@@ -41,7 +41,7 @@ to two minutes. If ffmpeg is missing, the frames stay in `out/<name>/`.
 |-------|--------|-------|
 | pour full | 27.6s | scan → prize (spotlight) → pour → results (spotlight) → winner (camera push on the staff tap) → café, dairy, ice cream |
 | pour short | 15.5s | scan → pour → winner → end card |
-| stamps full | 34s | the demo's whole loop |
+| stamps full | 34s | the demo's whole loop; 30.6s for a card of 4 to 8 stamps, which fills in one visit fewer |
 | stamps short | 21s | skips from the first stamp to the full card |
 
 `--shop` takes the demo's own link query (see the stamps emails in
