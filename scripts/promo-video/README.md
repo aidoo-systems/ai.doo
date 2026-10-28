@@ -30,6 +30,7 @@ Then either `npx playwright install chromium`, or use the installed Edge with `P
 node render.mjs all                       # every public version: pour and stamps, full and short, 9:16 and 16:9
 node render.mjs pour                      # pour, full, 9:16
 node render.mjs pour --cut short --land   # pour, 15s, 16:9
+node render.mjs pour --cut board          # pour, 15s, for players: the live weekly board
 node render.mjs stamps --shop "shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10"
 node render.mjs pour --frames 0,345,640   # stills only, to check a layout
 ```
@@ -41,6 +42,7 @@ to two minutes. If ffmpeg is missing, the frames stay in `out/<name>/`.
 |-------|--------|-------|
 | pour full | 27.6s | scan → prize (spotlight) → pour → results (spotlight) → winner (camera push on the staff tap) → café, dairy, ice cream |
 | pour short | 15.5s | scan → pour → winner → end card |
+| pour board | 15s | for players, not venues: "Can you pour a perfect pint?" → pour → the live board (spotlight) → `aidoo.biz/play/pour`. Not in `all` |
 | stamps full | 34s | the demo's whole loop; 30.6s for a card of 4 to 8 stamps, which fills in one visit fewer |
 | stamps short | 21s | skips from the first stamp to the full card |
 
@@ -67,6 +69,8 @@ spotlight or push starts and ends, in seconds. The copy is plain HTML above it. 
   was made.
 - The live board's API (`/api/board`) isn't served here, so the game shows its labelled
   sample board ("Sample scores") and logs a few 404s. That is expected: the video never shows
-  real players' names.
+  real players' names. The board cut stands in for it instead (an empty week, then the
+  video's own score), so its board reads "Live this week", as on aidoo.biz, still with no
+  real player on it.
 - The 16:9 pour end card shows `images/promo/pour-qr.svg`; if the demo moves, that QR code
   and the video move with it.

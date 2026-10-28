@@ -14,6 +14,7 @@ html,body{margin:0;width:540px;height:960px;overflow:hidden;background:#141312;c
 #hook{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 44px 80px}
 #hook .d{font-size:84px}
 #hook .amber{color:#f5b544}
+.player #hook .d{font-size:68px}
 .cap{position:absolute;left:44px;right:72px;top:128px;opacity:0;transform-origin:0 0}
 .cap .d{font-size:36px;line-height:1.05;text-wrap:balance}
 .cap small{display:block;margin-top:10px;font-size:18px;font-weight:500;color:#b3aca2;line-height:1.4;opacity:0}
@@ -66,6 +67,8 @@ html.land,.land body{width:960px;height:540px}
   <div class="cap" id="cap-again"><div class="d">A reason to have another go.</div></div>
   <div class="cap" id="cap-win"><div class="d">The winner shows this at the counter.</div><small>Staff tap once when it's handed over.</small></div>
   <div class="cap" id="cap-yours"><div class="d">Your name. Your colours. Your product.</div></div>
+  <div class="cap" id="cap-pour"><div class="d">Hold to pour. Let go on the line.</div><small>Five drinks, 100 points each.</small></div>
+  <div class="cap" id="cap-board"><div class="d">Then see where you stand.</div><small>A live board, fresh every Monday.</small></div>
   <div id="phone"><div id="push"><div class="phone"><div class="screen"><div class="cam" id="cam">
     <iframe id="pub" src="/play/pour/"></iframe>
     <iframe id="pubwin" src="/play/pour/?take=win"></iframe>
@@ -124,8 +127,27 @@ var CUTS = {
     push: [9.2, 11.9, 'pubwin', 'claimMark', 1.35],
     start: 5.3, press: 5.8, claim: 8.4, tap: 10.0,
   },
+  // for players, not venues: the pour, then the live weekly board. render.mjs stands in for
+  // the board's API, so the board reads "Live this week" with no real player's name on it.
+  board: {
+    dur: 15.0, hook: [0, 0, 0.9], hookOut: 2.3, endIn: 11.6,
+    shots: [
+      [2.6, 7.0, 'pub', 'pour', 3.4],
+      [7.0, 11.6, 'pubwin', 'board', 8.2],
+    ],
+    spot: [[7.4, 11.4, 'pubwin', 'panel']],
+    push: null,
+    start: 2.7, press: 3.3, claim: null, tap: null,
+    hookText: ['Can you pour', 'a perfect pint?', 'Prove it.'],
+    endText: { d: 'Fancy a go?', price: 'Top the board this week.', play: 'Free, on your phone', url: 'aidoo.biz/play/pour', mail: '' },
+  },
 };
 var CUT = window.CUT = CUTS[q.get('cut') || 'full'];
+if (CUT.hookText) {
+  document.documentElement.classList.add('player');
+  ['.h1', '.h2', '.h3'].forEach(function (s, i) { $('#hook ' + s).textContent = CUT.hookText[i]; });
+  Object.keys(CUT.endText).forEach(function (k) { $('#end .' + k).textContent = CUT.endText[k]; });
+}
 window.RECTS = {}; // target rectangles inside each game, measured by the recorder
 
 function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -143,7 +165,7 @@ window.render = function (t) {
   // the first line is there from frame 0: the opening frame is the thumbnail
   $('#hook').style.opacity = t < c.hookOut ? 1 : 1 - clamp((t - c.hookOut) / 0.25);
   show($('#hook .h1'), t, c.hook[0] === 0 ? -1 : c.hook[0]);
-  show($('#hook .h2'), t, c.hook[1]);
+  show($('#hook .h2'), t, c.hook[1] === 0 ? -1 : c.hook[1]);
   show($('#hook .h3'), t, c.hook[2]);
 
   var first = c.shots[0][0], last = c.shots[c.shots.length - 1][1];
@@ -185,7 +207,7 @@ window.render = function (t) {
   spot.style.opacity = sp;
 
   // camera push: the whole phone, bezel and all, moves in on the target
-  var z = c.push, r = RECTS[z[2] + ':' + z[3]], pp = r && t >= z[0] && t <= z[1] ? wave(z[0], z[1]) : 0;
+  var z = c.push || [], r = c.push && RECTS[z[2] + ':' + z[3]], pp = r && t >= z[0] && t <= z[1] ? wave(z[0], z[1]) : 0;
   var ph = $('#phone'), PW = ph.offsetWidth, PH = ph.offsetHeight, k0 = PW / 340;
   var land = document.documentElement.classList.contains('land');
   if (r) {
@@ -199,7 +221,7 @@ window.render = function (t) {
   // a fingertip on the staff button: in, press, lift
   var tap = $('#tap'), at = RECTS['pubwin:claimMark'], k = t - (c.tap - 0.45);
   if (at) { tap.style.left = at.x * .8 + 'px'; tap.style.top = at.y * .8 + 'px'; }
-  tap.style.opacity = at && k > 0 && k < 1.2 ? Math.min(clamp(k / 0.2), 1 - clamp((k - 0.85) / 0.3)) : 0;
+  tap.style.opacity = c.tap != null && at && k > 0 && k < 1.2 ? Math.min(clamp(k / 0.2), 1 - clamp((k - 0.85) / 0.3)) : 0;
   tap.style.transform = 'scale(' + (k < 0.45 ? 1.25 - 0.25 * out3(k / 0.45) : 0.8 + 0.2 * out3((k - 0.45) / 0.3)) + ')';
 
   show($('#end'), t, c.endIn + 0.1, null, 0);
