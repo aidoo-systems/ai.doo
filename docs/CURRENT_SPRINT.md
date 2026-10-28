@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-23
+Last updated: 2026-10-28
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (outreach follow-ups due 2026-10-27)
 
@@ -42,6 +42,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-28
+- **Promo videos** (owner, in a plain chat; no roadmap row, like the 2026-10-13 profile banners): `scripts/promo-video/` renders silent social videos from the real pages, frame by frame on a virtual clock. The pour game (27.6s and 15.5s: scan, prize, a perfect first pour, the results screen, the winner's screen and staff tap, then café, dairy and ice cream) and the stamp card demo (34s and 21s, or one shop's version from its `/stamps/?shop=` link), each in 9:16 and 16:9. Every line is from `/promo-games/` or `/stamps/`; the stamps video offers only the free pilot. Owner posted the pour and stamps videos. `posts.md` holds which video goes on which account, the words for each, and a two-week posting plan. Run with `node render.mjs all` (README there). Not under a gate.
 
 ### 2026-10-23
 - **Owner (2026-10-23):** the shift is fixed. Sauce 1 "feels better" but could do more; captured as P2.0x (the drizzle's motion: an animator/designer review, then mocks), after #72 merges. #72 is ready for the owner to merge as it is.

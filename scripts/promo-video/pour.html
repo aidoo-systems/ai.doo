@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Promo video</title>
+<style>
+@font-face{font-family:'Bricolage Grotesque';font-weight:200 800;src:url('/fonts/bricolage-grotesque-latin.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:100 900;src:url('/fonts/inter-latin.woff2') format('woff2')}
+*{box-sizing:border-box}
+html,body{margin:0;width:540px;height:960px;overflow:hidden;background:#141312;color:#f4f1ea;font-family:Inter,sans-serif}
+.d{font-family:'Bricolage Grotesque',Inter,sans-serif;font-weight:800;letter-spacing:-.025em;line-height:1}
+.layer{position:absolute;inset:0;opacity:0}
+/* 9:16 keeps everything inside the feeds' safe zone: clear of the top bar, the right-hand buttons and the bottom captions */
+.mark{position:absolute;left:44px;top:72px;font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;letter-spacing:-.02em;display:flex;align-items:center}
+.ball{display:inline-block;width:.5em;height:.5em;margin:0 .13em;background:url('/favicon.svg') center/contain no-repeat;position:relative;top:.12em}
+#hook{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 44px 80px}
+#hook .d{font-size:84px}
+#hook .amber{color:#f5b544}
+.cap{position:absolute;left:44px;right:72px;top:128px;opacity:0;transform-origin:0 0}
+.cap .d{font-size:36px;line-height:1.05;text-wrap:balance}
+.cap small{display:block;margin-top:10px;font-size:18px;font-weight:500;color:#b3aca2;line-height:1.4;opacity:0}
+#phone{position:absolute;left:50%;top:262px;width:265px;height:510px;margin-left:-132.5px}
+#push{position:absolute;inset:0;transform-origin:0 0}
+.phone{width:340px;height:654px;border-radius:46px;background:#000;padding:10px;box-shadow:0 0 0 2px #34302d;transform:scale(.78);transform-origin:0 0}
+.screen{position:relative;width:320px;height:634px;border-radius:37px;overflow:hidden;background:#101214}
+.cam{position:absolute;inset:0}
+/* the spotlight: the rest of the screen dims around one line */
+#spot{position:absolute;border-radius:12px;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 999px rgba(0,0,0,.6);opacity:0}
+.cam iframe{position:absolute;left:0;top:0;width:400px;height:792.5px;border:0;transform:scale(.8);transform-origin:0 0;opacity:0}
+#tap{position:absolute;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:rgba(255,255,255,.5);box-shadow:0 0 0 3px rgba(255,255,255,.85);opacity:0}
+#end{display:flex;flex-direction:column;justify-content:center;padding:0 44px 150px}
+#end .d{font-size:62px;text-wrap:balance}
+#end .price{margin-top:26px;font-size:23px;font-weight:700;color:#f5b544}
+#end .play{margin-top:40px;font-size:18px;font-weight:600;color:#b3aca2}
+#end .url{margin-top:4px;font-family:'Bricolage Grotesque';font-weight:800;font-size:36px;letter-spacing:-.015em}
+#end .mail{margin-top:8px;font-size:19px;color:#b3aca2}
+#qr{display:none}
+/* 16:9: words on the left, the phone on the right */
+html.land,.land body{width:960px;height:540px}
+.land .mark{left:64px;top:38px;font-size:24px}
+.land #hook{padding:0 64px}
+.land #hook .d{font-size:76px}
+.land .cap{left:64px;right:auto;width:470px;top:170px}
+.land .cap .d{font-size:44px}
+.land .cap small{font-size:20px;margin-top:16px}
+.land #phone{left:auto;right:110px;top:28px;margin:0;width:252px;height:484px}
+.land .phone{transform:scale(.74)}
+.land #end{padding:0 64px}
+.land #end .d{font-size:58px;max-width:560px}
+.land #end .play{margin-top:30px}
+.land #qr{display:block;position:absolute;right:110px;top:50%;width:230px;margin-top:-140px;text-align:center}
+.land #qr img{display:block;width:230px;height:230px;border-radius:16px}
+.land #qr p{margin:14px 0 0;font-size:17px;font-weight:600;color:#b3aca2}
+</style></head>
+<body>
+<div class="mark">ai<span class="ball"></span>doo</div>
+
+<div class="layer" id="hook">
+  <div class="d h1">Run a pub?</div>
+  <div class="d h2 amber">A café?</div>
+  <div class="d h3">A shop?</div>
+</div>
+
+<div class="layer" id="shots">
+  <div class="cap" id="cap-scan"><div class="d">Customers scan a QR code.</div><small>It opens in their browser. Nothing to download.</small></div>
+  <div class="cap" id="cap-prize"><div class="d">They see your prize first.</div></div>
+  <div class="cap" id="cap-play"><div class="d">They play while they wait.</div></div>
+  <div class="cap" id="cap-again"><div class="d">A reason to have another go.</div></div>
+  <div class="cap" id="cap-win"><div class="d">The winner shows this at the counter.</div><small>Staff tap once when it's handed over.</small></div>
+  <div class="cap" id="cap-yours"><div class="d">Your name. Your colours. Your product.</div></div>
+  <div id="phone"><div id="push"><div class="phone"><div class="screen"><div class="cam" id="cam">
+    <iframe id="pub" src="/play/pour/"></iframe>
+    <iframe id="pubwin" src="/play/pour/?take=win"></iframe>
+    <iframe id="cafe" src="/play/pour/?skin=dozy-otter"></iframe>
+    <iframe id="dairy" src="/play/pour/?skin=sleepy-cow"></iframe>
+    <iframe id="icecream" src="/play/pour/?skin=giddy-puffin"></iframe>
+    <div id="spot"></div>
+    <div id="tap"></div>
+  </div></div></div></div></div>
+</div>
+
+<div class="layer" id="end">
+  <div class="d">A mini-game with your name on it.</div>
+  <div class="price">From £750. We build it and look after it.</div>
+  <div class="play">Play the demo</div>
+  <div class="url">aidoo.biz/promo-games</div>
+  <div class="mail">hello@aidoo.biz</div>
+  <div id="qr"><img src="/images/promo/pour-qr.svg" alt=""><p>Scan to play the demo</p></div>
+</div>
+
+<script>
+var q = new URLSearchParams(location.search);
+if (q.has('land')) document.documentElement.classList.add('land');
+var $ = function (s) { return document.querySelector(s); };
+
+// The pour game video, drawn by render.mjs one frame at a time from the live game in
+// /play/pour/. Two edits from the same parts. Times in seconds. shots: [from, to, iframe, caption, sub-line time]
+// spot: [from, to, iframe, target] dims the screen around one line.
+// push: [from, to, iframe, target, scale] moves the camera in on the whole phone. Both ease in and out over 0.5s.
+var CUTS = {
+  full: {
+    dur: 27.6, hook: [0, 0.5, 1.0], hookOut: 2.5, endIn: 23.2,
+    shots: [
+      [2.8, 6.8, 'pub', 'scan', 3.6],
+      [6.8, 9.3, 'pub', 'prize'],
+      [9.3, 12.8, 'pub', 'play'],
+      [12.8, 15.5, 'pubwin', 'again'],
+      [15.5, 20.0, 'pubwin', 'win', 16.6],
+      // three venues under one caption: the caption is the read, each cut only says 'another business'
+      [20.0, 21.05, 'cafe', 'yours'],
+      [21.05, 22.1, 'dairy', 'yours'],
+      [22.1, 23.2, 'icecream', 'yours'],
+    ],
+    spot: [[7.0, 9.2, 'pub', 'offer'], [13.0, 15.4, 'pubwin', 'goal']],
+    push: [16.6, 19.8, 'pubwin', 'claimMark', 1.35],
+    start: 9.5, press: 10.0, claim: 15.5, tap: 17.3,
+  },
+  short: {
+    dur: 15.5, hook: [0, 0.4, 0.8], hookOut: 1.9, endIn: 12.0,
+    shots: [
+      [2.2, 5.2, 'pub', 'scan', 2.9],
+      [5.2, 8.4, 'pub', 'play'],
+      [8.4, 12.0, 'pubwin', 'win', 9.3],
+    ],
+    spot: [],
+    push: [9.2, 11.9, 'pubwin', 'claimMark', 1.35],
+    start: 5.3, press: 5.8, claim: 8.4, tap: 10.0,
+  },
+};
+var CUT = window.CUT = CUTS[q.get('cut') || 'full'];
+window.RECTS = {}; // target rectangles inside each game, measured by the recorder
+
+function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+function ease(x) { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+function out3(x) { x = clamp(x); return 1 - Math.pow(1 - x, 3); }
+// fade and rise in from t0; fade out from t1
+function show(el, t, t0, t1, rise) {
+  var a = t0 <= -1 ? 1 : out3((t - t0) / 0.45), o = t1 == null ? 1 : 1 - clamp((t - t1) / 0.25);
+  el.style.opacity = Math.min(a, o);
+  el.style.transform = 'translateY(' + ((1 - a) * (rise == null ? 24 : rise)) + 'px)';
+}
+
+window.render = function (t) {
+  var c = CUT;
+  // the first line is there from frame 0: the opening frame is the thumbnail
+  $('#hook').style.opacity = t < c.hookOut ? 1 : 1 - clamp((t - c.hookOut) / 0.25);
+  show($('#hook .h1'), t, c.hook[0] === 0 ? -1 : c.hook[0]);
+  show($('#hook .h2'), t, c.hook[1]);
+  show($('#hook .h3'), t, c.hook[2]);
+
+  var first = c.shots[0][0], last = c.shots[c.shots.length - 1][1];
+  $('#shots').style.opacity = t >= first && t < last + 0.25 ? 1 - clamp((t - last) / 0.25) : 0;
+  show($('#phone'), t, first, null, 120);
+
+  // hard cuts between games: exactly one is visible
+  var live = null;
+  c.shots.forEach(function (s) { if (t >= s[0] && t < s[1]) live = s; });
+  if (!live && t >= last) live = c.shots[c.shots.length - 1];
+  ['pub', 'pubwin', 'cafe', 'dairy', 'icecream'].forEach(function (id) { $('#' + id).style.opacity = live && live[2] === id ? 1 : 0; });
+
+  document.querySelectorAll('.cap').forEach(function (el) { el.style.opacity = 0; });
+  c.shots.forEach(function (s, i) {
+    var el = $('#cap-' + s[3]);
+    var a = i, b = i;
+    while (a > 0 && c.shots[a - 1][3] === s[3]) a--;
+    while (b < c.shots.length - 1 && c.shots[b + 1][3] === s[3]) b++;
+    var from = c.shots[a][0], to = c.shots[b][1];
+    if (t < from || t >= to + 0.25 || t < s[0] && i !== a) return;
+    show(el, t, from + 0.1, to - 0.05);
+    var sub = el.querySelector('small');
+    if (sub) show(sub, t, s[4], null, 10);
+  });
+
+  function wave(a, b) { return ease((t - a) / 0.5) * (1 - ease((t - (b - 0.5)) / 0.5)); }
+
+  // spotlight: in screen pixels (the game is drawn at 0.8)
+  var spot = $('#spot'), sp = 0;
+  c.spot.forEach(function (z) {
+    var r = RECTS[z[2] + ':' + z[3]];
+    if (!r || t < z[0] || t > z[1]) return;
+    sp = wave(z[0], z[1]);
+    spot.style.left = (r.x - r.w / 2) * .8 - 8 + 'px';
+    spot.style.top = (r.y - r.h / 2) * .8 - 7 + 'px';
+    spot.style.width = r.w * .8 + 16 + 'px';
+    spot.style.height = r.h * .8 + 14 + 'px';
+  });
+  spot.style.opacity = sp;
+
+  // camera push: the whole phone, bezel and all, moves in on the target
+  var z = c.push, r = RECTS[z[2] + ':' + z[3]], pp = r && t >= z[0] && t <= z[1] ? wave(z[0], z[1]) : 0;
+  var ph = $('#phone'), PW = ph.offsetWidth, PH = ph.offsetHeight, k0 = PW / 340;
+  var land = document.documentElement.classList.contains('land');
+  if (r) {
+    var px = (10 + r.x * .8) * k0, py = (10 + r.y * .8) * k0;    // target in phone pixels
+    var gx = PW / 2, gy = land ? PH / 2 : PH * 0.8;              // where the camera puts it
+    var s2 = 1 + (z[4] - 1) * pp;
+    var dx = (gx - px * s2) * pp, dy = (gy - py * s2) * pp;
+    $('#push').style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + s2 + ')';
+  }
+
+  // a fingertip on the staff button: in, press, lift
+  var tap = $('#tap'), at = RECTS['pubwin:claimMark'], k = t - (c.tap - 0.45);
+  if (at) { tap.style.left = at.x * .8 + 'px'; tap.style.top = at.y * .8 + 'px'; }
+  tap.style.opacity = at && k > 0 && k < 1.2 ? Math.min(clamp(k / 0.2), 1 - clamp((k - 0.85) / 0.3)) : 0;
+  tap.style.transform = 'scale(' + (k < 0.45 ? 1.25 - 0.25 * out3(k / 0.45) : 0.8 + 0.2 * out3((k - 0.45) / 0.3)) + ')';
+
+  show($('#end'), t, c.endIn + 0.1, null, 0);
+};
+render(0);
+</script>
+</body></html>
