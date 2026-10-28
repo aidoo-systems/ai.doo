@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Split the mark (rough)</title>
+<style>
+  html,body{margin:0;height:100%;background:#10231f;color:#fdf3dc;font-family:system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+  canvas{display:block;width:100vw;height:100vh}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// Rough prototype for P2.0ac. Throwaway: not the engine, not a skin.
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+let W, H;
+function size() {
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener("resize", size); size();
+
+// The glass, in mm from its base.
+const GH = 150, TOPW = 86, BOTW = 62;
+const RING = { y: 92, r: 21, w: 5.5 };   // the printed emblem
+const GAP = { y: 92, h: 5 };             // the gap in it: the line has to settle here
+const DRIFT = 0.16;                      // seconds of sipping speed that carry on as the head settles
+
+let st, best = null;
+function reset() {
+  st = { phase: "ready", top: 136, head: 12 + Math.random() * 3, v: 0, t: 0,
+         settleT: 0, from: 0, drift: 0, lace: [], nextLace: 130, specks: [] };
+}
+reset();
+
+function line() { return st.top - st.head; }
+
+function press() {
+  if (st.phase === "ready") { st.phase = "sip"; st.t = 0; }
+  else if (st.phase === "done") reset();
+}
+function release() {
+  if (st.phase !== "sip") return;
+  st.phase = "settle"; st.settleT = 0; st.from = st.head;
+  st.drift = st.v * DRIFT + Math.random() * 0.8;
+  for (let i = 0; i < 70; i++) st.specks.push({ x: Math.random(), y: Math.random(), s: 0.3 + Math.random() * 0.7 });
+}
+cv.addEventListener("pointerdown", e => { e.preventDefault(); press(); });
+addEventListener("pointerup", release);
+addEventListener("pointercancel", release);
+addEventListener("keydown", e => { if (e.code === "Space" && !e.repeat) { e.preventDefault(); press(); } });
+addEventListener("keyup", e => { if (e.code === "Space") release(); });
+
+function step(dt) {
+  if (st.phase === "sip") {
+    st.t += dt;
+    st.v = Math.min(42, 5 + st.t * 32);            // a sip that turns into a gulp
+    st.top -= st.v * dt;
+    st.head = Math.max(7, st.head - dt * 1.2);
+    if (st.top < st.nextLace) { st.lace.push(st.top + 1); st.nextLace -= 7 + Math.random() * 4; }
+    if (line() < 30) release();
+  } else if (st.phase === "settle") {
+    st.settleT += dt;
+    const k = Math.min(1, st.settleT / 1.6), e = 1 - Math.pow(1 - k, 3);
+    st.head = st.from + st.drift * e;               // the head forms downward: the line creeps
+    for (const p of st.specks) p.y += dt * (0.25 + p.s * 0.3);
+    if (k >= 1) {
+      st.phase = "done";
+      const off = line() - GAP.y;
+      st.off = off;
+      st.split = Math.abs(off) <= GAP.h / 2;
+      if (best === null || Math.abs(off) < Math.abs(best)) best = off;
+    }
+  }
+}
+
+function draw() {
+  g.fillStyle = "#10231f"; g.fillRect(0, 0, W, H);
+  const s = Math.min((H * 0.6) / GH, (W * 0.62) / TOPW);
+  const cx = W / 2, baseY = H * 0.8;
+  const Y = y => baseY - y * s;
+  const half = y => ((BOTW + (TOPW - BOTW) * (y / GH)) / 2) * s;
+
+  // the bar top
+  g.fillStyle = "#6b4226"; g.fillRect(0, baseY + 4, W, H - baseY);
+  g.fillStyle = "#3d2413"; g.fillRect(0, baseY + 4, W, 5);
+
+  g.save();
+  g.beginPath();
+  g.moveTo(cx - half(0), Y(0)); g.lineTo(cx - half(GH), Y(GH));
+  g.lineTo(cx + half(GH), Y(GH)); g.lineTo(cx + half(0), Y(0)); g.closePath();
+  g.clip();
+
+  // stout
+  const L = line();
+  const sg = g.createLinearGradient(0, Y(0), 0, Y(L));
+  sg.addColorStop(0, "#3a1408"); sg.addColorStop(0.12, "#1c0d07"); sg.addColorStop(1, "#140904");
+  g.fillStyle = sg; g.fillRect(cx - half(GH), Y(L), half(GH) * 2, Y(0) - Y(L));
+
+  // the cascade while it settles
+  if (st.phase === "settle") {
+    g.fillStyle = "rgba(214,190,150,0.35)";
+    for (const p of st.specks) {
+      const yy = L - (p.y % 1) * Math.min(40, L);
+      g.fillRect(cx + (p.x - 0.5) * half(yy) * 1.8, Y(yy), 1.4 * p.s + 0.4, 1.4 * p.s + 0.4);
+    }
+  }
+
+  // head
+  const hg = g.createLinearGradient(0, Y(st.top), 0, Y(L));
+  hg.addColorStop(0, "#f6ecd4"); hg.addColorStop(1, "#d9c49c");
+  g.fillStyle = hg; g.fillRect(cx - half(GH), Y(st.top), half(GH) * 2, Y(L) - Y(st.top));
+  g.fillStyle = "rgba(120,80,40,0.35)"; g.fillRect(cx - half(GH), Y(L) - 1, half(GH) * 2, 2);
+
+  // lacing left on the glass
+  g.strokeStyle = "rgba(246,236,212,0.22)"; g.lineWidth = 1.5;
+  for (const y of st.lace) if (y > st.top + 2) {
+    g.beginPath();
+    for (let x = -1; x <= 1.001; x += 0.1) {
+      const px = cx + x * half(y), py = Y(y) + Math.sin(x * 9 + y) * 1.5;
+      x === -1 ? g.moveTo(px, py) : g.lineTo(px, py);
+    }
+    g.stroke();
+  }
+
+  // the printed emblem: a ring with a gap cut on the right, like the G
+  g.save();
+  g.beginPath();
+  g.rect(0, 0, W, H);
+  g.rect(cx, Y(GAP.y + GAP.h / 2), W, (GAP.h) * s);
+  g.clip("evenodd");
+  g.beginPath();
+  g.arc(cx, Y(RING.y), RING.r * s, 0, Math.PI * 2);
+  g.arc(cx, Y(RING.y), (RING.r - RING.w) * s, 0, Math.PI * 2, true);
+  g.fillStyle = "rgba(245,181,68,0.92)"; g.fill();
+  g.restore();
+  g.fillStyle = "rgba(245,181,68,0.92)";
+  g.font = `700 ${Math.round(4.2 * s)}px system-ui,sans-serif`; g.textAlign = "center";
+  g.fillText("THE WOBBLY GULL", cx, Y(RING.y - RING.r - 7));
+  g.restore();
+
+  // the glass
+  g.strokeStyle = "rgba(255,255,255,0.4)"; g.lineWidth = 2;
+  g.beginPath();
+  g.moveTo(cx - half(GH), Y(GH)); g.lineTo(cx - half(0), Y(0));
+  g.lineTo(cx + half(0), Y(0)); g.lineTo(cx + half(GH), Y(GH)); g.stroke();
+  g.strokeStyle = "rgba(255,255,255,0.12)"; g.lineWidth = 5;
+  g.beginPath(); g.moveTo(cx - half(GH) + 9, Y(GH - 8)); g.lineTo(cx - half(10) + 8, Y(16)); g.stroke();
+
+  // words
+  g.textAlign = "center"; g.fillStyle = "#fdf3dc";
+  g.font = `800 ${Math.min(30, W * 0.075)}px system-ui,sans-serif`;
+  g.fillText("Split the mark", cx, Math.max(40, H * 0.07));
+  g.font = `500 ${Math.min(16, W * 0.042)}px system-ui,sans-serif`; g.fillStyle = "#b9c9bd";
+  const tip = st.phase === "ready" ? "Hold to sip. Let go so the line settles in the gap."
+    : st.phase === "sip" ? "Sipping..." : st.phase === "settle" ? "Settling..." : "Tap for another glass";
+  g.fillText(tip, cx, Math.max(66, H * 0.07 + 26));
+
+  if (st.phase === "done") {
+    const mm = Math.abs(st.off).toFixed(1).replace(/\.0$/, "");
+    const msg = st.split ? (Math.abs(st.off) < 0.25 ? "Split it. Dead on." : `Split it: ${mm}mm off`)
+      : `${mm}mm ${st.off > 0 ? "high" : "low"}`;
+    g.font = `800 ${Math.min(34, W * 0.085)}px system-ui,sans-serif`;
+    g.fillStyle = st.split ? "#f5b544" : "#fdf3dc";
+    g.fillText(msg, cx, baseY + Math.min(60, (H - baseY) * 0.5));
+  }
+  if (best !== null) {
+    g.font = `500 ${Math.min(14, W * 0.036)}px system-ui,sans-serif`; g.fillStyle = "#b9c9bd";
+    g.fillText(`Best this visit: ${Math.abs(best).toFixed(1)}mm`, cx, H - 18);
+  }
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  step(dt); draw();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
