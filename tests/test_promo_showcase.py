@@ -4,6 +4,7 @@ The game's rules live in play/pour/engine.js and are run here under Node, so a
 skin is proved to be data: the tests hand the same engine a skin it has never seen.
 """
 
+import math
 import copy
 import json
 import os
@@ -408,7 +409,6 @@ def test_the_game_keeps_and_sends_nothing():
     for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
         text = _text(rel)
         for api in (
-            "localStorage",
             "sessionStorage",
             "indexedDB",
             "document.cookie",
@@ -419,11 +419,31 @@ def test_the_game_keeps_and_sends_nothing():
             "<input",
         ):
             assert api not in text, f"{rel}: {api}"
-    # The one request the game makes is for its own skin file, by a safe name.
+    # Every request goes through one helper: the skin file, the nickname words, and the
+    # week's board, whose one POST carries the skin, the nickname and the score.
     js = _text("play/pour/game.js")
     assert len(re.findall(r"\bfetch\(", js)) == 1
-    assert re.search(r"fetch\(\s*[`\"']skins/", js)
+    urls = re.findall(r'getJSON\(\s*"([^"]+)"', js)
+    assert sorted(set(urls)) == [
+        "/api/pour/board?skin=",
+        "/api/pour/score",
+        "nicknames.json",
+        "skins/",
+    ]
+    assert (
+        'getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })'
+        in js
+    )
     assert "/^[a-z0-9-]+$/" in js
+    # The one thing kept on the phone is its given name, under one key (D-036).
+    assert "localStorage" not in _text("play/pour/engine.js") + _text(
+        "play/pour/index.html"
+    )
+    assert sorted(re.findall(r"localStorage\.(\w+)\(\s*([^,)]+)", js)) == [
+        ("getItem", "NAME_KEY"),
+        ("setItem", "NAME_KEY"),
+    ]
+    assert 'var NAME_KEY = "pour.name";' in js
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
@@ -783,11 +803,19 @@ def test_the_demo_lives_at_play_pour_and_the_old_address_is_gone():
 def test_the_pub_the_cafe_and_the_dairy_draw_exactly_as_they_did(ui):
     # Recorded from main before the carton was added (the dairy's before the whippy): every
     # canvas call and value of a frame at rest, a pour and its result, with the same
-    # "random" numbers each run.
+    # "random" numbers each run. Re-recorded for P2.0z: against main's traces, the only lines
+    # that differ are the "+N" float's (its fading globalAlpha gone, its outline's strokeStyle).
+    # Re-recorded for P2.0v: the café's first round is a flat white now. With its colours and
+    # foam taken out (its name kept), the café's trace is main's hash again.
+    # Re-recorded again for P2.0v: every glass is drawn soft (rounded to its curve, light along
+    # its wall, a lit rim, a domed base), and the pub and the café give each drink its own glass.
+    # Re-recorded for P2.1h: only the café's changed (saucer, steam, handle, cocoa); the pub, the dairy
+    # and the kiosk are main's hashes (the kiosk's added here, recorded from main).
     assert ui["traces"] == {
-        "wobbly-gull": "a867258b2eba7df04b826032530d05da69ce5d6421c6b81ca6c7eba71c11c86b",
-        "dozy-otter": "dd14a52b458c327219986d45cd13159663a5add2a1cb3640194cf69cd2f40219",
-        "sleepy-cow": "6d601f38861b8fdfaef1ec04aa18e944a7e5d6cea3dfd442b63559a694c15ed2",
+        "wobbly-gull": "961484c5428e8595d4cc0cdb6cf38fc9287d0a869fa0814a81f3f7b198b855ee",
+        "dozy-otter": "f989b13c9942e681b62562f273d1fc5ba8b5cb046f7a965f8f6e0bbf95f8cadf",
+        "sleepy-cow": "7db85e78fcc30e55d2d642d259c8ce2825c36b7a32cc3bd1774c074721076911",
+        "giddy-puffin": "345f46593eb96f2dfdb4971c2e1f6ffc7772821d27e8d888d44d87dfe94fef92",
     }
 
 
@@ -948,6 +976,83 @@ def test_every_serve_name_fits_one_line_at_320():
         assert len(r["serve"]["name"]) <= 22, r["serve"]["name"]
 
 
+# --- P2.0v: the pub and the café rotate their drinks ---------------------------------
+
+
+def _skin(id):
+    return json.loads((GAME / "skins" / (id + ".json")).read_text(encoding="utf-8"))
+
+
+def _drinks(skin):
+    # Each round's drink: its serve over the skin's, as the game pours it.
+    return [{**skin["drink"], **r.get("serve", {})} for r in skin["rounds"]]
+
+
+@pytest.mark.parametrize(
+    "id, order",
+    [
+        ("wobbly-gull", ["lager", "ale", "cider", "lager", "ale"]),
+        (
+            "dozy-otter",
+            ["flat white", "latte", "cappuccino", "flat white", "cappuccino"],
+        ),
+    ],
+)
+def test_the_pub_and_the_cafe_rotate_their_drinks(id, order):
+    skin = _skin(
+        id
+    )  # valid, as every shipped skin is (test_every_shipped_skin_is_valid...)
+    names = [r["serve"]["name"].lower() for r in skin["rounds"]]
+    assert [next(d for d in order if d in n) for n in names] == order, names
+    for name in names:
+        assert len(name) <= 22, name
+    # A drink looks its own: the three kinds pour three colours.
+    drinks = _drinks(skin)
+    first = {kind: drinks[order.index(kind)] for kind in order}
+    assert len({d["liquid"] for d in first.values()}) == 3
+    # The same drink pours the same, whichever round it comes back in.
+    for n, kind in enumerate(order):
+        assert drinks[n]["liquid"] == first[kind]["liquid"], (n, kind)
+
+
+def test_a_cider_has_hardly_any_head_and_an_ale_more_than_a_lager():
+    depth = {
+        d["name"].lower(): d["headDepth"] for d in _drinks(_skin("wobbly-gull"))[:3]
+    }
+    lager, ale, cider = (
+        next(v for k, v in depth.items() if kind in k)
+        for kind in ("lager", "ale", "cider")
+    )
+    assert cider <= 0.04 < lager < ale, depth
+
+
+def test_a_cappuccino_is_deep_foam_and_a_flat_white_thin():
+    depth = {
+        d["name"].lower(): d["headDepth"] for d in _drinks(_skin("dozy-otter"))[:3]
+    }
+    flat, latte_, capp = (
+        next(v for k, v in depth.items() if kind in k)
+        for kind in ("flat white", "latte", "cappuccino")
+    )
+    assert flat < latte_ < capp and capp >= 0.25, depth
+
+
+def test_the_cafe_doesnt_call_every_round_a_latte():
+    copy = _skin("dozy-otter")["copy"]
+    for key in ("round", "perfect", "good"):
+        assert "latte" not in copy[key].lower(), key
+
+
+@pytest.mark.parametrize("id", ["wobbly-gull", "dozy-otter"])
+def test_each_round_says_and_pours_its_own_drink(ui, id):
+    rounds = _skin(id)["rounds"]
+    seen = ui["drinkRounds"][id]
+    assert len(seen) == len(rounds)
+    for n, (r, shown) in enumerate(zip(rounds, seen)):
+        assert shown["say"].startswith(r["serve"]["name"]), (n, shown["say"])
+        assert shown["liquid"] and shown["head"], (n, shown)
+
+
 # --- D-030: the whippy is built in coils, not filled like a glass ----------------------
 
 
@@ -1037,8 +1142,13 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
         assert len(bulbs) >= 3, (run["hold"], coated[-1]["sauce"])
         for frame in coated:
             left, right = frame["base"]
-            for top, x0, x1, _ in frame["sauce"]:
-                assert top >= frame["top"] - 0.6, (run["hold"], top, frame["top"])
+            for top, x0, x1, _, thread in frame["sauce"]:
+                # only the falling thread (plain-filled, P2.0x) may be above the line
+                assert thread or top >= frame["top"] - 0.6, (
+                    run["hold"],
+                    top,
+                    frame["top"],
+                )
                 assert x0 >= left - 0.5 and x1 <= right + 0.5, (
                     run["hold"],
                     x0,
@@ -1048,6 +1158,253 @@ def test_the_sauce_coats_the_top_and_stays_on_the_serve(ui):
                 )
         checked += 1
     assert checked >= 5
+
+
+def _drizzle(ui):
+    # P2.0x: every frame from release (16ms apart) of the cup's sauce, and the frame the drop or
+    # thread first touches the tip (the sauce's clock starts there, and contact is 100ms in).
+    frames = ui["whippyDrizzle"]["frames"]
+    first = next(f["t"] for f in frames if f["sauce"])
+    return frames, first + 96
+
+
+def _widths(pts, bands=12):
+    # The width of a path in bands from its top to its bottom (the leading end of a falling thread).
+    ys = [p[1] for p in pts]
+    top, bottom = min(ys), max(ys)
+    height = bottom - top
+    out = []
+    for i in range(bands):
+        lo, hi = top + height * i / bands, top + height * (i + 1) / bands
+        xs = [p[0] for p in pts if lo <= p[1] <= hi + 1e-9]
+        out.append(max(xs) - min(xs) if len(xs) > 1 else 0.0)
+    return height, out
+
+
+def test_the_sauce_is_strawberry_pink_not_crimson(ui):
+    # P2.0x (owner, 2026-10-23: sauce 1 "reads a bit like blood"): brighter and pinker than #c4314b.
+    colour = ui["whippyDrizzle"]["colour"].lstrip("#")
+    r, g, b = (int(colour[i : i + 2], 16) for i in (0, 2, 4))
+    assert r + g + b >= 420, colour
+    assert b >= 0.5 * r and g <= 0.5 * r, colour
+
+
+def test_the_sauce_falls_as_a_tapered_thread_with_a_rounded_end(ui):
+    # P2.0x: not a drop. Just before it touches, a plain-filled thread: much longer than wide,
+    # wide at its leading (lower) end and narrowing to a thin tail, the leading end rounded
+    # (not cut off flat).
+    frames, contact = _drizzle(ui)
+    before = [f for f in frames if contact - 48 <= f["t"] < contact - 8]
+    assert before, contact
+    for frame in before:
+        threads = [shape for shape in frame["sauce"] if shape["plain"] and shape["pts"]]
+        assert threads, frame["t"]
+        thread = max(threads, key=lambda shape: shape["bottom"] - shape["top"])
+        height, bands = _widths(thread["pts"])
+        widest = max(bands)
+        assert widest > 0 and height >= 2.5 * widest, (frame["t"], height, widest)
+        # bands run top to bottom: the tail is thin, the leading end is wide
+        assert sum(bands[-5:]) >= 1.8 * sum(bands[:5]), (frame["t"], bands)
+        # the lowest half pixel of it is a point, not a flat cut
+        lowest = max(p[1] for p in thread["pts"])
+        end = [p[0] for p in thread["pts"] if p[1] >= lowest - 0.5]
+        assert max(end) - min(end) <= 0.5 * widest, (frame["t"], end)
+
+
+def test_the_landing_pools_into_a_round_blob_that_spreads_into_the_ribbon(ui):
+    # P2.0x: where the thread touches, a round blob swells (it is not a flat bar), then it flattens
+    # and spreads out into the ribbon, so the sauce's width never shrinks as it hands over. Always
+    # fully opaque: nothing fades out, so no translucent halo is ever on the cream.
+    frames, contact = _drizzle(ui)
+    for frame in frames:
+        for shape in frame["sauce"]:
+            assert shape["alpha"] >= 0.999, (frame["t"], shape)
+    settled = [
+        (f["t"], [x for x in f["sauce"] if not x["plain"] and not x["circles"]])
+        for f in frames
+        if contact <= f["t"] <= contact + 700
+    ]
+    blobs = []
+    for t, shapes in settled:
+        for shape in shapes:
+            w, h = shape["right"] - shape["left"], shape["bottom"] - shape["top"]
+            if t <= contact + 200 and h > 0 and 0.6 <= w / h <= 2.0:
+                blobs.append((t, w))
+    # round from the moment it lands, and for a good while (the old ribbon was only that shape for the
+    # first few frames of a quick spread)
+    assert len(blobs) >= 8 and blobs[0][0] <= contact + 48, blobs
+    assert blobs[-1][1] >= 1.3 * blobs[0][1], blobs
+    widths = [
+        (t, max(x["right"] for x in shapes) - min(x["left"] for x in shapes))
+        for t, shapes in settled
+        if shapes
+    ]
+    assert widths
+    for (t0, w0), (t1, w1) in zip(widths, widths[1:]):
+        assert w1 >= w0 * 0.96 - 1.0, (t0, w0, t1, w1)
+    assert widths[-1][1] >= max(w for _, w in blobs), (widths[-1], blobs)
+
+
+def _turn(ui):
+    # One turn of the stack, as drawn, in pixels: the sizes below are fractions of it.
+    turns = sorted(f["turn"] for f in ui["whippyDrizzle"]["frames"] if f["turn"])
+    return turns[len(turns) // 2]
+
+
+def test_the_sauce_is_a_fine_drizzle_not_big_drops(ui):
+    # P2.0x (owner on a phone, 2026-10-23: "the drops feel a bit large, feels less like a drizzle"):
+    # a thin thread, a small bead where it lands, a ribbon about as thick as sauce 1's, and small,
+    # short drips that have all finished by 700ms after contact. Sizes are fractions of a turn.
+    frames, contact = _drizzle(ui)
+    turn = _turn(ui)
+    # the thread, widest, just before it lands
+    widest = 0.0
+    for f in frames:
+        if contact - 48 <= f["t"] < contact - 8:
+            for shape in f["sauce"]:
+                if shape["plain"] and shape["pts"]:
+                    xs = [p[0] for p in shape["pts"]]
+                    widest = max(widest, max(xs) - min(xs))
+    assert 0 < widest <= 0.13 * turn, (widest, turn)
+    # the blob (a path of two curves), before it spreads into the ribbon
+    blobs = [
+        shape["right"] - shape["left"]
+        for f in frames
+        if contact <= f["t"] <= contact + 200
+        for shape in f["sauce"]
+        if not shape["plain"]
+        and not shape["circles"]
+        and shape["pts"]
+        and len(shape["pts"]) <= 9
+    ]
+    assert blobs and max(blobs) <= 0.34 * turn, (max(blobs, default=0), turn)
+    # the ribbon, once settled: its median thickness (the top edge to the bottom edge, side by side)
+    settled = next(f for f in frames if f["t"] >= contact + 600)
+    ribbon = max(
+        (
+            x
+            for x in settled["sauce"]
+            if not x["plain"] and not x["circles"] and len(x["pts"]) > 20
+        ),
+        key=lambda x: x["right"] - x["left"],
+    )
+    # top edge, an eleven-point cap, the bottom edge back, an eleven-point cap
+    pts = ribbon["pts"]
+    body = (len(pts) - 22) // 2
+    gaps = sorted(
+        b[1] - t[1] for t, b in zip(pts[:body], pts[body + 11 : 2 * body + 11][::-1])
+    )
+    assert 0.12 * turn <= gaps[len(gaps) // 2] <= 0.18 * turn, (
+        gaps[len(gaps) // 2],
+        turn,
+    )
+    # the drips: small bulbs, at most 0.62 of a turn long, each at rest by 700ms after contact
+    drips = {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in drips if abs(k - centre) < 6), round(centre))
+                length = shape["bottom"] - shape["top"]
+                row = drips.setdefault(
+                    key, {"width": 0.0, "length": 0.0, "moved": 0, "last": length}
+                )
+                row["width"] = max(row["width"], shape["right"] - shape["left"])
+                if abs(length - row["last"]) > 0.4:
+                    row["moved"] = f["t"]
+                row["last"], row["length"] = length, length
+    assert len(drips) == 3, drips
+    for key, row in drips.items():
+        assert row["width"] <= 0.15 * turn, (key, row, turn)
+        assert row["length"] <= 0.62 * turn, (key, row, turn)
+        assert row["moved"] <= contact + 700, (key, row, contact)
+
+
+def test_the_ribbon_has_no_square_ends_or_steps(ui):
+    # P2.0x (owner, 2026-10-23: the drizzle "sort of squares off"): the ribbon ends in rounded
+    # tips and dips over a turn's edge in one smooth curve. Its outline (a path of many points;
+    # the blob, the drips and the thread are not it) turns by no more than 60 degrees at any
+    # point, so no corner is sharper than 120 degrees, from 180 to 760ms after contact.
+    frames, contact = _drizzle(ui)
+    checked = 0
+    for f in frames:
+        if not contact + 180 <= f["t"] <= contact + 760:
+            continue
+        for shape in f["sauce"]:
+            pts = shape["pts"]
+            if shape["plain"] or shape["circles"] or not pts or len(pts) < 20:
+                continue
+            # drop points that sit on top of each other
+            line = [
+                p for i, p in enumerate(pts) if i == 0 or math.dist(p, pts[i - 1]) > 0.3
+            ]
+            for i in range(len(line)):
+                a, b, c = line[i - 1], line[i], line[(i + 1) % len(line)]
+                v1, v2 = (b[0] - a[0], b[1] - a[1]), (c[0] - b[0], c[1] - b[1])
+                turn = abs(
+                    math.degrees(
+                        math.atan2(
+                            v1[0] * v2[1] - v1[1] * v2[0], v1[0] * v2[0] + v1[1] * v2[1]
+                        )
+                    )
+                )
+                assert turn <= 60, (f["t"], round(turn), b, a, c)
+            checked += 1
+    assert checked >= 25, checked
+
+
+def test_the_three_drips_differ_in_length_and_in_when_they_start(ui):
+    # P2.0x: less posed: three bulbs of three lengths, let go at three different moments.
+    frames, _ = _drizzle(ui)
+    starts, ends = {}, {}
+    for f in frames:
+        for shape in f["sauce"]:
+            if shape["circles"]:
+                centre = (shape["left"] + shape["right"]) / 2
+                key = next((k for k in starts if abs(k - centre) < 6), round(centre))
+                starts.setdefault(key, f["t"])
+                ends[key] = shape["bottom"] - shape["top"]
+    assert len(starts) == 3, starts
+    first = sorted(starts.values())
+    assert first[1] - first[0] >= 30 and first[2] - first[1] >= 30, starts
+    lengths = sorted(ends.values())
+    assert (
+        lengths[1] - lengths[0] >= 0.08 * lengths[2]
+        and lengths[2] - lengths[1] >= 0.08 * lengths[2]
+    ), ends
+
+
+def test_a_glint_runs_along_the_sauce_and_is_done_by_700ms(ui):
+    # P2.0x: the shine moves once the sauce has settled, and is over about 700ms after contact,
+    # before the next glass slides in.
+    frames, contact = _drizzle(ui)
+    glints = [f["t"] for f in frames if f["glint"]]
+    assert len(glints) >= 5, glints
+    assert min(glints) >= contact + 250, (min(glints), contact)
+    assert max(glints) <= contact + 740, (max(glints), contact)
+
+
+def test_the_thread_is_the_only_sauce_above_the_line_and_it_is_gone_by_the_end(ui):
+    # P2.0x (D-030's rule kept): the settled sauce never rises above the scored height or out past
+    # the serve; only the falling thread (plain-filled) may cross the line, and it is absorbed.
+    frames, contact = _drizzle(ui)
+    for f in (f for f in frames if f["top"] is not None and f["base"]):
+        left, right = f["base"]
+        for shape in f["sauce"]:
+            assert shape["left"] >= left - 0.5 and shape["right"] <= right + 0.5, (
+                f["t"],
+                shape,
+            )
+            if not shape["plain"]:
+                assert shape["top"] >= f["top"] - 0.6, (f["t"], shape["top"], f["top"])
+    assert any(
+        shape["plain"] and shape["top"] < frames[-1]["top"] - 3
+        for f in frames
+        for shape in f["sauce"]
+    )
+    for f in frames:
+        if f["t"] >= contact + 400:
+            assert not [x for x in f["sauce"] if x["plain"]], (f["t"], f["sauce"])
 
 
 def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
@@ -1071,6 +1428,76 @@ def test_nothing_below_the_top_moves_when_a_serve_finishes(ui):
             assert frame[-1][1] >= replaced - 5, (run["hold"], frame[-1], poured)
         checked += 1
     assert checked >= 10, ui["whippyRelease"]
+
+
+def test_a_topped_serve_holds_long_enough_to_see_its_finish(ui):
+    # P2.0x review (2026-10-24): the settled sauce was up for about 150ms before the next cone
+    # slid in. A serve with a topping holds about 350ms longer; a plain pour keeps its beat.
+    holds = ui["resultHolds"]
+    assert set(holds) == {"pub", "topped"}, holds
+    assert all("+" in h["said"] for h in holds.values()), holds
+    assert 1100 <= holds["pub"]["ms"] <= 1200, holds
+    assert holds["topped"]["ms"] >= holds["pub"]["ms"] + 300, holds
+
+
+def test_sprinkles_cover_the_tip_and_two_turns(ui):
+    # Owner picked spread A (2026-10-26): the sprinkles reach about 40% down the swirl, not just
+    # the tip, and none sits above the top of the serve.
+    s = ui["sprinkles"]
+    assert len(s["ys"]) >= 80, s  # 46 strands, two ends each
+    tip, lowest = min(s["tops"]), max(s["tops"])
+    assert min(s["ys"]) >= tip - 1, s
+    assert max(s["ys"]) - min(s["ys"]) >= 0.3 * (lowest - tip), s
+
+
+def _lean(pts):
+    # The bar's long axis, from its points' spread, in degrees off upright (positive leans right).
+    n = len(pts)
+    mx = sum(p[0] for p in pts) / n
+    my = sum(p[1] for p in pts) / n
+    sxx = sum((p[0] - mx) ** 2 for p in pts)
+    syy = sum((p[1] - my) ** 2 for p in pts)
+    sxy = sum((p[0] - mx) * (p[1] - my) for p in pts)
+    axis = 0.5 * math.atan2(2 * sxy, sxx - syy)
+    ux, uy = math.cos(axis), math.sin(axis)
+    if uy > 0:  # point it up the screen
+        ux, uy = -ux, -uy
+    return math.degrees(math.atan2(ux, -uy))
+
+
+def test_the_flake_goes_in_like_a_real_one(ui):
+    # P2.0y, look E (owner, 2026-10-26): the 99's flake is pushed into the side of the swirl a
+    # turn below the top, leaning out about 25 degrees, behind the turns; and, short or on the
+    # line, no part of it ever rises above the top of the serve (it once stood over a short one).
+    # A serve too short to stand one in under its top goes without (Codex, round 1).
+    runs = ui["flakes"]
+    assert len(runs) >= 12, runs
+    for run in runs:
+        seen = [f for f in run["frames"] if f["flake"] and f["top"] is not None]
+        assert seen or run["hold"] < 500, run["hold"]
+        for f in seen:
+            assert f["flake"]["top"] >= f["top"] - 0.6, (
+                run["hold"],
+                f["flake"]["top"],
+                f["top"],
+            )
+        if not seen:
+            continue
+        last = seen[-1]
+        bar = last["flake"]
+        assert bar["at"] < last["firstTurn"], run["hold"]  # behind the turns
+        lean = _lean(bar["pts"])
+        assert 18 <= lean <= 32, (run["hold"], lean)
+        assert (bar["top"] + bar["bottom"]) / 2 > last["top"], run["hold"]
+        # its foot is well down the swirl, not at the top turn
+        assert bar["bottom"] >= last["top"] + 0.35 * (last["bottom"] - last["top"]), (
+            run["hold"],
+            bar,
+            last,
+        )
+        assert sum(p[0] for p in bar["pts"]) / len(bar["pts"]) > last["middle"], run[
+            "hold"
+        ]
 
 
 def test_the_scene_holds_still_when_the_result_replaces_the_hint(ui):
@@ -1258,3 +1685,338 @@ def test_every_shipped_accent_reads_against_the_room(path):
     for ground in ("bg", "panel"):
         assert _contrast(theme["accent"], theme[ground]) >= 4, ground
     assert _contrast(theme["accentInk"], theme["accent"]) >= 4.5
+
+
+def _opaque(colour):
+    return isinstance(colour, str) and re.fullmatch(
+        r"#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6}", colour
+    )
+
+
+@pytest.mark.parametrize("venue", ["pub", "?skin=icecream"])
+def test_a_pours_score_reads_over_whatever_is_behind_it(ui, venue):
+    # P2.0z: the whippy's "+N" faded into a grey smudge over the white machine: a half-black
+    # outline, and the whole float fading out. Every frame it is drawn, it is drawn whole, with
+    # a solid outline; over the machine's metal and over the room, the outline or the fill
+    # stands 3:1 off what is behind it.
+    skin = "giddy-puffin" if venue != "pub" else "wobbly-gull"
+    theme = json.loads(
+        (REPO_ROOT / "play" / "pour" / "skins" / f"{skin}.json").read_text(
+            encoding="utf-8"
+        )
+    )["theme"]
+    seen = ui["floats"][venue]
+    drawn = [f for f in seen["frames"] if f]
+    assert len(drawn) > 30, seen["say"]  # it is up for most of a second
+    assert not seen["frames"][-1], "the float has gone by 1.6 s"
+    for frame in drawn:
+        outline = [x for x in frame if x["op"] == "strokeText"]
+        fill = [x for x in frame if x["op"] == "fillText"]
+        assert outline and fill
+        for x in frame:
+            assert x["alpha"] == 1, x
+        for x in outline:
+            assert _opaque(x["stroke"]), x
+            size = float(re.match(r"\d+ ([\d.]+)px", x["font"]).group(1))
+            assert x["width"] >= size * 0.15, x
+            for ground in ("metal", "bg", "panel"):
+                if ground in theme:
+                    best = max(
+                        _contrast(x["stroke"], theme[ground]),
+                        _contrast(fill[0]["fill"], theme[ground]),
+                    )
+                    assert best >= 3, (ground, x)
+            assert _contrast(x["stroke"], fill[0]["fill"]) >= 3, x
+
+
+def _rule(css, selector):
+    m = re.search(re.escape(selector) + r"\{([^}]*)\}", css)
+    assert m, selector
+    return dict(p.split(":", 1) for p in m.group(1).split(";") if ":" in p)
+
+
+@pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
+def test_the_waiting_button_stays_in_the_venues_own_colours(path):
+    # P2.0z: between pours the button sat at 45% opacity over the room, a muddy mauve on every
+    # venue. Waiting, it is painted in the skin's own solid colours, and its words still read.
+    theme = json.loads(path.read_text(encoding="utf-8"))["theme"]
+    wait = _rule(_text("play/pour/index.html"), ".btn.wait")
+    assert "opacity" not in wait or float(wait["opacity"]) >= 1, wait
+    colours = {}
+    for prop in ("background", "color"):
+        key = re.fullmatch(r"var\(--(\w+)\)", wait.get(prop, "").strip())
+        assert key, (prop, wait)
+        colours[prop] = theme[key.group(1)]
+        assert _opaque(colours[prop]), (prop, colours[prop])
+    assert _contrast(colours["color"], colours["background"]) >= 4.5
+
+
+# --- P2.1h: the café looks like a café -----------------------------------------------
+
+
+def _cafe():
+    path = GAME / "skins" / "dozy-otter.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _cappuccinos(skin):
+    return [
+        r["serve"] for r in skin["rounds"] if "cappuccino" in r["serve"]["name"].lower()
+    ]
+
+
+def test_every_coffee_stands_on_a_cream_saucer_and_steams():
+    skin = _cafe()
+    saucer = skin["drink"]["vessel"]
+    xs = [p[0] for p in saucer["points"]]
+    assert min(xs) < 0 and max(xs) > 100, "a saucer is wider than the base it holds"
+
+    assert skin["drink"]["steam"] is True
+    for r in skin["rounds"]:
+        assert "vessel" not in r["serve"] or r["serve"]["vessel"] == saucer
+
+
+def test_the_cappuccinos_have_a_handle_and_cocoa_and_nothing_else_does():
+    skin = _cafe()
+    cups = _cappuccinos(skin)
+    assert len(cups) == 2
+    for serve in cups:
+        assert 3 <= len(serve["handle"]["points"]) <= 24
+        assert serve["topping"]["kind"] == "dust"
+        assert serve["topping"]["colours"] == ["#5b3521"]
+    others = [r["serve"] for r in skin["rounds"] if r["serve"] not in cups]
+    assert all("handle" not in s and "topping" not in s for s in others)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda s: s["drink"].update(steam=True),
+        lambda s: s["drink"].update(
+            vessel={
+                "points": [[-40, 99], [140, 99], [100, 108], [0, 108]],
+                "colour": "#f3eadf",
+            }
+        ),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [115, 30], [88, 56]]}),
+        lambda s: s["rounds"][1].update(
+            serve={
+                "name": "A latte",
+                "topping": {"kind": "dust", "colours": ["#5b3521"]},
+                "steam": False,
+            }
+        ),
+    ],
+)
+def test_steam_handles_dust_and_a_wide_saucer_validate(latte, change):
+    assert run(latte(change), ["line", "line"])["problems"] == []
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda s: s["drink"].update(steam="yes"),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [115, 30]]}),
+        lambda s: s["drink"].update(
+            handle={"points": [[90, 17], [115, 30], [88, 160]]}
+        ),
+        lambda s: s["drink"].update(handle={"points": [[90, 17], [215, 30], [88, 56]]}),
+        lambda s: s["drink"].update(handle=[[90, 17], [115, 30], [88, 56]]),
+        lambda s: s["drink"].update(
+            vessel={"points": [[-60, 99], [140, 99], [100, 108]], "colour": "#f3eadf"}
+        ),
+        lambda s: s["drink"].update(
+            vessel={"points": [[0, 99], [160, 99], [100, 108]], "colour": "#f3eadf"}
+        ),
+        lambda s: s["rounds"][1].update(
+            serve={"name": "A latte", "topping": {"kind": "dust", "colours": []}}
+        ),
+        lambda s: s["rounds"][1].update(serve={"name": "A latte", "steam": 1}),
+    ],
+)
+def test_nonsense_steam_handles_and_saucers_are_refused(latte, change):
+    assert run(latte(change), ["line", "line"])["problems"] != []
+
+
+def test_the_cafe_draws_its_handle_steam_and_cocoa_as_they_arrive(ui):
+    looks = ui["cafeLook"]
+    assert len(looks) == len(_cafe()["rounds"])
+    for n, look in enumerate(looks):
+        cup = look["dust"]
+        for when in ("rest", "pouring", "atRelease", "early", "settled", "later"):
+            # the handle is part of the glass: there whenever the serve has one
+            assert look[when]["handle"] == cup, (n, when)
+        # nothing steams or is dusted until it is poured and served
+        for when in ("rest", "pouring", "atRelease"):
+            assert not look[when]["steam"], (n, when)
+            assert look[when]["dust"] == [], (n, when)
+        assert look["settled"]["steam"] and look["later"]["steam"], n
+        if cup:
+            early, settled, later = (
+                look["early"]["dust"],
+                look["settled"]["dust"],
+                look["later"]["dust"],
+            )
+            assert settled, n
+            # sifted on, then still: every grain has stopped within about half a second
+            assert early != settled, n
+            assert settled == later, n
+        else:
+            assert look["settled"]["dust"] == [], n
+
+
+def test_a_resize_never_leaves_the_scene_blank_for_a_frame(ui):
+    # P2.1i (owner's screen recording, 2026-10-27): one frame after letting go, the whole scene
+    # went blank. The stage had resized, which wipes a canvas, and nothing drew on it until the
+    # next animation frame, so the browser showed it empty. A resize now repaints at once.
+    runs = ui["resizeRepaint"]
+    assert len(runs) == 6, runs
+    for run in runs:
+        assert run["wiped"], run
+        assert run["after"] > 0, run
+
+
+def test_no_screen_can_scroll_sideways():
+    # P2.1i: the result's pop scales the verdict to 110%, past the screen's edge. A screen that
+    # scrolls (overflow-y:auto) scrolls sideways too unless told not to, so a desktop browser
+    # put a scrollbar under it for a moment, which took height from the stage and wiped the scene.
+    html = _text("play/pour/index.html")
+    for selector in (r"\.title", r"\.claim", r"\.play", r"\.doneBody"):
+        rule = re.search(r"\n    " + selector + r"\{([^}]*)\}", html).group(1)
+        assert "overflow-y:auto" in rule, selector
+        assert "overflow-x:hidden" in rule, selector
+
+
+# --- the live board -------------------------------------------------------------
+
+
+def _engine(script):
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run play/pour/engine.js in the tests"
+    code = f"const E = require({json.dumps(str(GAME / 'engine.js'))});\nconsole.log(JSON.stringify((() => {{ {script} }})()));"
+    done = subprocess.run(
+        [node, "-e", code],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_a_nickname_is_an_adjective_and_an_animal_from_the_word_list():
+    words = json.loads(_text("play/pour/nicknames.json"))
+    got = _engine(
+        f"const w = {json.dumps(words)}; return [0, 0.5, 0.999999].map(r => E.nickname(w, () => r));"
+    )
+    assert got[0] == f"{words['adjectives'][0]} {words['animals'][0]}"
+    for name in got:
+        adjective, animal = name.split(" ")
+        assert adjective in words["adjectives"] and animal in words["animals"]
+
+
+def test_live_scores_join_the_samples_and_the_players_own_comes_off_once(latte):
+    skin = json.loads(latte().read_text(encoding="utf-8"))
+    live = [
+        {"name": "Brave Heron", "score": 120},
+        {"name": "Calm Owl", "score": 120},
+        {"name": "x", "score": -5},
+        7,
+    ]
+    got = _engine(
+        f"const s = {json.dumps(skin)};"
+        f"const w = E.withLive(s, {json.dumps(live)}, 'Brave Heron');"
+        "return { rows: E.board(w, 120), top: E.topScore(E.withLive(s, [{ name: 'Calm Owl', score: 190 }])), none: E.withLive(s, null).sampleScores.length };"
+    )
+    assert [(r["name"], r["score"], r.get("you", False)) for r in got["rows"]] == [
+        ("Bean", 150, False),
+        ("You", 120, True),
+        ("Calm Owl", 120, False),
+        ("Milo", 90, False),
+    ]
+    assert got["top"] == 190
+    assert got["none"] == len(skin["sampleScores"])
+
+
+def test_a_players_place_is_their_best_this_week(latte):
+    # The server keeps a name's best, so a lower replay leaves the player where they were.
+    skin = json.loads(latte().read_text(encoding="utf-8"))
+    live = [{"name": "Brave Heron", "score": 190}, {"name": "Calm Owl", "score": 170}]
+    got = _engine(
+        f"const s = {json.dumps(skin)}; const l = {json.dumps(live)};"
+        "const w = E.withLive(s, l, 'Brave Heron');"
+        "return { names: w.sampleScores.map(r => r.name), at: E.standing(l, 'Brave Heron', 120),"
+        " higher: E.standing(l, 'Brave Heron', 200), stranger: E.standing(l, 'Keen Vole', 60),"
+        " none: E.standing(null, 'Brave Heron', 60) };"
+    )
+    assert "Brave Heron" not in got["names"] and "Calm Owl" in got["names"]
+    assert (got["at"], got["higher"], got["stranger"], got["none"]) == (
+        190,
+        200,
+        60,
+        60,
+    )
+
+
+def test_after_a_lower_replay_the_board_shows_the_players_best_as_theirs(ui):
+    got = ui["lowerReplay"]
+    assert got["done"] and got["total"] < 500
+    names = [row[1] for row in got["board"] if len(row) > 1]
+    assert "Brave Heron" not in names
+    assert got["board"][0] == ["1.", "You", "500"]
+    assert got["goal"] == got["topLine"]
+
+
+def test_off_the_top_ten_the_player_still_stands_at_their_best(ui):
+    got = ui["offTheTop"]
+    assert got["total"] < 400
+    you = [row for row in got["board"] if len(row) > 1 and row[1] == "You"]
+    assert you and you[0][2] == "400"
+
+
+def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui):
+    title = ui["liveTitle"]
+    assert title == {
+        "named": False,
+        "nick": "Brave Heron",
+        "beat": title["beat"],
+        "badge": "Live this week",
+    }
+    assert "480" in title["beat"]
+    done = ui["liveDone"]
+    assert done["done"]
+    assert set(done["posted"]) == {"skin", "name", "score"}
+    assert (
+        done["posted"]["skin"] == "wobbly-gull"
+        and done["posted"]["name"] == "Brave Heron"
+    )
+    assert done["board"][0] == ["1.", "Calm Owl", "480"]
+    assert ["You"] == [row[1] for row in done["board"] if row and row[1] == "You"]
+
+
+def test_the_phone_remembers_its_name_and_change_replaces_it(ui):
+    got = ui["remember"]
+    assert got["fresh"] == {"nick": "Brave Heron", "stored": "Brave Heron"}
+    assert got["kept"]["nick"] == "Calm Owl"
+    assert got["kept"]["posted"] == "Calm Owl"
+    assert got["changed"]["nick"] != "Calm Owl"
+    assert got["changed"]["stored"] == got["changed"]["nick"]
+    # A stored name the game couldn't give is replaced, not shown.
+    assert got["junk"]["nick"] in {"Brave Heron", "Brave Owl", "Calm Heron", "Calm Owl"}
+    assert got["junk"]["stored"] == got["junk"]["nick"]
+    # Only the name is kept, under its one key.
+    assert got["keys"] == ["pour.name"]
+    # Where storage is blocked, the visit still gets a name.
+    assert got["blocked"]["nick"] == "Brave Heron" and got["blocked"]["named"] is False
+
+
+def test_the_page_says_the_phone_keeps_its_name():
+    html = _text("play/pour/index.html")
+    assert "This phone remembers its name" in html
+    policy = _text("privacy/index.html")
+    assert "remembers the name" in policy and "Change" in policy
+
+
+def test_offline_the_game_asks_for_the_board_and_posts_nothing(ui):
+    assert ui["offlineSent"] == ["/api/pour/board?skin=wobbly-gull", "nicknames.json"]

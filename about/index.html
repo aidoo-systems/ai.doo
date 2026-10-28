@@ -15,10 +15,13 @@
 
   <link rel="stylesheet" href="../style.css">
   <style>
-    /* About (P2.1g, D-023): a family studio, plainly. The photo of Keith and Bineeta is still to come */
-    .aboutHero{display:grid;grid-template-columns:minmax(0,1fr);gap:48px;align-items:center;padding-bottom:24px}
+    /* About (P2.1g, D-023): a family studio, plainly, with Keith and then Keith and Bineeta */
+    .aboutHero{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:48px;align-items:center;padding-bottom:24px}
     .aboutHero .sub{font-size:clamp(17px,1.5vw,20px);max-width:52ch}
-    .photo{aspect-ratio:4/5;border-radius:28px;background:#1f1d1b;border:2px dashed rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px;padding:24px}
+    .portrait{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:28px}
+    .family{margin:28px 0 8px}
+    .family img{display:block;width:100%;height:auto;aspect-ratio:5/4;object-fit:cover;border-radius:28px}
+    .family figcaption{margin-top:10px;color:var(--muted);font-size:14px}
     .story{max-width:64ch}
     .story p{color:var(--muted);font-size:17px;line-height:1.7;margin:0 0 16px}
     .story h2{margin:0 0 12px}
@@ -32,7 +35,7 @@
     .allMade{margin:18px 0 0;font-size:15px}
     @media (max-width:920px){
       .aboutHero{grid-template-columns:1fr;gap:28px}
-      .photo{max-width:320px}
+      .portrait{max-width:320px}
     }
     @media (max-width:640px){.made{grid-template-columns:1fr}}
   </style>
@@ -70,7 +73,7 @@
         <li><b>Games out</b> on Google Play</li>
       </ul>
     </div>
-    <!-- The photo of Keith and Bineeta goes here (4:5), with the grid's second column back at 300px. -->
+    <img class="portrait" src="../images/about/keith.webp" width="720" height="900" alt="Keith, smiling, in a blue blazer">
   </section>
 
   <section class="section">
@@ -85,6 +88,10 @@
         Everything gets played at our kitchen table first. If Luke puts it down after a minute, it
         goes back in the oven.
       </p>
+      <figure class="family">
+        <img src="../images/about/keith-bineeta.webp" width="1000" height="800" alt="Keith and his wife Bineeta, smiling" loading="lazy">
+        <figcaption>Bineeta and me.</figcaption>
+      </figure>
       <p>
         I care about the small stuff: that it opens fast, feels good under your thumb, and doesn't ask
         for your email or fill your screen with ads.
@@ -144,6 +151,13 @@
         <div><a href="/">ai.doo home</a></div>
         <div><a href="/promo-games/">Promo games</a></div>
         <div><a href="mailto:hello@aidoo.biz">hello@aidoo.biz</a></div>
+        <div style="margin-top:6px;">
+          <a href="https://www.facebook.com/profile.php?id=61595609953908" target="_blank" rel="me noopener">Facebook</a> &bull;
+          <a href="https://www.instagram.com/studioaidoo/" target="_blank" rel="me noopener">Instagram</a> &bull;
+          <a href="https://www.tiktok.com/@studioaidoo" target="_blank" rel="me noopener">TikTok</a> &bull;
+          <a href="https://www.linkedin.com/company/ai-doo/" target="_blank" rel="me noopener">LinkedIn</a> &bull;
+          <a href="https://github.com/aidoo-systems" target="_blank" rel="noopener">GitHub</a>
+        </div>
       </div>
     </div>
   </footer>

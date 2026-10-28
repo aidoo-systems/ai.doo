@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 from werkzeug.middleware.proxy_fix import ProxyFix
 from openai import OpenAI
 from site_context import load_site_context
+from board import board
 
 app = Flask(__name__)
 # Caddy is the one proxy in front of gunicorn (bound to 127.0.0.1), so without this
@@ -13,6 +14,7 @@ app = Flask(__name__)
 # exactly one X-Forwarded-For hop: the value Caddy adds. Anything a client sent
 # before it is ignored, so a forged header can't buy a fresh limit.
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1)
+app.register_blueprint(board)  # the pour demo's weekly board
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
@@ -74,7 +76,7 @@ Key facts about ai.doo:
 
 Promo games for businesses and events (the offer page is aidoo.biz/promo-games/):
 - A short branded game that customers play in their phone's browser from a QR code; nothing to download
-- A playable demo: aidoo.biz/play/pour/ is a made-up pub, and aidoo.biz/play/pour/?skin=dozy-otter is the same game as a made-up café. Suggest it to anyone asking what a promo game is like. The scores on the demo's board are samples
+- A playable demo: aidoo.biz/play/pour/ is a made-up pub, and aidoo.biz/play/pour/?skin=dozy-otter is the same game as a made-up café. Suggest it to anyone asking what a promo game is like. The demo's board is live: each visit gets a random name like "Brave Heron", every finished game goes on that week's board, and a few sample scores sit among them so it is never empty
 - From £750, agreed in writing before any payment. £750 covers one simple one-tap game themed to the business, for one location; a brand-new game idea, several locations or a longer run costs more
 - Nothing is paid until the customer has said yes to a game idea. Then a £300 deposit by bank transfer starts the build, and the rest is due when the game goes live. The deposit is not refunded once work starts; if they decide not to go live, nothing more is owed
 - How it goes: a 20-minute chat, about two weeks to build with one round of changes, then three months live. After that it switches off, or stays on for £25 a month

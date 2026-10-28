@@ -6,8 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **A live board on the demo game** (P2.0c, D-036): each visit gets a random name like "Brave Heron", every finished game goes on that week's board, and the board shows the week's real top ten among the sample scores. It stores the venue, name, score and week, and nothing else; the privacy policy says so (4b)
+
+### Fixed
+
+- **No flash when a pour is let go** (P2.1i): the result's pop no longer pushes a scrollbar under the game on a desktop browser, and the scene repaints at once whenever its size changes, so it never shows a blank frame
+
 ### Changed
 
+- **The café looks like a café** (P2.1h, D-034): every coffee stands on a cream saucer and steams once poured; the cappuccinos have a glass handle and cocoa dusted on the foam. A skin can now give a serve a handle and steam, a saucer wider than the glass, and a fine dust finish
+- **The pub and the café change drinks each round** (P2.0v): the pub pours a lager, an ale and a cider; the café a flat white, a latte and a cappuccino, each in its own colour and with its own head or foam
 - **The promo game pours milk too** (P2.0s): a made-up dairy, Sleepy Cow, at `/play/pour/?skin=dairy`. The milk comes from a carton that glugs, into a straight glass with no bubbles, and the prize is a week's milk
 - **Keeping a promo game live has a price**: £25 a month after the first three months, on the promo-games page and in the chatbot's answers
 - **The venue's name stays in sight in the promo game** (P2.0f): the pub's and the café's name and emblem now show while you play and on the results, and the emblem is on the tap's handle and the milk jug

@@ -22,7 +22,7 @@ let sayFlex = false;
 const SAY_HINT = 70.2;
 
 // tweak: a change made to every skin file as it is fetched, to try a skin nobody ships.
-function boot(search, tweak) {
+function boot(search, tweak, live) {
   let clock = 1000;
   let frames = [];
   let timers = [];
@@ -30,12 +30,14 @@ function boot(search, tweak) {
   const observers = [];
   let seenStage = null;
   const fetched = [];
+  const sent = [];
   const sounds = [];
   const drawn = []; // every canvas call, by name, in order
   const stops = []; // every colour a gradient was given
   const paths = []; // every SVG path the canvas was asked to build
   const arcs = []; // every circle drawn: x, y and radius
   const trace = []; // every canvas call and setting, with its values, to compare frames exactly
+  const texts = []; // P2.0z: every line of text drawn, with the paint and alpha it was drawn in
   const fmt = (v) => (typeof v === "number" ? v.toFixed(2) : typeof v === "string" ? v : typeof v);
 
   // Where the canvas's own transform puts a point, so a test can ask how high a pourer reaches.
@@ -50,6 +52,12 @@ function boot(search, tweak) {
   let pathLeft = Infinity;
   let pathRight = -Infinity;
   let pathCircles = false;
+  // P2.0x: the canvas's globalAlpha (saved and restored with the state), and, when a scenario
+  // asks (capture), every filled path's points, to measure its shape.
+  let alpha = 1;
+  const alphas = [];
+  let capture = false;
+  let pathPts = [];
   let gradientFill = false;
   let fillColour = null;
   // Every dashed straight line (the line to pour to): its ends, and whether a clip cuts it.
@@ -66,14 +74,15 @@ function boot(search, tweak) {
     const xx = m[0] * x + m[2] * y + m[4];
     pathLeft = Math.min(pathLeft, xx);
     pathRight = Math.max(pathRight, xx);
+    pathPts.push([xx, yy]);
     return Math.abs(m[1]) > 1e-9 && (reach.top = Math.min(reach.top, yy));
   };
   const moves = {
-    beginPath: () => ((pathTop = Infinity), (pathBottom = -Infinity), (pathLeft = Infinity), (pathRight = -Infinity), (pathCircles = false)),
-    fill: () => fills.push({ gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, bottom: pathBottom, left: pathLeft, right: pathRight, circles: pathCircles, colour: fillColour, at: drawn.length }),
+    beginPath: () => ((pathPts = []), (pathTop = Infinity), (pathBottom = -Infinity), (pathLeft = Infinity), (pathRight = -Infinity), (pathCircles = false)),
+    fill: () => fills.push({ alpha, pts: capture ? pathPts.slice() : null, gradient: !!gradientFill, stops: gradientFill ? gradientFill.stops : [], top: pathTop, bottom: pathBottom, left: pathLeft, right: pathRight, circles: pathCircles, colour: fillColour, at: drawn.length }),
     arc: () => (pathCircles = true),
-    save: () => (saved.push(m.slice()), clips.push(clipped)),
-    restore: () => ((m = saved.pop() || [1, 0, 0, 1, 0, 0]), (clipped = clips.pop() || false)),
+    save: () => (saved.push(m.slice()), clips.push(clipped), alphas.push(alpha)),
+    restore: () => ((m = saved.pop() || [1, 0, 0, 1, 0, 0]), (clipped = clips.pop() || false), (alpha = alphas.length ? alphas.pop() : 1)),
     clip: () => (clipped = true),
     setLineDash: (d) => (dashed = d.length > 0),
     setTransform: (a, b, c, d, e, f) => (m = [a, b, c, d, e, f]),
@@ -95,17 +104,23 @@ function boot(search, tweak) {
     bezierCurveTo: (x1, y1, x2, y2, x, y) => (at(x1, y1), at(x2, y2), at(x, y)),
     fillRect: (x, y, w, h) => (at(x, y), at(x + w, y + h), at(x, y + h), at(x + w, y)),
     // an unturned ellipse's top and bottom (the whippy's tip is a run of them)
-    ellipse: (x, y, rx, ry, turn) => !turn && (at(x, y - ry), at(x, y + ry)),
+    // a half ellipse swept the short way round is the round end of a drip (P2.0x)
+    ellipse: (x, y, rx, ry, turn, a0, a1) => {
+      if (Math.abs((a0 || 0) - Math.PI) < 1e-6 && Math.abs(a1 || 0) < 1e-6) pathCircles = true;
+      if (!turn) (at(x, y - ry), at(x, y + ry));
+      pathPts.push([m[0] * (x - rx) + m[2] * y + m[4], m[1] * (x - rx) + m[3] * y + m[5]], [m[0] * (x + rx) + m[2] * y + m[4], m[1] * (x + rx) + m[3] * y + m[5]]);
+    },
   };
 
   const paint = new Proxy({}, {
     get: (t, p) => (p in t ? t[p] : (...args) => {
+      (p === "fillText" || p === "strokeText") && texts.push({ op: p, text: args[0], alpha, fill: t.fillStyle, stroke: t.strokeStyle, width: t.lineWidth, font: t.font }),
       moves[p] && moves[p](...args), drawn.push(p), trace.push(p + "(" + args.map(fmt) + ")"), p === "arc" && arcs.push(args.slice(0, 3));
       const gradient = { stops: [] };
       gradient.addColorStop = (at, colour) => (trace.push("stop(" + fmt(at) + "," + colour + ")"), stops.push(colour), gradient.stops.push(colour));
       return gradient;
     }),
-    set: (t, p, v) => ((t[p] = v), p === "fillStyle" && ((gradientFill = typeof v === "object" && v), (fillColour = typeof v === "string" ? v : null)), trace.push(p + "=" + fmt(v)), true),
+    set: (t, p, v) => ((t[p] = v), p === "globalAlpha" && (alpha = v), p === "fillStyle" && ((gradientFill = typeof v === "object" && v), (fillColour = typeof v === "string" ? v : null)), trace.push(p + "=" + fmt(v)), true),
   });
 
   function element(id) {
@@ -135,6 +150,11 @@ function boot(search, tweak) {
       return { width: 375, height, left: 0, top: 0, right: 375, bottom: height };
     };
     e.getContext = () => paint;
+    // P2.1i: sizing a canvas wipes it, as a browser does, so a test can see what is drawn after.
+    for (const side of ["width", "height"]) {
+      let size = 0;
+      Object.defineProperty(e, side, { get: () => size, set: (v) => ((size = v), drawn.push("resized:" + id)) });
+    }
     e.firstElementChild = { attrs: {}, setAttribute: (k, v) => (e.firstElementChild.attrs[k] = String(v)) };
     e.parentNode = { id: id + "-parent" };
     return e;
@@ -179,6 +199,13 @@ function boot(search, tweak) {
   document.createTextNode = (text) => ({ textContent: text });
 
   const window = element("window");
+  // The phone's own storage: what a scenario stored before (live.stored), or blocked
+  // (live.blocked), as in a private window that throws on every call.
+  const stored = new Map(Object.entries((live && live.stored) || {}));
+  const storage = {
+    getItem: (k) => (stored.has(k) ? stored.get(k) : null),
+    setItem: (k, v) => void stored.set(k, String(v)),
+  };
   Object.assign(window, {
     window,
     document,
@@ -201,13 +228,27 @@ function boot(search, tweak) {
       : undefined,
     requestAnimationFrame: (fn) => frames.push(fn),
     setTimeout: (fn, ms) => timers.push({ at: clock + ms, fn }),
-    fetch: (url) => {
+    fetch: (url, init) => {
+      // The week's board and its nickname words, when a scenario serves them (live);
+      // otherwise they're unreachable, as on a page opened from a file.
+      if (url === "nicknames.json" || url.startsWith("/api/")) {
+        sent.push({ url, body: init && init.body ? JSON.parse(init.body) : null });
+        if (!live) return Promise.resolve({ ok: false, status: 404 });
+        const got = url === "nicknames.json" ? live.words : live.board;
+        return Promise.resolve({ ok: true, json: () => Promise.resolve(got) });
+      }
       fetched.push(url);
       const file = path.join(GAME, url.split("?")[0]);
       if (!fs.existsSync(file)) return Promise.resolve({ ok: false, status: 404 });
       const skin = JSON.parse(fs.readFileSync(file, "utf8"));
       if (tweak) tweak(skin);
       return Promise.resolve({ ok: true, json: () => Promise.resolve(skin) });
+    },
+  });
+  Object.defineProperty(window, "localStorage", {
+    get() {
+      if (live && live.blocked) throw new Error("SecurityError");
+      return storage;
     },
   });
   vm.createContext(window);
@@ -230,15 +271,19 @@ function boot(search, tweak) {
   return {
     get,
     window,
+    stored,
     document,
     fetched,
+    sent,
     sounds,
     drawn,
     stops,
     paths,
     arcs,
     trace,
+    texts,
     reach,
+    capturing: (on) => (capture = on),
     fills,
     dashes,
     settle,
@@ -270,8 +315,8 @@ function boot(search, tweak) {
   };
 }
 
-async function started(search, tweak) {
-  const page = boot(search || "", tweak);
+async function started(search, tweak, live) {
+  const page = boot(search || "", tweak, live);
   for (let i = 0; i < 6; i++) await page.settle();
   page.get("start").fire("click", {});
   page.advance(100);
@@ -496,10 +541,32 @@ async function started(search, tweak) {
     seen.toppingWhilePouring = paints(page.trace, finish);
     page.up(1);
     page.trace.length = 0;
-    page.advance(400);
+    page.advance(700); // a scatter waits for the sparkle to go (spread A)
     seen.toppingAfter = paints(page.trace, finish);
-    page.advance(1400);
+    page.advance(1100);
     out.whippyRounds.push(seen);
+  }
+  // P2.0v: the pub and the café rotate their drinks. Each round says its drink and pours it
+  // in its own colour, mid-pour.
+  out.drinkRounds = {};
+  for (const id of ["wobbly-gull", "dozy-otter"]) {
+    const skin = JSON.parse(fs.readFileSync(path.join(GAME, "skins", id + ".json"), "utf8"));
+    out.drinkRounds[id] = [];
+    page = await started("?skin=" + id);
+    for (const r of skin.rounds) {
+      const own = Object.assign({}, skin.drink, r.serve || {});
+      page.advance(500);
+      const seen = { say: page.get("say").textContent };
+      page.down(1);
+      page.advance(600);
+      page.trace.length = 0;
+      page.advance(16);
+      seen.liquid = paints(page.trace, [own.liquid]);
+      seen.head = paints(page.trace, [own.head]);
+      page.up(1);
+      page.advance(1800);
+      out.drinkRounds[id].push(seen);
+    }
   }
   // D-030: the stack is laid coil by coil, each a tilted turn, so a longer pour draws more.
   page = await started("?skin=icecream");
@@ -559,10 +626,41 @@ async function started(search, tweak) {
       page.advance(16);
       const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
       const coat = page.fills.filter((f) => (f.stops.includes(sauce) || f.colour === sauce) && f.top < Infinity);
-      if (stack.length) frames.push({ top: Math.min(...stack.map((f) => f.top)), base: [stack[0].left, stack[0].right], sauce: coat.map((f) => [f.top, f.left, f.right, f.circles]) });
+      if (stack.length) frames.push({ top: Math.min(...stack.map((f) => f.top)), base: [stack[0].left, stack[0].right], sauce: coat.map((f) => [f.top, f.left, f.right, f.circles, f.colour === sauce]) });
     }
     out.whippySauce.push({ hold, say: page.get("say").textContent, frames });
   }
+  // P2.0x, the drizzle's motion: every frame from release to the next glass, 16ms apart, of the
+  // sauce's shapes (with the points of the plain-filled ones, the falling thread), the serve's
+  // top, and whether a glint is being drawn.
+  page = await started("?skin=icecream");
+  page.advance(500);
+  page.down(1);
+  page.advance(700);
+  page.up(1);
+  page.advance(2500);
+  page.down(1);
+  page.advance(800);
+  page.up(1);
+  page.capturing(true);
+  const drizzle = [];
+  for (let t = 0; t <= 1120; t += 16) {
+    page.fills.length = 0;
+    page.trace.length = 0;
+    page.advance(16);
+    const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+    const coat = page.fills.filter((f) => (f.stops.includes(sauce) || f.colour === sauce) && f.top < Infinity);
+    drizzle.push({
+      t: t + 16,
+      top: stack.length ? Math.min(...stack.map((f) => f.top)) : null,
+      base: stack.length ? [stack[0].left, stack[0].right] : null,
+      turn: stack.length ? stack.map((f) => f.bottom - f.top).sort((x, y) => x - y)[Math.floor(stack.length / 2)] : null,
+      glint: page.trace.some((l) => /^strokeStyle=rgba\(255,255,255,0\.([7-9]\d*)\)/.test(l)),
+      sauce: coat.map((f) => ({ top: f.top, bottom: f.bottom, left: f.left, right: f.right, circles: f.circles, alpha: f.alpha, plain: f.colour === sauce, pts: f.pts })),
+    });
+  }
+  page.capturing(false);
+  out.whippyDrizzle = { colour: sauce, frames: drizzle };
   // Owner, 2026-10-23: when a serve finished, its base shifted down. Every turn of the stack, on
   // the last frame poured and on each frame of the finish, top and bottom, bottom turn first.
   out.whippyRelease = [];
@@ -747,10 +845,48 @@ async function started(search, tweak) {
     out.whippyStream.after.push({ since: since + 16, arcs: page.arcs.slice() });
   }
 
+  // P2.1h: the café looks like a café. Each round of ?skin=cafe: a handle drawn like the glass,
+  // steam once it's poured and not before, cocoa that is sifted on and settled within about
+  // half a second. The markers are the paints the new drawing uses and nothing else does.
+  const cafeSkin = JSON.parse(fs.readFileSync(path.join(GAME, "skins", "dozy-otter.json"), "utf8"));
+  const HANDLE = "strokeStyle=rgba(255,255,255,.55)";
+  const STEAM = "stop(0.25,rgba(255,248,236,.34))";
+  out.cafeLook = [];
+  page = await started("?skin=cafe");
+  for (const r of cafeSkin.rounds) {
+    const serve = r.serve || {};
+    const dust = serve.topping && serve.topping.kind === "dust" ? serve.topping.colours[0] : null;
+    const look = () => {
+      page.trace.length = 0;
+      page.fills.length = 0;
+      page.advance(16);
+      return {
+        handle: page.trace.includes(HANDLE),
+        steam: page.trace.includes(STEAM),
+        dust: dust ? page.fills.filter((f) => f.colour === dust).map((f) => Math.round(f.top * 10) / 10 + "/" + f.alpha.toFixed(2)) : [],
+      };
+    };
+    page.advance(500);
+    const rest = look();
+    page.down(1);
+    page.advance(700);
+    const pouring = look();
+    page.up(1);
+    page.advance(134);
+    const atRelease = look();
+    page.advance(150);
+    const early = look();
+    page.advance(450);
+    const settled = look();
+    page.advance(250);
+    const later = look();
+    out.cafeLook.push({ name: serve.name, dust: !!dust, rest, pouring, atRelease, early, settled, later });
+    page.advance(1400);
+  }
   // Each shipped skin, call for call: a frame at rest, then a pour held to the end and
   // its result, so a change to one pourer can't quietly redraw another venue.
   out.traces = {};
-  for (const id of ["wobbly-gull", "dozy-otter", "sleepy-cow"]) {
+  for (const id of ["wobbly-gull", "dozy-otter", "sleepy-cow", "giddy-puffin"]) {
     page = await started("?skin=" + id);
     page.trace.length = 0;
     page.advance(16);
@@ -760,6 +896,231 @@ async function started(search, tweak) {
     page.advance(700);
     out.traces[id] = require("crypto").createHash("sha256").update(page.trace.join("\n")).digest("hex");
   }
+
+  // How long a first round's result stays up, from the score showing to the next round's label:
+  // the pub's plain pint against the whippy's first serve, which has a topping.
+  out.resultHolds = {};
+  for (const [id, search] of [["pub", ""], ["topped", "?skin=icecream"]]) {
+    page = await started(search);
+    page.advance(500);
+    const label = page.get("round").textContent;
+    page.down(1);
+    page.advance(700);
+    page.up(1);
+    let shown = null;
+    let said = "";
+    for (let t = 16; t <= 4000; t += 16) {
+      page.advance(16);
+      if (shown === null && page.get("say").textContent.includes("+")) {
+        shown = t;
+        said = page.get("say").textContent;
+      }
+      if (shown !== null && page.get("round").textContent !== label) {
+        out.resultHolds[id] = { said, ms: t - shown };
+        break;
+      }
+    }
+  }
+
+  // The whippy's third serve, settled: each sprinkle's ends, and the tops of the swirl's shapes.
+  {
+    const bits = whippy.rounds[2].serve.topping.colours;
+    page = await started("?skin=icecream");
+    page.advance(500);
+    for (const hold of [700, 800, 900]) {
+      page.down(1);
+      page.advance(hold);
+      page.up(1);
+      if (hold < 900) page.advance(2600);
+    }
+    page.advance(1300);
+    page.fills.length = 0;
+    page.trace.length = 0;
+    page.advance(16);
+    const strands = [];
+    let colour = null;
+    for (const t of page.trace) {
+      if (t.startsWith("strokeStyle=")) colour = t.slice(12);
+      else if (t.startsWith("restore(")) colour = null;
+      else if (bits.includes(colour) && (t.startsWith("moveTo(") || t.startsWith("lineTo("))) strands.push(t.slice(7, -1).split(",").map(Number));
+    }
+    const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+    out.sprinkles = { say: page.get("say").textContent, ys: strands.map((p) => p[1]), tops: stack.map((f) => f.top) };
+  }
+
+  // The 99's flake (P2.0y), short of the line, on it and over: in every frame from release to a
+  // second after, its outline and the top of the swirl; and once settled, whether it is drawn
+  // before the turns (behind them) and where the stack's middle is.
+  out.flakes = [];
+  {
+    const bar = whippy.rounds[0].serve.topping.colours[0];
+    for (const hold of [16, 116, 216, 316, 416, 500, 700, 900, 1100, 1300, 1500, 1700]) {
+      page = await started("?skin=icecream");
+      page.capturing(true);
+      page.advance(500);
+      page.down(1);
+      page.advance(hold);
+      page.up(1);
+      const frames = [];
+      for (let t = 0; t < 1000; t += 16) {
+        page.fills.length = 0;
+        page.advance(16);
+        const stack = page.fills.filter((f) => f.stops.includes(whippy.drink.liquidDeep) && !f.circles && f.top < Infinity);
+        const flake = page.fills.filter((f) => f.colour === bar);
+        frames.push({
+          top: stack.length ? Math.min(...stack.map((f) => f.top)) : null,
+          bottom: stack.length ? Math.max(...stack.map((f) => f.bottom)) : null,
+          middle: stack.length ? (Math.min(...stack.map((f) => f.left)) + Math.max(...stack.map((f) => f.right))) / 2 : null,
+          firstTurn: stack.length ? Math.min(...stack.map((f) => f.at)) : null,
+          flake: flake.length ? { pts: flake[0].pts, at: flake[0].at, top: flake[0].top, bottom: flake[0].bottom } : null,
+        });
+      }
+      page.capturing(false);
+      out.flakes.push({ hold, say: page.get("say").textContent, frames });
+    }
+  }
+
+  // P2.0z: a pour's "+N", frame by frame from letting go until it has gone, on the pub and the whippy.
+  out.floats = {};
+  for (const search of ["", "?skin=icecream"]) {
+    page = await started(search);
+    page.advance(500);
+    page.down(1);
+    page.advance(900);
+    page.up(1);
+    const frames = [];
+    for (let t = 0; t < 1600; t += 16) {
+      page.texts.length = 0;
+      page.advance(16);
+      frames.push(page.texts.filter((x) => String(x.text).startsWith("+")));
+    }
+    out.floats[search || "pub"] = { say: page.get("say").textContent, frames };
+  }
+
+  // P2.1i: the stage resized while pouring and just after letting go (on a desktop the result's
+  // pop once brought up a scrollbar; a phone's address bar does it too). What the scene's canvas
+  // gets between the resize and the next animation frame: a browser shows that frame as it is.
+  out.resizeRepaint = [];
+  sayFlex = true;
+  for (const search of ["", "?skin=cafe", "?skin=icecream"]) {
+    for (const when of ["pouring", "released"]) {
+      page = await started(search);
+      page.advance(500);
+      page.down(1);
+      page.advance(700);
+      if (when === "released") {
+        page.up(1);
+        page.advance(220);
+      }
+      page.drawn.length = 0;
+      page.get("say").style.minHeight = "90px"; // the stage gives up 20px or more
+      page.window.fire("resize", {});
+      const drawn = page.drawn.slice();
+      const wiped = drawn.lastIndexOf("resized:scene");
+      out.resizeRepaint.push({ search, when, wiped: wiped >= 0, after: wiped >= 0 ? drawn.slice(wiped + 1).filter((p) => p === "fill" || p === "fillRect" || p === "stroke").length : 0 });
+    }
+  }
+  sayFlex = false;
+
+  // P2.0c: the week's board, served. The title names the player and the best real score
+  // to beat; a finished game posts its score, and the board ranks the server's rows in.
+  const live = {
+    words: { adjectives: ["Brave"], animals: ["Heron"] },
+    board: { week: "2026-W44", scores: [{ name: "Calm Owl", score: 480 }] },
+  };
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.liveTitle = { named: page.get("named").hidden, nick: page.get("nick").textContent, beat: page.get("beat").textContent, badge: page.get("sample").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const posted = page.sent.find((s) => s.url === "/api/pour/score");
+  out.liveDone = {
+    done: !page.get("done").hidden,
+    posted: posted ? posted.body : null,
+    total: Number(page.get("total").textContent) || null,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
+  out.offlineSent = (await started()).sent.map((s) => s.url).sort();
+
+  // The phone remembers its given name; "Change" replaces it; a stored name the game
+  // couldn't give is replaced; blocked storage still gives the visit a name.
+  const four = { adjectives: ["Brave", "Calm"], animals: ["Heron", "Owl"] };
+  const nameOf = async (more) => {
+    const p = boot("", null, Object.assign({ words: four, board: live.board }, more));
+    for (let i = 0; i < 6; i++) await p.settle();
+    return p;
+  };
+  const remember = {};
+  page = boot("", null, live);
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.fresh = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  remember.kept = { nick: page.get("nick").textContent };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  const keptPost = page.sent.find((s) => s.url === "/api/pour/score");
+  remember.kept.posted = keptPost ? keptPost.body.name : null;
+  page = await nameOf({ stored: { "pour.name": "Calm Owl" } });
+  page.get("rename").fire("click", {});
+  remember.changed = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  page = await nameOf({ stored: { "pour.name": "Keith" } });
+  remember.junk = { nick: page.get("nick").textContent, stored: page.stored.get("pour.name") };
+  remember.keys = [...page.stored.keys()];
+  page = boot("", null, Object.assign({ blocked: true }, live));
+  for (let i = 0; i < 6; i++) await page.settle();
+  remember.blocked = { nick: page.get("nick").textContent, named: page.get("named").hidden };
+  out.remember = remember;
+
+  // A lower replay: the server keeps this name's 500, so the player stays top as "You".
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", scores: [{ name: "Brave Heron", score: 500 }, { name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.lowerReplay = {
+    done: !page.get("done").hidden,
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+    goal: page.get("goal").textContent,
+    topLine: JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")).copy.top,
+  };
+
+  // Off the top ten: the board doesn't list them, but the score back says their best.
+  page = boot("", null, { words: live.words, board: { week: "2026-W44", best: 400, scores: [{ name: "Calm Owl", score: 480 }] } });
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.get("start").fire("click", {});
+  page.advance(100);
+  for (let n = 0; n < 40 && page.get("done").hidden; n++) {
+    page.down(1);
+    page.advance(600);
+    page.up(1);
+    page.advance(3000);
+  }
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.offTheTop = {
+    total: Number(page.get("total").textContent) || 0,
+    board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
+  };
 
   process.stdout.write(JSON.stringify(out));
 })();

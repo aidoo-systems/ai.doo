@@ -65,5 +65,8 @@ spotlight or push starts and ends, in seconds. The copy is plain HTML above it. 
   pint", retune `HOLD`.
 - The winner's screen clock is fixed to Fri 23 Oct, 19:42, so a render never shows when it
   was made.
+- The live board's API (`/api/board`) isn't served here, so the game shows its labelled
+  sample board ("Sample scores") and logs a few 404s. That is expected: the video never shows
+  real players' names.
 - The 16:9 pour end card shows `images/promo/pour-qr.svg`; if the demo moves, that QR code
   and the video move with it.

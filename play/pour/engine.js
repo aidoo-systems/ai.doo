@@ -16,9 +16,9 @@
   var POURERS = ["tap", "jug", "carton", "machine"]; // what game.js can draw pouring the drink; a skin that doesn't say gets the first
   var TOPS = ["liquid", "coil"]; // what the top of the drink looks like; a skin that doesn't say gets the first
   var OUTLINES = ["glass", "none"]; // a glass round the drink, or nothing round it (soft serve stands up on its own)
-  var TOPPINGS = ["stick", "drizzle", "scatter"]; // how a serve can be finished once it's poured
+  var TOPPINGS = ["stick", "drizzle", "scatter", "dust"]; // how a serve can be finished once it's poured
   // What a round's serve can say for itself. What pours it, its fizz, top and outline stay the skin's.
-  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "topping", "coils"];
+  var SERVE = ["name", "liquid", "liquidDeep", "head", "headDepth", "stream", "glass", "vessel", "handle", "steam", "topping", "coils"];
   var COPY = [
     "start", "offer", "beat", "round", "hold", "release", "hint", "falseStart", "again",
     "perfect", "good", "short", "over", "spill", "total", "boardTitle", "you", "prize",
@@ -52,10 +52,11 @@
     return hi >= lo ? hi - lo : 0;
   }
 
-  // 3 to 24 points, each [x, y] from 0 to (by default) 100.
-  function isOutline(pts, maxY) {
+  // 3 to 24 points, each [x, y] from 0 to (by default) 100. wide: x may run from -40 to 140,
+  // past the glass's sides (a saucer is wider than the base it holds, a handle stands off the side).
+  function isOutline(pts, maxY, wide) {
     return Array.isArray(pts) && pts.length >= 3 && pts.length <= 24 && pts.every(function (p) {
-      return Array.isArray(p) && p.length === 2 && isNum(p[0], 0, 100) && isNum(p[1], 0, maxY || 100);
+      return Array.isArray(p) && p.length === 2 && isNum(p[0], wide ? -40 : 0, wide ? 140 : 100) && isNum(p[1], 0, maxY || 100);
     });
   }
 
@@ -72,9 +73,13 @@
     // it, a stem under a bowl. Its points are in the glass's units, down to y 200 below it.
     if (d.vessel !== undefined) {
       var v = isObj(d.vessel) ? d.vessel : {};
-      var ok = isOutline(v.points, 200) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
-      if (!ok) problems.push(at + "vessel needs 3 to 24 points (x 0 to 100, y 0 to 200), a hex colour, and may have a hex edge and a grid");
+      var ok = isOutline(v.points, 200, true) && COLOUR.test(v.colour) && (v.edge === undefined || COLOUR.test(v.edge)) && (v.grid === undefined || typeof v.grid === "boolean");
+      if (!ok) problems.push(at + "vessel needs 3 to 24 points (x -40 to 140, y 0 to 200), a hex colour, and may have a hex edge and a grid");
     }
+    // A handle stands off the glass's side: an open line through 3 to 24 points, x from -40 to 140 and
+    // y down the glass (0 to 100). Steam rises off a serve once it's poured.
+    if (d.handle !== undefined && !(isObj(d.handle) && isOutline(d.handle.points, 100, true))) problems.push(at + "handle needs 3 to 24 points (x -40 to 140, y 0 to 100)");
+    if (d.steam !== undefined && typeof d.steam !== "boolean") problems.push(at + "steam must be true or false");
     // How many coils of soft serve fill the glass, from its bottom to its top.
     if (d.coils !== undefined && !(Number.isInteger(d.coils) && d.coils >= 2 && d.coils <= 12)) problems.push(at + "coils must be a whole number from 2 to 12");
     // How it's finished once it's poured: a kind and its colours.
@@ -244,6 +249,42 @@
     return rival ? { name: rival.name, gap: rival.score - score, top: rival.score === topScore(skin) } : null;
   }
 
+  // This visit's name on the board: an adjective and an animal from nicknames.json,
+  // picked with rand (Math.random in the game). Nobody types a name, so none is rude.
+  function nickname(words, rand) {
+    function pick(list) {
+      return list[Math.floor(rand() * list.length) % list.length];
+    }
+    return pick(words.adjectives) + " " + pick(words.animals);
+  }
+
+  function liveRows(live) {
+    return (Array.isArray(live) ? live : []).filter(function (s) {
+      return isObj(s) && isText(s.name, 20) && isNum(s.score, 0, Infinity) && Math.floor(s.score) === s.score;
+    });
+  }
+
+  // The skin with this week's live scores among its sample ones. The player's own row
+  // (their name) comes off, because board() ranks them back in as "You".
+  function withLive(skin, live, name) {
+    var rest = liveRows(live)
+      .filter(function (s) {
+        return s.name !== name;
+      })
+      .map(function (s) {
+        return { name: s.name, score: s.score };
+      });
+    return Object.assign({}, skin, { sampleScores: skin.sampleScores.concat(rest) });
+  }
+
+  // The player's place on the week's board: the best the server keeps for their name,
+  // or this game's score when it is higher (or the server hasn't seen it yet).
+  function standing(live, name, score) {
+    return liveRows(live).reduce(function (best, s) {
+      return s.name === name ? Math.max(best, s.score) : best;
+    }, score);
+  }
+
   // The sample board with the player's score ranked into it. The player wins a tie.
   function board(skin, score) {
     var rows = [{ name: skin.copy.you, score: score, you: true }];
@@ -337,6 +378,9 @@
     roundLabel: roundLabel,
     serveOf: serveOf,
     board: board,
+    nickname: nickname,
+    withLive: withLive,
+    standing: standing,
     stars: stars,
     flowAt: flowAt,
     nextRival: nextRival,

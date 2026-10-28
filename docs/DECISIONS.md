@@ -300,4 +300,71 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **2026-10-23, the finish ends where the turn being laid ended** (owner saw the base shift down at release). The tip's lowest point is the bottom of the turn it replaces; its top is still the scored height. With room, it stretches up; on a thin last turn, it shrinks, less across than up. Nothing poured below it changes. Not taken: squashing it to fit, or letting it replace the turn under a thin one. Built with logo B and sauce 3 on #72.
 - **2026-10-23, owner: sauce 3 is out** once built ("isn't sitting right"); sauce 1 or 2 to be mocked on the built tip for the owner to pick. Logo B stays.
 - **2026-10-23, owner picked sauce 1** ("Go with sauce 1, the glossy ribbon with bulb drips") from sauces 1 and 2 mocked on the built tip beside sauce 3 (`.loop/sauce-on-built-tip.jpg`). A glossy ribbon over the top, thick in the middle and shaded top to bottom, a broken gloss along it, and three drips that end in round bulbs. Held to the same rule as before: nothing above the scored height, nothing past the bottom turn, drips included.
+- **2026-10-23, P2.0x: the drizzle's motion, owner picked mock C3 over A, B, C and C2** (strips in `.loop/drizzle-mocks/`). Sauce 1's look stayed, its movement changed because the crimson version "reads a bit like blood" in motion: it is strawberry pink (`#ec5b83`) with a lighter edge and softer shading, and it arrives slowly and thickly. A tapered thread (wide, rounded leading end, thin tail, no straight edges) falls onto the tip, pools into a round blob that swells as it is fed, necks, breaks and is absorbed; the blob then levels off and spreads out into the ribbon, always opaque (the owner: no fade, no translucent halo), which settles into the grooves; three short, fat drips gather, creep and stop, each a different length and let go at a different moment; one glint travels along it and is over by 700 ms after contact, before the next glass slides in at about 770 ms. Only the falling thread is ever above the scored height; everything after landing keeps the rule above. Not taken: A (lands and runs, splash beads), B (A plus eased drips), C (crimson, fast drop, long thin drips), C2 (a stream that read as a peg through a flat bar).
+- **2026-10-23, owner played C3 on a phone from a local server:** "the drops feel a bit large ... less like a drizzle", and the ribbon "sort of squares off" at times. Made finer (thread, blob, ribbon and drips all smaller) and the ribbon one smooth curve with round ends, no step where it dips into the next turn (v37, tests for both). Open: at about +400ms the spreading blob still reads as a flat disc on the ribbon; the owner decides on the phone whether it needs smoothing.
 - **Revisit when:** The owner plays the build on a phone.
+- **2026-10-26, owner picked sprinkles spread A** from three mocks (tip and two turns, about 40% of the swirl; over B, three turns, and C, one turn): strands rest on the turns' faces, slanting with them, shaken from one point after the sparkle and fading in. A serve with a topping holds 350 ms longer than a plain pour, so its finish is seen (the game designer's review).
+
+## D-031 — The studio is @studioaidoo on social, posted through Buffer
+
+- **Status:** Accepted (owner, 2026-10-26)
+- **Date:** 2026-10-26
+- **Decision:** The studio's accounts are Instagram and TikTok `@studioaidoo` (TikTok renamed from `@aidoolabs`), a new Facebook Page, and the LinkedIn company page `ai-doo`. Posts go out through Buffer's free plan, whose three channels are Facebook, Instagram and TikTok; LinkedIn is posted by hand. Every profile carries the ball avatar and the site's line, "Small games and apps, made with care", and LinkedIn alone keeps the PIKA/VERA line, as the homepage does. Every footer links Facebook, Instagram, TikTok, LinkedIn and GitHub as plain text, not icons, in keeping with D-018 (#83, held by `tests/test_social_links.py`).
+- **Why:** One composer for three channels for free, and one handle people can find everywhere. Facebook and Instagram are where the venues in the outreach look; LinkedIn is where business buyers do.
+- **Alternatives:** LinkedIn as the third Buffer channel (not yet: the venues aren't there; revisit with a paid plan); icons in the footer (rejected: five brand marks in the quiet frame, and each platform's logo rules).
+- **Consequences:** Facebook joined the footer on 2026-10-28, at its numeric address (`profile.php?id=61595609953908`) until the Page has a username. Facebook rejected the lowercase name, so the Page reads "Ai.doo"; the wordmark on its avatar and cover (#80) carries the brand. Claude can draft and schedule in Buffer but publishes nothing without the owner's yes on the text, channels and time.
+
+## D-032 — No cookie banner; fonts stay self-hosted
+
+- **Status:** Accepted (owner, 2026-10-26)
+- **Date:** 2026-10-26
+- **Decision:** aidoo.biz shows no cookie or consent banner, because it sets nothing that needs consent: no cookies, Umami self-hosted and cookieless, and the chat's `sessionStorage` is strictly necessary for a feature the visitor uses. No page loads a font or script from a third party; the last four that loaded Google Fonts (the PIKA changelog, three privacy pages) moved to `/fonts/` (#85, held by `tests/test_self_hosted_fonts.py`).
+- **Why:** A banner is friction with no legal gain, and its absence says we don't track. Loading Google Fonts sends each visitor's IP to Google, which a German court fined a site for in 2022.
+- **Alternatives:** A banner anyway, "to be safe" (rejected: it would claim tracking we don't do).
+- **Consequences:** Anything new that sets a cookie, adds third-party analytics or embeds a third party (a video, a map, a social widget) reopens this, and needs a banner or a self-hosted alternative. Not checked: whether the Isle of Man has its own cookie rule; the site meets the UK and EU one.
+
+## D-033 — Each drink pours into its own glass, and every glass is drawn soft
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** In the pour showcase a round's drink names its own glass (skin data, `serve.glass`): the pub's lager in a nonic, ale in a tulip, cider in a balloon; the café's flat white in a Gibraltar, latte in a tall glass, cappuccino in a stemless bowl. Every outline is drawn soft in `game.js` (corners rounded as far as each side allows, crisp heels and rim, light along the wall, a lit rim, a domed base), for every skin.
+- **Why:** The owner wanted a glass to match each drink, then found the first mocks "very geometric"; a designer review traced that to the drawing (straight segments, a fixed small corner), not the shapes.
+- **Alternatives:** Stems, handles and saucers (rejected for now: anything below the glass shrinks the whole venue's scene, and a vessel is one opaque colour); more points per outline without the drawing change (still faceted).
+- **Consequences:** A new glass is a point list in a skin; gentle turns between points read as curves. The pour line's arrows still measure the straight outline, 1 to 2px off a curve.
+
+## D-034 — The café's coffees get a saucer, steam and a handle
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** In the pour showcase the café's coffees stand on a cream saucer and steam once poured; the cappuccino's glass has a glass handle and cocoa on its foam (P2.1h). Handles and saucers are skin data, drawn generically.
+- **Why:** The owner wanted the café to look more like a café. Mocks from the real game of four looks (a handle; a saucer; steam and cocoa; all three) showed the handle takes no room and, drawn like the glass, doesn't read as stuck on, and the saucer costs about 7% of the scene; the owner chose all three.
+- **Alternatives:** A china cup with a handle (rejected: it hides the pour, and seeing the fill rise is the game); latte art (rejected: the glass is seen side on, so a heart on the foam can't show; cocoa reads instead); the glass alone (as D-033).
+- **Consequences:** Supersedes D-033's "rejected for now" on handles and saucers, for the café. A saucer is a vessel wider than the glass, so the skin format must let a vessel reach past the glass's sides. Built in P2.1h: a vessel's x runs from -40 to 140, a `handle` is an open line of 3 to 24 points, `steam` is a boolean, and `dust` is a finish of its own (not the sprinkles' strands) so its grains can be fine and settle in half a second. The scene is sized so the widest vessel or handle fits the canvas (a no-op for today's skins).
+
+## D-035 — The living tiles (#75) don't go in as built
+
+- **Date:** 2026-10-27 (owner)
+- **Decision:** P2.1e's drawn-in-code cards (#75: a sonar sweep, fanned cards, a probe in orbit) are not merged. The owner tried them on a phone: "not a fan"; they look nothing like the games. P2.1e is on hold.
+- **Why:** A card that moves but doesn't look like its game says less than the game's own picture.
+- **Alternatives:** Redrawing them from each game's own art, or dropping P2.1e; the owner's call, and #75 stays open until then.
+- **Consequences:** The homepage keeps its store graphics. The cafe work (P2.1h) went first.
+
+## D-036 — The demo's board is live, with names the game gives
+
+- **Status:** Accepted (owner, 2026-10-27); amends D-017 for the demo game
+- **Date:** 2026-10-27
+- **Decision:** The demo (`/play/pour/`) has a real weekly board (P2.0c). Each visit is given a random name from a fixed word list; a finished game sends the skin, that name and the score to the site's own API, which stores those and the week, nothing else, and empties each Monday. The game's line "Nothing is stored or sent" becomes "Your score and a name the game picks go on this week's board. Nothing else is stored." D-017's other half stands: the game loads no analytics, and the board is not used to count or identify players.
+- **Why:** The owner: "our demo of the thing that we are trying to sell should have a leaderboard". The demo has no prize and no real money, so P2.0b's claim codes and discount aren't needed for it. Given names remove the riskiest part of a public board (what people type) without a filter.
+- **Alternatives:** Typed nicknames with a profanity filter (P2.0b, for clients). Waiting for the first paid game (the demo keeps showing a fake board to every prospect until then). Keeping the names in the phone's storage so a player keeps theirs (more to explain on the page for little gain in a demo).
+- **Consequences:** A public write endpoint on the VPS. The database lives in the service user's `~/.local/share/aidoo-api/` (or `AIDOO_BOARD_DB`), outside the deploy's rsync. The privacy policy gets section 4b. The chatbot no longer calls the board samples.
+- **Revisit when:** P2.0b is built for a client, which may reuse this API with typed names.
+- **2026-10-27 (owner):** The pub keeps "Top score this week wins a pint on us" over the live board: the page says it is a made-up pub. A phone keeps its given name in the browser's own storage (the name only; no device ID or fingerprint, and the server can't link weeks), and the board keeps each name's best score for the week, so one player can't fill it.
+- **2026-10-28:** On the VPS the database is `/var/lib/aidoo-api/board.db` (`AIDOO_BOARD_DB` in `/etc/aidoo-api.env`), not the default under the service user's home: that home is `/var/www`, which the service can't write.
+
+## D-037 — The stamp card is £15 a month after a free two-week pilot
+
+- **Status:** Accepted (owner, 2026-10-28, in his reply to Roots by the Sea)
+- **Date:** 2026-10-28
+- **Decision:** After the free two-week pilot, the stamp card is £15 a month per shop, with no setup fee and no contract: a shop can stop any time, and its paper cards keep working either way. The first shops keep that price. No start date is promised until the build is finished.
+- **Why:** The first reply of the experiment (Roots, by Facebook) asked about the stamp card, and "what happens after the pilot?" needed an answer. A small monthly price with no tie-in is an easy yes for a café.
+- **Alternatives:** Free until the Gelatory pilot (the `/stamps/` page's position since 2026-10-22); a setup fee.
+- **Consequences:** A stamp card yes can't meet D-010's services bar (one deposit of £300 or more), so the 2026-11-26 read counts "a shop agreed to pay for stamps" as its own signal and doesn't blur it with the promo-game bet. The `/stamps/` page still says only "a free pilot"; any price on it is the owner's call. Promises nothing beyond what's built: the start date waits on the build.
+- **Revisit when:** The 2026-11-26 review, or the first shop's pilot ends.

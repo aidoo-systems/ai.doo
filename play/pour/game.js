@@ -12,6 +12,7 @@
   var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var HOLD = 1150; // ms a result stays up before the next glass slides in
   var HOLD_SPILL = 1600;
+  var HOLD_TOPPED = 350; // and this much longer when the serve has a topping, so its finish is seen
   var STAR = "M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z";
 
   function clamp(v, lo, hi) {
@@ -53,13 +54,21 @@
     return asked && /^[a-z0-9-]+$/.test(asked) ? asked : window.POUR_SKIN;
   }
 
+  var NAME_KEY = "pour.name"; // the one thing the game keeps on the phone: its given name
+
+  // Every request the game makes: its skin, its nickname words, and the week's board.
+  // A POST carries the skin, the nickname and the score, and nothing else.
+  function getJSON(url, body) {
+    var init = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-cache" };
+    return fetch(url, init).then(function (res) {
+      if (!res.ok) throw new Error(url + " " + res.status);
+      return res.json();
+    });
+  }
+
   // A skin by name, or a rejection if it is missing or not playable.
   function loadSkin(id) {
-    return fetch("skins/" + id + ".json", { cache: "no-cache" })
-      .then(function (res) {
-        if (!res.ok) throw new Error("skin " + res.status);
-        return res.json();
-      })
+    return getJSON("skins/" + id + ".json")
       .then(function (skin) {
         if (E.validateSkin(skin).length) throw new Error("skin invalid");
         return skin;
@@ -81,9 +90,11 @@
 
   // A name nobody has (a typo, a retired skin on old artwork) plays the default skin.
   var asked = skinId();
+  var skinName = asked;
   loadSkin(asked)
     .catch(function (err) {
       if (asked === window.POUR_SKIN) throw err;
+      skinName = window.POUR_SKIN;
       return loadSkin(window.POUR_SKIN);
     })
     .then(function (skin) {
@@ -251,6 +262,7 @@
     var W = 0;
     var H = 0;
     var g = null; // geometry, rebuilt by layout()
+    var drawn = null; // the last frame's state, to paint it again after a resize
     var fx;
     var bubbles = [];
     var parts = [];
@@ -282,6 +294,18 @@
       })) / 100);
     }
 
+    // How far a serve's vessel or handle stands from the glass's middle, in glass widths (0.5 is the
+    // glass's own side): the scene is sized so the widest of them fits the canvas.
+    var reach = 0.5;
+    skin.rounds.forEach(function (r, i) {
+      var d = E.serveOf(skin, i);
+      [d.vessel && d.vessel.points, d.handle && d.handle.points].forEach(function (pts) {
+        (pts || []).forEach(function (p) {
+          reach = Math.max(reach, Math.abs(p[0] - 50) / 100);
+        });
+      });
+    });
+
     function reset() {
       fx = { t: 0, wave: 0, slosh: 0, flow: 1, head: 0, tail: 0, handle: 0, slide: 0, ghost: null, shake: 0, spilling: false, spill: 0, glow: 0, freeze: 0, pending: null, measure: null, topped: false };
       bubbles = [];
@@ -307,8 +331,9 @@
       var counterY = H - counterH;
       var gh = Math.min(counterY - clamp(H * 0.2, 36, 78), 330) / deep; // the room above is the tap's
       var gw = gh * 0.66;
-      if (gw > W * 0.58) {
-        gw = W * 0.58;
+      var wide = Math.min(W * 0.58, (W / 2 - 6) / reach);
+      if (gw > wide) {
+        gw = wide;
         gh = gw / 0.66;
       }
       var gx = (W - gw) / 2;
@@ -318,6 +343,9 @@
       var cx = W / 2;
       g = { counterY: counterY, counterH: counterH, gx: gx, gy: gy, gw: gw, gh: gh, cx: cx, wall: wall, base: base, tip: Math.max(16, gy - 16) };
       fit(dr);
+      // Sizing the canvas wiped it: paint the same moment again now, or the browser shows a
+      // blank frame before the next animation frame (P2.1i).
+      if (drawn) api.frame(0, drawn);
     }
 
     // Where a serve sits: its glass at the scene's size, its vessel on the counter.
@@ -331,6 +359,7 @@
         return [g.cx + (p[0] - g.cx) * (1 - (2 * g.wall) / g.gw), gy + (p[1] - gy) * (1 - g.base / g.gh)];
       });
       g.vessel = d.vessel ? d.vessel.points.map(place) : null;
+      g.handle = d.handle ? d.handle.points.map(place) : null;
       g.top = gy;
       g.bottom = gy + g.gh - g.base;
     }
@@ -370,6 +399,38 @@
         ctx.arcTo(pts[i][0], pts[i][1], b[0], b[1], r);
       }
       ctx.closePath();
+    }
+
+    // An outline with every corner rounded as far as its shorter side allows, up to cap, so
+    // the arcs meet halfway along each side and a many-pointed outline reads as one curve.
+    // A hard turn (a heel, a shoulder) keeps a small, crisp corner, and so do corners on rimY.
+    function soft(pts, cap, rimY, rimT) {
+      var n = pts.length;
+      ctx.beginPath();
+      ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
+      for (var i = 0; i < n; i++) {
+        var a = pts[(i + n - 1) % n];
+        var p = pts[i];
+        var b = pts[(i + 1) % n];
+        var ax = a[0] - p[0];
+        var ay = a[1] - p[1];
+        var bx = b[0] - p[0];
+        var by = b[1] - p[1];
+        var la = Math.hypot(ax, ay);
+        var lb = Math.hypot(bx, by);
+        var angle = Math.acos(clamp((ax * bx + ay * by) / (la * lb || 1), -1, 1)); // PI on a straight run
+        var hard = clamp((Math.PI - angle - 0.6) / 0.6, 0, 1);
+        var t = Math.min(Math.min(la, lb) * 0.5, cap * (1 - hard) + g.gw * 0.045 * hard);
+        if (rimY !== undefined && Math.abs(p[1] - rimY) < 0.5) t = Math.min(t, rimT);
+        var r = t * Math.tan(angle / 2);
+        if (!isFinite(r) || r < 0.01) ctx.lineTo(p[0], p[1]);
+        else ctx.arcTo(p[0], p[1], b[0], b[1], r);
+      }
+      ctx.closePath();
+    }
+    // The glass's outline: soft, with a crisp lip.
+    function glassPath(pts) {
+      soft(pts, g.gw * 0.2, g.top, Math.max(2, g.gw * 0.015));
     }
 
     function box(x, y, w, h, r) {
@@ -773,8 +834,8 @@
       return g.cx - c.hw + 2 * c.hw * (laid - i);
     }
 
-    // How long the serve has been topped, for the finish arriving in stages (D-030, look b).
-    // The glass sliding off, and a calm screen, have it all at once.
+    // How long the serve has been topped, for the finish arriving in stages (D-030, look b; the dust
+    // and steam, P2.1h). The glass sliding off, and a calm screen, have it all at once.
     var since = 0;
 
     // One light for the whole stack, from the upper left, in canvas space (not per turn).
@@ -959,6 +1020,9 @@
       var laid = clamp(level, 0, 1) * n;
       var full = Math.min(n, Math.floor(laid));
       var rest = laid - full;
+      var t = dr.topping;
+      // a stick is pushed in behind the turns, so only what stands out of the stack shows
+      if (topped && full < n && t && t.kind === "stick") drawStick(level, n, full, stage(0.18, 0.22));
       for (var i = 0; i < full; i++) drawCoil(coilAt(i, n), 1);
       // served on a whole turn, it still gets its tip, a small one (Codex, round 1 of look b)
       if (full >= n || (rest < 0.001 && !topped)) return;
@@ -970,33 +1034,44 @@
       var foot = coilBottom(laying(level, c, rest));
       var below = full > 0 ? coilAt(full - 1, n) : c;
       var hw = Math.min(c.hw, below.hw * 0.92);
-      var t = dr.topping;
-      // a stick goes in before the tip is drawn over its foot, so it's partly hidden
-      if (t && t.kind === "stick") drawStick(floor, hw, stage(0.18, 0.22));
       drawTip(foot, yAt(level), hw, c.ch * 0.56, 0.65 + 0.35 * stage(0, 0.18));
       if (t && t.kind === "drizzle") drawSauce(floor, yAt(level), hw, n, full, since - 0.18);
       if (t && t.kind === "scatter") drawScatter(floor, yAt(level), hw, n, full, since - 0.18);
     }
 
-    function drawStick(floor, hw, q) {
-      var c = dr.topping.colours;
-      var len = g.gw * 0.55;
-      var w = Math.max(5, g.gw * 0.11);
+    // A stick (P2.0y, look E, owner 2026-10-26): pushed into the side of the stack a turn
+    // below the top, leaning out about 25 degrees, as a real one goes in. Its foot is behind the turns,
+    // and its highest corner stays under the top of the serve, so a short serve never looks as if
+    // it reached the line.
+    function drawStick(level, n, full, q) {
       if (q <= 0) return;
+      var c = dr.topping.colours;
+      var turn = coilAt(Math.max(0, full - 2), n);
+      var h = turn.ch * 1.12;
+      var tilt = Math.atan2(turn.ch * 0.42, 2 * turn.hw);
+      var mid = turn.top + turn.hw * Math.sin(tilt) + (h / 2) * Math.cos(tilt);
+      var lean = 0.44;
+      var w = Math.max(5, g.gw * 0.11);
+      var x0 = g.cx + turn.hw * 0.65;
+      var y0 = mid - (x0 - g.cx) * Math.tan(tilt) - h * 0.08;
+      var room = (y0 - (w / 2) * Math.sin(lean) - (yAt(level) + 2)) / Math.cos(lean);
+      var len = Math.min(g.gw * 0.46, room * 0.85);
+      if (len < w) return; // a serve too short to stand one in under its top goes without (Codex)
+      var slide = (1 - q) * Math.max(0, room - len); // slides in along its own length
+      var bury = w * 2;
       ctx.save();
-      ctx.translate(g.cx + hw * 0.3, floor - hw * 0.05);
-      ctx.rotate(0.42);
-      ctx.translate(0, -(1 - q) * len * 0.9); // slides in along its own length
+      ctx.translate(x0 + Math.sin(lean) * slide, y0 - Math.cos(lean) * slide);
+      ctx.rotate(lean);
       ctx.globalAlpha = Math.min(1, q * 3);
       ctx.fillStyle = c[0];
-      box(-w / 2, -len, w, len, 2);
+      box(-w / 2, -len, w, len + bury, 2);
       ctx.fill();
       ctx.strokeStyle = c[1] || "rgba(0,0,0,.25)";
       ctx.lineWidth = 1.2;
       ctx.beginPath();
       for (var k = 1; k < 4; k++) {
         ctx.moveTo(-w / 2 + (w * k) / 4, -len + 2);
-        ctx.lineTo(-w / 2 + (w * k) / 4, -4);
+        ctx.lineTo(-w / 2 + (w * k) / 4, bury - 2);
       }
       ctx.stroke();
       ctx.restore();
@@ -1013,137 +1088,419 @@
       return g.bottom;
     }
 
-    // Sauce (D-030, sauce 1): a drop falls onto the tip, then spreads into a glossy ribbon over
-    // the top, thick in the middle and thin at its ends, shaded top to bottom, with a broken
-    // gloss along it and three drips that run down and end in round bulbs. None of it rises
-    // above the tip or reaches past the bottom turn.
+    // Sauce (D-030, sauce 1, then C3 on P2.0x): a thread of sauce falls onto the tip, wide and
+    // rounded at its leading end and thin at its tail. Where it lands the end pools into a round
+    // blob that swells as the thread feeds it; the thread necks, breaks, and its tail drops in.
+    // The blob then levels off and spreads out into a glossy ribbon over the top (thick where it
+    // landed, shaded top to bottom, thinning as it runs, sagging into the grooves between the
+    // turns), and three short, fat drips gather, creep and stop, each a different length and let
+    // go at a different moment. One glint travels along it once it has settled, and is over by
+    // 700ms. Only the falling thread is ever above the tip; none of the rest rises above it, or
+    // reaches past the bottom turn.
+    function eOut(t) {
+      return 1 - Math.pow(1 - clamp(t, 0, 1), 2.2);
+    }
+    function eIn(t) {
+      t = clamp(t, 0, 1);
+      return t * t;
+    }
+
     function drawSauce(floor, tip, hw, n, full, s) {
       var col = dr.topping.colours[0];
       if (s <= 0) return;
-      var q = clamp(s / 0.4, 0, 1);
+      var T0 = 0.1; // the thread's leading end touches the tip
       var lw = Math.max(3, g.gw * 0.06);
-      var y;
-      ctx.save();
-      if (q < 0.25) {
-        y = lerp(tip - g.gh * 0.5, tip + 2, smooth(q / 0.25));
-        ctx.beginPath();
-        ctx.ellipse(g.cx, y, lw * 0.8, lw * 1.2, 0, 0, 6.3);
-        ctx.fillStyle = col;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.ellipse(g.cx - lw * 0.3, y - lw * 0.4, lw * 0.22, lw * 0.35, -0.4, 0, 6.3);
-        ctx.fillStyle = "rgba(255,255,255,.7)";
-        ctx.fill();
-        ctx.restore();
-        return;
-      }
+      var lwd = lw * 0.85; // the drips' scale: small bulbs
       var room = coilAt(0, n).hw - lw; // the bulbs' edge stays inside the bottom turn
-      var wide = Math.min(hw * 1.25, room) * smooth((q - 0.25) / 0.3);
-      var run = smooth((q - 0.45) / 0.55);
+      var wide = Math.min(hw * 1.25, room);
       var on = function (x) {
         return surfaceY(x, floor, tip, hw, n, full);
       };
-      [-0.75, 0.15, 0.9].forEach(function (f, i) {
-        var x = g.cx + f * Math.min(hw * 1.15, room);
-        if (Math.abs(x - g.cx) > wide) return;
-        drip(x, on(x) + lw * 0.4, run * g.gh * (0.1 + 0.07 * i), lw, col);
-      });
-      var top = [];
-      var bot = [];
-      for (var x = g.cx - wide; x <= g.cx + wide + 0.1; x += 2) {
-        y = on(x);
-        var edge = 1 - Math.pow(Math.abs(x - g.cx) / Math.max(1, wide), 3);
-        var th = lw * (0.5 + 0.9 * edge) * (1 + 0.18 * Math.sin(x * 0.35));
-        top.push([x, Math.max(tip, y - th * 0.45)]);
-        bot.push([x, y + th * 0.55]);
+      // The cream's top edge, blurred: the turns' tops step down in a stair, and the sauce lies
+      // along it as one smooth curve over a turn's edge, not a stair of its own.
+      var bx = g.cx - wide - lw * 2;
+      var raw = [];
+      for (var i = 0; i * 2 <= 2 * wide + lw * 4; i++) raw.push(on(bx + i * 2));
+      for (var pass = 0; pass < 3; pass++) {
+        raw = raw.map(function (v, j) {
+          var sum = 0;
+          for (var d = -3; d <= 3; d++) sum += raw[Math.max(0, Math.min(raw.length - 1, j + d))];
+          return sum / 7;
+        });
       }
-      if (top.length < 2) {
+      // and never steeper than a gentle drape, so no end of it can run straight down
+      var mid0 = Math.round((g.cx - bx) / 2);
+      for (var q = mid0 + 1; q < raw.length; q++) raw[q] = clamp(raw[q], raw[q - 1] - 1.4, raw[q - 1] + 1.4);
+      for (var q2 = mid0 - 1; q2 >= 0; q2--) raw[q2] = clamp(raw[q2], raw[q2 + 1] - 1.4, raw[q2 + 1] + 1.4);
+      var lie = function (x) {
+        var f = clamp((x - bx) / 2, 0, raw.length - 1.001);
+        var k = Math.floor(f);
+        return lerp(raw[k], raw[k + 1], f - k);
+      };
+      var x0 = g.cx - 0.12 * wide; // where it lands: off the middle, so it runs one way
+      var a = s - T0; // seconds since contact
+      ctx.save();
+      if (a < 0) {
+        sauceThread(x0, tip, lw, col, s, T0, a);
         ctx.restore();
         return;
       }
-      var trace = function (pts) {
-        pts.forEach(function (p, i) {
-          if (i) ctx.lineTo(p[0], p[1]);
-          else ctx.moveTo(p[0], p[1]);
-        });
+      var lag = 0.05; // the ribbon starts once the blob has begun to swell
+      var frontL = function (t) {
+        return lerp(x0, g.cx - wide * 0.92, eOut(t / 0.6));
       };
-      var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
-      grad.addColorStop(0, shade(col, 0.15));
-      grad.addColorStop(0.5, col);
-      grad.addColorStop(1, shade(col, -0.4));
-      ctx.beginPath();
-      trace(top);
-      for (var k = bot.length - 1; k >= 0; k--) ctx.lineTo(bot[k][0], bot[k][1]);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-      // its underside darker where it sits on the cream
-      ctx.beginPath();
-      trace(bot);
-      ctx.lineWidth = Math.max(1, lw * 0.18);
-      ctx.strokeStyle = shade(col, -0.5);
-      ctx.stroke();
-      // a gloss along the top, broken in two
-      ctx.lineCap = "round";
-      ctx.lineWidth = Math.max(1.2, lw * 0.22);
-      ctx.strokeStyle = "rgba(255,255,255,.65)";
-      [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
-        var from = Math.floor(seg[0] * top.length);
-        ctx.beginPath();
-        for (var m = from; m < seg[1] * top.length; m++) {
-          if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
-          else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+      var frontR = function (t) {
+        return lerp(x0, g.cx + wide, eOut(t / 0.45));
+      };
+      var xL = frontL(Math.max(0, a - lag));
+      var xR = frontR(Math.max(0, a - lag));
+      var settle = smooth((a - 0.15) / 0.5); // the ribbon sinking into the grooves
+      var period = g.gw * 0.2;
+      var groove = function (x) {
+        return 0.5 + 0.5 * Math.sin(((x - g.cx) / period) * 6.283 - 1.2);
+      };
+      sauceThread(x0, tip, lw, col, s, T0, a);
+      // the drips: each lets go when the ribbon's front passes it, a bead gathering first
+      var drips = [];
+      [[-0.75, 0.235, 0.6, 0], [0.15, 0.22, 0.38, 0.12], [0.9, 0.235, 0.5, 0.06]].forEach(function (sp) {
+        var x = g.cx + sp[0] * Math.min(hw * 1.15, room);
+        var reach = -1;
+        for (var t = 0; t <= 1.2; t += 0.01) {
+          if (x >= frontL(t) && x <= frontR(t)) {
+            reach = t + lag;
+            break;
+          }
         }
-        ctx.stroke();
+        if (reach < 0) return;
+        var len = coilAt(0, n).ch * sp[2]; // short: well within a turn
+        var start = reach + sp[3];
+        var gather = 0.08;
+        var dur = sp[1] * 0.85;
+        var u = (a - start - gather) / dur;
+        if (u <= 0) {
+          var bead = smooth((a - start) / gather);
+          if (bead > 0) sauceBead(x, lie(x) + lw * 0.4, lwd, col, bead);
+          return;
+        }
+        var k = Math.min(u, 1);
+        // slow in, speed up, ease as the bulb fills; a hair of overshoot, then rest
+        var base = k < 1 ? Math.pow(k, 1.8) * (1 - k) + smooth(k) * k : 1;
+        var settled = u > 1 ? (u - 1) * dur : 0;
+        var over = Math.exp(-settled / 0.07) * Math.sin(settled * 38);
+        var wob = Math.exp(-settled / 0.12) * Math.sin(settled * 30);
+        var vel = k < 1 ? Math.sin(k * 3.14159) * 0.5 : 0;
+        var sway = Math.sin(a * 11 + sp[0]) * 0.9 * (1 - k);
+        drips.push(function () {
+          drip(x + sway, lie(x) + lw * 0.4, len * (base + (u > 1 ? 0.06 * over : 0)), lwd, col, vel, wob);
+        });
       });
+      drips.forEach(function (draw) {
+        draw();
+      });
+      // the ribbon: thick where it landed, thinning as it runs; sagging into the grooves
+      if (xR - xL >= 2 * lw) {
+        var mid = (xL + xR) / 2;
+        var half = (xR - xL) / 2;
+        // thickness at x: thick where it landed and mid-run, the same either side of a groove
+        var thick = function (x) {
+          var edge = 1 - Math.pow(Math.min(1, Math.abs(x - mid) / Math.max(1, half)), 3);
+          var th = lw * (0.85 + 0.45 * edge) * (1 + 0.12 * Math.sin(x * 0.35));
+          th *= 1 + 0.9 * Math.exp(-Math.pow((x - x0) / (lw * 2.2), 2)) * Math.exp(-a / 0.5);
+          return th * (0.55 + 0.45 * smooth((a - lag) / 0.15));
+        };
+        // each end is a round cap of its own thickness; the body runs between them
+        var rL = thick(xL) / 2;
+        var rR = thick(xR) / 2;
+        var top = [];
+        var bot = [];
+        var edgeAt = function (x) {
+          var th = thick(x);
+          var yt = Math.max(tip, lie(x) - th * 0.45 + lw * 0.5 * settle * groove(x));
+          return [[x, yt], [x, yt + th]];
+        };
+        var x1 = Math.max(xL + rL, xR - rR);
+        for (var x = xL + rL; x < x1 + 1; x += 2) {
+          var e2 = edgeAt(Math.min(x, x1));
+          top.push(e2[0]);
+          bot.push(e2[1]);
+        }
+        // a cap rounds an end along the ribbon's own direction there, so it joins the edges
+        // without a corner even where the ribbon is steep, dipping over a turn's edge
+        var cap = function (i1, i0) {
+          var c1 = [(top[i1][0] + bot[i1][0]) / 2, (top[i1][1] + bot[i1][1]) / 2];
+          var c0 = top.length > 1 ? [(top[i0][0] + bot[i0][0]) / 2, (top[i0][1] + bot[i0][1]) / 2] : [c1[0] - 1, c1[1]];
+          var tx = c1[0] - c0[0];
+          var ty = c1[1] - c0[1];
+          var tl = Math.hypot(tx, ty) || 1;
+          var ux = (bot[i1][0] - top[i1][0]) / 2;
+          var uy = (bot[i1][1] - top[i1][1]) / 2;
+          var r = Math.hypot(ux, uy);
+          var out = [];
+          for (var ang = -75; ang <= 75; ang += 15) {
+            var rad = (ang * Math.PI) / 180;
+            out.push([c1[0] + ux * Math.sin(rad) + (tx / tl) * r * Math.cos(rad), c1[1] + uy * Math.sin(rad) + (ty / tl) * r * Math.cos(rad)]);
+          }
+          return out;
+        };
+        var capR = cap(top.length - 1, Math.max(0, top.length - 2));
+        var capL = cap(0, Math.min(1, top.length - 1)).reverse();
+        var outline = top.concat(capR, bot.slice().reverse(), capL);
+        var trace = function (pts) {
+          pts.forEach(function (p, i) {
+            if (i) ctx.lineTo(p[0], p[1]);
+            else ctx.moveTo(p[0], p[1]);
+          });
+        };
+        var grad = ctx.createLinearGradient(0, tip - lw, 0, floor + lw * 2);
+        grad.addColorStop(0, shade(col, 0.25));
+        grad.addColorStop(0.5, col);
+        grad.addColorStop(1, shade(col, -0.22));
+        ctx.beginPath();
+        trace(outline);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+        // its underside a little darker where it sits on the cream, its top edge lit
+        ctx.beginPath();
+        trace(bot);
+        ctx.lineWidth = Math.max(1, lw * 0.18);
+        ctx.strokeStyle = shade(col, -0.28);
+        ctx.stroke();
+        ctx.beginPath();
+        trace(top);
+        ctx.lineWidth = Math.max(1, lw * 0.2);
+        ctx.strokeStyle = shade(col, 0.4);
+        ctx.stroke();
+        sauceBlob(x0, tip, lw, col, a, xL, xR);
+        // a gloss along the top, broken in two; it dims as one glint travels along it
+        ctx.lineCap = "round";
+        ctx.lineWidth = Math.max(1.2, lw * 0.22);
+        var dim = 0.65 - 0.3 * smooth(((a - 0.4) / 0.3) * 1.3);
+        ctx.strokeStyle = "rgba(255,255,255," + dim * smooth((a - 0.05) / 0.2) + ")";
+        [[0.12, 0.42], [0.5, 0.62]].forEach(function (seg) {
+          var from = Math.floor(seg[0] * top.length);
+          ctx.beginPath();
+          for (var m = from; m < seg[1] * top.length; m++) {
+            if (m === from) ctx.moveTo(top[m][0], top[m][1] + lw * 0.25);
+            else ctx.lineTo(top[m][0], top[m][1] + lw * 0.25);
+          }
+          ctx.stroke();
+        });
+        var gp = (a - 0.3) / 0.4; // the glint: from 300ms to 700ms after contact
+        if (gp > 0 && gp < 1) {
+          var gc = lerp(0.05, 0.95, smooth(gp)) * (top.length - 1);
+          var span = Math.max(3, top.length * 0.12);
+          var m0 = Math.max(0, Math.floor(gc - span / 2));
+          ctx.lineWidth = Math.max(1.6, lw * 0.3);
+          ctx.strokeStyle = "rgba(255,255,255," + 0.95 * Math.sin(gp * 3.14159) + ")";
+          ctx.beginPath();
+          for (var m2 = m0; m2 < Math.min(top.length, gc + span / 2); m2++) {
+            if (m2 === m0) ctx.moveTo(top[m2][0], top[m2][1] + lw * 0.3);
+            else ctx.lineTo(top[m2][0], top[m2][1] + lw * 0.3);
+          }
+          ctx.stroke();
+        }
+      } else {
+        sauceBlob(x0, tip, lw, col, a, xL, xR);
+      }
       ctx.restore();
     }
 
-    // A drip of sauce from y0, tapering to a neck and ending in a round bulb, lit from the left.
-    function drip(x, y0, len, lw, col) {
+    // A soft tapered thread: a round, wide leading end narrowing up to a thin tail, with curved
+    // sides. neck (0 to 1) pinches it where it will break.
+    function threadShape(x, hy, ty, R, neckAt, neck) {
+      var len = hy - ty;
+      if (len < 2) return;
+      R = Math.min(R, len / 2);
+      var N = 30;
+      var left = [];
+      var right = [];
+      for (var i = 0; i <= N; i++) {
+        var d = (i / N) * len;
+        var w = d < R ? Math.sqrt(Math.max(0, R * R - (R - d) * (R - d))) : R * (0.2 + 0.8 * Math.exp(-(d - R) / (0.45 * len)));
+        w *= Math.pow(Math.max(0, Math.min(1, (len - d) / (0.28 * len + 1e-3))), 0.7);
+        if (neck > 0) w *= 1 - neck * Math.exp(-Math.pow((d - neckAt * len) / (0.09 * len + 1), 2));
+        var y = hy - d;
+        var sx = Math.sin(y * 0.09) * 0.5 * (d / len);
+        left.push([x + sx - w, y]);
+        right.push([x + sx + w, y]);
+      }
+      ctx.beginPath();
+      left.forEach(function (p, i) {
+        if (i) ctx.lineTo(p[0], p[1]);
+        else ctx.moveTo(p[0], p[1]);
+      });
+      for (var k = right.length - 1; k >= 0; k--) ctx.lineTo(right[k][0], right[k][1]);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      for (var m = 2; m < N * 0.6; m++) {
+        var hx = left[m][0] + (right[m][0] - left[m][0]) * 0.3;
+        if (m === 2) ctx.moveTo(hx, left[m][1]);
+        else ctx.lineTo(hx, left[m][1]);
+      }
+      ctx.lineWidth = Math.max(1, R * 0.25);
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(255,255,255,.5)";
+      ctx.stroke();
+    }
+
+    // The thread falling (s seconds in, a seconds since it touched): it reaches the tip, its end
+    // sinks into the blob, it necks and breaks, and the two pieces are absorbed.
+    function sauceThread(x0, tip, lw, col, s, T0, a) {
+      var src = tip - g.gh * 0.3;
+      var floorY = tip - lw * 0.2;
+      var inY = tip + lw * 0.8;
+      var R = lw * 0.45; // a fine thread
+      var fall = function (t) {
+        return lerp(src, floorY, eIn(t / T0));
+      };
+      var length = function (t) {
+        return lerp(lw * 1.6, g.gh * 0.2, smooth(t / T0));
+      };
+      var head = function (aa) {
+        return aa <= 0 ? fall(s) : lerp(floorY, inY, smooth(aa / 0.1));
+      };
+      var tail0 = floorY - length(T0);
+      var tailAt = function (aa) {
+        return tail0 + (floorY - tail0) * 0.25 * smooth(aa / 0.09);
+      };
+      var SPLIT = 0.09;
+      ctx.fillStyle = col;
+      if (a <= 0) {
+        var h = fall(s);
+        threadShape(x0, h, h - length(s), R, 0.45, 0);
+      } else if (a < SPLIT) {
+        threadShape(x0, head(a), tailAt(a), R * (1 - 0.15 * smooth(a / SPLIT)), 0.45, smooth((a - 0.02) / 0.07) * 0.97);
+      } else {
+        var b = a - SPLIT;
+        var h12 = head(SPLIT);
+        var t12 = tailAt(SPLIT);
+        var pinch = h12 - 0.45 * (h12 - t12);
+        var t1 = lerp(pinch, head(a) - lw * 0.2, smooth(b / 0.1));
+        if (head(a) - t1 > 2) threadShape(x0, head(a), t1, R * 0.85, 0.5, 0);
+        var h2 = lerp(pinch - lw * 0.1, inY, eIn(b / 0.13));
+        var t2 = lerp(t12, inY - lw * 0.15, eIn(b / 0.16));
+        if (h2 - t2 > 2 && b < 0.16) threadShape(x0, h2, t2, R * 0.7, 0.5, 0);
+      }
+    }
+
+    // The blob the thread pools into: round and domed, swelling as it is fed, its top at the tip.
+    // From 200ms after contact it levels off and spreads out to the ribbon's width, staying opaque
+    // all the way, until it is the ribbon's own thickness and the ribbon is all there is.
+    function sauceBlob(x0, tip, lw, col, a, xL, xR) {
+      var t = smooth((a - 0.2) / 0.3);
+      if (t >= 1) return;
+      var rx0 = lw * (0.35 + 0.75 * smooth(a / 0.25)); // a small bead
+      var rx = lerp(rx0, Math.max(rx0, (xR - xL) / 2), t);
+      var cx = lerp(x0, (xL + xR) / 2, t);
+      var yb = lerp(tip + lw * (0.25 + 0.65 * smooth(a / 0.22)), tip + lw * 0.45, t);
+      var h = yb - tip; // its control points reach the tip, and the curve itself 1/4 short of it
+      var depth = lerp(rx0 * 0.675, lw * 0.4, t);
+      var gr = ctx.createLinearGradient(0, tip, 0, yb + depth);
+      gr.addColorStop(0, shade(col, 0.28));
+      gr.addColorStop(0.5, col);
+      gr.addColorStop(1, shade(col, -0.2));
+      ctx.beginPath();
+      ctx.moveTo(cx - rx, yb);
+      ctx.bezierCurveTo(cx - rx, yb - h, cx + rx, yb - h, cx + rx, yb);
+      ctx.bezierCurveTo(cx + rx, yb + depth * 1.33, cx - rx, yb + depth * 1.33, cx - rx, yb);
+      ctx.closePath();
+      ctx.fillStyle = gr;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(cx - rx * 0.35, yb - h * 0.4, rx * 0.2 * (1 - t), Math.max(0.8, h * 0.14) * (1 - t * 0.6), -0.2, 0, 6.3);
+      ctx.fillStyle = "rgba(255,255,255,.6)";
+      ctx.fill();
+    }
+
+    // A bead gathering under the ribbon before a drip lets go.
+    function sauceBead(x, y0, lw, col, k) {
+      var r = lw * 0.5 * k;
+      ctx.beginPath();
+      ctx.ellipse(x, y0 + r * 0.6, r, r * 0.85, 0, 0, 6.3);
+      var lit = ctx.createLinearGradient(x - r, 0, x + r, 0);
+      lit.addColorStop(0, shade(col, -0.2));
+      lit.addColorStop(0.4, shade(col, 0.2));
+      lit.addColorStop(1, col);
+      ctx.fillStyle = lit;
+      ctx.fill();
+    }
+
+    // A drip of sauce from y0: a fat neck ending in a round bulb, lit from the left. It stretches
+    // while it moves (vel) and wobbles as it stops (wob).
+    function drip(x, y0, len, lw, col, vel, wob) {
       if (len < 1) return;
-      var top = lw * 0.55;
-      var neck = lw * 0.32;
-      var r = lw * 0.62;
-      var grad = ctx.createLinearGradient(x - r, 0, x + r, 0);
-      grad.addColorStop(0, shade(col, -0.35));
-      grad.addColorStop(0.35, shade(col, 0.12));
+      var top = lw * 0.42;
+      var neck = lw * 0.2 * (1 - 0.35 * vel);
+      var r = lw * 0.62 * (1 - 0.12 * vel);
+      var ry = r * (1 + 0.35 * vel + 0.14 * wob);
+      var rx = r * (1 - 0.1 * wob);
+      var cy = y0 + len;
+      var grad = ctx.createLinearGradient(x - rx, 0, x + rx, 0);
+      grad.addColorStop(0, shade(col, -0.2));
+      grad.addColorStop(0.35, shade(col, 0.22));
       grad.addColorStop(0.6, col);
-      grad.addColorStop(1, shade(col, -0.45));
+      grad.addColorStop(1, shade(col, -0.25));
       ctx.beginPath();
       ctx.moveTo(x - top, y0 - 2);
-      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - r, y0 + len - r, x - r, y0 + len);
-      ctx.arc(x, y0 + len, r, Math.PI, 0, true);
-      ctx.bezierCurveTo(x + r, y0 + len - r, x + neck, y0 + len * 0.5, x + top, y0 - 2);
+      ctx.bezierCurveTo(x - neck, y0 + len * 0.5, x - rx, cy - ry, x - rx, cy);
+      ctx.ellipse(x, cy, rx, ry, 0, Math.PI, 0, true);
+      ctx.bezierCurveTo(x + rx, cy - ry, x + neck, y0 + len * 0.5, x + top, y0 - 2);
       ctx.closePath();
       ctx.fillStyle = grad;
       ctx.fill();
       ctx.beginPath();
-      ctx.ellipse(x - r * 0.35, y0 + len - r * 0.15, r * 0.2, r * 0.38, -0.3, 0, 6.3);
+      ctx.ellipse(x - rx * 0.35, cy - ry * 0.15, rx * 0.2, ry * 0.38, -0.3, 0, 6.3);
       ctx.fillStyle = "rgba(255,255,255,.75)";
       ctx.fill();
     }
 
-    // A scatter falls from above onto the stack, a few bits at a time.
+    // A scatter is shaken over the stack once the sparkle has gone (owner, spread A, 2026-10-26):
+    // most on the tip, fewer on each of the two turns below, resting on the turns' faces.
     function drawScatter(floor, tip, hw, n, full, s) {
+      var plan = [24, 14, 8]; // strands on the tip, then on each turn going down
       var cols = dr.topping.colours;
+      s = s - 0.17; // after the sparkle burst
       ctx.save();
       ctx.lineCap = "round";
       ctx.lineWidth = Math.max(2, g.gw * 0.025);
-      for (var k = 0; k < 26; k++) {
-        var at = s - (k / 26) * 0.2;
-        var q = clamp(at / 0.15, 0, 1);
-        if (q <= 0) continue;
-        var f = ((k * 0.382) % 1) * 2 - 1;
-        var x = g.cx + f * hw * 1.2;
-        var yEnd = surfaceY(x, floor, tip, hw, n, full) + ((bumps[(k * 7) % bumps.length] / BUMP_MAX) * 6) - 1;
-        var y = lerp(yEnd - g.gh * 0.35, yEnd, q * q);
-        var a = (bumps[k] / BUMP_MAX) * 6.3;
-        ctx.strokeStyle = cols[k % cols.length];
-        ctx.beginPath();
-        ctx.moveTo(x - Math.cos(a) * 3, y - Math.sin(a) * 3);
-        ctx.lineTo(x + Math.cos(a) * 3, y + Math.sin(a) * 3);
-        ctx.stroke();
+      var src = { x: g.cx, y: tip - g.gh * 0.28 }; // one shake, a turn above the tip
+      var k = 0, total = plan.reduce(function (a, b) { return a + b; }, 0);
+      for (var band = 0; band < plan.length; band++) {
+        for (var i = 0; i < plan[band]; i++, k++) {
+          var r1 = bumps[(k * 7) % bumps.length] / BUMP_MAX, r2 = bumps[(k * 13 + 5) % bumps.length] / BUMP_MAX;
+          var x, y, slope;
+          if (band === 0) {
+            var f = ((k * 0.382) % 1) * 2 - 1;
+            x = g.cx + f * hw * 0.6;
+            y = Math.max(tip + 10, surfaceY(x, floor, tip, hw, n, full) + 3 + r1 * 6);
+            slope = Math.atan2(y - (tip + 4), x - g.cx) * 0.6;
+          } else {
+            var j = full - band;
+            if (j < 0) break;
+            var c = coilAt(j, n);
+            var f2 = (((i + 0.5) / plan[band] + r2 * 0.12 + band * 0.31) % 1) * 2 - 1;
+            x = g.cx + f2 * c.hw * 0.85;
+            var tilt = Math.atan2(c.ch * 0.42, 2 * c.hw);
+            // the lit upper ledge of the turn, just above its seam with the turn below
+            y = c.top + c.ch * (0.42 + 0.62 * r1) - (x - g.cx) * Math.tan(tilt);
+            slope = -tilt;
+          }
+          var at = s - (k / total) * 0.25;
+          var q = clamp(at / 0.22, 0, 1);
+          if (q <= 0) continue;
+          var e = 1 - (1 - q) * (1 - q);
+          var px = lerp(src.x + (x - g.cx) * 0.15, x, e);
+          var py = lerp(src.y, y, q * q);
+          var a = slope + (r2 - 0.5) * 1.2; // along the slope, about 35 degrees either way
+          ctx.globalAlpha = clamp(q / 0.3, 0, 1);
+          ctx.strokeStyle = cols[k % cols.length];
+          ctx.beginPath();
+          ctx.moveTo(px - Math.cos(a) * 3, py - Math.sin(a) * 3);
+          ctx.lineTo(px + Math.cos(a) * 3, py + Math.sin(a) * 3);
+          ctx.stroke();
+        }
       }
       ctx.restore();
     }
@@ -1151,7 +1508,7 @@
     // What the serve is in: drawn, never filled with the drink, and in front of it.
     function drawVessel() {
       var v = dr.vessel;
-      poly(g.vessel, 3);
+      soft(g.vessel, g.gw * 0.12);
       ctx.fillStyle = v.colour;
       ctx.fill();
       ctx.save();
@@ -1176,11 +1533,105 @@
       ctx.fillRect(g.gx + g.gw * 0.72, g.gy, g.gw * 0.3, g.gh * 2);
       ctx.restore();
       if (v.edge) {
-        poly(g.vessel, 3);
+        soft(g.vessel, g.gw * 0.12);
         ctx.strokeStyle = v.edge;
         ctx.lineWidth = 2;
         ctx.stroke();
       }
+    }
+
+    // A fine dusting sifted from above (owner, 2026-10-27): grains fall a little way and settle on the
+    // top of the drink, thickest in the middle, each a hair after the last, all still by about half
+    // a second. The same grains every time, so a frame is the same frame.
+    function drawDust(ys, colour) {
+      var e = xRange(g.inner, ys + 2);
+      if (!e) return;
+      var seed = 7;
+      var rnd = function () {
+        seed = (seed * 16807) % 2147483647;
+        return seed / 2147483647;
+      };
+      ctx.fillStyle = colour;
+      for (var i = 0; i < 160; i++) {
+        var u = rnd();
+        var mid = 1 - Math.abs(u - 0.5) * 2;
+        var keep = rnd() > 0.35 + mid * 0.6;
+        var size = 0.8 + rnd() * 1.1;
+        var fade = 0.45 + rnd() * 0.4;
+        var depth = rnd() * 6 * (0.4 + mid);
+        if (keep) continue;
+        var q = clamp((since - 0.1 - (i / 160) * 0.15) / 0.25, 0, 1);
+        if (q <= 0) continue;
+        ctx.globalAlpha = fade * Math.min(1, q * 3);
+        ctx.beginPath();
+        ctx.arc(e[0] + 3 + (e[1] - e[0] - 6) * u, ys + 4 + depth - (1 - q) * (1 - q) * g.gh * 0.2, size, 0, 6.3);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    // Steam rising off a poured serve, three slow wisps that arrive a moment after it's served.
+    function drawSteam(level) {
+      var a = smooth(clamp((since - 0.2) / 0.6, 0, 1));
+      if (a <= 0) return;
+      var y0 = yAt(level) - 8;
+      var now = calm ? 0 : fx.t;
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      [-0.17, 0.03, 0.21].forEach(function (dx, k) {
+        var x0 = g.cx + g.gw * dx;
+        var rise = Math.min(g.gh * (0.36 + k * 0.05), y0 - 6);
+        if (rise < 8) return;
+        var grad = ctx.createLinearGradient(0, y0, 0, y0 - rise);
+        grad.addColorStop(0, "rgba(255,248,236,0)");
+        grad.addColorStop(0.25, "rgba(255,248,236,.34)");
+        grad.addColorStop(1, "rgba(255,248,236,0)");
+        var wisp = function () {
+          ctx.beginPath();
+          for (var s = 0; s <= 40; s++) {
+            var f = s / 40;
+            var x = x0 + Math.sin(f * 5.2 + now * 1.6 + k * 2) * g.gw * 0.045 * (0.3 + f);
+            if (s) ctx.lineTo(x, y0 - rise * f);
+            else ctx.moveTo(x, y0 - rise * f);
+          }
+        };
+        ctx.strokeStyle = grad;
+        ctx.globalAlpha = 0.35 * a;
+        ctx.lineWidth = Math.max(6, g.gw * 0.08);
+        wisp();
+        ctx.stroke();
+        ctx.globalAlpha = a;
+        ctx.lineWidth = Math.max(2.5, g.gw * 0.028);
+        wisp();
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // A handle standing off the glass's side, drawn like the glass: a soft wide body and a lit edge.
+    function drawHandle() {
+      var h = g.handle;
+      var path = function () {
+        ctx.beginPath();
+        ctx.moveTo(h[0][0], h[0][1]);
+        for (var i = 1; i < h.length - 1; i++) {
+          ctx.quadraticCurveTo(h[i][0], h[i][1], (h[i][0] + h[i + 1][0]) / 2, (h[i][1] + h[i + 1][1]) / 2);
+        }
+        ctx.lineTo(h[h.length - 1][0], h[h.length - 1][1]);
+      };
+      ctx.save();
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      path();
+      ctx.strokeStyle = "rgba(255,255,255,.16)";
+      ctx.lineWidth = g.gw * 0.085;
+      ctx.stroke();
+      path();
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
+      ctx.lineWidth = Math.max(2.5, g.wall);
+      ctx.stroke();
+      ctx.restore();
     }
 
     // How the serve is finished once it's poured, at the top of what was poured.
@@ -1206,8 +1657,10 @@
           ctx.lineTo(-w / 2 + (w * k) / 4, -4);
         }
         ctx.stroke();
+      } else if (t.kind === "dust") {
+        drawDust(ys, c[0]);
       } else {
-        poly(g.inner, 3);
+        glassPath(g.inner);
         ctx.clip();
         var x0 = g.gx;
         var x;
@@ -1257,6 +1710,8 @@
     // topped: poured and finished, so its topping goes on.
     function drawGlass(ox, level, line, live, pouring, topped) {
       var span = g.bottom - g.top;
+      // how long this serve has been finished, for its finish arriving (a ghost sliding off, or a calm screen, has it all)
+      since = live && !calm ? fx.since || 0 : 9;
       ctx.save();
       ctx.translate(ox, 0);
 
@@ -1272,22 +1727,21 @@
         ctx.beginPath();
         ctx.rect(g.gx - 40, yAt(line), g.gw + 80, g.bottom - yAt(line) + 2);
         ctx.clip();
-        poly(g.outer, 3);
+        glassPath(g.outer);
         ctx.fillStyle = rgba(th.ink, 0.09);
         ctx.fill();
         ctx.restore();
       }
       if (coil) {
-        since = live && !calm ? fx.since || 0 : 9;
         if (level > 0.004) drawCoils(level, topped);
       } else {
-        poly(g.inner, 3);
+        glassPath(g.inner);
         ctx.fillStyle = "rgba(255,255,255,.05)";
         ctx.fill();
       }
 
       ctx.save();
-      poly(g.inner, 3);
+      glassPath(g.inner);
       ctx.clip();
       if (level > 0.004 && !coil) {
         var ys = yAt(level);
@@ -1366,38 +1820,65 @@
       var b = xRange(g.inner, bot);
       if (a && b && !bare) {
         ctx.lineCap = "round";
-        ctx.strokeStyle = "rgba(255,255,255,.15)";
-        ctx.lineWidth = g.gw * 0.05;
-        ctx.beginPath();
-        ctx.moveTo(a[0] + g.gw * 0.12, top);
-        ctx.lineTo(b[0] + g.gw * 0.12, bot);
-        ctx.stroke();
-        ctx.strokeStyle = "rgba(255,255,255,.14)";
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(a[1] - g.gw * 0.08, top + 10);
-        ctx.lineTo(b[1] - g.gw * 0.08, bot - 30);
-        ctx.stroke();
+        ctx.lineJoin = "round";
+        var along = function (side, inset, y0, y1, width, alpha) {
+          ctx.strokeStyle = "rgba(255,255,255," + alpha + ")";
+          ctx.lineWidth = width;
+          ctx.beginPath();
+          for (var k = 0; k <= 24; k++) {
+            var yk = y0 + ((y1 - y0) * k) / 24;
+            var e = xRange(g.inner, yk);
+            if (!e) continue;
+            var xk = side < 0 ? e[0] + inset : e[1] - inset;
+            if (k) ctx.lineTo(xk, yk);
+            else ctx.moveTo(xk, yk);
+          }
+          ctx.stroke();
+        };
+        along(-1, g.gw * 0.09, top, bot, g.gw * 0.045, 0.16);
+        along(1, g.gw * 0.06, top + g.gh * 0.05, g.gy + g.gh * 0.42, 2, 0.16);
       }
       ctx.restore();
 
       if (!bare) {
         // the glass itself: a thick base and a bright edge
         ctx.save();
-        poly(g.outer, 5);
+        glassPath(g.outer);
         ctx.clip();
         ctx.fillStyle = "rgba(255,255,255,.2)";
-        ctx.fillRect(g.gx, g.bottom, g.gw, g.base + 2);
+        ctx.beginPath();
+        ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
+        ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
+        ctx.lineTo(g.gx + g.gw + 4, g.bottom + g.base + 4);
+        ctx.lineTo(g.gx - 4, g.bottom + g.base + 4);
+        ctx.closePath();
+        ctx.fill();
         ctx.restore();
-        poly(g.outer, 5);
+        var shade = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+        shade.addColorStop(0, "rgba(255,255,255,.8)");
+        shade.addColorStop(0.5, "rgba(255,255,255,.6)");
+        shade.addColorStop(1, "rgba(255,255,255,.42)");
+        glassPath(g.outer);
         ctx.lineJoin = "round";
-        ctx.strokeStyle = "rgba(255,255,255,.62)";
+        ctx.strokeStyle = shade;
         ctx.lineWidth = Math.max(2.5, g.wall);
         ctx.stroke();
+        var rim = xRange(g.outer, g.top + 0.5);
+        if (rim) {
+          ctx.lineCap = "round";
+          ctx.strokeStyle = "rgba(255,255,255,.9)";
+          ctx.lineWidth = Math.max(1.5, g.wall * 0.55);
+          ctx.beginPath();
+          ctx.moveTo(rim[0] + g.wall, g.top + 0.5);
+          ctx.lineTo(rim[1] - g.wall, g.top + 0.5);
+          ctx.stroke();
+        }
       }
       // the finish, then what it's served in, so a cup hides the sauce that runs into it
       if (!coil && topped && dr.topping && level > 0.004 && level < 1) drawTopping(level);
       if (g.vessel) drawVessel();
+      if (g.handle) drawHandle();
+      if (dr.steam && topped && level > 0.004) drawSteam(level);
 
       if (line !== null) {
         var yy = yAt(line);
@@ -1567,16 +2048,17 @@
         f.life -= dt / 1.1;
         if (f.life <= 0) return false;
         var y = f.y - (1 - f.life) * f.size * 1.4;
-        ctx.globalAlpha = Math.min(1, f.life * 2.4);
-        ctx.font = "900 " + f.size + "px Inter, system-ui, sans-serif";
+        // Drawn whole to the end, in a solid outline, so it never greys over the machine (P2.0z):
+        // it goes by shrinking away, not fading.
+        var size = f.size * Math.min(1, f.life / 0.25);
+        ctx.font = "900 " + size + "px Inter, system-ui, sans-serif";
         ctx.textAlign = "center";
         ctx.lineJoin = "round";
-        ctx.lineWidth = f.size * 0.18;
-        ctx.strokeStyle = "rgba(0,0,0,.5)";
+        ctx.lineWidth = size * 0.18;
+        ctx.strokeStyle = th.accentInk;
         ctx.strokeText(f.text, f.x, y);
         ctx.fillStyle = th.accent;
         ctx.fillText(f.text, f.x, y);
-        ctx.globalAlpha = 1;
         return true;
       });
     }
@@ -1618,7 +2100,7 @@
       }
     }
 
-    return {
+    var api = {
       layout: layout,
       reset: reset,
       press: function () {
@@ -1658,6 +2140,7 @@
       frame: function (dt, s) {
         if (!g) layout();
         if (!g) return;
+        drawn = s;
         if (fx.freeze > 0) {
           fx.freeze -= dt;
           dt = 0;
@@ -1722,6 +2205,7 @@
         ctx.restore();
       },
     };
+    return api;
   }
 
   // ---------------------------------------------------------------- the game
@@ -1791,6 +2275,60 @@
     var shown = 0; // the score the HUD is showing, on its way to the real one
     var best = null; // this visit's best score: a variable, gone when the page is
     var turn = 0; // goes up whenever the screen changes, so a late timer does nothing
+    var nick = null; // this visit's name on the board, given by the game; null until its words load
+    var words = null;
+    var live = null; // this week's scores from the server; null while it can't be reached
+    var kept = null; // this name's best this week, as the server keeps it, once a score is in
+
+    // The phone keeps its given name, and nothing else, so a player keeps theirs all week.
+    // Where storage is blocked (a private window) the name lasts the visit, as before.
+    function show(name) {
+      nick = name;
+      $("nick").textContent = nick;
+    }
+    function rename() {
+      var was = nick;
+      kept = null;
+      var many = words.adjectives.length * words.animals.length > 1;
+      do show(E.nickname(words, Math.random));
+      while (many && nick === was);
+      try {
+        window.localStorage.setItem(NAME_KEY, nick);
+      } catch (e) {}
+    }
+    function remembered() {
+      try {
+        var name = window.localStorage.getItem(NAME_KEY);
+        var parts = typeof name === "string" ? name.split(" ") : [];
+        if (parts.length === 2 && words.adjectives.indexOf(parts[0]) >= 0 && words.animals.indexOf(parts[1]) >= 0) return name;
+      } catch (e) {}
+      return null;
+    }
+    getJSON("nicknames.json")
+      .then(function (got) {
+        words = got;
+        var kept = remembered();
+        if (kept) show(kept);
+        else rename();
+        $("named").hidden = false;
+      })
+      .catch(function () {});
+    $("rename").addEventListener("click", rename);
+
+    // The score to beat counts this week's real players as well as the samples.
+    function showBeat() {
+      var top = E.topScore(E.withLive(skin, live));
+      $("beat").textContent = top > 0 ? skin.copy.beat.replace("{score}", String(top)) : "";
+    }
+    function gotBoard(got) {
+      live = got.scores;
+      if (Number.isInteger(got.best)) kept = got.best;
+      $("sample").textContent = "Live this week";
+      showBeat();
+    }
+    getJSON("/api/pour/board?skin=" + skinName)
+      .then(gotBoard)
+      .catch(function () {});
 
     dress(skin);
     offerOthers(skin);
@@ -1912,7 +2450,8 @@
       pourBtn.classList.remove("down");
       pourBtn.classList.add("wait");
       // No button between rounds: the result holds for a beat, then the game moves on.
-      later(r.verdict === "spill" ? HOLD_SPILL : HOLD, function () {
+      var topped = E.serveOf(skin, game.round).topping;
+      later(r.verdict === "spill" ? HOLD_SPILL : HOLD + (topped ? HOLD_TOPPED : 0), function () {
         var level = game.level;
         game.next();
         if (game.phase === "done") results();
@@ -1957,20 +2496,44 @@
       });
       pills($("chips"), -1);
 
-      // What to play again for: the next name up the board, and this visit's own best.
-      var rival = E.nextRival(skin, game.score);
-      $("goal").textContent = rival
-        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
-        : skin.copy.top;
+      shownBoard = "";
+      showBoard(game.score);
       if (best === null) $("mine").textContent = "";
       else if (game.score > best) {
         $("mine").textContent = skin.copy.newBest;
         sound.best();
       } else $("mine").textContent = skin.copy.best.replace("{score}", String(best));
       best = best === null ? game.score : Math.max(best, game.score);
+      // On the real board too, once the server has it: then the board shows the week as it is.
+      if (nick) {
+        var asOf = turn;
+        getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })
+          .then(function (got) {
+            gotBoard(got);
+            if (asOf === turn) showBoard(game.score);
+          })
+          .catch(function () {});
+      }
+      $("doneBody").scrollTop = 0;
+      againBtn.focus({ preventScroll: true });
+    }
 
+    // The board for a finished score: the samples, this week's live scores, and the player
+    // at their place this week, which a lower replay doesn't take from them.
+    var shownBoard = "";
+    function showBoard(score) {
+      var withWeek = E.withLive(skin, live, nick);
+      score = E.standing(live, nick, kept === null ? score : Math.max(score, kept));
+      // What to play again for: the next name up the board, and this visit's own best.
+      var rival = E.nextRival(withWeek, score);
+      $("goal").textContent = rival
+        ? (rival.top ? skin.copy.rivalTop : skin.copy.rival).replace("{gap}", String(rival.gap)).replace("{name}", rival.name)
+        : skin.copy.top;
       // The top three, then the player and whoever is just ahead of them.
-      var rows = E.board(skin, game.score);
+      var rows = E.board(withWeek, score);
+      var key = JSON.stringify(rows);
+      if (key === shownBoard) return; // the server agreed with what's shown: don't deal it again
+      shownBoard = key;
       var me = rows.findIndex(function (row) {
         return row.you;
       });
@@ -2000,8 +2563,6 @@
         li.style.animationDelay = 0.5 + shownRows++ * 0.06 + "s";
         list.appendChild(li);
       });
-      $("doneBody").scrollTop = 0;
-      againBtn.focus({ preventScroll: true });
     }
 
     function loop(now) {

@@ -36,7 +36,7 @@
     .mute:focus-visible,.btn:focus-visible,.other:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 
     /* Title: the name, then the game playing itself, then one button */
-    .title{text-align:center;gap:6px;overflow-y:auto}
+    .title{text-align:center;gap:6px;overflow-x:hidden;overflow-y:auto}
     .emblem{flex:none;display:block;width:72px;height:auto;margin:6px auto 2px;color:var(--accent);animation:sway 3.2s ease-in-out infinite;transform-origin:50% 100%}
     @keyframes sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
     .kicker{margin:0;color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase}
@@ -46,18 +46,21 @@
     .offer{margin:0 auto;max-width:28ch;color:var(--accent);font-size:17px;font-weight:900;letter-spacing:-.2px;line-height:1.25;text-wrap:balance}
     .how{margin:0 auto;color:var(--muted);font-size:15.5px}
     .beat{margin:0 0 8px;color:var(--muted);font-weight:700;font-size:14.5px}
+    .named{margin:0 0 8px;color:var(--muted);font-size:13.5px}
+    .named strong{color:var(--ink)}
+    .named button{margin:0 0 0 4px;padding:6px 4px;border:0;background:none;color:var(--ink);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
 
     /* The one big control: a button with some travel in it */
     .btn{position:relative;flex:none;display:flex;align-items:center;justify-content:center;width:100%;min-height:66px;margin-bottom:6px;padding:14px 18px;border:0;border-radius:22px;background:var(--accent);color:var(--accentInk);font:inherit;font-size:20px;font-weight:900;letter-spacing:-.3px;text-align:center;text-decoration:none;cursor:pointer;box-shadow:0 6px 0 rgba(0,0,0,.38),0 14px 28px rgba(0,0,0,.35);transition:transform .06s,box-shadow .06s,opacity .15s;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
     .btn:active,.btn.down{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.38),0 4px 10px rgba(0,0,0,.3)}
-    .btn.wait{opacity:.45}
+    .btn.wait{background:var(--panel);color:var(--muted)}
     .btn.second{min-height:52px;padding:11px 18px;background:transparent;color:var(--ink);font-size:16.5px;box-shadow:inset 0 0 0 2px var(--muted);touch-action:manipulation}
     .btn.second:active{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--ink)}
     .others{flex:none;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;min-height:0}
     .other{padding:6px 4px;border:0;background:none;color:var(--ink);font:inherit;font-size:14px;font-weight:800;text-decoration:underline;cursor:pointer}
 
     /* The winner's screen: big, plain, and moving, so staff can trust it at a glance */
-    .claim{justify-content:center;text-align:center;gap:10px;overflow-y:auto}
+    .claim{justify-content:center;text-align:center;gap:10px;overflow-x:hidden;overflow-y:auto}
     .claim .emblem{margin-top:auto}
     .claim .btn.second{margin-bottom:auto}
     .claimPrize{margin:6px auto 0;max-width:20ch;font-size:clamp(24px,7.5vw,32px);font-weight:900;letter-spacing:-.8px;line-height:1.1;color:var(--accent);text-wrap:balance}
@@ -74,7 +77,7 @@
     .brand span{min-width:0;text-align:center;text-wrap:balance;overflow-wrap:anywhere}
 
     /* Play */
-    .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-y:auto}
+    .play{gap:10px;user-select:none;-webkit-user-select:none;overflow-x:hidden;overflow-y:auto}
     .hud{flex:none;display:flex;align-items:center;gap:10px;padding-right:42px;font-weight:800}
     .hud .round{flex:1;font-size:14.5px;white-space:nowrap}
     .pips,.chips{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
@@ -95,7 +98,7 @@
 
     /* Results: the score and the board scroll if they must; the buttons never leave the screen */
     .done{gap:10px;text-align:center}
-    .doneBody{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+    .doneBody{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
     .stars{flex:none;display:flex;justify-content:center;gap:6px;margin-top:14px;color:var(--muted)}
     .stars svg{width:36px;height:36px;opacity:.3}
     .stars svg:nth-child(2){width:46px;height:46px;margin-top:-8px}
@@ -147,12 +150,13 @@
     <div class="attract"><canvas id="attract" aria-hidden="true"></canvas></div>
     <p class="offer" id="offer"></p>
     <p class="beat" id="beat"></p>
+    <p class="named" id="named" hidden>On the board as <strong id="nick"></strong><button id="rename" type="button">Change</button></p>
     <button class="btn" id="start" type="button" hidden></button>
     <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
     <div class="others" id="othersTitle"></div>
     <p class="credit">
       <span id="fictional"></span>
-      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Nothing is stored or sent.
+      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Your score and a name the game picks go on this week's board. This phone remembers its name until you tap Change. Nothing else is stored.
       <a href="/promo-games/?from=demo#price">Want one with your name on it?</a>
     </p>
   </section>
@@ -178,7 +182,7 @@
       <p class="goal" id="goal"></p>
       <p class="mine" id="mine"></p>
       <div class="panel">
-        <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample">Sample scores</span></div>
+        <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample" id="sample">Sample scores</span></div>
         <ol class="board" id="board"></ol>
         <p class="small"><span id="prize"></span> In your game, the board is your customers and the prize is yours to set.</p>
       </div>
@@ -204,7 +208,7 @@
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=12"></script>
-<script src="engine.js?v=16"></script>
-<script src="game.js?v=34"></script>
+<script src="engine.js?v=19"></script>
+<script src="game.js?v=47"></script>
 </body>
 </html>
