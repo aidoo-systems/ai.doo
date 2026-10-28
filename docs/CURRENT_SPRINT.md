@@ -38,7 +38,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
-- Send Claude the Facebook Page's address for the footer, and merge #80 (the Facebook cover). The Pomodorable screen recordings in Downloads could become a 15-second clip for TikTok and Instagram, if wanted.
+- Merge #80 (the Facebook cover). The Pomodorable screen recordings in Downloads could become a 15-second clip for TikTok and Instagram, if wanted.
 - For the About page (P2.1g, D-023): read it on a phone with the photos in, and approve the photos and every sentence.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
