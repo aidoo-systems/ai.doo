@@ -409,7 +409,6 @@ def test_the_game_keeps_and_sends_nothing():
     for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
         text = _text(rel)
         for api in (
-            "localStorage",
             "sessionStorage",
             "indexedDB",
             "document.cookie",
@@ -420,11 +419,31 @@ def test_the_game_keeps_and_sends_nothing():
             "<input",
         ):
             assert api not in text, f"{rel}: {api}"
-    # The one request the game makes is for its own skin file, by a safe name.
+    # Every request goes through one helper: the skin file, the nickname words, and the
+    # week's board, whose one POST carries the skin, the nickname and the score.
     js = _text("play/pour/game.js")
     assert len(re.findall(r"\bfetch\(", js)) == 1
-    assert re.search(r"fetch\(\s*[`\"']skins/", js)
+    urls = re.findall(r'getJSON\(\s*"([^"]+)"', js)
+    assert sorted(set(urls)) == [
+        "/api/pour/board?skin=",
+        "/api/pour/score",
+        "nicknames.json",
+        "skins/",
+    ]
+    assert (
+        'getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })'
+        in js
+    )
     assert "/^[a-z0-9-]+$/" in js
+    # The one thing kept on the phone is its given name, under one key (D-036).
+    assert "localStorage" not in _text("play/pour/engine.js") + _text(
+        "play/pour/index.html"
+    )
+    assert sorted(re.findall(r"localStorage\.(\w+)\(\s*([^,)]+)", js)) == [
+        ("getItem", "NAME_KEY"),
+        ("setItem", "NAME_KEY"),
+    ]
+    assert 'var NAME_KEY = "pour.name";' in js
 
 
 @pytest.mark.parametrize("path", SKINS, ids=lambda p: p.stem)
@@ -1866,3 +1885,138 @@ def test_no_screen_can_scroll_sideways():
         rule = re.search(r"\n    " + selector + r"\{([^}]*)\}", html).group(1)
         assert "overflow-y:auto" in rule, selector
         assert "overflow-x:hidden" in rule, selector
+
+
+# --- the live board -------------------------------------------------------------
+
+
+def _engine(script):
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run play/pour/engine.js in the tests"
+    code = f"const E = require({json.dumps(str(GAME / 'engine.js'))});\nconsole.log(JSON.stringify((() => {{ {script} }})()));"
+    done = subprocess.run(
+        [node, "-e", code],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def test_a_nickname_is_an_adjective_and_an_animal_from_the_word_list():
+    words = json.loads(_text("play/pour/nicknames.json"))
+    got = _engine(
+        f"const w = {json.dumps(words)}; return [0, 0.5, 0.999999].map(r => E.nickname(w, () => r));"
+    )
+    assert got[0] == f"{words['adjectives'][0]} {words['animals'][0]}"
+    for name in got:
+        adjective, animal = name.split(" ")
+        assert adjective in words["adjectives"] and animal in words["animals"]
+
+
+def test_live_scores_join_the_samples_and_the_players_own_comes_off_once(latte):
+    skin = json.loads(latte().read_text(encoding="utf-8"))
+    live = [
+        {"name": "Brave Heron", "score": 120},
+        {"name": "Calm Owl", "score": 120},
+        {"name": "x", "score": -5},
+        7,
+    ]
+    got = _engine(
+        f"const s = {json.dumps(skin)};"
+        f"const w = E.withLive(s, {json.dumps(live)}, 'Brave Heron');"
+        "return { rows: E.board(w, 120), top: E.topScore(E.withLive(s, [{ name: 'Calm Owl', score: 190 }])), none: E.withLive(s, null).sampleScores.length };"
+    )
+    assert [(r["name"], r["score"], r.get("you", False)) for r in got["rows"]] == [
+        ("Bean", 150, False),
+        ("You", 120, True),
+        ("Calm Owl", 120, False),
+        ("Milo", 90, False),
+    ]
+    assert got["top"] == 190
+    assert got["none"] == len(skin["sampleScores"])
+
+
+def test_a_players_place_is_their_best_this_week(latte):
+    # The server keeps a name's best, so a lower replay leaves the player where they were.
+    skin = json.loads(latte().read_text(encoding="utf-8"))
+    live = [{"name": "Brave Heron", "score": 190}, {"name": "Calm Owl", "score": 170}]
+    got = _engine(
+        f"const s = {json.dumps(skin)}; const l = {json.dumps(live)};"
+        "const w = E.withLive(s, l, 'Brave Heron');"
+        "return { names: w.sampleScores.map(r => r.name), at: E.standing(l, 'Brave Heron', 120),"
+        " higher: E.standing(l, 'Brave Heron', 200), stranger: E.standing(l, 'Keen Vole', 60),"
+        " none: E.standing(null, 'Brave Heron', 60) };"
+    )
+    assert "Brave Heron" not in got["names"] and "Calm Owl" in got["names"]
+    assert (got["at"], got["higher"], got["stranger"], got["none"]) == (
+        190,
+        200,
+        60,
+        60,
+    )
+
+
+def test_after_a_lower_replay_the_board_shows_the_players_best_as_theirs(ui):
+    got = ui["lowerReplay"]
+    assert got["done"] and got["total"] < 500
+    names = [row[1] for row in got["board"] if len(row) > 1]
+    assert "Brave Heron" not in names
+    assert got["board"][0] == ["1.", "You", "500"]
+    assert got["goal"] == got["topLine"]
+
+
+def test_off_the_top_ten_the_player_still_stands_at_their_best(ui):
+    got = ui["offTheTop"]
+    assert got["total"] < 400
+    you = [row for row in got["board"] if len(row) > 1 and row[1] == "You"]
+    assert you and you[0][2] == "400"
+
+
+def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui):
+    title = ui["liveTitle"]
+    assert title == {
+        "named": False,
+        "nick": "Brave Heron",
+        "beat": title["beat"],
+        "badge": "Live this week",
+    }
+    assert "480" in title["beat"]
+    done = ui["liveDone"]
+    assert done["done"]
+    assert set(done["posted"]) == {"skin", "name", "score"}
+    assert (
+        done["posted"]["skin"] == "wobbly-gull"
+        and done["posted"]["name"] == "Brave Heron"
+    )
+    assert done["board"][0] == ["1.", "Calm Owl", "480"]
+    assert ["You"] == [row[1] for row in done["board"] if row and row[1] == "You"]
+
+
+def test_the_phone_remembers_its_name_and_change_replaces_it(ui):
+    got = ui["remember"]
+    assert got["fresh"] == {"nick": "Brave Heron", "stored": "Brave Heron"}
+    assert got["kept"]["nick"] == "Calm Owl"
+    assert got["kept"]["posted"] == "Calm Owl"
+    assert got["changed"]["nick"] != "Calm Owl"
+    assert got["changed"]["stored"] == got["changed"]["nick"]
+    # A stored name the game couldn't give is replaced, not shown.
+    assert got["junk"]["nick"] in {"Brave Heron", "Brave Owl", "Calm Heron", "Calm Owl"}
+    assert got["junk"]["stored"] == got["junk"]["nick"]
+    # Only the name is kept, under its one key.
+    assert got["keys"] == ["pour.name"]
+    # Where storage is blocked, the visit still gets a name.
+    assert got["blocked"]["nick"] == "Brave Heron" and got["blocked"]["named"] is False
+
+
+def test_the_page_says_the_phone_keeps_its_name():
+    html = _text("play/pour/index.html")
+    assert "This phone remembers its name" in html
+    policy = _text("privacy/index.html")
+    assert "remembers the name" in policy and "Change" in policy
+
+
+def test_offline_the_game_asks_for_the_board_and_posts_nothing(ui):
+    assert ui["offlineSent"] == ["/api/pour/board?skin=wobbly-gull", "nicknames.json"]

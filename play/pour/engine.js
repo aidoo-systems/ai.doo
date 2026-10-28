@@ -249,6 +249,42 @@
     return rival ? { name: rival.name, gap: rival.score - score, top: rival.score === topScore(skin) } : null;
   }
 
+  // This visit's name on the board: an adjective and an animal from nicknames.json,
+  // picked with rand (Math.random in the game). Nobody types a name, so none is rude.
+  function nickname(words, rand) {
+    function pick(list) {
+      return list[Math.floor(rand() * list.length) % list.length];
+    }
+    return pick(words.adjectives) + " " + pick(words.animals);
+  }
+
+  function liveRows(live) {
+    return (Array.isArray(live) ? live : []).filter(function (s) {
+      return isObj(s) && isText(s.name, 20) && isNum(s.score, 0, Infinity) && Math.floor(s.score) === s.score;
+    });
+  }
+
+  // The skin with this week's live scores among its sample ones. The player's own row
+  // (their name) comes off, because board() ranks them back in as "You".
+  function withLive(skin, live, name) {
+    var rest = liveRows(live)
+      .filter(function (s) {
+        return s.name !== name;
+      })
+      .map(function (s) {
+        return { name: s.name, score: s.score };
+      });
+    return Object.assign({}, skin, { sampleScores: skin.sampleScores.concat(rest) });
+  }
+
+  // The player's place on the week's board: the best the server keeps for their name,
+  // or this game's score when it is higher (or the server hasn't seen it yet).
+  function standing(live, name, score) {
+    return liveRows(live).reduce(function (best, s) {
+      return s.name === name ? Math.max(best, s.score) : best;
+    }, score);
+  }
+
   // The sample board with the player's score ranked into it. The player wins a tie.
   function board(skin, score) {
     var rows = [{ name: skin.copy.you, score: score, you: true }];
@@ -342,6 +378,9 @@
     roundLabel: roundLabel,
     serveOf: serveOf,
     board: board,
+    nickname: nickname,
+    withLive: withLive,
+    standing: standing,
     stars: stars,
     flowAt: flowAt,
     nextRival: nextRival,
