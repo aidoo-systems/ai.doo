@@ -481,13 +481,66 @@ def test_deploy_serves_the_game_and_its_skin():
 def test_the_offer_page_leads_with_the_playable_example():
     html = _text("promo-games/index.html")
     assert 'href="/play/pour/"' in html
-    assert 'href="/play/pour/?skin=dozy-otter"' in html
+    assert 'href="/play/pour/?skin=cafe"' in html
     assert 'src="../images/promo/pour-qr.svg"' in html
     # "No app to download" and a store link can't share a page.
     assert "play.google.com" not in html
     assert "tea-tower.webp" not in html
     assert 'href="/#tea-tower"' in html
-    assert "made-up pub" in html
+    assert "made-up" in html[html.index('id="try"') : html.index('id="why"')]
+
+
+def test_try_one_now_plays_every_venue_in_plain_words():
+    # P2.0aa (D-038): the start screen no longer switches venue, so the offer page is
+    # the way to all four. One plain-word link per kind, the pub filled; words, not
+    # drawn glasses (D-018), and no template talk.
+    html = _text("promo-games/index.html")
+    tryit = html[html.index('id="try"') : html.index('id="why"')]
+    links = re.findall(
+        r'<a class="(playBtn[^"]*)" href="([^"]+)"[^>]*>([^<]+)</a>', tryit
+    )
+    assert [(href, text) for _, href, text in links] == [
+        ("/play/pour/", "Play it as a pub"),
+        ("/play/pour/?skin=cafe", "Play it as a café"),
+        ("/play/pour/?skin=dairy", "Play it as a dairy"),
+        ("/play/pour/?skin=icecream", "Play it as an ice cream kiosk"),
+    ]
+    assert [cls for cls, _, _ in links] == [
+        "playBtn",
+        "playBtn alt",
+        "playBtn alt",
+        "playBtn alt",
+    ]
+    for event in (
+        "play-demo-pub",
+        "play-demo-cafe",
+        "play-demo-dairy",
+        "play-demo-icecream",
+    ):
+        assert tryit.count(f'data-umami-event="{event}"') == 1, event
+    # Every ?skin= kind it links is one the game knows.
+    kinds = re.search(
+        r"POUR_KINDS = (\{[^}]*\})", _text("play/pour/skins/default.js")
+    ).group(1)
+    for href in [h for _, h, _ in links if "?skin=" in h]:
+        assert f"{href.split('=')[1]}:" in kinds, href
+    # The paragraph names each venue once, with what it pours.
+    para = re.sub(
+        r"\s+", " ", tryit[tryit.index("<p>") : tryit.index('class="playRow"')]
+    )
+    for skin, pours in (
+        ("wobbly-gull", "a pint"),
+        ("dozy-otter", "a latte"),
+        ("sleepy-cow", "milk"),
+        ("giddy-puffin", "a 99"),
+    ):
+        venue = json.loads(
+            (GAME / "skins" / f"{skin}.json").read_text(encoding="utf-8")
+        )["venue"]
+        assert para.count(venue) == 1, venue
+        assert pours in para, pours
+    assert not re.search(r"template|choose|pick a", tryit, re.IGNORECASE)
+    assert "<svg" not in tryit and "<canvas" not in tryit
 
 
 def test_the_offer_page_walks_through_the_customers_side_and_claims_no_results():
@@ -571,6 +624,17 @@ def test_the_pub_offers_a_pint_and_reads_as_meant():
         for key, line in json.loads(path.read_text(encoding="utf-8"))["copy"].items():
             assert "example" not in line.lower(), (path.stem, key)
             assert "crisps" not in line, (path.stem, key)
+
+
+def test_the_title_screen_leaves_the_room_to_the_glass():
+    # On a phone the glass gets what the text leaves; the demo's own bits wait for the results.
+    html = _text("play/pour/index.html")
+    title = html[html.index('id="title"') : html.index('id="play"')]
+    done = html[html.index('id="done"') : html.index('id="claim"')]
+    for hook in ('id="named"', 'id="othersDone"', "Nothing else is stored"):
+        assert hook not in title and hook in done, hook
+    assert 'id="fictional"' in title
+    assert "othersTitle" not in html + _text("play/pour/game.js")
 
 
 def test_the_title_screen_leads_with_the_prize_and_says_its_theirs_to_set():
@@ -1993,6 +2057,15 @@ def test_the_game_names_the_player_posts_the_score_and_shows_the_weeks_board(ui)
     )
     assert done["board"][0] == ["1.", "Calm Owl", "480"]
     assert ["You"] == [row[1] for row in done["board"] if row and row[1] == "You"]
+
+
+def test_a_name_changed_on_the_results_is_for_the_next_game(ui):
+    # The score is already on the board under the old name (Codex, round 1).
+    assert ui["remember"]["after"] == {
+        "lead": "On the board as",
+        "renamed": "Next game as",
+        "next": "On the board as",
+    }
 
 
 def test_the_phone_remembers_its_name_and_change_replaces_it(ui):

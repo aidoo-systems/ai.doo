@@ -150,15 +150,9 @@
     <div class="attract"><canvas id="attract" aria-hidden="true"></canvas></div>
     <p class="offer" id="offer"></p>
     <p class="beat" id="beat"></p>
-    <p class="named" id="named" hidden>On the board as <strong id="nick"></strong><button id="rename" type="button">Change</button></p>
     <button class="btn" id="start" type="button" hidden></button>
     <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
-    <div class="others" id="othersTitle"></div>
-    <p class="credit">
-      <span id="fictional"></span>
-      A demo of a promo game by <a href="/promo-games/">ai.doo</a>. Your score and a name the game picks go on this week's board. This phone remembers its name until you tap Change. Nothing else is stored.
-      <a href="/promo-games/?from=demo#price">Want one with your name on it?</a>
-    </p>
+    <p class="credit"><span id="fictional"></span> A demo by <a href="/promo-games/">ai.doo</a>.</p>
   </section>
 
   <section class="screen play" id="play" hidden>
@@ -181,10 +175,11 @@
       <ol class="chips" id="chips" aria-hidden="true"></ol>
       <p class="goal" id="goal"></p>
       <p class="mine" id="mine"></p>
+      <p class="named" id="named" hidden><span id="namedLead">On the board as</span> <strong id="nick"></strong><button id="rename" type="button">Change</button></p>
       <div class="panel">
         <div class="boardHead"><h2 id="boardTitle"></h2><span class="sample" id="sample">Sample scores</span></div>
         <ol class="board" id="board"></ol>
-        <p class="small"><span id="prize"></span> In your game, the board is your customers and the prize is yours to set.</p>
+        <p class="small"><span id="prize"></span> Your score and a name the game picks go on this week's board. This phone remembers its name until you tap Change. Nothing else is stored. In your game, the board is your customers and the prize is yours to set.</p>
       </div>
     </div>
     <button class="btn" id="again" type="button"></button>
@@ -209,6 +204,6 @@
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=12"></script>
 <script src="engine.js?v=19"></script>
-<script src="game.js?v=47"></script>
+<script src="game.js?v=49"></script>
 </body>
 </html>
