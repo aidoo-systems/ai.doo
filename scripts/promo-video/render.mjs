@@ -49,7 +49,8 @@ function args(argv) {
     else throw new Error('unknown option ' + argv[i]);
   }
   if (!['pour', 'stamps', 'all'].includes(a.film)) throw new Error('say which video: pour, stamps or all');
-  if (!['full', 'short'].includes(a.cut)) throw new Error('--cut is full or short');
+  if (!['full', 'short', 'board'].includes(a.cut)) throw new Error('--cut is full, short or board');
+  if (a.cut === 'board' && a.film !== 'pour') throw new Error('--cut board is for the pour video');
   if (a.shop && a.film !== 'stamps') throw new Error('--shop is for the stamps video');
   return a;
 }
@@ -83,6 +84,8 @@ async function pour(page, base, frame) {
   await measure(game('pubwin'), 'pubwin:claimMark', 'claimMark');
   await click(game('pubwin'), 'claimBack'); await secs(0.6);
   await measure(game('pub'), 'pub:offer', 'offer');
+  await game('pubwin').evaluate(() => { document.querySelector('#done .panel').id = 'panel'; });
+  await measure(game('pubwin'), 'pubwin:panel', 'panel');
 
   const C = await page.evaluate(() => window.CUT);
   const events = [
@@ -93,7 +96,7 @@ async function pour(page, base, frame) {
     [C.press + HOLD + 0.4, async () => console.log('  first pour:', await text(game('pub'), 'say'))],
     [C.claim, () => click(game('pubwin'), 'claimOpen')],
     [C.tap, () => click(game('pubwin'), 'claimMark')],
-  ];
+  ].filter(e => e[0] != null);
   const n = Math.round(C.dur * FPS);
   for (let i = 0; i < n; i++) {
     const t = i / FPS;
@@ -141,6 +144,14 @@ async function render(browser, port, a) {
   const page = await browser.newPage({ viewport: a.land ? { width: 960, height: 540 } : { width: 540, height: 960 }, deviceScaleFactor: 2, reducedMotion: 'no-preference' });
   await page.addInitScript({ path: path.join(HERE, 'clock.js') });
   page.on('console', m => { if (m.type() === 'error') console.log('  page error:', m.text()); });
+  if (a.cut === 'board') {
+    // the board cut shows the live board: an empty week, then only the video's own score on it
+    await page.route('**/api/pour/board*', r => r.fulfill({ json: { week: '2026-W44', scores: [] } }));
+    await page.route('**/api/pour/score', r => {
+      const b = r.request().postDataJSON();
+      r.fulfill({ json: { week: '2026-W44', scores: [{ name: b.name, score: b.score }], best: b.score } });
+    });
+  }
   await page.goto(base + '/__v/' + a.film + '.html?cut=' + a.cut + (a.land ? '&land' : '') + (a.shop ? '&' + a.shop : ''));
   await page.waitForLoadState('networkidle');
   for (const f of page.frames()) await f.evaluate(() => document.fonts.ready);
