@@ -65,7 +65,7 @@ A counter that only scoops waits for a scoop skin (not built).
 | 49 | Roberto's Ice Cream Parlour & Cafeteria (Port Erin promenade) | Beach queue in summer; "pull the perfect 99" with a weekly top score |
 | 50 | Holy Crepe (Port Erin) | Crêpes and Manx Moos ice cream; the wait while a crêpe cooks |
 | 51 | Northern Pool Cafe (Ramsey pool, Mooragh Promenade) | Families after a swim; Mooragh Park footfall |
-| 52 | Manx Ices (served at Silverdale Glen's café) | A **brand** game, like the Creamery (#29): their name on the 99, for every counter that sells it. Pair with Silverdale (#16): find out who runs the café |
+| 52 | Manx Ices (served at Silverdale Glen's café) | A **brand** game, like the Creamery (#29): their name on the 99, for every counter that sells it. manx.life gives manxices.com as the Silverdale Cafe's website (The Cregg Mill, IM9 3DS), so Manx Ices may run the café: if so, it's one business with #16 and one email |
 | 53 | Manx Moos (maker; sold across the Island and on the Steam Packet) | A brand game across its stockists. It already makes bespoke flavours for businesses, so it's used to co-branded work |
 | 54 | Laxey Ice Cream Company (maker) | Only if it isn't the same business as #48; if it is, one email |
 | 55 | The Gelato Shed (Manx Menu listing; not yet checked as trading) | Likely scoops gelato: check before drafting |
@@ -143,7 +143,7 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 | 2026-10-27 | 27 | Okell's Inns | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 31 | Hospice Isle of Man | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 48 | Laxey Beach Cafe | Email (owner), whippy | | | | |
-| 2026-10-27 | 16 | Silverdale Glen | Email (owner), whippy | | | | |
+| 2026-10-27 | 16 | Silverdale Glen | Email (owner), whippy; **bounced** from silverdale@manx.net (2026-10-28). Resend to a working address as a first email, not a follow-up | | | | |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
