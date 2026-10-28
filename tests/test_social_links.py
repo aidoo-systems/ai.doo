@@ -13,6 +13,7 @@ FOOTER_PAGES = [
     "vera/index.html",
 ]
 ACCOUNTS = [
+    "https://www.facebook.com/profile.php?id=61595609953908",
     "https://www.instagram.com/studioaidoo/",
     "https://www.tiktok.com/@studioaidoo",
     "https://www.linkedin.com/company/ai-doo/",
