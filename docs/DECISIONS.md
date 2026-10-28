@@ -387,3 +387,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Why:** The game is a nod to a pub ritual; on a latte, a glass of milk or a shake it is a different and weaker joke, and the stills showed it.
 - **Alternatives:** Every venue from its own emblem (the row as first written); a slit through the emblem (look B, lost in the thin gull); the gap between emblem and name (look C, clean but less of the ritual).
 - **Consequences:** Only a pub prospect is pitched it. A pub prospect's own skin needs a dark ale and an emblem that reads inside a ring.
+
+## D-040 — The homepage offers the stamp card, in a quiet band, ahead of the review
+
+- **Status:** Accepted (owner, 2026-10-28, in a plain chat: "Let's get A live")
+- **Date:** 2026-10-28
+- **Decision:** The homepage gets one band for the stamp card, after "How a promo game gets made" and before the PIKA and VERA line: "Your stamp card, in their phone", no app and no sign-up, paper cards keep working, "Free two-week pilot for the first shops", and "See it work" to `/stamps/`. It names no wallet and no price. The band is dark (the steps' tile colour) with a drawn card in green, so the promo band stays the page's one bright band; it tints the page green like a game card, and its link isn't a Play button target (the demo plays itself; the button offers games). The click is counted (`stamps-demo-home`). `/stamps/` stays noindex and out of the sitemap.
+- **Why:** The Google Wallet side is live at stamps.aidoo.biz and approved, and the stamp card got the experiment's first reply (Roots). Shops we email look us up and found only the pour game. The owner chose this look from three mocks (a cream band and a one-line strip were the others).
+- **Alternatives:** Wait for the 2026-11-26 review (P2.1b's hold); a cream band in the demo's colours (a second bright band, and its tint washes the page grey); a single line under the promo band (reads as the promo game's footnote).
+- **Consequences:** An exception to the P2.1b hold, like D-023. The `stamps-demo-home` clicks are their own signal at the review, not the promo game's. Naming Google or Apple, a price, or a start date is the owner's call later; Apple Wallet isn't built.
+- **Revisit when:** The 2026-11-26 review, or when Apple Wallet is built.
