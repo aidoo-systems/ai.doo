@@ -168,6 +168,14 @@
     .processSteps .step-num{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:14px;color:var(--n)}
     .processSteps .step h3{font-size:19px;font-weight:750;letter-spacing:-.01em}
     .processSteps .step p{font-size:14.5px}
+    /* The stamp card: a quiet band in the steps' colour, so the promo band stays the bright one (D-040) */
+    .stampBand{display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:center;padding:56px;border-radius:40px;background:var(--card)}
+    .stampCard{width:280px;padding:22px 22px 20px;border-radius:18px;background:#1f4a3f;color:#fff}
+    .stampCard b{display:block;margin-bottom:12px;font-size:15px;font-weight:800}
+    .stampDots{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}
+    .stampDots i{aspect-ratio:1;border-radius:50%;border:2px solid #7fd1b0;background:#7fd1b0}
+    .stampDots i.off{border-color:rgba(255,255,255,.3);background:none}
+    .stampCard small{display:block;margin-top:12px;font-size:12.5px;opacity:.85}
     .alsoLine{padding:0 0 56px}
     .alsoLine p{margin:0;max-width:72ch;color:var(--muted);font-size:14px;line-height:1.7}
     .alsoLine a{color:var(--suite);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
@@ -177,6 +185,8 @@
       .workArt,.workWide .workArt{padding:16px 16px 0}
       .workBody{padding:20px 22px 22px}
       .promoBand{grid-template-columns:1fr;gap:20px;padding:32px 24px;border-radius:28px}
+      .stampBand{grid-template-columns:1fr;gap:24px;padding:32px 24px;border-radius:28px}
+      .stampCard{width:100%;max-width:280px}
       .processSteps{grid-template-columns:1fr;gap:12px}
       .processSteps .step{padding:20px 22px 22px;border-left:0}
     }
@@ -425,6 +435,25 @@
         <div class="step-num">06</div>
         <h3>Three months live</h3>
         <p>A leaderboard gives players a reason to come back. Then it switches off, unless you want to keep it running.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAMP CARD -->
+  <section class="section reveal" id="stamps">
+    <div class="stampBand" data-tint="#2f6f5e">
+      <div>
+        <div class="kicker">For shops and cafés</div>
+        <h2 class="h2">Your stamp card, in their phone.</h2>
+        <p class="lead">No app and no sign-up for your customers. Staff stamp it with the shop's own phone, and your paper cards keep working. Free two-week pilot for the first shops.</p>
+        <div class="ctaRow">
+          <a class="btn primary" href="stamps/" data-umami-event="stamps-demo-home">See it work</a>
+        </div>
+      </div>
+      <div class="stampCard" aria-hidden="true">
+        <b>Your shop</b>
+        <div class="stampDots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
+        <small>7 of 10. 3 more for a free coffee.</small>
       </div>
     </div>
   </section>
