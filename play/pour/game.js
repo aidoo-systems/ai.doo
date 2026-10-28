@@ -2244,18 +2244,17 @@
     document.documentElement.classList.add("ready");
   }
 
-  // Links to the same game in its other skins, each labelled by the skin it leads to.
+  // Links to the same game in its other skins, each labelled by the skin it leads to,
+  // on the results so the title screen leaves the room to the glass.
   function offerOthers(current) {
     (window.POUR_SKINS || []).forEach(function (id) {
       if (id === current.id || !/^[a-z0-9-]+$/.test(id)) return;
       loadSkin(id).then(function (other) {
-        ["othersTitle", "othersDone"].forEach(function (where) {
-          var a = document.createElement("a");
-          a.className = "other";
-          a.href = "?skin=" + id + (guest ? "&name=" + encodeURIComponent(guest) : "");
-          a.textContent = other.switchLabel;
-          $(where).appendChild(a);
-        });
+        var a = document.createElement("a");
+        a.className = "other";
+        a.href = "?skin=" + id + (guest ? "&name=" + encodeURIComponent(guest) : "");
+        a.textContent = other.switchLabel;
+        $("othersDone").appendChild(a);
       }, function () {});
     });
   }

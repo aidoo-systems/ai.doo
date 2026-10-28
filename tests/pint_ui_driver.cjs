@@ -444,10 +444,10 @@ async function started(search, tweak, live) {
   }
   page = await started("?skin=wobbly-gull&name=" + encodeURIComponent("Noa Bakehouse"));
   for (let i = 0; i < 6; i++) await page.settle();
-  out.namedSwitch = page.get("othersTitle").kids.map((a) => a.href);
+  out.namedSwitch = page.get("othersDone").kids.filter((a) => a.href).map((a) => a.href);
   page = await started();
   for (let i = 0; i < 6; i++) await page.settle();
-  out.plainSwitch = page.get("othersTitle").kids.map((a) => a.href);
+  out.plainSwitch = page.get("othersDone").kids.filter((a) => a.href).map((a) => a.href);
   out.plain = shown(page);
 
   // P2.0s: the dairy. ?skin=dairy plays it; a carton pours it, and its milk doesn't fizz.

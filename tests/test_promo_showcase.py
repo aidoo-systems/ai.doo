@@ -573,6 +573,17 @@ def test_the_pub_offers_a_pint_and_reads_as_meant():
             assert "crisps" not in line, (path.stem, key)
 
 
+def test_the_title_screen_leaves_the_room_to_the_glass():
+    # On a phone the glass gets what the text leaves; the demo's own bits wait for the results.
+    html = _text("play/pour/index.html")
+    title = html[html.index('id="title"') : html.index('id="play"')]
+    done = html[html.index('id="done"') : html.index('id="claim"')]
+    for hook in ('id="named"', 'id="othersDone"', "Nothing else is stored"):
+        assert hook not in title and hook in done, hook
+    assert 'id="fictional"' in title
+    assert "othersTitle" not in html + _text("play/pour/game.js")
+
+
 def test_the_title_screen_leads_with_the_prize_and_says_its_theirs_to_set():
     html = _text("play/pour/index.html")
     assert 'id="offer"' in html
