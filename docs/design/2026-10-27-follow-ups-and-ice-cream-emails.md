@@ -1,6 +1,6 @@
 # Follow-ups and the ice cream emails (P2.0, D-010)
 
-Status: **draft, 2026-10-27**, for the owner to adjust and send himself. Same rules as
+Status: **F1 to F6, I1 and I2 sent 2026-10-27** (logged); I3 drafted 2026-10-27, for the owner to adjust and send himself. Same rules as
 [the first emails](2026-10-18-first-outreach-emails.md): plain text from your own address,
 no family names, one follow-up a week after the first email, then stop. Log each one in the
 [prospect list](2026-10-02-promo-prospects.md)'s contact log when sent.
@@ -148,15 +148,48 @@ let to an operator, so check who to write to)
 > Keith
 > ai.doo · hello@aidoo.biz · aidoo.biz/about/
 
-### Still held: Davisons (#28)
+### I3. Davisons (#28)
 
-Held with these two, but not drafted: Davisons is known for scooped ice cream at its
-parlours, and the demo pours soft serve. Ask at a parlour whether they serve a whippy; if
-not, it waits for a scoop skin (not on the roadmap).
+No longer held: the owner knows Davisons has served soft serve (2026-10-27). It's a maker
+with its own parlours (Peel, Douglas, Ramsey) and its ice cream sold across the Island, so
+the pitch is the parlour queue first and the brand second. Check the name on the link: the
+parlours' signs say "Davison's".
+
+**To:** the office (website contact or Facebook page), or ask at the Peel parlour who
+handles marketing
+**Subject:** A 99 with your name on it
+
+> Hi `<name>`,
+>
+> I'm Keith. I run ai.doo, a small family studio on the Island that makes phone games. Here's
+> "pull the perfect 99" with your name on it as a sample, half a minute to play:
+>
+> aidoo.biz/play/pour/?skin=icecream&name=Davison%27s
+>
+> Why I think it suits Davison's:
+>
+> - **The queue on a sunny day.** A card by the counter at each parlour turns the wait into a
+>   game with your name on the screen.
+> - **It travels with the brand.** The same game can sit wherever your ice cream is sold, so a
+>   tub in someone's freezer has a game to go with it.
+> - **Nothing for your staff to run.** No app to download, no sign-ups, no customer data. The
+>   week's top score wins an ice cream on you; you set the prize.
+>
+> It's from £750, takes about two weeks and runs for three months, so this is a winter
+> conversation for next season, ready for Easter. You play it before it goes live, and if it
+> isn't right, you owe nothing beyond the £300 deposit. How it works and the price:
+> aidoo.biz/promo-games/?for=icecream
+>
+> Would a 20-minute chat over the winter be useful?
+>
+> Keith
+> ai.doo · hello@aidoo.biz · aidoo.biz/about/
 
 ---
 
-## Follow-up for I1 and I2 (one, a week later, same thread)
+## Follow-up for I1, I2 and I3 (one, a week later, same thread)
+
+I1 and I2 were sent 2026-10-27, so theirs is due 2026-11-03.
 
 > Hi `<name>`, just bringing this back to the top in case it got buried. No rush before the
 > season; happy to show you on my phone in five minutes whenever suits. Keith
