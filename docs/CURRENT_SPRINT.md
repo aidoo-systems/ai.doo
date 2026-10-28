@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-27
+Last updated: 2026-10-28
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (P2.0c, the demo's live board, merged in #98 and live: one score posted on aidoo.biz still to be seen on the board; P2.1e (#75) on hold (D-035); #94, the button fade, is still open and no longer needed: the owner keeps or closes it)
 
@@ -43,6 +43,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-28
+- **First reply: Roots by the Sea, on the stamp card, by Facebook** (the log had it as email; corrected). The owner replied with a price, £15 a month after the two-week pilot (D-037), and offered a look at the pop-up; no answer yet. One follow-up if still quiet on 2026-11-02: "passing Saturday morning, no need to reply". Every contact now records its channel, and a follow-up goes by the first message's channel. Captured P2.1j (a share card for `/play/pour/` and `/stamps/`, which show bare in Messenger). Silverdale's address bounced (#99); manxices.com may run its café. A stamp card yes can't meet D-010's £300 bar, so the review counts it as its own signal. Due: stamp card follow-ups 2026-10-30, Laxey 2026-11-03.
 
 ### 2026-10-27
 - **Outreach, follow-up day (owner).** The six follow-ups sent, and the whippy emails to Laxey Beach Cafe and Silverdale Glen; logged. Eight ice cream prospects added (#49 to #56, all to be checked for soft serve and still trading). Davisons (#28) no longer held: the owner knows it has served soft serve; email I3 drafted. Claude's advice, not yet a decision: one pitch per business (promo game or stamp card, by fit), the second only after a reply; Facebook Messenger for counters with no good email, once the Page has a few posts and `/play/pour/` has a share card (it has none, so a link shows no picture). Due next: stamp card follow-ups 2026-10-30; Laxey and Silverdale 2026-11-03.

@@ -124,6 +124,10 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 
 ## Contact log
 
+"How contacted" names the channel (email, Facebook message, walk-in) for every contact, so
+the 2026-11-26 read can compare reply rates by channel. A follow-up goes by the channel the
+first message used. Facebook messages go from the owner's own profile to the business's Page.
+
 | Date | # | Organisation | How contacted | Reply | Conversation? | Deposit? | "We already use X" |
 |---|---|---|---|---|---|---|---|
 | 2026-10-20 | 19 | Noa Bakehouse | Email (owner) | | | | |
@@ -135,7 +139,7 @@ The owner's rule: a prospect whose drink isn't a pint or a latte isn't contacted
 | 2026-10-23 | 44 | Gelatory | Email (owner), stamp card | | | | |
 | 2026-10-23 | 45 | Porter's Kitchen | Email (owner), stamp card | | | | |
 | 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
-| 2026-10-23 | 23 | Roots by the Sea | Email (owner), stamp card | | | | |
+| 2026-10-23 | 23 | Roots by the Sea | **Facebook message** (owner), stamp card, with their named `/stamps/` link | **Yes** (Facebook), the first reply of the experiment. Owner answered 2026-10-28: £15 a month after the two-week pilot (D-037), asked their stamp count and free item, offered a look on his phone at the pop-up | Not yet: no answer by 2026-10-28. If still quiet on 2026-11-02, one follow-up: "passing Saturday morning, no need to reply" | n/a (stamps, D-037) | |
 | 2026-10-27 | 19 | Noa Bakehouse | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 20 | Café 360 | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 6 | Villa Marina and Gaiety Theatre | Follow-up (owner) | | | | |

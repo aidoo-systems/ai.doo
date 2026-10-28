@@ -358,3 +358,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Revisit when:** P2.0b is built for a client, which may reuse this API with typed names.
 - **2026-10-27 (owner):** The pub keeps "Top score this week wins a pint on us" over the live board: the page says it is a made-up pub. A phone keeps its given name in the browser's own storage (the name only; no device ID or fingerprint, and the server can't link weeks), and the board keeps each name's best score for the week, so one player can't fill it.
 - **2026-10-28:** On the VPS the database is `/var/lib/aidoo-api/board.db` (`AIDOO_BOARD_DB` in `/etc/aidoo-api.env`), not the default under the service user's home: that home is `/var/www`, which the service can't write.
+
+## D-037 — The stamp card is £15 a month after a free two-week pilot
+
+- **Status:** Accepted (owner, 2026-10-28, in his reply to Roots by the Sea)
+- **Date:** 2026-10-28
+- **Decision:** After the free two-week pilot, the stamp card is £15 a month per shop, with no setup fee and no contract: a shop can stop any time, and its paper cards keep working either way. The first shops keep that price. No start date is promised until the build is finished.
+- **Why:** The first reply of the experiment (Roots, by Facebook) asked about the stamp card, and "what happens after the pilot?" needed an answer. A small monthly price with no tie-in is an easy yes for a café.
+- **Alternatives:** Free until the Gelatory pilot (the `/stamps/` page's position since 2026-10-22); a setup fee.
+- **Consequences:** A stamp card yes can't meet D-010's services bar (one deposit of £300 or more), so the 2026-11-26 read counts "a shop agreed to pay for stamps" as its own signal and doesn't blur it with the promo-game bet. The `/stamps/` page still says only "a free pilot"; any price on it is the owner's call. Promises nothing beyond what's built: the start date waits on the build.
+- **Revisit when:** The 2026-11-26 review, or the first shop's pilot ends.
