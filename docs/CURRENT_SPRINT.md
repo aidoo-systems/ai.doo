@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-10-28
+Last updated: 2026-10-29
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: ready-for-owner (P2.0c, the demo's live board, merged in #98 and live: one score posted on aidoo.biz still to be seen on the board; P2.1e (#75) on hold (D-035); #94, the button fade, is still open and no longer needed: the owner keeps or closes it)
 
@@ -43,6 +43,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-10-29
+- **Second reply: Café 360, on the pour game, by email.** It asked for the return on a game that rewards customers who've already ordered. The owner replied the same day without claiming one (no figures yet), then offered the stamp card for repeat visits (D-037). For the 2026-11-26 read: the first café to judge the promo game on its merits asked what £750 earns. That's evidence on D-010's services bet, and a reason to keep events, attractions and brands (where the game is the marketing) in the outreach.
 
 ### 2026-10-28
 - **The stamp card on the homepage (`item/stamps-band`, D-040; owner, in a plain chat; no roadmap row).** A quiet dark band after the promo game's steps: "Your stamp card, in their phone", "Free two-week pilot for the first shops", "See it work" to `/stamps/` (counted as `stamps-demo-home`), with a drawn card in green; no wallet, price or date named. The owner picked it from three mocks (a cream band and a one-line strip were the others); on the mock, the mouse tints the page green and the button hovers like the site's; at 375px it stacks with no sideways scroll. Not a Play button target: the demo plays itself. Red first (`test_the_homepage_offers_the_stamp_card_in_a_quiet_band` failed, then passed). **Next:** the owner sees it on the phone, then merges.
