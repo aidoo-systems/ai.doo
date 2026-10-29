@@ -141,7 +141,7 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
 | 2026-10-23 | 23 | Roots by the Sea | **Facebook message** (owner), stamp card, with their named `/stamps/` link | **Yes** (Facebook), the first reply of the experiment. Owner answered 2026-10-28: £15 a month after the two-week pilot (D-037), asked their stamp count and free item, offered a look on his phone at the pop-up | Not yet: no answer by 2026-10-28. If still quiet on 2026-11-02, one follow-up: "passing Saturday morning, no need to reply" | n/a (stamps, D-037) | |
 | 2026-10-27 | 19 | Noa Bakehouse | Follow-up, same thread (owner) | | | | |
-| 2026-10-27 | 20 | Café 360 | Follow-up, same thread (owner) | | | | |
+| 2026-10-27 | 20 | Café 360 | Follow-up, same thread (owner) | **Yes** (email, 2026-10-29): played the game and asked for the return: "paying for customers who have already placed an order to play a game, while also giving away a free coffee" | Yes. Owner replied 2026-10-29: no sales figures yet (trying it with a few Island cafés first), then the stamp card for repeat visits, with a named `/stamps/` link, the free two-week trial and £15 a month (D-037) | Not yet | "What's the return?": a café can't see what a £750 game earns |
 | 2026-10-27 | 6 | Villa Marina and Gaiety Theatre | Follow-up (owner) | | | | |
 | 2026-10-27 | 29 | Isle of Man Creamery | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 27 | Okell's Inns | Follow-up, same thread (owner) | | | | |
