@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-10-28
+Last updated: 2026-10-30
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: ready-for-owner (P2.0c, the demo's live board, merged in #98 and live: one score posted on aidoo.biz still to be seen on the board; P2.1e (#75) on hold (D-035); #94, the button fade, is still open and no longer needed: the owner keeps or closes it)
+State: ready-for-owner (P2.0ac, split the mark, built on `item/p20ac-split-the-mark`: the owner plays it on a phone and approves the feel, then merges; P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
 ## Goal
 
