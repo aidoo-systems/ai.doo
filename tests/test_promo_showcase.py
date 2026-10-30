@@ -2378,6 +2378,17 @@ def test_a_split_pushes_in_and_eases_back_but_not_when_calm(ui):
     assert set(ui["splitLook"]["calm"]["pushes"]) == {1}
 
 
+def test_a_splits_light_is_done_before_the_next_glass_slides_in(ui):
+    # game.js holds a result for HOLD ms, then the next glass comes: the light must have
+    # eased out by then, not be cut off (Codex, 2026-10-30).
+    hold = int(re.search(r"var HOLD = (\d+);", _text("play/pour/game.js")).group(1))
+    frames = int(hold / 1000 * 60)
+    for seen in (ui["splitLook"]["lively"], ui["splitLook"]["calm"]):
+        assert any(seen["starred"][:frames])
+        assert not any(seen["starred"][frames - 3 :])
+        assert set(seen["pushes"][frames - 3 :]) == {1}
+
+
 def test_the_split_glass_grows_past_the_old_cap_on_a_tall_phone(ui):
     assert ui["splitLook"]["tall"]["glassHeight"] > 380
     assert (

@@ -1209,13 +1209,14 @@ async function started(search, tweak, live) {
     const split = { top: 0.65, level: 0.6, pouring: false, settling: false, settled: 1 };
     scene.frame(0, split);
     const inside = page.fills.filter((f) => f.colour === "rgba(255,255,255,.05)").pop();
-    const seen = { gap: scene.gap(), glassHeight: inside.bottom - inside.top, pushes: [] };
+    const seen = { gap: scene.gap(), glassHeight: inside.bottom - inside.top, pushes: [], starred: [] };
     scene.result({ verdict: "perfect" });
     for (let i = 0; i < 120; i++) {
       const from = page.trace.length;
       scene.frame(1 / 60, split);
       const push = page.trace.slice(from).find((t) => t.startsWith("scale(") && !t.startsWith("scale(1.00,-1"));
       seen.pushes.push(push ? parseFloat(push.slice(6)) : 1);
+      seen.starred.push(page.trace.slice(from).includes("fillStyle=#fff6dc"));
     }
     stage = was;
     return seen;

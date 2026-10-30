@@ -10,7 +10,7 @@
   var NAME_FONT = "'Bricolage Grotesque', Inter, system-ui, sans-serif";
   var RUBY = "168,40,16"; // light through a dark drink at its foot and edges
   var TILT = 0.06; // how far above the glass the camera sits: the print's rows bow by this
-  var LIT = 1.7; // seconds a split's print stays lit
+  var LIT = 1.05; // seconds a split's print stays lit: done inside game.js's hold on a result (1.15s)
 
   function clamp(v, lo, hi) {
     return Math.max(lo, Math.min(hi, v));
@@ -361,12 +361,12 @@
     // crosses it, a star opens where the line meets the gap, and the glass pushes in a
     // touch and eases back. Calm: the light without the movement.
     function litAt(t) {
-      var on = smooth(t / 0.25) * (1 - smooth((t - 0.95) / (LIT - 0.95)));
+      var on = smooth(t / 0.22) * (1 - smooth((t - 0.55) / (LIT - 0.55)));
       return {
         on: on,
-        sheen: calm ? 0 : smooth((t - 0.05) / 0.75) * 2 - 1,
-        star: (calm ? 1 : smooth(t / 0.3)) * (1 - smooth((t - 0.85) / (LIT - 0.85))),
-        push: calm ? 0 : 0.05 * smooth(t / 0.22) * (1 - smooth((t - 0.35) / 0.85)),
+        sheen: calm ? 0 : smooth((t - 0.05) / 0.6) * 2 - 1,
+        star: (calm ? 1 : smooth(t / 0.25)) * (1 - smooth((t - 0.5) / (LIT - 0.5))),
+        push: calm ? 0 : 0.05 * smooth(t / 0.2) * (1 - smooth((t - 0.3) / (LIT - 0.3))),
       };
     }
 
@@ -477,8 +477,10 @@
       ctx.globalAlpha = 0.96;
       ctx.fillRect(x0, lineY, x1 - x0, end - lineY);
       ctx.globalAlpha = 1;
+      // each bubble keeps its own place down the drink; the clearing cloud only hides it
       fx.specks.forEach(function (p) {
-        var y = lineY + (p.y % 1) * (yb - lineY + 10);
+        var y = lineY + (p.y % 1) * (g.bottom - lineY);
+        if (y > yb + 10) return;
         var e = xRange(g.inner, y);
         if (!e) return;
         var x = p.left ? e[0] + 2 + p.k * (e[1] - e[0]) : e[1] - 2 - p.k * (e[1] - e[0]);
