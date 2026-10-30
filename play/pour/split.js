@@ -57,6 +57,7 @@
     var lit = null; // a lit copy of it while a split catches the light
     var mirror = null; // the strip above the counter, for its reflection in the varnish
     var ruby = null; // the red at the drink's edges, worked out once a layout and glass
+    var rimLine = null; // the glass's outline, drawn once a layout and glass
     var foam = [];
     var fx;
     if (document.fonts && document.fonts.load) document.fonts.load("700 16px " + NAME_FONT).then(function () {
@@ -97,6 +98,7 @@
       print = null;
       mirror = null;
       ruby = null;
+      rimLine = null;
       fit(dr);
       if (drawn) api.frame(0, drawn);
     }
@@ -139,9 +141,12 @@
     }
 
     // The pour game's soft outline: corners rounded as far as their sides allow, a crisp lip.
-    function glassPath(pts) {
+    // Drawn on c (ctx unless given), added to the path already there when more is set.
+    function glassPath(pts, c, more) {
+      var ctx0 = ctx;
+      ctx = c || ctx;
       var n = pts.length;
-      ctx.beginPath();
+      if (!more) ctx.beginPath();
       ctx.moveTo((pts[n - 1][0] + pts[0][0]) / 2, (pts[n - 1][1] + pts[0][1]) / 2);
       for (var i = 0; i < n; i++) {
         var a = pts[(i + n - 1) % n];
@@ -162,6 +167,7 @@
         else ctx.arcTo(p[0], p[1], b[0], b[1], r);
       }
       ctx.closePath();
+      ctx = ctx0;
     }
 
     // The bar dark around the glass, with one warm light over it.
@@ -558,6 +564,50 @@
       ctx.fillRect(x0, lineY - 4, x1 - x0, 7);
     }
 
+    // The outline: a soft body of glass with a crisp lit edge, brighter on the lit left,
+    // thinning to a fine line into the base. Drawn once a layout and glass.
+    function outline() {
+      var shape = String(dr.glass);
+      if (rimLine && rimLine.glass === shape) return rimLine.image;
+      var lw = Math.max(2.5, g.wall);
+      var foot = g.bottom + g.base;
+      var image = document.createElement("canvas");
+      image.width = Math.ceil(W * dpr);
+      image.height = Math.ceil(H * dpr);
+      var c = image.getContext("2d");
+      c.save();
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      glassPath(g.outer, c);
+      var body = c.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+      body.addColorStop(0, "rgba(255,255,255,.34)");
+      body.addColorStop(0.5, "rgba(255,255,255,.2)");
+      body.addColorStop(1, "rgba(255,255,255,.14)");
+      c.lineJoin = "round";
+      c.strokeStyle = body;
+      c.lineWidth = lw * 1.3;
+      c.stroke();
+      var crisp = c.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+      crisp.addColorStop(0, "rgba(255,250,240,.95)");
+      crisp.addColorStop(0.45, "rgba(255,250,240,.6)");
+      crisp.addColorStop(1, "rgba(255,250,240,.38)");
+      c.strokeStyle = crisp;
+      c.lineWidth = Math.max(1.2, lw * 0.4);
+      c.stroke();
+      c.globalCompositeOperation = "destination-out";
+      var fade = c.createLinearGradient(0, g.bottom - g.base * 3, 0, foot);
+      fade.addColorStop(0, "rgba(0,0,0,0)");
+      fade.addColorStop(1, "rgba(0,0,0,.8)");
+      c.fillStyle = fade;
+      c.fillRect(0, g.bottom - g.base * 3, W, g.base * 4 + lw);
+      c.globalCompositeOperation = "source-over";
+      c.strokeStyle = "rgba(255,255,255,.18)";
+      c.lineWidth = 1;
+      c.stroke();
+      c.restore();
+      rimLine = { glass: shape, image: image };
+      return image;
+    }
+
     function drawGlass(ox, s, live, light) {
       ctx.save();
       ctx.translate(ox, 0);
@@ -616,34 +666,57 @@
         ctx.fillStyle = band;
         ctx.fillRect(at - half, g.top, half * 2, g.bottom - g.top);
       });
-      // the glass's thick base: the drink seen down through it, darker and red, a light edge on top
-      var slab = ctx.createLinearGradient(0, g.bottom - g.base * 0.5, 0, g.bottom + g.base);
-      slab.addColorStop(0, "rgba(70,16,6,.55)");
-      slab.addColorStop(1, "rgba(24,8,4,.35)");
-      ctx.fillStyle = slab;
-      ctx.beginPath();
-      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
-      ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
-      ctx.lineTo(g.gx + g.gw + 4, g.bottom + g.base + 4);
-      ctx.lineTo(g.gx - 4, g.bottom + g.base + 4);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = "rgba(255,230,210,.28)";
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
-      ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
-      ctx.stroke();
-      ctx.restore();
-      var edge = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
-      edge.addColorStop(0, "rgba(255,255,255,.8)");
-      edge.addColorStop(0.5, "rgba(255,255,255,.6)");
-      edge.addColorStop(1, "rgba(255,255,255,.42)");
+      // the thick base, and the walls' corners: only the glass itself, outside the drink
+      var foot = g.bottom + g.base;
+      var ft = xRange(g.outer, foot - 1) || [g.cx - g.gw * 0.2, g.cx + g.gw * 0.2];
+      ctx.save();
       glassPath(g.outer);
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = edge;
-      ctx.lineWidth = Math.max(2.5, g.wall);
-      ctx.stroke();
+      glassPath(g.inner, ctx, true);
+      ctx.clip("evenodd");
+      var rise = g.gw * 0.16;
+      var dark = ctx.createLinearGradient(0, g.bottom - rise, 0, g.bottom);
+      dark.addColorStop(0, "rgba(14,6,3,0)");
+      dark.addColorStop(1, "rgba(14,6,3,.6)");
+      ctx.fillStyle = dark;
+      ctx.fillRect(g.gx - 4, g.bottom - rise, g.gw + 8, rise + g.base + 8);
+      // the drink seen down through it: the same drink carried on into the glass to a lower,
+      // softer floor, darker the deeper it goes, the light through it red
+      var low = foot - g.base * 0.32;
+      var deep = g.inner.map(function (p) {
+        return [g.cx + (p[0] - g.cx) * 0.985, p[1] >= g.bottom - 0.5 ? low : p[1]];
+      });
+      var through = ctx.createRadialGradient(g.cx, g.bottom, 0, g.cx, g.bottom, g.gw * 0.4);
+      through.addColorStop(0, "rgba(" + RUBY + ",.55)");
+      through.addColorStop(0.45, "rgba(80,16,6,.7)");
+      through.addColorStop(1, "rgba(24,8,3,.85)");
+      ctx.fillStyle = through;
+      glassPath(deep);
+      ctx.fill();
+      var deeper = ctx.createLinearGradient(0, g.bottom, 0, low);
+      deeper.addColorStop(0, "rgba(10,3,1,0)");
+      deeper.addColorStop(1, "rgba(10,3,1,.55)");
+      ctx.fillStyle = deeper;
+      ctx.fill();
+      ctx.restore();
+      // the clear glass under it, lit a little from the counter
+      var up = ctx.createLinearGradient(0, low, 0, foot);
+      up.addColorStop(0, "rgba(255,220,180,0)");
+      up.addColorStop(1, "rgba(255,220,180,.08)");
+      ctx.fillStyle = up;
+      ctx.fillRect(g.gx, low - 2, g.gw, foot - low + 4);
+      ctx.restore();
+      ctx.drawImage(outline(), 0, 0, W, H);
+      // soft light where the foot turns, along the glass's own curve, more on the lit left
+      var turn = g.gw * 0.045;
+      [[ft[0] + turn, 0.75], [ft[1] - turn, 0.32]].forEach(function (c) {
+        var hl = ctx.createRadialGradient(c[0], foot - turn, 0, c[0], foot - turn, turn * 2.4);
+        hl.addColorStop(0, "rgba(255,240,222," + c[1] + ")");
+        hl.addColorStop(1, "rgba(255,240,222,0)");
+        glassPath(g.outer);
+        ctx.strokeStyle = hl;
+        ctx.lineWidth = Math.max(2.5, g.wall) * 0.9;
+        ctx.stroke();
+      });
       var rim = xRange(g.outer, g.top + 0.5);
       if (rim) {
         ctx.lineCap = "round";
