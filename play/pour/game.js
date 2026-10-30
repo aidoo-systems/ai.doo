@@ -56,6 +56,10 @@
 
   var NAME_KEY = "pour.name"; // the one thing the game keeps on the phone: its given name
 
+  // ?mode=split asks for the second way to play (P2.0ac): only a skin with a mark has it,
+  // so any other skin plays its pour as usual. Its scene is split.js's.
+  var wantSplit = new URLSearchParams(location.search).get("mode") === "split";
+
   // Every request the game makes: its skin, its nickname words, and the week's board.
   // A POST carries the skin, the nickname and the score, and nothing else.
   function getJSON(url, body) {
@@ -2259,10 +2263,33 @@
     });
   }
 
+  // The same venue's other way to play, on the title screen and on the results.
+  function offerMode(skin, split) {
+    var href = "?skin=" + skinName + (split ? "" : "&mode=split") + (guest ? "&name=" + encodeURIComponent(guest) : "");
+    var title = $("mode");
+    title.href = href;
+    title.textContent = split ? skin.copy.back : skin.mark.copy.switch;
+    title.hidden = false;
+    var done = document.createElement("a");
+    done.className = "other";
+    done.href = href;
+    done.textContent = title.textContent;
+    $("othersDone").appendChild(done);
+  }
+
   function start(skin) {
-    var game = E.createGame(skin);
+    var split = wantSplit && E.offersSplit(skin) && typeof window.PourSplitScene === "function";
+    var hasSplit = E.offersSplit(skin) && typeof window.PourSplitScene === "function";
+    if (split) skin = E.splitSkin(skin);
+    var newGame = function () {
+      return split ? E.createSplit(skin) : E.createGame(skin);
+    };
+    var newScene = function (canvas) {
+      return split ? window.PourSplitScene(canvas, skin, calm) : makeScene(canvas, skin);
+    };
+    var game = newGame();
     var sound = makeSound();
-    var scene = makeScene($("scene"), skin);
+    var scene = newScene($("scene"));
     var pourBtn = $("pour");
     var againBtn = $("again");
     var startBtn = $("start");
@@ -2327,11 +2354,12 @@
       $("sample").textContent = "Live this week";
       showBeat();
     }
-    getJSON("/api/pour/board?skin=" + skinName)
+    getJSON("/api/pour/board?skin=" + skinName + (split ? "&mode=split" : ""))
       .then(gotBoard)
       .catch(function () {});
 
     dress(skin);
+    if (hasSplit) offerMode(skin, split);
     offerOthers(skin);
     startBtn.hidden = false;
     muteBtn.hidden = false;
@@ -2444,7 +2472,7 @@
       sound.verdict(r.verdict);
       buzz(r.verdict);
       scene.result(r);
-      say(skin.copy[r.verdict], "+" + r.score, r.verdict);
+      say(told(r), "+" + r.score, r.verdict);
       pills($("pips"), -1);
       count($("points"), shown, game.score, 450);
       shown = game.score;
@@ -2462,6 +2490,19 @@
           beginRound();
         }
       });
+    }
+
+    // What a result says: the verdict's words, with how far off a split was.
+    function told(r) {
+      return skin.copy[r.verdict].replace("{mm}", String(r.mm));
+    }
+
+    // A sip has stopped and the head is settling: the result comes once it has.
+    function settling() {
+      sound.stopPour();
+      pourBtn.textContent = skin.copy.settling;
+      pourBtn.classList.remove("down");
+      pourBtn.classList.add("wait");
     }
 
     function falseStart() {
@@ -2497,6 +2538,13 @@
         if (v % 9 === 0) sound.tick();
       });
       pills($("chips"), -1);
+      if (split) {
+        var closest = game.results.reduce(function (a, b) {
+          return Math.abs(b.off) < Math.abs(a.off) ? b : a;
+        });
+        $("card").textContent = told(closest);
+        $("card").hidden = false;
+      }
 
       shownBoard = "";
       showBoard(game.score);
@@ -2510,7 +2558,7 @@
       if (nick) {
         var asOf = turn;
         var sentAs = nick;
-        getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })
+        getJSON("/api/pour/score", { skin: skinName, mode: split ? "split" : undefined, name: nick, score: game.score })
           .then(function (got) {
             // Renamed while it was on its way: the week's scores still count, the old name's best doesn't.
             if (nick !== sentAs) return gotBoard({ scores: got.scores });
@@ -2570,23 +2618,26 @@
       });
     }
 
+    // What the scene draws this frame. A split's glass has a top to its head and a settle.
+    function view(g, flow) {
+      if (split) return { top: g.top, level: g.level, pouring: g.phase === "pouring", settling: g.phase === "settling", settled: g.settled };
+      return { level: g.level, line: skin.rounds[g.round].line, pouring: g.phase === "pouring", flow: flow };
+    }
+
     function loop(now) {
       if (!running) return;
       var dt = clamp((now - last) / 1000, 0, 0.05);
       last = now;
       var pouring = game.phase === "pouring";
-      var flow = pouring ? E.flowAt(skin, game.round, game.held) : 1;
-      if (pouring) {
+      // A sip's sound runs with how fast it's going; a pour's with the tap's surge.
+      var flow = !pouring ? 1 : split ? clamp(game.v * 4, 0.3, 1.8) : E.flowAt(skin, game.round, game.held);
+      if (pouring || game.phase === "settling") {
         game.tick(dt);
-        sound.setPour(game.level, flow);
+        if (game.phase === "pouring") sound.setPour(game.level, flow);
+        else if (pouring && game.phase === "settling") settling(); // the sip stopped itself
         if (game.phase === "poured") result();
       }
-      scene.frame(dt, {
-        level: game.level,
-        line: skin.rounds[game.round].line,
-        pouring: game.phase === "pouring",
-        flow: flow,
-      });
+      scene.frame(dt, view(game, flow));
       requestAnimationFrame(loop);
     }
 
@@ -2627,8 +2678,11 @@
       var now = performance.now();
       game.tick((now - last) / 1000);
       last = now;
-      if (game.phase === "poured") result();
-      else if (game.release() === "falseStart") falseStart();
+      if (game.phase === "poured") return result();
+      if (game.phase === "settling") return settling();
+      var how = game.release();
+      if (how === "falseStart") falseStart();
+      else if (how === "settling") settling();
       else result();
     }
 
@@ -2727,18 +2781,53 @@
 
     // ---- the title screen plays itself: one silent pour to the line, over and over
 
-    var demo = E.createGame(skin);
-    var attract = makeScene($("attract"), skin);
+    var demo = newGame();
+    var attract = newScene($("attract"));
     attract.serve(E.serveOf(skin, 0));
     var demoOn = true;
     var demoWait = 0.7;
     var demoLast = performance.now();
     var demoLine = skin.rounds[0].line;
 
+    // A split's own glass sips, lets go where it will settle in the gap, and settles there.
+    function splitDemo(dt) {
+      if (calm) {
+        demo.level = skin.mark.gap;
+        demo.top = demo.level + demo.head;
+        return attract.frame(0, view(demo));
+      }
+      if (demo.phase === "ready") {
+        demoWait -= dt;
+        if (demoWait <= 0) {
+          demo.press();
+          attract.press();
+        }
+      } else if (demo.phase === "pouring") {
+        demo.tick(dt);
+        if (demo.phase === "pouring" && demo.restsAt() <= skin.mark.gap) demo.release();
+      } else if (demo.phase === "settling") {
+        demo.tick(dt);
+        if (demo.phase === "poured") {
+          attract.result(demo.results[0]);
+          demoWait = 1.9;
+        }
+      } else {
+        demoWait -= dt;
+        if (demoWait <= 0) {
+          demo.reset();
+          attract.nextRound();
+          demoWait = 0.9;
+        }
+      }
+      attract.frame(dt, view(demo));
+      requestAnimationFrame(demoLoop);
+    }
+
     function demoLoop(now) {
       if (!demoOn) return;
       var dt = clamp((now - demoLast) / 1000, 0, 0.05);
       demoLast = now;
+      if (split) return splitDemo(dt);
       var flow = 1;
       if (calm) {
         // no motion wanted: show the finished pour, still

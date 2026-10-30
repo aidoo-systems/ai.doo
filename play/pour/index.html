@@ -14,6 +14,8 @@
        dark until game.js has set these from the skin, then fades in. */
     :root{--bg:#101214;--panel:#16191d;--ink:#f2f2f2;--muted:#a9adb3;--accent:#f2f2f2;--accentInk:#101214}
     @font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;src:url('/fonts/inter-latin.woff2') format('woff2')}
+    /* The venue's name as it's printed on the glass in the second way to play (P2.0ac) */
+    @font-face{font-family:'Bricolage Grotesque';font-style:normal;font-weight:200 800;font-display:swap;src:url('/fonts/bricolage-grotesque-latin.woff2') format('woff2')}
     *{box-sizing:border-box}
     html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none}
     body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -107,6 +109,7 @@
     .big{flex:none;margin:-4px 0 0;font-size:64px;font-weight:900;letter-spacing:-3px;line-height:1;font-variant-numeric:tabular-nums}
     .big small{font-size:17px;letter-spacing:0;color:var(--muted);font-weight:700}
     .chips{flex:none;justify-content:center}
+    .card{flex:none;margin:12px 0 -6px;font-size:clamp(24px,7.5vw,30px);font-weight:900;letter-spacing:-.8px;line-height:1.1;color:var(--accent);text-wrap:balance}
     .goal{flex:none;margin:2px 0 0;font-size:17px;font-weight:900;letter-spacing:-.2px;color:var(--accent)}
     .mine{flex:none;margin:-4px 0 0;color:var(--muted);font-size:13.5px;font-weight:700;min-height:0}
     .panel{flex:none;background:rgba(255,255,255,.06);border-radius:20px;padding:12px 14px;text-align:left}
@@ -151,6 +154,7 @@
     <p class="offer" id="offer"></p>
     <p class="beat" id="beat"></p>
     <button class="btn" id="start" type="button" hidden></button>
+    <a class="other" id="mode" hidden></a>
     <noscript><p class="how">This game needs JavaScript turned on.</p></noscript>
     <p class="credit"><span id="fictional"></span> A demo by <a href="/promo-games/">ai.doo</a>.</p>
   </section>
@@ -170,6 +174,7 @@
   <section class="screen done" id="done" hidden>
     <div class="doneBody" id="doneBody">
       <p class="brand"><svg id="doneEmblem" aria-hidden="true" hidden><path fill="currentColor"/></svg><span id="doneVenue"></span></p>
+      <p class="card" id="card" hidden></p>
       <div class="stars" id="stars" role="img"></div>
       <p class="big"><span class="sr" id="totalLabel"></span><span id="total">0</span> <small id="outOf"></small></p>
       <ol class="chips" id="chips" aria-hidden="true"></ol>
@@ -203,7 +208,8 @@
 
 <!-- Bump ?v= whenever a script changes, so a phone that has played before gets the new one. -->
 <script src="skins/default.js?v=12"></script>
-<script src="engine.js?v=19"></script>
-<script src="game.js?v=49"></script>
+<script src="engine.js?v=20"></script>
+<script src="split.js?v=1"></script>
+<script src="game.js?v=51"></script>
 </body>
 </html>
