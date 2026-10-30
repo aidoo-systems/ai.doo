@@ -56,6 +56,7 @@
     var print = null; // the print wrapped round the glass, made once a layout
     var lit = null; // a lit copy of it while a split catches the light
     var mirror = null; // the strip above the counter, for its reflection in the varnish
+    var ruby = null; // the red at the drink's edges, worked out once a layout and glass
     var foam = [];
     var fx;
     if (document.fonts && document.fonts.load) document.fonts.load("700 16px " + NAME_FONT).then(function () {
@@ -95,6 +96,7 @@
       g = { counterY: counterY, counterH: counterH, gw: gw, gh: gh, gx: (W - gw) / 2, cx: W / 2, wall: Math.max(3, gw * 0.022), base: Math.max(6, gh * 0.045) };
       print = null;
       mirror = null;
+      ruby = null;
       fit(dr);
       if (drawn) api.frame(0, drawn);
     }
@@ -432,31 +434,66 @@
       ctx.restore();
     }
 
-    // A dark drink: near-black, ruby where it's thin at the foot and the edges, light under the head.
+    // The red at a dark drink's edges, from the rim to the base: how much thinner than its
+    // widest the glass is at each height (most at the narrow foot), a little more on the lit
+    // left side, fading softly in. Drawn once a layout and glass, then shown under the line.
+    function rubyEdges() {
+      var shape = String(dr.glass);
+      if (ruby && ruby.glass === shape) return ruby.image;
+      var floor = g.bottom + g.base;
+      var widest = 0;
+      for (var yy = g.top; yy <= g.bottom; yy += 2) {
+        var r0 = xRange(g.inner, yy);
+        if (r0) widest = Math.max(widest, r0[1] - r0[0]);
+      }
+      var image = document.createElement("canvas");
+      image.width = Math.ceil(W * dpr);
+      image.height = Math.ceil(H * dpr);
+      var c = image.getContext("2d");
+      c.save();
+      c.setTransform(dpr, 0, 0, dpr, 0, 0);
+      for (var y = g.top; y < floor; y += 2) {
+        var e = xRange(g.inner, Math.min(y, g.bottom - 0.5));
+        if (!e) continue;
+        var w = e[1] - e[0];
+        var thin = clamp((widest - w) / (widest * 0.5), 0, 1);
+        var a = 0.06 + 0.3 * thin * thin;
+        var fw = w * (0.14 + 0.1 * thin);
+        var left = c.createLinearGradient(e[0], 0, e[0] + fw, 0);
+        left.addColorStop(0, "rgba(" + RUBY + "," + a + ")");
+        left.addColorStop(1, "rgba(" + RUBY + ",0)");
+        c.fillStyle = left;
+        c.fillRect(e[0] - 2, y, fw + 2, 2);
+        var right = c.createLinearGradient(e[1], 0, e[1] - fw, 0);
+        right.addColorStop(0, "rgba(" + RUBY + "," + a * 0.6 + ")");
+        right.addColorStop(1, "rgba(" + RUBY + ",0)");
+        c.fillStyle = right;
+        c.fillRect(e[1] - fw, y, fw + 2, 2);
+      }
+      c.restore();
+      ruby = { glass: shape, image: image };
+      return image;
+    }
+
+    // A dark drink: near-black, ruby where it's thin at the edges and the foot, light under the head.
     function drawDrink(x0, x1, lineY) {
       var span = g.bottom - g.top;
       var floor = g.bottom + g.base;
       ctx.fillStyle = mix(dr.liquidDeep, "#000000", 0.35);
       ctx.fillRect(x0, lineY, x1 - x0, floor - lineY);
-      var foot = ctx.createRadialGradient(g.cx, g.bottom + g.base * 0.6, 0, g.cx, g.bottom + g.base * 0.6, g.gw * 0.42);
-      foot.addColorStop(0, "rgba(" + RUBY + ",.75)");
-      foot.addColorStop(0.5, "rgba(110,22,8,.3)");
-      foot.addColorStop(1, "rgba(60,10,4,0)");
-      ctx.fillStyle = foot;
-      ctx.fillRect(x0, lineY, x1 - x0, floor - lineY);
-      // the edges: the glass's own outline, stroked soft inside it, over the drink only
       ctx.save();
       ctx.beginPath();
       ctx.rect(x0, lineY, x1 - x0, floor - lineY);
       ctx.clip();
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(120,24,10,.12)";
-      [0.13, 0.08, 0.04].forEach(function (k) {
-        glassPath(g.inner);
-        ctx.lineWidth = g.gw * k;
-        ctx.stroke();
-      });
+      ctx.drawImage(rubyEdges(), 0, 0, W, H);
       ctx.restore();
+      // the light through the foot, low and wide, fading up into the black
+      var foot = ctx.createRadialGradient(g.cx, g.bottom, 0, g.cx, g.bottom, g.gw * 0.4);
+      foot.addColorStop(0, "rgba(" + RUBY + ",.55)");
+      foot.addColorStop(0.45, "rgba(110,22,8,.22)");
+      foot.addColorStop(1, "rgba(60,10,4,0)");
+      ctx.fillStyle = foot;
+      ctx.fillRect(x0, lineY, x1 - x0, floor - lineY);
       var under = ctx.createLinearGradient(0, lineY, 0, lineY + span * 0.06);
       under.addColorStop(0, rgba(dr.liquid, 0.9));
       under.addColorStop(0.3, "rgba(98,36,14,.4)");
@@ -579,8 +616,11 @@
         ctx.fillStyle = band;
         ctx.fillRect(at - half, g.top, half * 2, g.bottom - g.top);
       });
-      // the glass's thick base
-      ctx.fillStyle = "rgba(255,255,255,.2)";
+      // the glass's thick base: the drink seen down through it, darker and red, a light edge on top
+      var slab = ctx.createLinearGradient(0, g.bottom - g.base * 0.5, 0, g.bottom + g.base);
+      slab.addColorStop(0, "rgba(70,16,6,.55)");
+      slab.addColorStop(1, "rgba(24,8,4,.35)");
+      ctx.fillStyle = slab;
       ctx.beginPath();
       ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
       ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
@@ -588,6 +628,12 @@
       ctx.lineTo(g.gx - 4, g.bottom + g.base + 4);
       ctx.closePath();
       ctx.fill();
+      ctx.strokeStyle = "rgba(255,230,210,.28)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
+      ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
+      ctx.stroke();
       ctx.restore();
       var edge = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
       edge.addColorStop(0, "rgba(255,255,255,.8)");
