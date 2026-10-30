@@ -2360,6 +2360,41 @@ def test_the_mark_is_printed_with_the_venues_name_over_the_ring(ui):
     assert guest["link"] == "?skin=wobbly-gull&name=Noa%20Bakehouse"
 
 
+def test_the_wrapped_print_keeps_the_gap_where_the_line_scores(ui):
+    # The print is laid round the glass (2026-10-30), but the gap's own column stays at the
+    # gap's height, on the ring's right, so the line still scores where it looks.
+    for seen in ui["splitLook"].values():
+        gap = seen["gap"]
+        assert gap["printed"] == pytest.approx(gap["y"], abs=0.01)
+        assert 0 < gap["ring"] - gap["x"] < 20
+
+
+def test_a_split_pushes_in_and_eases_back_but_not_when_calm(ui):
+    lively = ui["splitLook"]["lively"]["pushes"]
+    assert 1.03 <= max(lively) <= 1.06
+    # it arrives, it doesn't pop: the first frame is barely in
+    assert lively[0] < 1.02
+    assert lively[-1] == 1
+    assert set(ui["splitLook"]["calm"]["pushes"]) == {1}
+
+
+def test_the_split_glass_grows_past_the_old_cap_on_a_tall_phone(ui):
+    assert ui["splitLook"]["tall"]["glassHeight"] > 380
+    assert (
+        ui["splitLook"]["tall"]["glassHeight"]
+        > ui["splitLook"]["lively"]["glassHeight"]
+    )
+
+
+def test_the_marks_glass_is_the_skins_not_the_codes():
+    rounds = json.loads(PUB.read_text(encoding="utf-8"))["mark"]["rounds"]
+    glasses = [r.get("glass") for r in rounds]
+    assert all(glasses) and all(g == glasses[0] for g in glasses)
+    # no outline of its own in the drawing: [[x, y], [x, y], ...]
+    outline = r"\[\s*\[\s*\d+\s*,\s*\d+\s*\]\s*,\s*\["
+    assert not re.search(outline, _text("play/pour/split.js"))
+
+
 def test_a_sip_held_to_the_bottom_still_settles_and_moves_on(ui):
     held = ui["split"]["heldOn"]
     assert held["button"] == "Hold to sip"

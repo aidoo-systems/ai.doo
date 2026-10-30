@@ -1194,5 +1194,33 @@ async function started(search, tweak, live) {
   for (let i = 0; i < 6; i++) await page.settle();
   out.split.fromPour = { href: page.get("mode").href, text: page.get("mode").textContent, hidden: page.get("mode").hidden };
 
+  // The split's polish (2026-10-30): the scene on its own, a split landing on it, frame by
+  // frame. Where the wrapped print puts the gap; how far the glass pushes in as the light
+  // catches it, and whether it eases back; and how tall the glass stands on a tall phone.
+  const look = (calmOn, tall) => {
+    const was = stage;
+    stage = tall ? 800 : 420;
+    const page = boot("?mode=split");
+    const w = page.window;
+    const skin = w.PourEngine.splitSkin(JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")));
+    const scene = w.PourSplitScene(page.get("probe"), skin, calmOn);
+    scene.layout();
+    scene.serve(w.PourEngine.serveOf(skin, 0));
+    const split = { top: 0.65, level: 0.6, pouring: false, settling: false, settled: 1 };
+    scene.frame(0, split);
+    const inside = page.fills.filter((f) => f.colour === "rgba(255,255,255,.05)").pop();
+    const seen = { gap: scene.gap(), glassHeight: inside.bottom - inside.top, pushes: [] };
+    scene.result({ verdict: "perfect" });
+    for (let i = 0; i < 120; i++) {
+      const from = page.trace.length;
+      scene.frame(1 / 60, split);
+      const push = page.trace.slice(from).find((t) => t.startsWith("scale(") && !t.startsWith("scale(1.00,-1"));
+      seen.pushes.push(push ? parseFloat(push.slice(6)) : 1);
+    }
+    stage = was;
+    return seen;
+  };
+  out.splitLook = { lively: look(false), calm: look(true), tall: look(false, true) };
+
   process.stdout.write(JSON.stringify(out));
 })();

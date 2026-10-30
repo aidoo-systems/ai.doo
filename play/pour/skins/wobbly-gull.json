@@ -94,9 +94,9 @@
       "claim": "A pint on us"
     },
     "rounds": [
-      { "name": "A stout", "liquid": "#22100a", "liquidDeep": "#120703", "head": "#efe2c4", "headDepth": 0.09, "cascade": 0.16 },
-      { "name": "A porter", "liquid": "#2a130b", "liquidDeep": "#160804", "head": "#e9d5ae", "headDepth": 0.07, "cascade": 0.11 },
-      { "name": "A dark ale", "liquid": "#33170b", "liquidDeep": "#1c0b04", "head": "#e6cfa0", "headDepth": 0.06, "cascade": 0.07 }
+      { "name": "A stout", "liquid": "#22100a", "liquidDeep": "#120703", "head": "#efe2c4", "headDepth": 0.09, "cascade": 0.16, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] },
+      { "name": "A porter", "liquid": "#2a130b", "liquidDeep": "#160804", "head": "#e9d5ae", "headDepth": 0.07, "cascade": 0.11, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] },
+      { "name": "A dark ale", "liquid": "#33170b", "liquidDeep": "#1c0b04", "head": "#e6cfa0", "headDepth": 0.06, "cascade": 0.07, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] }
     ],
     "sampleScores": [
       { "name": "Juan", "score": 271 },
