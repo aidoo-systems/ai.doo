@@ -1,7 +1,8 @@
 """The pour demo's weekly board: POST a score, GET the week's top ten.
 
 Each row is a skin, a name the game assigned from play/pour/nicknames.json, a score
-and the week. Nothing else is stored: no address, no device, no time of day. A name
+and the week. A skin with a mark has a second board for its second way to play
+(mode "split", P2.0ac), kept as the skin's id with "/split" after it. Nothing else is stored: no address, no device, no time of day. A name
 nobody could be given, or a score the skin can't produce, is refused. A name has one
 row per skin per week, its best, so a replay only lifts its own score.
 """
@@ -92,15 +93,25 @@ def _names():
     return set(words["adjectives"]), set(words["animals"])
 
 
-def _best_possible(skin):
-    """The most a skin's game can score, or None if there's no such skin."""
+def _best_possible(skin, mode=None):
+    """The most a skin's game can score, or None if there's no such skin or way to play."""
     game = _game_dir()
     if not game or not SKIN_ID.match(skin):
         return None
     path = game / "skins" / f"{skin}.json"
     if not path.is_file():
         return None
-    return len(json.loads(path.read_text(encoding="utf-8"))["rounds"]) * 100
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if mode is None:
+        return len(data["rounds"]) * 100
+    mark = data.get("mark")
+    if mode != "split" or not isinstance(mark, dict):
+        return None
+    return len(mark["rounds"]) * 100
+
+
+def _board_key(skin, mode):
+    return skin if mode is None else f"{skin}/{mode}"
 
 
 def _is_nickname(name):
@@ -135,11 +146,14 @@ def _top(conn, skin, week):
 @board.route("/api/pour/board", methods=["GET"])
 def get_board():
     skin = request.args.get("skin", "")
-    if _best_possible(skin) is None:
+    mode = request.args.get("mode")
+    if _best_possible(skin, mode) is None:
         return jsonify({"error": "Unknown skin"}), 404
     week = _week()
     with _lock, closing(_connect()) as conn:
-        return jsonify({"week": week, "scores": _top(conn, skin, week)})
+        return jsonify(
+            {"week": week, "scores": _top(conn, _board_key(skin, mode), week)}
+        )
 
 
 @board.route("/api/pour/score", methods=["POST"])
@@ -152,7 +166,9 @@ def post_score():
     if not isinstance(data, dict):
         return jsonify({"error": "Send a JSON object"}), 400
     skin, name, score = data.get("skin"), data.get("name"), data.get("score")
-    best = _best_possible(skin) if isinstance(skin, str) else None
+    mode = data.get("mode")
+    ok = isinstance(skin, str) and (mode is None or isinstance(mode, str))
+    best = _best_possible(skin, mode) if ok else None
     if best is None:
         return jsonify({"error": "Unknown skin"}), 404
     if not _is_nickname(name):
@@ -160,6 +176,7 @@ def post_score():
     if type(score) is not int or not 0 <= score <= best:
         return jsonify({"error": "Not a score the game can make"}), 400
     week = _week()
+    skin = _board_key(skin, mode)
     with _lock, closing(_connect()) as conn, conn:
         conn.execute(
             "INSERT INTO scores VALUES (?, ?, ?, ?) ON CONFLICT (skin, week, name)"

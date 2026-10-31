@@ -61,6 +61,51 @@
     {"line": 0.78, "speed": 0.85, "serve": {"name": "Another lager, quicker"}},
     {"line": 0.9, "speed": 0.62, "surge": 0.5, "surgeHz": 1.2, "serve": {"name": "One more ale", "liquid": "#a8541c", "liquidDeep": "#6a2f0d", "head": "#f6e6c4", "headDepth": 0.14, "glass": [[11, 0], [89, 0], [87, 12], [92, 26], [96, 41], [91, 58], [78, 77], [69, 91], [67, 100], [33, 100], [31, 91], [22, 77], [9, 58], [4, 41], [8, 26], [13, 12]]}}
   ],
+  "mark": {
+    "gap": 0.6,
+    "gapSize": 0.034,
+    "mm": 150,
+    "window": 0.1,
+    "copy": {
+      "tagline": "Split the mark",
+      "switch": "Or split the mark",
+      "back": "Or pour the pints",
+      "start": "Start sipping",
+      "offer": "Closest to the mark this week wins a pint on us",
+      "beat": "Beat {score} to top the board",
+      "round": "Glass {n} of {total}",
+      "hold": "Hold to sip",
+      "release": "Let go for the gap",
+      "settling": "Settling…",
+      "hint": "Hold to sip. Let go so the line settles in the gap.",
+      "again": "Have another go",
+      "perfect": "Split it. Dead on.",
+      "good": "Split it: {mm}mm off",
+      "high": "{mm}mm above the gap",
+      "low": "{mm}mm under the gap",
+      "total": "Your score",
+      "boardTitle": "Split the mark this week",
+      "prize": "Top on Sunday wins a pint on us and their name on the wall.",
+      "rival": "{gap} more to pass {name}",
+      "rivalTop": "{gap} more to pass {name} and win the pint",
+      "top": "Top of the board. The pint's on us.",
+      "best": "Your best today: {score}",
+      "newBest": "A new best for you today",
+      "claim": "A pint on us"
+    },
+    "rounds": [
+      { "name": "A stout", "liquid": "#22100a", "liquidDeep": "#120703", "head": "#efe2c4", "headDepth": 0.09, "cascade": 0.16, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] },
+      { "name": "A porter", "liquid": "#2a130b", "liquidDeep": "#160804", "head": "#e9d5ae", "headDepth": 0.07, "cascade": 0.11, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] },
+      { "name": "A dark ale", "liquid": "#33170b", "liquidDeep": "#1c0b04", "head": "#e6cfa0", "headDepth": 0.06, "cascade": 0.07, "glass": [[14, 0], [86, 0], [92, 8], [96, 19], [95, 30], [89, 44], [81, 60], [76, 76], [74, 90], [73, 100], [27, 100], [26, 90], [24, 76], [19, 60], [11, 44], [5, 30], [4, 19], [8, 8]] }
+    ],
+    "sampleScores": [
+      { "name": "Juan", "score": 271 },
+      { "name": "Voirrey", "score": 248 },
+      { "name": "Big Dave", "score": 219 },
+      { "name": "Finlo", "score": 194 },
+      { "name": "Breesha", "score": 157 }
+    ]
+  },
   "sampleScores": [
     { "name": "Juan", "score": 446 },
     { "name": "Voirrey", "score": 418 },

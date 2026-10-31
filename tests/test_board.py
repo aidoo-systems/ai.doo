@@ -246,3 +246,54 @@ def test_a_score_back_says_the_names_best_even_off_the_top_ten(client):
     got = post(client, score=100, ip="198.51.100.1").get_json()
     assert got["best"] == 400
     assert "Brave Heron" not in [row["name"] for row in got["scores"]]
+
+
+# P2.0ac: the pub's second way to play, split the mark, keeps a board of its own.
+SPLIT_BEST = (
+    len(
+        json.loads(
+            (REPO_ROOT / "play/pour/skins" / f"{PUB}.json").read_text(encoding="utf-8")
+        )["mark"]["rounds"]
+    )
+    * 100
+)
+
+
+def post_split(client, score=200, mode="split", skin=PUB, name="Brave Heron"):
+    return client.post(
+        "/api/pour/score",
+        json={"skin": skin, "mode": mode, "name": name, "score": score},
+        environ_base={"REMOTE_ADDR": "203.0.113.5"},
+    )
+
+
+def test_the_split_has_its_own_board_beside_the_pour(client, db):
+    assert post_split(client, score=SPLIT_BEST).status_code == 200
+    post(client, score=100)
+    split = client.get(f"/api/pour/board?skin={PUB}&mode=split").get_json()["scores"]
+    pour = client.get(f"/api/pour/board?skin={PUB}").get_json()["scores"]
+    assert split == [{"name": "Brave Heron", "score": SPLIT_BEST}]
+    assert pour == [{"name": "Brave Heron", "score": 100}]
+    rows = (
+        sqlite3.connect(db).execute("SELECT skin FROM scores ORDER BY skin").fetchall()
+    )
+    assert rows == [(PUB,), (f"{PUB}/split",)]
+
+
+def test_a_split_score_it_cannot_make_is_refused(client):
+    assert post_split(client, score=SPLIT_BEST + 1).status_code == 400
+
+
+@pytest.mark.parametrize("mode", ["pour", "", "Split", 1, ["split"]])
+def test_only_the_split_is_a_second_way_to_play(client, mode):
+    assert post_split(client, mode=mode).status_code == 404
+
+
+def test_a_skin_without_a_mark_has_no_split_board(client):
+    other = next(
+        p.stem
+        for p in (REPO_ROOT / "play/pour/skins").glob("*.json")
+        if "mark" not in json.loads(p.read_text(encoding="utf-8"))
+    )
+    assert post_split(client, skin=other).status_code == 404
+    assert client.get(f"/api/pour/board?skin={other}&mode=split").status_code == 404

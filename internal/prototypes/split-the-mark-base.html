@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Split the mark: the glass's bottom</title>
+<style>
+  @font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2) format("woff2");font-weight:100 900}
+  @font-face{font-family:'Bricolage Grotesque';src:url(../../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
+  body{margin:0;background:#141312;color:#eee;font-family:Inter,system-ui,sans-serif;padding:16px}
+  h1{font:700 22px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}
+  h2{font:600 17px 'Bricolage Grotesque',sans-serif;margin:26px 0 2px}
+  p.note{color:#aaa;margin:0 0 12px;font-size:14px;max-width:760px;line-height:1.5}
+  .row{display:grid;grid-template-columns:repeat(3,minmax(0,260px));gap:10px}
+  figure{margin:0}
+  figcaption{font-size:13px;color:#bbb;margin-top:6px;text-align:center}
+  .crop{overflow:hidden;border-radius:14px;aspect-ratio:3/2.3;position:relative}
+  .crop canvas{position:absolute;left:0;bottom:0;width:100%;aspect-ratio:3/4.3}
+  .zoom{overflow:hidden;border-radius:14px;aspect-ratio:3/1.6;position:relative}
+  .zoom canvas{position:absolute;left:-50%;bottom:0;width:200%;aspect-ratio:3/4.3}
+  .whole canvas{display:block;width:100%;aspect-ratio:3/4.3;border-radius:14px}
+  @media (max-width:640px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Split the mark: the glass's bottom</h1>
+<p class="note">A is today's (split.js?v=3): a see-through band with a hard curve of light across it, and an even grey tube of an outline round the corners. B: the drink carried on down into the thick base to a lower, softer floor, darker the deeper it goes, so the base reads as glass full of stout rather than a band; the light at the foot's two corners runs along the glass's own curve, more on the lit left; the outline a soft body of glass with a crisp lit edge, thinning to a fine line into the base. C is B with more glass: the red glows stronger through the base, and the foot's underside catches the counter's light.</p>
+<p class="note">The owner picked B (2026-10-30), and it is built into split.js?v=4. This page patches the v=3 drawing (commit c7f1acd), so it no longer draws against today's split.js.</p>
+<div id="out"></div>
+<script src="../../play/pour/engine.js?v=20"></script>
+<script>
+// Stills for the owner (2026-10-30). Each variant is play/pour/split.js itself with the glass's
+// bottom and outline swapped, so everything else is exactly what ships.
+const FROM = "      // the glass's thick base:";
+const TO = "      var rim = xRange(g.outer, g.top + 0.5);";
+const NEW_BOTTOM = `
+      // the thick base is solid glass, dark with the drink behind it
+      var foot = g.bottom + g.base;
+      var ft = xRange(g.outer, foot - 1) || [g.cx - g.gw * 0.2, g.cx + g.gw * 0.2];
+      // only the glass itself, outside the drink: the walls' corners and the base
+      ctx.save();
+      glassPath(g.outer);
+      var begin = ctx.beginPath;
+      ctx.beginPath = function () {};
+      glassPath(g.inner);
+      ctx.beginPath = begin;
+      ctx.clip("evenodd");
+      var rise = g.gw * 0.16;
+      var dark = ctx.createLinearGradient(0, g.bottom - rise, 0, g.bottom);
+      dark.addColorStop(0, "rgba(14,6,3,0)");
+      dark.addColorStop(1, "rgba(14,6,3,.6)");
+      ctx.fillStyle = dark;
+      ctx.fillRect(g.gx - 4, g.bottom - rise, g.gw + 8, rise + g.base + 8);
+      // the drink seen down through it: the same drink carried on into the glass to a lower,
+      // softer floor, darker the deeper it goes, the light through it red
+      var low = foot - g.base * 0.32;
+      var deep = g.inner.map(function (p) {
+        return [g.cx + (p[0] - g.cx) * 0.985, p[1] >= g.bottom - 0.5 ? low : p[1]];
+      });
+      var through = ctx.createRadialGradient(g.cx, g.bottom, 0, g.cx, g.bottom, g.gw * 0.4);
+      through.addColorStop(0, "rgba(" + RUBY + "," + (MORE ? 0.85 : 0.55) + ")");
+      through.addColorStop(0.45, "rgba(80,16,6,.7)");
+      through.addColorStop(1, "rgba(24,8,3,.85)");
+      ctx.fillStyle = through;
+      glassPath(deep);
+      ctx.fill();
+      var deeper = ctx.createLinearGradient(0, g.bottom, 0, low);
+      deeper.addColorStop(0, "rgba(10,3,1,0)");
+      deeper.addColorStop(1, "rgba(10,3,1,.55)");
+      ctx.fillStyle = deeper;
+      ctx.fill();
+      ctx.restore();
+      // the clear glass under it, lit a little from the counter
+      var up = ctx.createLinearGradient(0, low, 0, foot);
+      up.addColorStop(0, "rgba(255,220,180,0)");
+      up.addColorStop(1, "rgba(255,220,180," + (MORE ? 0.16 : 0.08) + ")");
+      ctx.fillStyle = up;
+      ctx.fillRect(g.gx, low - 2, g.gw, foot - low + 4);
+      if (MORE) {
+        // the foot's underside catching the counter's light, fading out at both ends
+        var under = ctx.createLinearGradient(ft[0], 0, ft[1], 0);
+        under.addColorStop(0, "rgba(255,226,190,0)");
+        under.addColorStop(0.3, "rgba(255,226,190,.45)");
+        under.addColorStop(0.7, "rgba(255,226,190,.22)");
+        under.addColorStop(1, "rgba(255,226,190,0)");
+        ctx.fillStyle = under;
+        ctx.fillRect(ft[0], foot - 2.4, ft[1] - ft[0], 1.6);
+      }
+      ctx.restore();
+      // the outline: a soft body of glass with a crisp lit edge, brighter on the left,
+      // thinning to a fine line into the base
+      var lw = Math.max(2.5, g.wall);
+      var line = document.createElement("canvas");
+      line.width = Math.ceil(W * dpr);
+      line.height = Math.ceil(H * dpr);
+      var lc = line.getContext("2d");
+      lc.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var keep = ctx;
+      ctx = lc;
+      glassPath(g.outer);
+      ctx = keep;
+      var body = lc.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+      body.addColorStop(0, "rgba(255,255,255,.34)");
+      body.addColorStop(0.5, "rgba(255,255,255,.2)");
+      body.addColorStop(1, "rgba(255,255,255,.14)");
+      lc.lineJoin = "round";
+      lc.strokeStyle = body;
+      lc.lineWidth = lw * 1.3;
+      lc.stroke();
+      var crisp = lc.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);
+      crisp.addColorStop(0, "rgba(255,250,240,.95)");
+      crisp.addColorStop(0.45, "rgba(255,250,240,.6)");
+      crisp.addColorStop(1, "rgba(255,250,240,.38)");
+      lc.strokeStyle = crisp;
+      lc.lineWidth = Math.max(1.2, lw * 0.4);
+      lc.stroke();
+      lc.globalCompositeOperation = "destination-out";
+      var fade = lc.createLinearGradient(0, g.bottom - g.base * 3, 0, foot);
+      fade.addColorStop(0, "rgba(0,0,0,0)");
+      fade.addColorStop(1, "rgba(0,0,0,.8)");
+      lc.fillStyle = fade;
+      lc.fillRect(0, g.bottom - g.base * 3, W, g.base * 4 + lw);
+      lc.globalCompositeOperation = "source-over";
+      lc.strokeStyle = "rgba(255,255,255,.18)";
+      lc.lineWidth = 1;
+      lc.stroke();
+      ctx.drawImage(line, 0, 0, W, H);
+      // soft light where the foot turns, along the glass's own curve, more on the lit left
+      var turn = g.gw * 0.045;
+      [[ft[0] + turn, 0.75], [ft[1] - turn, 0.32]].forEach(function (c) {
+        var hl = ctx.createRadialGradient(c[0], foot - turn, 0, c[0], foot - turn, turn * 2.4);
+        hl.addColorStop(0, "rgba(255,240,222," + c[1] + ")");
+        hl.addColorStop(1, "rgba(255,240,222,0)");
+        glassPath(g.outer);
+        ctx.strokeStyle = hl;
+        ctx.lineWidth = lw * 0.9;
+        ctx.stroke();
+      });
+`;
+
+function variant(src, name, more) {
+  let s = src.replace("window.PourSplitScene", "window." + name);
+  if (name === "SceneA") return s;
+  const a = s.indexOf(FROM);
+  const b = s.indexOf(TO);
+  if (a < 0 || b < 0) throw new Error("split.js has moved on: the glass's base");
+  return s.slice(0, a) + NEW_BOTTOM.replace(/MORE/g, more ? "true" : "false").slice(1) + s.slice(b);
+}
+
+(async () => {
+  let src = await (await fetch("../../play/pour/split.js?x=" + Date.now())).text();
+  src = src.replace(/\r\n/g, "\n");
+  for (const [n, m] of [["SceneA", false], ["SceneB", false], ["SceneC", true]]) (0, eval)(variant(src, n, m));
+  const raw = await (await fetch("../../play/pour/skins/wobbly-gull.json")).json();
+  await document.fonts.load("700 16px 'Bricolage Grotesque'");
+  const skin = PourEngine.splitSkin(raw);
+  const drink = PourEngine.serveOf(skin, 0);
+  const out = document.getElementById("out");
+  const rows = [
+    ["The foot, closer", "zoom", { level: 0.6, top: 0.65 }],
+    ["The bottom of the glass", "crop", { level: 0.6, top: 0.65 }],
+    ["The whole glass, full", "whole", { level: 0.817, top: 0.907 }],
+  ];
+  const jobs = [];
+  for (const [title, kind, s] of rows) {
+    const h = document.createElement("h2");
+    h.textContent = title;
+    const row = document.createElement("div");
+    row.className = "row";
+    out.append(h, row);
+    for (const [n, label] of [["SceneA", "A: now"], ["SceneB", "B: the drink into the base, lit corners"], ["SceneC", "C: B with more glass"]]) {
+      const f = document.createElement("figure");
+      const box = document.createElement("div");
+      box.className = kind;
+      const c = document.createElement("canvas");
+      const fc = document.createElement("figcaption");
+      fc.textContent = label;
+      box.append(c);
+      f.append(box, fc);
+      row.append(f);
+      jobs.push(() => {
+        const sc = window[n](c, skin, false);
+        sc.layout();
+        sc.serve(drink);
+        sc.frame(0, Object.assign({ pouring: false, settling: false, settled: 0 }, s));
+      });
+    }
+  }
+  const draw = () => jobs.forEach((j) => j());
+  draw();
+  addEventListener("resize", draw);
+})();
+</script>
+</body>
+</html>

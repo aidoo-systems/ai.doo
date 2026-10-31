@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Split the mark: polish stills</title>
+<style>
+  @font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2) format("woff2");font-weight:100 900}
+  @font-face{font-family:'Bricolage Grotesque';src:url(../../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
+  body{margin:0;background:#141312;color:#eee;font-family:Inter,system-ui,sans-serif;padding:16px}
+  h1{font:700 22px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}
+  h2{font:600 17px 'Bricolage Grotesque',sans-serif;margin:26px 0 2px}
+  p.note{color:#aaa;margin:0 0 12px;font-size:14px;max-width:760px;line-height:1.5}
+  .pair{display:grid;grid-template-columns:repeat(2,minmax(0,300px));gap:10px}
+  .pair.wide{grid-template-columns:repeat(2,minmax(0,360px))}
+  figure{margin:0}
+  figcaption{font-size:13px;color:#bbb;margin-top:6px;text-align:center}
+  canvas{display:block;width:100%;aspect-ratio:3/4;border-radius:14px;background:#10231f}
+</style>
+</head>
+<body>
+<h1>Split the mark: polish stills</h1>
+<p class="note">Each pair is today's glass on the left and one change on the right, so you can judge them one at a time. The last pair has all four together. Pick any mix: every change is independent of the others.</p>
+<div id="out"></div>
+<script src="../../play/pour/engine.js?v=20"></script>
+<script src="../../play/pour/split.js?v=1"></script>
+<script>
+// Polish stills for P2.0ac (2026-10-30). "Now" is split.js itself; the right of each pair
+// is drawMock with one change on. The rules and the gap are unchanged in every still.
+const E = PourEngine;
+const FONT = "'Bricolage Grotesque', Inter, system-ui, sans-serif";
+// An Irish tulip: a narrow foot, swelling to its widest a quarter of the way down, a slight
+// in-turn at the lip. Generic, not any brand's glass.
+const TULIP = [[14,0],[86,0],[92,8],[96,19],[95,30],[89,44],[81,60],[76,76],[74,90],[73,100],[27,100],[26,90],[24,76],[19,60],[11,44],[5,30],[4,19],[8,8]];
+
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+function rgba(hex, a) {
+  let h = hex.slice(1);
+  if (h.length < 6) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const n = parseInt(h.slice(0, 6), 16);
+  return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;
+}
+function mix(hex, to, t) {
+  const p = x => { const n = parseInt(x.slice(1), 16); return [n>>16, (n>>8)&255, n&255]; };
+  const a = p(hex), b = p(to);
+  return "#" + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, "0")).join("");
+}
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+function drawMock(cv, skin, d, s, o) {
+  const box = cv.getBoundingClientRect();
+  const W = box.width, H = box.height, dpr = Math.min(devicePixelRatio || 1, 3);
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  const ctx = cv.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const th = skin.theme, mark = skin.mark;
+  seed = 7;
+
+  // where the glass sits
+  let counterH, gh, gw;
+  if (o.close) {
+    counterH = clamp(H * 0.1, 18, 46);
+    gh = H - counterH - H * 0.07; gw = gh * 0.66;
+    if (gw > W * 0.86) { gw = W * 0.86; gh = gw / 0.66; }
+  } else {
+    counterH = clamp(H * 0.13, 22, 60);
+    gh = Math.min(H - counterH - clamp(H * 0.06, 10, 30), 380); gw = gh * 0.66;
+    if (gw > W * 0.62) { gw = W * 0.62; gh = gw / 0.66; }
+  }
+  const counterY = H - counterH;
+  const g = { gw, gh, gx: (W - gw) / 2, cx: W / 2, wall: Math.max(3, gw * 0.022), base: Math.max(6, gh * 0.045) };
+  g.gy = counterY - gh + 4;
+  const pts = o.stout ? TULIP : d.glass;
+  g.outer = pts.map(p => [g.gx + p[0] / 100 * gw, g.gy + p[1] / 100 * gh]);
+  g.inner = g.outer.map(p => [g.cx + (p[0] - g.cx) * (1 - 2 * g.wall / gw), g.gy + (p[1] - g.gy) * (1 - g.base / gh)]);
+  g.top = g.gy; g.bottom = g.gy + gh - g.base;
+  const span = g.bottom - g.top;
+  const yAt = l => g.bottom - l * span;
+  const xRange = (P, y) => {
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < P.length; i++) {
+      const a = P[i], b = P[(i + 1) % P.length];
+      if ((a[1] <= y && b[1] >= y) || (b[1] <= y && a[1] >= y)) {
+        if (a[1] === b[1]) { lo = Math.min(lo, a[0], b[0]); hi = Math.max(hi, a[0], b[0]); }
+        else { const x = a[0] + (y - a[1]) / (b[1] - a[1]) * (b[0] - a[0]); lo = Math.min(lo, x); hi = Math.max(hi, x); }
+      }
+    }
+    return hi >= lo ? [lo, hi] : null;
+  };
+  const path = P => {
+    const n = P.length;
+    ctx.beginPath();
+    ctx.moveTo((P[n-1][0] + P[0][0]) / 2, (P[n-1][1] + P[0][1]) / 2);
+    for (let i = 0; i < n; i++) {
+      const a = P[(i + n - 1) % n], p = P[i], b = P[(i + 1) % n];
+      const ax = a[0]-p[0], ay = a[1]-p[1], bx = b[0]-p[0], by = b[1]-p[1];
+      const la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+      const ang = Math.acos(clamp((ax*bx + ay*by) / (la*lb || 1), -1, 1));
+      const hard = clamp((Math.PI - ang - 0.6) / 0.6, 0, 1);
+      let t = Math.min(Math.min(la, lb) * 0.5, gw * 0.2 * (1 - hard) + gw * 0.045 * hard);
+      if (Math.abs(p[1] - g.top) < 0.5) t = Math.min(t, Math.max(2, gw * 0.015));
+      const r = t * Math.tan(ang / 2);
+      if (!isFinite(r) || r < 0.01) ctx.lineTo(p[0], p[1]); else ctx.arcTo(p[0], p[1], b[0], b[1], r);
+    }
+    ctx.closePath();
+  };
+
+  // the room
+  ctx.clearRect(0, 0, W, H);
+  if (o.close) {
+    ctx.fillStyle = mix(th.bg, "#000000", 0.55);
+    ctx.fillRect(0, 0, W, H);
+    const spot = ctx.createRadialGradient(g.cx, -H * 0.1, 0, g.cx, -H * 0.1, H * 1.05);
+    spot.addColorStop(0, "rgba(255,206,140,.22)");
+    spot.addColorStop(0.55, "rgba(255,190,120,.07)");
+    spot.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = spot;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // the glint's push in, around the gap
+  const gapY = yAt(mark.gap);
+  ctx.save();
+  if (o.glint) { ctx.translate(g.cx, gapY); ctx.scale(1.06, 1.06); ctx.translate(-g.cx, -gapY); }
+
+  // the counter
+  const sh = ctx.createLinearGradient(0, counterY - 22, 0, counterY);
+  sh.addColorStop(0, "rgba(0,0,0,0)"); sh.addColorStop(1, "rgba(0,0,0,.28)");
+  ctx.fillStyle = sh; ctx.fillRect(-W, counterY - 22, 3 * W, 22);
+  const ct = ctx.createLinearGradient(0, counterY, 0, H);
+  ct.addColorStop(0, o.close ? mix(th.counter, "#000000", 0.25) : th.counter);
+  ct.addColorStop(1, o.close ? mix(th.counterEdge, "#000000", 0.4) : th.counterEdge);
+  ctx.fillStyle = ct; ctx.fillRect(-W, counterY, 3 * W, H);
+  ctx.fillStyle = "rgba(255,255,255,.2)"; ctx.fillRect(-W, counterY, 3 * W, 2);
+  if (o.close) {
+    // a pool of the bar's light, and the glass's own reflection in the varnish
+    const pool = ctx.createRadialGradient(g.cx, counterY + 4, 0, g.cx, counterY + 4, gw * 0.9);
+    pool.addColorStop(0, "rgba(255,210,150,.22)"); pool.addColorStop(1, "rgba(255,210,150,0)");
+    ctx.fillStyle = pool;
+    ctx.beginPath(); ctx.ellipse(g.cx, counterY + 6, gw * 0.9, counterH * 0.7, 0, 0, 7); ctx.fill();
+    const refl = ctx.createLinearGradient(0, counterY, 0, counterY + counterH * 0.8);
+    refl.addColorStop(0, "rgba(10,4,2,.55)"); refl.addColorStop(1, "rgba(10,4,2,0)");
+    ctx.fillStyle = refl;
+    const foot = xRange(g.outer, g.bottom + g.base - 1) || [g.cx - gw * 0.2, g.cx + gw * 0.2];
+    ctx.fillRect(foot[0] + 2, counterY + 2, foot[1] - foot[0] - 4, counterH * 0.8);
+  } else {
+    ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fillRect(-W, counterY + 10, 3 * W, 2);
+  }
+  ctx.fillStyle = "rgba(0,0,0,.3)";
+  ctx.beginPath(); ctx.ellipse(g.cx, counterY + 7, gw * 0.42, 6, 0, 0, 7); ctx.fill();
+
+  // the glass's inside
+  path(g.inner); ctx.fillStyle = "rgba(255,255,255,.05)"; ctx.fill();
+  ctx.save(); path(g.inner); ctx.clip();
+  const x0 = g.gx - 4, x1 = g.gx + gw + 4;
+  const lineY = yAt(s.level), topY = yAt(s.top);
+
+  // the drink
+  if (o.stout) {
+    ctx.fillStyle = "#0b0503";
+    ctx.fillRect(x0, lineY, x1 - x0, g.bottom + g.base - lineY);
+    // ruby where it's thin and the light comes through: the foot and the edges
+    const foot = ctx.createRadialGradient(g.cx, g.bottom + g.base * 0.6, 0, g.cx, g.bottom + g.base * 0.6, gw * 0.42);
+    foot.addColorStop(0, "rgba(168,40,16,.75)"); foot.addColorStop(0.5, "rgba(110,22,8,.3)"); foot.addColorStop(1, "rgba(60,10,4,0)");
+    ctx.fillStyle = foot; ctx.fillRect(x0, lineY, x1 - x0, g.bottom + g.base - lineY);
+    for (let y = lineY; y < g.bottom + g.base; y += 2) {
+      const e = xRange(g.inner, y); if (!e) continue;
+      const w = (e[1] - e[0]) * 0.11;
+      const L = ctx.createLinearGradient(e[0], 0, e[0] + w, 0);
+      L.addColorStop(0, "rgba(120,24,10,.34)"); L.addColorStop(1, "rgba(120,24,10,0)");
+      ctx.fillStyle = L; ctx.fillRect(e[0], y, w, 2);
+      const R = ctx.createLinearGradient(e[1], 0, e[1] - w, 0);
+      R.addColorStop(0, "rgba(120,24,10,.24)"); R.addColorStop(1, "rgba(120,24,10,0)");
+      ctx.fillStyle = R; ctx.fillRect(e[1] - w, y, w, 2);
+    }
+    // light under the head
+    const under = ctx.createLinearGradient(0, lineY, 0, lineY + span * 0.06);
+    under.addColorStop(0, "rgba(98,36,14,.55)"); under.addColorStop(1, "rgba(98,36,14,0)");
+    ctx.fillStyle = under; ctx.fillRect(x0, lineY, x1 - x0, span * 0.06);
+    if (s.settling) {
+      // the surge: a tan cloud that clears from the foot up, bubbles drifting down the sides
+      const yb = g.bottom - (g.bottom - lineY) * s.settled;
+      const c = ctx.createLinearGradient(0, lineY, 0, yb + 14);
+      c.addColorStop(0, "rgba(150,108,72,.96)");
+      c.addColorStop(clamp((yb - lineY - 30) / (yb + 14 - lineY), 0, 1), "rgba(118,78,48,.86)");
+      c.addColorStop(1, "rgba(80,46,24,0)");
+      ctx.fillStyle = c; ctx.fillRect(x0, lineY, x1 - x0, yb + 14 - lineY);
+      for (let i = 0; i < 260; i++) {
+        const y = lineY + rnd() * (yb - lineY + 10);
+        const e = xRange(g.inner, y); if (!e) continue;
+        const side = rnd() < 0.5;
+        const k = Math.pow(rnd(), 2.2) * 0.22;
+        const x = side ? e[0] + 2 + k * (e[1] - e[0]) : e[1] - 2 - k * (e[1] - e[0]);
+        ctx.fillStyle = `rgba(232,214,180,${0.25 + rnd() * 0.4})`;
+        ctx.fillRect(x, y, 1 + rnd() * 1.2, 1.4 + rnd() * 2.6);
+      }
+    }
+  } else {
+    const grad = ctx.createLinearGradient(0, lineY, 0, g.bottom);
+    grad.addColorStop(0, d.liquid); grad.addColorStop(1, d.liquidDeep);
+    ctx.fillStyle = grad; ctx.fillRect(x0, lineY, x1 - x0, g.bottom + g.base - lineY);
+    if (s.settling) {
+      const surge = ctx.createLinearGradient(0, lineY, 0, lineY + span * 0.35);
+      surge.addColorStop(0, rgba(d.head, 0.32 * (1 - s.settled))); surge.addColorStop(1, rgba(d.head, 0));
+      ctx.fillStyle = surge; ctx.fillRect(x0, lineY, x1 - x0, span * 0.35);
+    }
+  }
+
+  // the head
+  const dome = o.stout ? gh * 0.014 : 0;
+  if (lineY - topY > 0.5) {
+    const hg = ctx.createLinearGradient(0, topY - dome, 0, lineY);
+    if (o.stout) {
+      hg.addColorStop(0, mix(d.head, "#ffffff", 0.25));
+      hg.addColorStop(0.65, d.head);
+      hg.addColorStop(1, mix(d.head, "#8a6a48", 0.45));
+    } else { hg.addColorStop(0, d.head); hg.addColorStop(1, rgba(d.head, 0.86)); }
+    ctx.fillStyle = hg;
+    ctx.beginPath();
+    ctx.moveTo(x0, lineY);
+    if (o.stout) {
+      ctx.lineTo(x0, topY + 1);
+      ctx.quadraticCurveTo(g.cx, topY - dome * 2, x1, topY + 1);
+    } else { ctx.lineTo(x0, topY + 2); ctx.lineTo(x1, topY + 2); }
+    ctx.lineTo(x1, lineY); ctx.closePath(); ctx.fill();
+    if (o.stout) {
+      // a fine, tight foam, and a soft line where it meets the drink
+      for (let i = 0; i < 140; i++) {
+        const y = topY + rnd() * (lineY - topY);
+        const e = xRange(g.inner, y); if (!e) continue;
+        ctx.fillStyle = `rgba(255,255,255,${0.12 + rnd() * 0.18})`;
+        ctx.beginPath(); ctx.arc(e[0] + rnd() * (e[1] - e[0]), y, 0.5 + rnd() * 0.8, 0, 7); ctx.fill();
+      }
+      const seam = ctx.createLinearGradient(0, lineY - 4, 0, lineY + 3);
+      seam.addColorStop(0, "rgba(90,60,36,0)"); seam.addColorStop(0.6, "rgba(90,60,36,.55)"); seam.addColorStop(1, "rgba(40,20,10,0)");
+      ctx.fillStyle = seam; ctx.fillRect(x0, lineY - 4, x1 - x0, 7);
+    } else {
+      ctx.fillStyle = d.head;
+      for (let x = g.gx; x <= g.gx + gw; x += 9) { ctx.beginPath(); ctx.arc(x, topY + 2.6, 2.8, 0, 7); ctx.fill(); }
+      ctx.fillStyle = "rgba(0,0,0,.18)"; ctx.fillRect(x0, lineY - 1, x1 - x0, 1.5);
+    }
+  }
+  // lacing left by the sips above
+  if (s.lace) {
+    ctx.strokeStyle = rgba(d.head, o.stout ? 0.32 : 0.24); ctx.lineWidth = 1.5;
+    s.lace.forEach(h => {
+      if (h <= s.top + 0.01) return;
+      const y = yAt(h), e = xRange(g.inner, y); if (!e) return;
+      ctx.beginPath();
+      for (let lx = e[0]; lx <= e[1]; lx += 4) { const ly = y + Math.sin(lx * 0.12 + h * 90) * 1.6; lx === e[0] ? ctx.moveTo(lx, ly) : ctx.lineTo(lx, ly); }
+      ctx.stroke();
+    });
+  }
+  // today's light on the glass, under the print
+  if (!o.wrap) {
+    const a = xRange(g.inner, g.gy + gh * 0.07), b = xRange(g.inner, g.gy + gh * 0.7);
+    if (a && b) {
+      ctx.strokeStyle = "rgba(255,255,255,.16)"; ctx.lineWidth = gw * 0.045; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(a[0] + gw * 0.09, g.gy + gh * 0.07); ctx.lineTo(b[0] + gw * 0.09, g.gy + gh * 0.7); ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  drawPrint(ctx, g, skin, gapY, xRange, o);
+
+  if (o.wrap) {
+    // light on a round glass: a broad soft band on the left running down through the print,
+    // a thin one on the right, both over it
+    ctx.save(); path(g.outer); ctx.clip();
+    const band = (cxr, w, a) => {
+      const L = ctx.createLinearGradient(g.gx + gw * cxr - w, 0, g.gx + gw * cxr + w, 0);
+      L.addColorStop(0, "rgba(255,255,255,0)"); L.addColorStop(0.5, `rgba(255,255,255,${a})`); L.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = L; ctx.fillRect(g.gx + gw * cxr - w, g.top, w * 2, g.bottom - g.top);
+    };
+    band(0.24, gw * 0.07, o.close ? 0.2 : 0.16);
+    band(0.83, gw * 0.018, 0.14);
+    ctx.restore();
+  }
+
+  // the glass itself
+  ctx.save(); path(g.outer); ctx.clip();
+  ctx.fillStyle = "rgba(255,255,255,.2)";
+  ctx.beginPath();
+  ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
+  ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + gw + 4, g.bottom + g.base * 0.35);
+  ctx.lineTo(g.gx + gw + 4, g.bottom + g.base + 4); ctx.lineTo(g.gx - 4, g.bottom + g.base + 4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+  const edge = ctx.createLinearGradient(g.gx, 0, g.gx + gw, 0);
+  edge.addColorStop(0, "rgba(255,255,255,.8)"); edge.addColorStop(0.5, "rgba(255,255,255,.6)"); edge.addColorStop(1, "rgba(255,255,255,.42)");
+  path(g.outer); ctx.lineJoin = "round"; ctx.strokeStyle = edge; ctx.lineWidth = Math.max(2.5, g.wall); ctx.stroke();
+  const rim = xRange(g.outer, g.top + 0.5);
+  if (rim) {
+    ctx.lineCap = "round"; ctx.strokeStyle = o.close ? "rgba(255,236,200,.95)" : "rgba(255,255,255,.9)";
+    ctx.lineWidth = Math.max(1.5, g.wall * 0.55);
+    ctx.beginPath(); ctx.moveTo(rim[0] + g.wall, g.top + 0.5); ctx.lineTo(rim[1] - g.wall, g.top + 0.5); ctx.stroke();
+  }
+  // a full stout's head domes just over the rim
+  if (o.stout && s.top > 0.995 && rim) {
+    ctx.fillStyle = mix(d.head, "#ffffff", 0.25);
+    ctx.beginPath(); ctx.moveTo(rim[0] + g.wall, g.top + 1);
+    ctx.quadraticCurveTo(g.cx, g.top - gh * 0.045, rim[1] - g.wall, g.top + 1); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// The print: look A as split.js draws it, flat, or wrapped round the glass.
+function drawPrint(ctx, g, skin, gapY, xRange, o) {
+  const mark = skin.mark, th = skin.theme;
+  const span = g.bottom - g.top;
+  const gapH = mark.gapSize * span;
+  const e = xRange(g.inner, gapY); if (!e) return;
+  const width = e[1] - e[0];
+  const S = width * 0.56, R = S * 0.64, w = S * 0.085;
+  const ink = o.glint ? mix(th.accent, "#fff4d0", 0.35) : th.accent;
+  const name = skin.venue.toUpperCase();
+
+  // draw the flat print into c, centred on (cx, cy)
+  const flat = (c, cx, cy, W, H) => {
+    c.save();
+    c.globalAlpha = 0.93;
+    // a dark keyline, so the print still reads over the cream of the head
+    c.shadowColor = "rgba(24,10,2,.6)"; c.shadowBlur = 1.5;
+    c.save(); c.beginPath(); c.rect(-W, -H, 3 * W, 3 * H); c.rect(cx, cy - gapH / 2, W, gapH); c.clip("evenodd");
+    c.beginPath(); c.arc(cx, cy, R, 0, 7); c.arc(cx, cy, R - w, 0, 7, true); c.fillStyle = ink; c.fill(); c.restore();
+    const em = new Path2D(skin.emblem.path);
+    const k = S * 0.78 / Math.max(skin.emblem.width, skin.emblem.height);
+    c.save(); c.translate(cx - skin.emblem.width * k / 2, cy - skin.emblem.height * k / 2); c.scale(k, k); c.fillStyle = ink; c.fill(em); c.restore();
+    let px = Math.round(g.gw * 0.06);
+    c.font = `700 ${px}px ${FONT}`;
+    while (px > 7 && c.measureText(name).width > width * 0.86) { px--; c.font = `700 ${px}px ${FONT}`; }
+    c.fillStyle = ink; c.textAlign = "center"; c.textBaseline = "alphabetic";
+    c.fillText(name, cx, cy - R - 8);
+    c.restore();
+    if (o.glint) {
+      // a sheen caught across the print
+      c.save(); c.globalCompositeOperation = "source-atop";
+      const sx = cx - R * 0.2;
+      const L = c.createLinearGradient(sx - R * 0.5, cy - R, sx + R * 0.5, cy + R);
+      L.addColorStop(0, "rgba(255,255,255,0)"); L.addColorStop(0.5, "rgba(255,255,255,.6)"); L.addColorStop(1, "rgba(255,255,255,0)");
+      c.fillStyle = L; c.fillRect(cx - W, cy - H, 2 * W, 2 * H); c.restore();
+    }
+  };
+
+  // the print drawn flat on its own, so the glint's sheen stays on it
+  const Rw = width / 2 + g.wall;
+  const offW = Math.ceil(Rw * 2), offH = Math.ceil(R * 2 + g.gw * 0.14 + 24);
+  const dpr = ctx.getTransform().a;
+  const off = document.createElement("canvas");
+  off.width = Math.ceil(offW * dpr); off.height = Math.ceil(offH * dpr);
+  const oc = off.getContext("2d"); oc.scale(dpr, dpr);
+  const ocy = offH - R - 4;
+  flat(oc, offW / 2, ocy, offW, offH);
+  if (!o.wrap) {
+    ctx.save();
+    if (o.glint) { ctx.shadowColor = th.accent; ctx.shadowBlur = 16; }
+    ctx.drawImage(off, g.cx - offW / 2, gapY - ocy, offW, offH);
+    ctx.restore();
+  } else {
+    // each column of the flat print laid on the cylinder: squashed and dimmer towards the
+    // edges, the rows bowed as seen from just above. The gap's own column stays at the
+    // gap's height, so the line still scores where it looks.
+    const tilt = 0.06;
+    const thGap = (R - w / 2) / Rw;
+    for (let x = g.cx - Rw; x < g.cx + Rw; x += 0.5) {
+      const u = clamp((x - g.cx) / Rw, -0.999, 0.999), u2 = clamp((x + 0.5 - g.cx) / Rw, -0.999, 0.999);
+      const t1 = Math.asin(u), t2 = Math.asin(u2);
+      const sx = offW / 2 + t1 * Rw, sw = (t2 - t1) * Rw;
+      if (sx < 0 || sx + sw > offW) continue;
+      const dy = (Math.cos(t1) - Math.cos(thGap)) * Rw * tilt;
+      ctx.globalAlpha = 0.25 + 0.75 * Math.pow(Math.cos(t1), 1.3);
+      ctx.drawImage(off, sx * dpr, 0, Math.max(1, sw * dpr), off.height, x, gapY - ocy + dy, 0.75, offH);
+    }
+    ctx.globalAlpha = 1;
+  }
+  if (o.glint) {
+    // the gap lit, and a star where the line meets the ring
+    const gx = g.cx + R - w / 2 + (o.wrap ? -R * 0.08 : 0);
+    ctx.save();
+    ctx.shadowColor = "#fff2c8"; ctx.shadowBlur = 14;
+    ctx.fillStyle = "#fff6dc"; ctx.fillRect(gx - w * 1.5, gapY - 1, w * 3.2, 2);
+    ctx.translate(gx, gapY);
+    ctx.beginPath();
+    const r1 = g.gw * 0.07, r2 = r1 * 0.16;
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, r = i % 2 ? r2 : (i % 4 ? r1 * 0.55 : r1); ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+}
+
+// --- the stills ---
+const FULL = { level: 0.817, top: 0.907, lace: [] };
+const SPLIT = { level: 0.6, top: 0.65, lace: [0.82, 0.76, 0.7] };
+const SETTLING = { level: 0.615, top: 0.665, lace: [0.82, 0.76, 0.7], settling: true, settled: 0.35 };
+
+const PAIRS = [
+  ["1. Wrap the print round the glass", "The ring, the gull and the name laid on a round glass: narrower and dimmer towards the edges, the rows bowed a touch as seen from just above, with the light running down over the print. The gap stays exactly where it scores.", SPLIT, { wrap: true }],
+  ["2. Bring the camera in", "The glass bigger and closer with the bar dark around it, one warm light from above, a pool of it on the counter and the glass's reflection in the varnish. The gap is a bigger target on a phone.", SPLIT, { close: true }],
+  ["3a. A proper stout, settled", "Near-black in the middle, ruby where it's thin at the foot and the edges, a creamy off-white head that domes a little, and a tulip glass that swells near the top. Generic stout, nobody's brand.", SPLIT, { stout: true }],
+  ["3b. A proper stout, settling", "The surge as it settles: a tan cloud clearing from the foot up, bubbles drifting down the sides. Today's settle is a faint pale wash.", SETTLING, { stout: true }],
+  ["4. The split lands", "Dead on: the print catches the light, a sheen across the ring, a star where the line meets the gap, and a small push in on the glass. Today the gap just glows for a moment.", SPLIT, { glint: true }],
+];
+
+function nowStill(cv, skin, drink, s, glint) {
+  const sc = window.PourSplitScene(cv, skin, false);
+  sc.layout();
+  sc.serve(drink);
+  if (glint) sc.result({ verdict: "perfect" });
+  sc.frame(0, { top: s.top, level: s.level, pouring: false, settling: !!s.settling, settled: s.settled || 0 });
+}
+
+function figure(parent, caption) {
+  const f = document.createElement("figure");
+  const c = document.createElement("canvas");
+  const fc = document.createElement("figcaption");
+  fc.textContent = caption;
+  f.append(c, fc); parent.append(f);
+  return c;
+}
+
+(async () => {
+  const raw = await (await fetch("../../play/pour/skins/wobbly-gull.json")).json();
+  await document.fonts.load(`700 16px ${FONT}`);
+  const skin = E.splitSkin(raw);
+  const drink = E.serveOf(skin, 0);
+  const out = document.getElementById("out");
+  const jobs = [];
+  for (const [title, note, s, o] of PAIRS) {
+    const h = document.createElement("h2"); h.textContent = title;
+    const p = document.createElement("p"); p.className = "note"; p.textContent = note;
+    const row = document.createElement("div"); row.className = "pair";
+    out.append(h, p, row);
+    const a = figure(row, "Now"), b = figure(row, "Proposed");
+    jobs.push(() => { nowStill(a, skin, drink, s, !!o.glint); drawMock(b, skin, drink, s, o); });
+  }
+  const h = document.createElement("h2"); h.textContent = "All four together";
+  const p = document.createElement("p"); p.className = "note"; p.textContent = "A full glass at the start, and the same glass split dead on.";
+  const row = document.createElement("div"); row.className = "pair wide";
+  out.append(h, p, row);
+  const a = figure(row, "Full, ready to sip"), b = figure(row, "Split, dead on");
+  const all = { wrap: true, close: true, stout: true };
+  jobs.push(() => { drawMock(a, skin, drink, FULL, all); drawMock(b, skin, drink, SPLIT, Object.assign({ glint: true }, all)); });
+  const draw = () => jobs.forEach(j => j());
+  draw();
+  addEventListener("resize", draw);
+})();
+</script>
+</body>
+</html>

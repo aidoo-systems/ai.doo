@@ -32,7 +32,8 @@ DRIVER = REPO_ROOT / "tests" / "pint_driver.cjs"
 SKIN_WORDS = re.compile(
     r"wobbly|gull|pint|\bpub\b|beer|lager|dozy|otter|latte|coffee|caf[eé]"
     r"|sleepy|\bcow\b|dairy|milk|creamery"
-    r"|giddy|puffin|whipp|ice cream|\bcones?\b|flake|kiosk|strawberr|sprinkle|wafer",
+    r"|giddy|puffin|whipp|ice cream|\bcones?\b|flake|kiosk|strawberr|sprinkle|wafer"
+    r"|stout|porter|\bales?\b",
     re.IGNORECASE,
 )
 
@@ -111,11 +112,29 @@ CONE = {
 }
 
 
+SPLIT_DRIVER = REPO_ROOT / "tests" / "split_driver.cjs"
+PUB = GAME / "skins" / "wobbly-gull.json"
+
+
 def run(skin_path, plays):
     node = shutil.which("node")
     assert node, "Node.js is needed to run play/pour/engine.js in the tests"
     done = subprocess.run(
         [node, str(DRIVER), str(skin_path), json.dumps(plays)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    return json.loads(done.stdout)
+
+
+def run_split(skin_path, plays):
+    node = shutil.which("node")
+    assert node, "Node.js is needed to run play/pour/engine.js in the tests"
+    done = subprocess.run(
+        [node, str(SPLIT_DRIVER), str(skin_path), json.dumps(plays)],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -196,7 +215,12 @@ def test_a_second_skin_is_data_alone(latte):
 
 
 def test_the_shipped_code_knows_nothing_about_the_first_skin():
-    for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
+    for rel in (
+        "play/pour/engine.js",
+        "play/pour/game.js",
+        "play/pour/split.js",
+        "play/pour/index.html",
+    ):
         found = SKIN_WORDS.findall(_text(rel))
         assert found == [], f"{rel}: {found}"
 
@@ -406,7 +430,12 @@ def test_the_game_page_is_unlisted_and_says_its_scores_are_samples():
 
 
 def test_the_game_keeps_and_sends_nothing():
-    for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/index.html"):
+    for rel in (
+        "play/pour/engine.js",
+        "play/pour/game.js",
+        "play/pour/split.js",
+        "play/pour/index.html",
+    ):
         text = _text(rel)
         for api in (
             "sessionStorage",
@@ -431,9 +460,10 @@ def test_the_game_keeps_and_sends_nothing():
         "skins/",
     ]
     assert (
-        'getJSON("/api/pour/score", { skin: skinName, name: nick, score: game.score })'
+        'getJSON("/api/pour/score", { skin: skinName, mode: split ? "split" : undefined, name: nick, score: game.score })'
         in js
     )
+    assert "fetch(" not in _text("play/pour/split.js")
     assert "/^[a-z0-9-]+$/" in js
     # The one thing kept on the phone is its given name, under one key (D-036).
     assert "localStorage" not in _text("play/pour/engine.js") + _text(
@@ -466,6 +496,8 @@ def test_deploy_serves_the_game_and_its_skin():
         "play/pour/index.html",
         "play/pour/engine.js",
         "play/pour/game.js",
+        "play/pour/split.js",
+        "fonts/bricolage-grotesque-latin.woff2",
         "play/pour/skins/default.js",
         "play/pour/skins/wobbly-gull.json",
         "play/pour/skins/dozy-otter.json",
@@ -775,6 +807,7 @@ def test_without_a_name_the_game_is_as_it_was(ui):
     assert ui["plain"]["fictional"] == "The Wobbly Gull is a made-up pub."
     assert ui["plain"]["emblem"]
     assert ui["plainSwitch"] == [
+        "?skin=wobbly-gull&mode=split",
         "?skin=dozy-otter",
         "?skin=sleepy-cow",
         "?skin=giddy-puffin",
@@ -794,6 +827,7 @@ def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     # Switching venue keeps it; the offer page's links never carry it, and the page
     # sends no referrer, so the offer page's analytics can't see it (D-017).
     assert ui["namedSwitch"] == [
+        "?skin=wobbly-gull&mode=split&name=Noa%20Bakehouse",
         "?skin=dozy-otter&name=Noa%20Bakehouse",
         "?skin=sleepy-cow&name=Noa%20Bakehouse",
         "?skin=giddy-puffin&name=Noa%20Bakehouse",
@@ -2093,3 +2127,300 @@ def test_the_page_says_the_phone_keeps_its_name():
 
 def test_offline_the_game_asks_for_the_board_and_posts_nothing(ui):
     assert ui["offlineSent"] == ["/api/pour/board?skin=wobbly-gull", "nicknames.json"]
+
+
+# --- P2.0ac: split the mark, the pub's second way to play (D-039) ---------------------
+
+
+def _strings(value):
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for v in value.values():
+            yield from _strings(v)
+    elif isinstance(value, list):
+        for v in value:
+            yield from _strings(v)
+
+
+def _visible(rel):
+    html = _text(rel)
+    html = re.sub(r"<(style|script)\b.*?</\1>", " ", html, flags=re.DOTALL)
+    return re.sub(r"<[^>]+>", " ", html)
+
+
+def _with_mark(latte, change=None):
+    pub = json.loads(PUB.read_text(encoding="utf-8"))
+
+    def add(skin):
+        skin["mark"] = copy.deepcopy(pub["mark"])
+        if change:
+            change(skin)
+
+    return latte(add)
+
+
+def test_the_line_falls_faster_the_longer_the_sip():
+    glass = run_split(PUB, [3.0])["glasses"][0]
+    sip = glass["sip"]
+    assert all(b < a for a, b in zip(sip, sip[1:]))
+    drops = [a - b for a, b in zip(sip, sip[1:])]
+    # a sip that turns into a long one, up to a top speed
+    assert drops[0] < drops[2]
+    assert max(glass["speeds"]) == glass["speeds"][-1] <= 0.28 + 1e-9
+    assert glass["start"] < glass["top"]
+
+
+def test_the_head_settles_the_line_on_after_letting_go():
+    stout, porter, ale = run_split(PUB, [1.1, 1.1, 1.1])["glasses"]
+    for glass in (stout, porter, ale):
+        assert glass["phase"] == "settling"
+        assert glass["result"]["level"] < glass["letGo"]
+        assert 1.5 <= glass["settledFor"] <= 1.7
+    # a stout's cascade creeps furthest, a dark ale's least
+    creep = [g["letGo"] - g["result"]["level"] for g in (stout, porter, ale)]
+    assert creep[0] > creep[1] > creep[2] > 0
+
+
+def test_letting_go_in_time_splits_the_mark_dead_on():
+    out = run_split(PUB, ["gap", "gap", "gap"])
+    assert out["phase"] == "done"
+    for glass in out["glasses"]:
+        assert glass["result"]["verdict"] == "perfect"
+        assert glass["result"]["score"] == 100
+        # about a second of sipping, as in the prototype the owner played
+        assert 0.8 <= glass["held"] <= 1.4
+    assert out["total"] == 300
+
+
+def test_the_score_is_how_close_the_settled_line_sits_to_the_gap():
+    # each a first glass, the stout, held a little short, a little long, and far too short
+    early, late, way_early = (
+        run_split(PUB, [held])["glasses"][0] for held in (1.06, 1.18, 0.6)
+    )
+    gap = json.loads(PUB.read_text(encoding="utf-8"))["mark"]
+    for glass in (early, late, way_early):
+        r = glass["result"]
+        assert r["off"] == pytest.approx(r["level"] - gap["gap"])
+        assert r["mm"] == pytest.approx(round(abs(r["off"]) * gap["mm"], 1))
+    assert early["result"]["off"] > 0 and early["result"]["verdict"] in ("good", "high")
+    assert late["result"]["off"] < 0 and late["result"]["verdict"] in ("good", "low")
+    assert way_early["result"]["verdict"] == "high"
+    assert way_early["result"]["score"] < early["result"]["score"]
+    # inside the 5mm gap it's a split; outside it isn't
+    for glass in (early, late, way_early):
+        r = glass["result"]
+        assert (r["verdict"] in ("good", "perfect")) == (
+            abs(r["off"]) <= gap["gapSize"] / 2
+        )
+
+
+def test_holding_on_stops_the_sip_and_still_settles():
+    glass = run_split(PUB, ["never"])["glasses"][0]
+    assert glass["stoppedItself"]
+    assert glass["result"]["verdict"] == "low"
+    assert glass["result"]["score"] == 0
+
+
+def test_only_a_skin_with_a_mark_and_a_dark_ale_offers_the_mode(latte):
+    offering = [p.stem for p in SKINS if run_split(p, [])["offers"]]
+    assert offering == ["wobbly-gull"]
+    assert run_split(latte(), [])["offers"] is False
+    # Given the pub's mark and its dark ales, any skin offers it; a pale drink can't.
+    assert run_split(_with_mark(latte), [])["offers"] is True
+    pale = _with_mark(latte, lambda s: s["mark"]["rounds"][0].update(liquid="#c9a27e"))
+    problems = run_split(pale, [])["problems"]
+    assert problems == ["mark.rounds[0].liquid must be a dark drink"]
+    light = _with_mark(
+        latte, lambda s: s["mark"]["rounds"][2].update(liquidDeep="#e09a1f")
+    )
+    assert run_split(light, [])["problems"] == [
+        "mark.rounds[2].liquidDeep must be a dark drink"
+    ]
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda m: m.update(gap=0.9),
+        lambda m: m.update(gapSize=0),
+        lambda m: m.update(window=0.01),
+        lambda m: m["copy"].pop("settling"),
+        lambda m: m.update(rounds=[]),
+        lambda m: m["rounds"][0].update(cascade=2),
+        lambda m: m["rounds"][0].pop("headDepth"),
+        lambda m: m["sampleScores"].append({"name": "Zed", "score": 301}),
+    ],
+)
+def test_a_broken_mark_is_refused(latte, change):
+    assert (
+        run_split(_with_mark(latte, lambda s: change(s["mark"])), [])["problems"] != []
+    )
+
+
+def test_the_mode_plays_the_pubs_own_board_and_dark_ales():
+    out = run_split(PUB, [])
+    assert out["rounds"] == 3
+    names = [
+        r["name"] for r in json.loads(PUB.read_text(encoding="utf-8"))["mark"]["rounds"]
+    ]
+    assert names == ["A stout", "A porter", "A dark ale"]
+    assert out["copy"]["round"] == "Glass {n} of {total}"
+    assert "pint on us" in out["copy"]["offer"].lower()
+    assert all(s["score"] <= 300 for s in out["samples"])
+
+
+def test_no_skin_or_page_says_down_neck_chug_or_guinness():
+    # UK advertising rules on encouraging fast drinking: the pub says "sip" (D-039).
+    banned = re.compile(
+        r"\b(down(s|ed|ing)?|neck(s|ed|ing)?|chug\w*|guinness)\b", re.IGNORECASE
+    )
+    for path in SKINS:
+        for line in _strings(json.loads(path.read_text(encoding="utf-8"))):
+            assert not banned.search(line), (path.stem, line)
+    for rel in ("play/pour/index.html", "promo-games/index.html"):
+        found = banned.findall(_visible(rel))
+        assert found == [], (rel, found)
+    for rel in ("play/pour/engine.js", "play/pour/game.js", "play/pour/split.js"):
+        assert "guinness" not in _text(rel).lower(), rel
+    mark = json.loads(PUB.read_text(encoding="utf-8"))["mark"]["copy"]
+    assert "sip" in mark["hold"].lower() and "sip" in mark["hint"].lower()
+
+
+def test_the_split_plays_through_its_glasses_and_says_how_far_off(ui):
+    split = ui["split"]
+    assert split["tagline"] == "Split the mark"
+    assert split["start"] == "Start sipping"
+    assert split["outOf"] == "/ 300"
+    assert split["round"] == "Glass 1 of 3"
+    assert split["hold"] == "Hold to sip"
+    assert [g["serve"] for g in split["glasses"]] == [
+        "A stout",
+        "A porter",
+        "A dark ale",
+    ]
+    for glass in split["glasses"]:
+        assert glass["holding"] == "Let go for the gap"
+        # nothing is said until the head has settled
+        assert glass["settling"] == "Settling\u2026"
+        assert glass["sayWhileSettling"].startswith(glass["serve"])
+        assert re.fullmatch(
+            r"(Split it\. Dead on\.|Split it: [\d.]+mm off|[\d.]+mm (above|under) the gap)",
+            glass["said"][0],
+        ), glass["said"]
+        assert re.fullmatch(r"\+\d+", glass["said"][1])
+    assert split["done"]
+    scores = [int(g["said"][1][1:]) for g in split["glasses"]]
+    assert split["chips"] == [str(n) for n in scores]
+    assert split["total"] == str(sum(scores))
+    # the card to screenshot is the closest glass's words
+    best = max(split["glasses"], key=lambda g: int(g["said"][1][1:]))
+    assert split["card"] == best["said"][0] and not split["cardHidden"]
+
+
+def test_the_split_has_its_own_board_and_sends_nothing_more(ui):
+    sent = ui["split"]["sent"]
+    assert sent[0] == {
+        "url": "/api/pour/board?skin=wobbly-gull&mode=split",
+        "body": None,
+    }
+    body = sent[1]["body"]
+    assert sent[1]["url"] == "/api/pour/score"
+    assert sorted(body) == ["mode", "name", "score", "skin"]
+    assert body["skin"] == "wobbly-gull" and body["mode"] == "split"
+    assert body["score"] == int(ui["split"]["total"])
+
+
+def test_the_split_and_the_pour_link_to_each_other(ui):
+    split = ui["split"]
+    assert split["modeLink"] == {
+        "href": "?skin=wobbly-gull",
+        "text": "Or pour the pints",
+        "hidden": False,
+    }
+    assert split["others"][0] == "?skin=wobbly-gull"
+    assert ui["split"]["fromPour"] == {
+        "href": "?skin=wobbly-gull&mode=split",
+        "text": "Or split the mark",
+        "hidden": False,
+    }
+    # a venue without a mark plays its pour, whatever the link asks for
+    assert split["cafe"]["tagline"] == "Pour the perfect latte"
+    assert split["cafe"]["modeLink"] is None
+    html = _text("play/pour/index.html")
+    title = html[html.index('id="title"') : html.index('id="play"')]
+    assert '<a class="other" id="mode" hidden></a>' in title
+
+
+def test_the_mark_is_printed_with_the_venues_name_over_the_ring(ui):
+    assert "THE WOBBLY GULL" in ui["split"]["printed"]
+    guest = ui["split"]["guest"]
+    assert guest["printed"] == ["NOA BAKEHOUSE"]
+    assert guest["emblems"] == 0
+    assert guest["link"] == "?skin=wobbly-gull&name=Noa%20Bakehouse"
+
+
+def test_the_wrapped_print_keeps_the_gap_where_the_line_scores(ui):
+    # The print is laid round the glass (2026-10-30), but the gap's own column stays at the
+    # gap's height, on the ring's right, so the line still scores where it looks.
+    for seen in ui["splitLook"].values():
+        gap = seen["gap"]
+        assert gap["printed"] == pytest.approx(gap["y"], abs=0.01)
+        assert 0 < gap["ring"] - gap["x"] < 20
+
+
+def test_a_split_pushes_in_and_eases_back_but_not_when_calm(ui):
+    lively = ui["splitLook"]["lively"]["pushes"]
+    assert 1.03 <= max(lively) <= 1.06
+    # it arrives, it doesn't pop: the first frame is barely in
+    assert lively[0] < 1.02
+    assert lively[-1] == 1
+    assert set(ui["splitLook"]["calm"]["pushes"]) == {1}
+
+
+def test_a_splits_light_is_done_before_the_next_glass_slides_in(ui):
+    # game.js holds a result for HOLD ms, then the next glass comes: the light must have
+    # eased out by then, not be cut off (Codex, 2026-10-30).
+    hold = int(re.search(r"var HOLD = (\d+);", _text("play/pour/game.js")).group(1))
+    frames = int(hold / 1000 * 60)
+    for seen in (ui["splitLook"]["lively"], ui["splitLook"]["calm"]):
+        assert any(seen["starred"][:frames])
+        assert not any(seen["starred"][frames - 3 :])
+        assert set(seen["pushes"][frames - 3 :]) == {1}
+
+
+def test_the_split_glass_grows_past_the_old_cap_on_a_tall_phone(ui):
+    assert ui["splitLook"]["tall"]["glassHeight"] > 380
+    assert (
+        ui["splitLook"]["tall"]["glassHeight"]
+        > ui["splitLook"]["lively"]["glassHeight"]
+    )
+
+
+def test_the_marks_glass_is_the_skins_not_the_codes():
+    rounds = json.loads(PUB.read_text(encoding="utf-8"))["mark"]["rounds"]
+    glasses = [r.get("glass") for r in rounds]
+    assert all(glasses) and all(g == glasses[0] for g in glasses)
+    # no outline of its own in the drawing: [[x, y], [x, y], ...]
+    outline = r"\[\s*\[\s*\d+\s*,\s*\d+\s*\]\s*,\s*\["
+    assert not re.search(outline, _text("play/pour/split.js"))
+
+
+def test_a_sip_held_to_the_bottom_still_settles_and_moves_on(ui):
+    held = ui["split"]["heldOn"]
+    assert held["button"] == "Hold to sip"
+    assert held["said"][0] == "A porter"
+
+
+def test_the_offer_page_offers_pubs_the_split():
+    html = _text("promo-games/index.html")
+    tryit = html[html.index('id="try"') : html.index('id="why"')]
+    link = re.search(
+        r'<a href="/play/pour/\?mode=split"[^>]*data-umami-event="play-demo-split"[^>]*>([^<]+)</a>',
+        tryit,
+    )
+    assert link, "the split's link"
+    assert (
+        "pub"
+        in tryit[tryit.index("?mode=split") - 200 : tryit.index("?mode=split")].lower()
+    )

@@ -10,7 +10,7 @@ const path = require("path");
 const vm = require("vm");
 
 const GAME = path.join(__dirname, "..", "play", "pour");
-const SOURCES = ["skins/default.js", "engine.js", "game.js"].map((f) => fs.readFileSync(path.join(GAME, f), "utf8"));
+const SOURCES = ["skins/default.js", "engine.js", "split.js", "game.js"].map((f) => fs.readFileSync(path.join(GAME, f), "utf8"));
 const settle = () => new Promise((r) => setImmediate(r));
 
 // How tall the stand-in canvas is; a scenario may shorten it to a small phone's.
@@ -1128,6 +1128,100 @@ async function started(search, tweak, live) {
     total: Number(page.get("total").textContent) || 0,
     board: page.get("board").kids.map((li) => li.kids.map((k) => k.textContent)),
   };
+
+  // P2.0ac: the pub's second way to play. Three glasses, each held for a sip and let go,
+  // then the head settles before the result is said.
+  const splitLive = { words: live.words, board: { week: "2026-W44", scores: [{ name: "Calm Owl", score: 120 }] } };
+  page = boot("?mode=split", null, splitLive);
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.advance(16);
+  out.split = {
+    tagline: page.get("tagline").textContent,
+    start: page.get("start").textContent,
+    offer: page.get("offer").textContent,
+    modeLink: { href: page.get("mode").href, text: page.get("mode").textContent, hidden: page.get("mode").hidden },
+    outOf: page.get("outOf").textContent,
+    printed: page.texts.filter((t) => t.op === "fillText").map((t) => t.text),
+    glasses: [],
+  };
+  page.get("start").fire("click", {});
+  page.advance(100);
+  out.split.round = page.get("round").textContent;
+  out.split.hold = page.get("pour").textContent;
+  for (const ms of [1100, 1200, 700]) {
+    const glass = { serve: page.get("say").kids.map((k) => k.textContent)[0] };
+    page.down(1);
+    page.advance(300);
+    glass.holding = page.get("pour").textContent;
+    page.advance(ms - 300);
+    page.up(1);
+    page.advance(32);
+    glass.settling = page.get("pour").textContent;
+    glass.sayWhileSettling = page.get("say").textContent;
+    page.advance(1700);
+    glass.said = page.get("say").kids.map((k) => k.textContent);
+    page.advance(1600);
+    out.split.glasses.push(glass);
+  }
+  page.advance(1500);
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.split.done = !page.get("done").hidden;
+  out.split.card = page.get("card").textContent;
+  out.split.cardHidden = page.get("card").hidden;
+  out.split.total = page.get("total").textContent;
+  out.split.chips = page.get("chips").kids.map((k) => k.textContent);
+  out.split.sent = page.sent.filter((s) => s.url.startsWith("/api/"));
+  out.split.others = page.get("othersDone").kids.filter((a) => a.href).map((a) => a.href);
+
+  // Held until the line can't fall further: the sip stops itself and still settles and scores.
+  page = await started("?mode=split");
+  page.down(1);
+  page.advance(6000);
+  out.split.heldOn = { button: page.get("pour").textContent, said: page.get("say").kids.map((k) => k.textContent) };
+  page.up(1);
+
+  // A prospect's own pub: their name printed over the ring, and no made-up emblem in it.
+  page = boot("?mode=split&name=" + encodeURIComponent("Noa Bakehouse"));
+  for (let i = 0; i < 6; i++) await page.settle();
+  page.advance(16);
+  out.split.guest = { printed: page.texts.filter((t) => t.op === "fillText").map((t) => t.text), emblems: page.paths.length, link: page.get("mode").href };
+
+  // A venue without a mark plays its pour, whatever the link asks for.
+  page = boot("?skin=cafe&mode=split");
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.split.cafe = { tagline: page.get("tagline").textContent, modeLink: page.get("mode").href || null, start: page.get("start").textContent };
+  page = boot("");
+  for (let i = 0; i < 6; i++) await page.settle();
+  out.split.fromPour = { href: page.get("mode").href, text: page.get("mode").textContent, hidden: page.get("mode").hidden };
+
+  // The split's polish (2026-10-30): the scene on its own, a split landing on it, frame by
+  // frame. Where the wrapped print puts the gap; how far the glass pushes in as the light
+  // catches it, and whether it eases back; and how tall the glass stands on a tall phone.
+  const look = (calmOn, tall) => {
+    const was = stage;
+    stage = tall ? 800 : 420;
+    const page = boot("?mode=split");
+    const w = page.window;
+    const skin = w.PourEngine.splitSkin(JSON.parse(fs.readFileSync(path.join(GAME, "skins", "wobbly-gull.json"), "utf8")));
+    const scene = w.PourSplitScene(page.get("probe"), skin, calmOn);
+    scene.layout();
+    scene.serve(w.PourEngine.serveOf(skin, 0));
+    const split = { top: 0.65, level: 0.6, pouring: false, settling: false, settled: 1 };
+    scene.frame(0, split);
+    const inside = page.fills.filter((f) => f.colour === "rgba(255,255,255,.05)").pop();
+    const seen = { gap: scene.gap(), glassHeight: inside.bottom - inside.top, pushes: [], starred: [] };
+    scene.result({ verdict: "perfect" });
+    for (let i = 0; i < 120; i++) {
+      const from = page.trace.length;
+      scene.frame(1 / 60, split);
+      const push = page.trace.slice(from).find((t) => t.startsWith("scale(") && !t.startsWith("scale(1.00,-1"));
+      seen.pushes.push(push ? parseFloat(push.slice(6)) : 1);
+      seen.starred.push(page.trace.slice(from).includes("fillStyle=#fff6dc"));
+    }
+    stage = was;
+    return seen;
+  };
+  out.splitLook = { lively: look(false), calm: look(true), tall: look(false, true) };
 
   process.stdout.write(JSON.stringify(out));
 })();

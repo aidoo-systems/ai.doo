@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Split the mark: the drink's edges</title>
+<style>
+  @font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2) format("woff2");font-weight:100 900}
+  @font-face{font-family:'Bricolage Grotesque';src:url(../../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
+  body{margin:0;background:#141312;color:#eee;font-family:Inter,system-ui,sans-serif;padding:16px}
+  h1{font:700 22px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}
+  h2{font:600 17px 'Bricolage Grotesque',sans-serif;margin:26px 0 2px}
+  p.note{color:#aaa;margin:0 0 12px;font-size:14px;max-width:760px;line-height:1.5}
+  .row{display:grid;grid-template-columns:repeat(3,minmax(0,260px));gap:10px}
+  figure{margin:0}
+  figcaption{font-size:13px;color:#bbb;margin-top:6px;text-align:center}
+  .crop{overflow:hidden;border-radius:14px;aspect-ratio:3/2.3;position:relative}
+  .crop canvas{position:absolute;left:0;bottom:0;width:100%;aspect-ratio:3/4.3}
+  .whole canvas{display:block;width:100%;aspect-ratio:3/4.3;border-radius:14px}
+  @media (max-width:640px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Split the mark: the drink's edges</h1>
+<p class="note">The bottom of the glass, close up, then the whole glass. A is today's. B works the red out from how thin the drink is at each height (most at the narrow foot, a little more on the lit left side), fades it in softly, and shows the drink through the thick base instead of a grey slab. C is B with the glass's inner wall catching a hairline of light, a thin dark line just inside it.</p>
+<p class="note">The owner picked B (2026-10-30), and it is built into split.js?v=3. This page patches the v=2 drawing (commit 7b993bf), so it no longer draws against today's split.js.</p>
+<div id="out"></div>
+<script src="../../play/pour/engine.js?v=20"></script>
+<script>
+// Stills for the owner (2026-10-30). Each variant is play/pour/split.js itself with its
+// drink's edges and the thick base swapped, so everything else is exactly what ships.
+const NEW_DRINK = `
+    function drawDrink(x0, x1, lineY) {
+      var span = g.bottom - g.top;
+      var floor = g.bottom + g.base;
+      ctx.fillStyle = mix(dr.liquidDeep, "#000000", 0.35);
+      ctx.fillRect(x0, lineY, x1 - x0, floor - lineY);
+      // how wide the glass gets: the red is how much thinner than that the drink is at a height
+      var widest = 0;
+      for (var yy = g.top; yy <= g.bottom; yy += 4) {
+        var r0 = xRange(g.inner, yy);
+        if (r0) widest = Math.max(widest, r0[1] - r0[0]);
+      }
+      for (var y = lineY; y < floor; y += 2) {
+        var e = xRange(g.inner, Math.min(y, g.bottom - 0.5));
+        if (!e) continue;
+        var w = e[1] - e[0];
+        var thin = clamp((widest - w) / (widest * 0.5), 0, 1);
+        var a = 0.06 + 0.3 * thin * thin;
+        var fw = w * (0.14 + 0.1 * thin);
+        var L = ctx.createLinearGradient(e[0], 0, e[0] + fw, 0);
+        L.addColorStop(0, "rgba(" + RUBY + "," + a + ")");
+        L.addColorStop(1, "rgba(" + RUBY + ",0)");
+        ctx.fillStyle = L;
+        ctx.fillRect(e[0] - 2, y, fw + 2, 2);
+        var R = ctx.createLinearGradient(e[1], 0, e[1] - fw, 0);
+        R.addColorStop(0, "rgba(" + RUBY + "," + a * 0.6 + ")");
+        R.addColorStop(1, "rgba(" + RUBY + ",0)");
+        ctx.fillStyle = R;
+        ctx.fillRect(e[1] - fw, y, fw + 2, 2);
+      }
+      // the light through the foot, low and wide, fading up into the black
+      var foot = ctx.createRadialGradient(g.cx, g.bottom, 0, g.cx, g.bottom, g.gw * 0.4);
+      foot.addColorStop(0, "rgba(" + RUBY + ",.55)");
+      foot.addColorStop(0.45, "rgba(110,22,8,.22)");
+      foot.addColorStop(1, "rgba(60,10,4,0)");
+      ctx.fillStyle = foot;
+      ctx.fillRect(x0, lineY, x1 - x0, floor - lineY);
+      if (WALL) {
+        // the inner wall: a thin dark line just inside, a hairline of light on the glass
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x0, lineY, x1 - x0, floor - lineY);
+        ctx.clip();
+        glassPath(g.inner);
+        ctx.lineJoin = "round";
+        ctx.strokeStyle = "rgba(0,0,0,.55)";
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.strokeStyle = "rgba(255,214,180,.24)";
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.restore();
+      }
+      var under = ctx.createLinearGradient(0, lineY, 0, lineY + span * 0.06);
+      under.addColorStop(0, rgba(dr.liquid, 0.9));
+      under.addColorStop(0.3, "rgba(98,36,14,.4)");
+      under.addColorStop(1, "rgba(98,36,14,0)");
+      ctx.fillStyle = under;
+      ctx.fillRect(x0, lineY, x1 - x0, span * 0.06);
+    }
+`;
+// the thick base: the drink seen down through the glass, darker and red, a light edge on top
+const NEW_BASE = `
+      var slab = ctx.createLinearGradient(0, g.bottom - g.base * 0.5, 0, g.bottom + g.base);
+      slab.addColorStop(0, "rgba(70,16,6,.55)");
+      slab.addColorStop(1, "rgba(24,8,4,.35)");
+      ctx.fillStyle = slab;
+      ctx.beginPath();
+      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);`;
+const OLD_BASE = `
+      ctx.fillStyle = "rgba(255,255,255,.2)";
+      ctx.beginPath();
+      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);`;
+const BASE_EDGE_AFTER = `      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+      var edge = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);`;
+const BASE_EDGE = `      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,230,210,.28)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(g.gx - 4, g.bottom + g.base * 0.35);
+      ctx.quadraticCurveTo(g.cx, g.bottom - g.base * 0.9, g.gx + g.gw + 4, g.bottom + g.base * 0.35);
+      ctx.stroke();
+      ctx.restore();
+      var edge = ctx.createLinearGradient(g.gx, 0, g.gx + g.gw, 0);`;
+
+function variant(src, name, wall) {
+  let s = src.replace("window.PourSplitScene", "window." + name);
+  if (name === "SceneA") return s;
+  const a = s.indexOf("    function drawDrink(");
+  const b = s.indexOf("    // The settle:");
+  s = s.slice(0, a) + NEW_DRINK.replace(/WALL/g, wall ? "true" : "false") + "\n" + s.slice(b);
+  for (const [from, to] of [[OLD_BASE, NEW_BASE], [BASE_EDGE_AFTER, BASE_EDGE]]) {
+    if (!s.includes(from)) throw new Error("split.js has moved on: " + from.trim().slice(0, 40));
+    s = s.replace(from, to);
+  }
+  return s;
+}
+
+(async () => {
+  let src = await (await fetch("../../play/pour/split.js?x=" + Date.now())).text();
+  src = src.replace(/\r\n/g, "\n");
+  for (const [n, w] of [["SceneA", false], ["SceneB", false], ["SceneC", true]]) (0, eval)(variant(src, n, w));
+  const raw = await (await fetch("../../play/pour/skins/wobbly-gull.json")).json();
+  await document.fonts.load("700 16px 'Bricolage Grotesque'");
+  const skin = PourEngine.splitSkin(raw);
+  const drink = PourEngine.serveOf(skin, 0);
+  const out = document.getElementById("out");
+  const rows = [["The bottom of the glass, close up", "crop", { level: 0.6, top: 0.65 }], ["The whole glass, full", "whole", { level: 0.817, top: 0.907 }]];
+  const jobs = [];
+  for (const [title, kind, s] of rows) {
+    const h = document.createElement("h2");
+    h.textContent = title;
+    const row = document.createElement("div");
+    row.className = "row";
+    out.append(h, row);
+    for (const [n, label] of [["SceneA", "A: now"], ["SceneB", "B: red by thickness, the base"], ["SceneC", "C: B and the wall's light"]]) {
+      const f = document.createElement("figure");
+      const box = document.createElement("div");
+      box.className = kind;
+      const c = document.createElement("canvas");
+      const fc = document.createElement("figcaption");
+      fc.textContent = label;
+      box.append(c);
+      f.append(box, fc);
+      row.append(f);
+      jobs.push(() => {
+        const sc = window[n](c, skin, false);
+        sc.layout();
+        sc.serve(drink);
+        sc.frame(0, Object.assign({ pouring: false, settling: false, settled: 0 }, s));
+      });
+    }
+  }
+  const draw = () => jobs.forEach((j) => j());
+  draw();
+  addEventListener("resize", draw);
+})();
+</script>
+</body>
+</html>
