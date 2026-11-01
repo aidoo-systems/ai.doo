@@ -49,6 +49,7 @@ Needs Node (any current version) and `python -m pip install -r api/requirements.
 | `/vera/` | `vera/index.html` |
 | `/promo-games/` | `promo-games/index.html` |
 | `/play/pour/` | `play/pour/index.html` (promo showcase game) |
+| any missing path | `404.html` (noindex; served by Caddy's `handle_errors`, so every path in it is absolute) |
 | `/privacy/` | `privacy/index.html` |
 | `/privacy-pomodorable/` | `privacy-pomodorable/index.html` |
 
@@ -150,6 +151,16 @@ Two-job GitHub Actions workflow on push to `main`:
 4. Add `reverse_proxy /api/* localhost:8765` to Caddy vhost
 5. Add sudoers rule so deploy user can `sudo systemctl restart aidoo-api`
 6. The pour demo's board (D-036): `sudo mkdir -p /var/lib/aidoo-api`, `chown` it to the service user (`systemctl show -p User --value aidoo-api`), and add `AIDOO_BOARD_DB=/var/lib/aidoo-api/board.db` to `/etc/aidoo-api.env`. Without it `/api/pour/*` returns 500 (the user's home is `/var/www`), and the game quietly shows its sample board
+7. The 404 page (P2.1l): add this inside the aidoo.biz site block, then `sudo systemctl reload caddy`. Without it a missing page is a blank white response
+   ```
+   handle_errors {
+       @notfound expression {err.status_code} == 404
+       handle @notfound {
+           rewrite * /404.html
+           file_server
+       }
+   }
+   ```
 
 ## Products
 
