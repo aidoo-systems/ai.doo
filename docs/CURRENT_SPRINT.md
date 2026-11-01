@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-01
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: in-progress (P2.1l, a 404 that plays (mock A), in review as #115, needs the Caddy rule on the VPS after merge; P2.0ac, split the mark, on `item/p20ac-split-the-mark` (#113): the polish and the drink's edges are built; the glass's bottom is built (pick B); the owner plays it on a phone and merges; P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
+State: in-progress (P2.1l, a 404 that plays (mock A), merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, on `item/p20ac-split-the-mark` (#113): the polish and the drink's edges are built; the glass's bottom is built (pick B); the owner plays it on a phone and merges; P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
 ## Goal
 
