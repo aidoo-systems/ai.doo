@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Page not found | ai.doo</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">
+  <meta name="theme-color" content="#141312">
+  <link rel="stylesheet" href="/style.css">
+  <!-- Served by Caddy for any missing path, at any depth: every path on this page is absolute. -->
+  <style>
+    .lost{padding:72px 0 40px;min-height:56vh}
+    .lost .sub{max-width:34ch}
+    .lostLinks{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:28px}
+    /* The ball has rolled off the end of the headline and come to rest where the full stop goes. */
+    .restBall{font-size:inherit;display:inline-block;width:.42em;height:.42em;margin-left:.12em;vertical-align:-.02em;padding:0;border:0;border-radius:50%;background:url('/favicon.svg') center/contain no-repeat;cursor:pointer;animation:rollIn .9s cubic-bezier(.3,1.4,.5,1) .3s both}
+    .restBall.gone{visibility:hidden}
+    @keyframes rollIn{from{transform:translateX(3em) rotate(540deg);opacity:0}to{transform:none;opacity:1}}
+    @media (prefers-reduced-motion:reduce){.restBall{animation:none}}
+    /* Somewhere to go instead, in the games' own colours */
+    .tryRow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:44px}
+    .try{display:block;border-radius:14px;padding:16px 16px 18px;background:var(--c);color:var(--t);text-decoration:none;font-family:var(--display);font-weight:700;font-size:18px;line-height:1.15}
+    .try small{display:block;font-family:Inter,system-ui,sans-serif;font-weight:600;font-size:12px;opacity:.75;margin-top:6px}
+    .try:hover{text-decoration:underline}
+    @media (max-width:720px){.tryRow{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body class="studio">
+
+<header>
+  <div class="nav">
+    <a class="brand" href="/" aria-label="ai.doo home">
+      <span class="wordmark" aria-label="ai.doo">
+        <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+      </span>
+    </a>
+
+    <nav aria-label="Primary navigation">
+      <a href="/#games">Games</a>
+      <a href="/#apps">Apps</a>
+      <a href="/promo-games/">For business</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+
+    <div class="navRight">
+      <button class="menuBtn" id="menuBtn" aria-expanded="false" aria-controls="mobileNav">Menu</button>
+      <a class="btn primary" href="mailto:hello@aidoo.biz">Email us</a>
+    </div>
+  </div>
+
+  <div class="mobileNav" id="mobileNav">
+    <a href="/#games">Games</a>
+    <a href="/#apps">Apps</a>
+    <a href="/promo-games/">For business</a>
+    <a href="/#contact">Contact</a>
+  </div>
+</header>
+
+<main class="wrap" id="top">
+  <section class="hero studioHero lost">
+    <h1>This page rolled away<button class="restBall" type="button" aria-label="Flick the ball"></button></h1>
+    <p class="sub">The link is wrong, or the page has moved. Everything else is where you left it.</p>
+    <div class="lostLinks">
+      <a class="btn primary" href="/">Back to the games</a>
+      <a class="textLink" href="mailto:hello@aidoo.biz">Tell us what you were after</a>
+    </div>
+
+    <div class="tryRow" aria-label="Somewhere to go instead">
+      <a class="try" style="--c:#f5b544;--t:#1a0f08" href="/play/pour/" data-play="Pour a pint" data-play-back="#f5b544" data-play-ink="#1a0f08">Pour a pint<small>Plays here, now</small></a>
+      <a class="try" style="--c:#10261c;--t:#4be08a" href="/#orbital-panic">Orbital Panic<small>One tap, one orbit</small></a>
+      <a class="try" style="--c:#d9a03b;--t:#13181c" href="/#reactor-panic">Reactor Panic<small>Stop the meltdown</small></a>
+      <a class="try" style="--c:#008080;--t:#fff" href="https://pipes98.com/" target="_blank" rel="noopener">Pipes 98<small>Pipes, in a browser</small></a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footerRow">
+      <div class="footerCol">
+        <span class="wordmark" aria-label="ai.doo">
+          <span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-doo">doo</span>
+        </span>
+        <p class="trustline">A small studio on the Isle of Man.</p>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<div class="playDock">
+  <a class="playFab" id="playFab" hidden><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1.2v11.6a.8.8 0 0 0 1.2.7l9.4-5.8a.8.8 0 0 0 0-1.4L2.2.5A.8.8 0 0 0 1 1.2z" fill="currentColor"/></svg><span></span></a>
+</div>
+
+<script>
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileNav = document.getElementById("mobileNav");
+  menuBtn.addEventListener("click", () => {
+    const isOpen = mobileNav.classList.toggle("open");
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+  // The resting ball is the wordmark's ball, run away: flick it and it plays as the dot does,
+  // then goes home to the wordmark. With reduced motion nothing moves, so it stays put.
+  document.querySelector(".restBall").addEventListener("click", function () {
+    const toy = document.querySelector(".wmToy");
+    if (!toy || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    this.classList.add("gone");
+    toy.click();
+  });
+</script>
+<script defer src="/studio.js"></script>
+</body>
+</html>
