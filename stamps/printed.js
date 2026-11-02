@@ -14,6 +14,7 @@
   "use strict";
 
   var WIDTH = 1032, HEIGHT = 812; // Google's hero, which the web card shows too
+  var STRIP_WIDTH = 750, STRIP_HEIGHT = 288; // Apple's strip at 2x
   var MARGIN = 40, GAP = 28, MAX_PER_ROW = 5;
   var CARD_MARGIN = 0.045, CARD_CORNER = 0.07, CARD_PAD = 0.06, HEADER = 0.17;
   var PAPER_LIFT = 0.055, PAPER_WARMTH = 0.03, PRINT = 0.72, SHADOW = 110 / 255, PAPER_GRAIN = 0.05;
@@ -405,14 +406,17 @@
   // --- the card ---------------------------------------------------------------------------------
 
   // The card's pixels for `count` of `required`: {width, height, data} (RGBA), ready for ImageData.
-  // o: {bg, fg, required, count, logo, wordmark}. `logo(n)` gives the logo as n x n RGBA pixels
-  // (null draws the star); `wordmark` is {w, h, scaled(w, h)} or null for no header.
-  // `width` defaults to the hero's 1032 (and 812 high); smaller keeps the hero's shape.
+  // o: {bg, fg, required, count, logo, wordmark, lit}. `logo(n)` gives the logo as n x n RGBA
+  // pixels (null draws the star); `wordmark` is {w, h, scaled(w, h)} or null for no header.
+  // A full card is lit (foil and glow) unless `lit` is false, so the page can fade the light in.
+  // `width` defaults to the hero's 1032 and `height` keeps the hero's shape; Apple's strip is
+  // 375 by 144 points (the service's apple.STRIP), so (750, 288) at 2x.
   var rubbers = {};
-  function render(o, width) {
+  function render(o, width, height) {
     width = width || WIDTH;
-    var height = Math.round(width * HEIGHT / WIDTH), img = new Img(width, height);
-    var count = Math.max(0, Math.min(o.count, o.required)), full = count === o.required;
+    height = height || Math.round(width * HEIGHT / WIDTH);
+    var img = new Img(width, height);
+    var count = Math.max(0, Math.min(o.count, o.required)), full = count === o.required && o.lit !== false;
     drawBlank(img, o, full);
     var b = boxes(o.required, width, height, !!o.wordmark), size = Math.ceil(2 * STAMP * b.radius) + 2;
     var key = (o.logoKey || "star") + ":" + size;
@@ -425,6 +429,8 @@
   return {
     WIDTH: WIDTH,
     HEIGHT: HEIGHT,
+    STRIP_WIDTH: STRIP_WIDTH,
+    STRIP_HEIGHT: STRIP_HEIGHT,
     POSES: POSES,
     render: render,
     boxes: boxes,

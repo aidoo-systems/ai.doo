@@ -52,8 +52,9 @@ def test_a_plain_link_is_the_plain_demo():
     s = run()["settings"]
     assert s["shop"] is None
     assert s["reward"] == "free coffee"
-    assert s["stamps"] == 10
-    assert re.fullmatch(r"#[0-9a-f]{6}", s["color"])
+    # Little Gull Coffee, the made-up shop of the real test pass: its teal, its cream, 8 stamps
+    assert s["stamps"] == 8
+    assert (s["color"], s["fg"]) == ("#1f4e5a", "#f3e6cf")
 
 
 def test_a_shops_link_puts_their_card_on_the_page():
@@ -72,8 +73,19 @@ def test_a_shops_link_puts_their_card_on_the_page():
         "reward": "free scoop",
         "color": "#d74000",
         "ink": "#ffffff",
+        "fg": "#ffffff",
         "stamps": 8,
     }
+
+
+def test_a_shop_can_bring_its_own_writing_colour_if_it_reads():
+    # &fg= for the writing and stamps, as the service takes a shop's two colours (3:1 or more)
+    shop = {"shop": "Roots", "color": "1F3B2D"}
+    assert run({**shop, "fg": "F2E6C9"})["settings"]["fg"] == "#f2e6c9"
+    assert (
+        run({**shop, "fg": "26402F"})["settings"]["fg"] == "#ffffff"
+    )  # too close: ink
+    assert run({**shop, "fg": "url(x)"})["settings"]["fg"] == "#ffffff"
 
 
 @pytest.mark.parametrize(
@@ -150,7 +162,7 @@ def test_the_page_is_unlisted():
 
 
 def test_the_page_keeps_and_sends_nothing():
-    for rel in ("stamps/index.html", "stamps/card.js"):
+    for rel in ("stamps/index.html", "stamps/card.js", "stamps/printed.js"):
         text = _text(rel)
         for api in (
             "localStorage",
@@ -206,7 +218,12 @@ def test_the_page_makes_no_promise_the_product_rules_out():
 
 def test_deploy_serves_the_demo():
     served = check_site.served_files(REPO_ROOT, check_site.deploy_excludes(REPO_ROOT))
-    for rel in ("stamps/index.html", "stamps/card.js"):
+    for rel in (
+        "stamps/index.html",
+        "stamps/card.js",
+        "stamps/printed.js",
+        "stamps/little-gull.png",
+    ):
         assert rel in served, rel
 
 
