@@ -333,6 +333,8 @@ def test_the_demo_opens_over_the_homepage_on_a_computer_and_is_still_counted():
     assert ran["frameGoesTo"] == "https://aidoo.biz/play/pour/"
     # one game at a time, the page held still beneath it, one sheet however often you type
     assert ran["dockHidden"] and ran["pageHeld"] and ran["sheets"] == 1
+    # and the keyboard stays in the sheet: the page behind it is inert until it goes
+    assert ran["pageInert"] and ran["pageBack"]
     # links in the game leave the sheet; Esc from inside the game puts it away, and the game goes
     assert ran["linksLeaveTheSheet"]
     assert ran["closed"] and ran["gone"] and ran["focusBack"]

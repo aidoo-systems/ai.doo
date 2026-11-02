@@ -59,6 +59,8 @@ const nav = element();
 const brand = element();
 const doo = element({ textContent: "doo" });
 const body = element();
+const page = element(); // everything already on the page, behind a sheet
+body.children.push(page);
 const sheetRun = process.env.SHEET || "";
 // the homepage's "Play the demo", which opens over the page on a computer
 const demo = element({ tagName: "A", dataset: { sheet: "", umamiEvent: "play-demo-home" }, href: "https://aidoo.biz/play/pour/" });
@@ -242,6 +244,7 @@ if (sheetRun) {
     s.dialog = sheet.attrs.role === "dialog" && sheet.attrs["aria-modal"] === "true";
     s.dockHidden = body.classList.contains("pourOpen");
     s.pageHeld = window.document.documentElement.style.overflow === "hidden";
+    s.pageInert = page.inert === true;
     // the game loads in the frame: its links must leave the sheet for the whole window
     frame.contentDocument = { head: element(), createElement: (tag) => element({ tagName: String(tag).toUpperCase() }) };
     frame.contentWindow = element();
@@ -257,6 +260,7 @@ if (sheetRun) {
     runTimers();
     s.gone = !!sheet.removed && !!back.removed;
     s.focusBack = body.focused > 0;
+    s.pageBack = page.inert === false;
   }
   out.sheet = s;
 }

@@ -518,7 +518,14 @@
     body.appendChild(back);
     body.appendChild(el);
     var root = document.documentElement;
-    sheet = { el: el, back: back, before: document.activeElement, overflow: root.style.overflow };
+    // the keyboard stays in the sheet: everything behind it is inert until it goes
+    var away = Array.prototype.filter.call(body.children, function (k) {
+      return k !== back && k !== el && !k.inert;
+    });
+    away.forEach(function (k) {
+      k.inert = true;
+    });
+    sheet = { el: el, back: back, away: away, before: document.activeElement, overflow: root.style.overflow };
     root.style.overflow = "hidden"; // the page stays put underneath
     body.classList.add("pourOpen"); // one game at a time: the Play button waits
 
@@ -580,6 +587,9 @@
     s.el.style.transform = "";
     document.documentElement.style.overflow = s.overflow;
     body.classList.remove("pourOpen");
+    s.away.forEach(function (k) {
+      k.inert = false;
+    });
     setTimeout(function () {
       s.back.remove();
       s.el.remove(); // the game goes with it: nothing keeps running
