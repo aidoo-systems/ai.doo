@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- **A share card for the pour demo** (P2.1j): a link to `/play/pour/` pasted into Messenger, Facebook or WhatsApp shows a card, "A little game for your customers while they wait", with the four venues on a fan of phones. It's the same card for every venue and never shows the name in the link
 - **More play on the homepage** (P2.1m, D-041): six keep-ups of the wordmark's ball throw six sparks off the paddle in the games' colours; while the ball is out the o's of "doo" watch it, and blink when it lands home. On a computer, "Play the demo" opens the pint in a sheet over the homepage (typing "pour" opens it too); phones still go to the game's page. Nothing moves with reduced motion
 - **A live board on the demo game** (P2.0c, D-036): each visit gets a random name like "Brave Heron", every finished game goes on that week's board, and the board shows the week's real top ten among the sample scores. It stores the venue, name, score and week, and nothing else; the privacy policy says so (4b)
 
