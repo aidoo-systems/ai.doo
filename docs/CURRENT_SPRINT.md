@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-02
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: in-progress (P2.1m, more play on the homepage (D-041), In Progress on `item/p21m-more-play`: stills and the 4A mock picked; next, build 1A, 2A and 4A into the homepage; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
+State: in-progress (P2.1m, more play on the homepage (D-041), built on `item/P2.1m-more-play-build`, Ready For Test: the owner plays the sparks and the eyes on a phone and the sheet on the PC over the LAN, then merges; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
 ## Goal
 
@@ -45,6 +45,8 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-11-02
+
+- **P2.1m built (`item/P2.1m-more-play-build`, `/next P2.1m`).** All in `studio.js` and `style.css`, plus `data-sheet` on the homepage's "Play the demo". 1A: the sixth keep-up throws six sparks off the paddle, one per hit, in the cards' colours; they rise, fall and go in 0.76s. 2A: the o's of "doo" are spans with a pupil each, seen only while the ball is out, sliding up to 0.04em towards it (further and it runs into the stroke; tuned on the real font at 140px); home, both blink once. 4A: on a computer (hover and a fine pointer, motion allowed) the button opens the real `/play/pour/` in a sheet, and so does typing "pour" outside the chat; the page behind is held and `inert`, the Play button hidden, the game's links get `<base target="_top">`, and Esc (page or game), the ×, a click outside or a swipe down puts it away and removes the frame. The analytics script follows a counted link itself, so `studio.js` hears the click first (window, capture) and sends `play-demo-home`. Tests: `studio_driver.cjs` gained the sparks, the eyes and `SHEET=button|word|chat|phone|calm`; 9 new tests, red first (5 failed). Gates all PASS (2 cycles). Codex round 1: one P2 (focus), fixed test-first. The browser pane was hidden, so it ran no animation frames: the sheet was checked live, the sparks and eyes only by the driver and stills of the pupils. **Next:** the owner plays it (phone for the ball, PC for the sheet) and merges.
 
 - P2.1m: stills for the four pieces of play (A, B, C each), then a working mock of 4A (type "pour", the real pint rises over the homepage in a sheet). Owner picked 1A, 2A with the blink, 3C, and 4A; on 4A, "no one is going to see it", so "Play the demo" opens the sheet on a computer and the word stays as a meeting trick (D-041). Built next, from the stills and `internal/prototypes/more-play/pour-sheet.js`. Banked.
 - P2.0ac merged (#113). The 404 is on the server (`/404.html` 200) but aidoo.biz/nope is still blank until the Caddy rule.
