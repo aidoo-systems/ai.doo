@@ -208,7 +208,7 @@ def test_the_dots_ring_fades_out_and_is_not_pulled_back_in():
 ASKS = "drag to keep it up"  # what the paddle says on a phone until it is first hit
 
 
-def _rally(how):
+def _driven(**env):
     node = shutil.which("node")
     assert node, "Node.js is needed to run studio.js in the tests"
     done = subprocess.run(
@@ -217,12 +217,16 @@ def _rally(how):
         text=True,
         encoding="utf-8",
         check=False,
-        env={**os.environ, "RALLY": how},
+        env={**os.environ, **env},
     )
     assert done.returncode == 0, done.stderr
     ran = json.loads(done.stdout)
     assert ran["error"] is None
-    return ran["rally"]
+    return ran
+
+
+def _rally(how):
+    return _driven(RALLY=how)["rally"]
 
 
 def test_six_keep_ups_end_the_rally_and_hand_over_to_a_real_game():
@@ -289,6 +293,78 @@ def test_the_rally_keeps_the_page_scrollable_and_the_dock_out_of_the_way():
     # and it is there on every device: a touchscreen laptop has a mouse and a finger
     assert "body.studio .wmCourt{display:none}" not in css
     assert "body.studio.rally .playDock{" in css
+
+
+# --- D-041: more play (P2.1m) ---------------------------------------------------------
+
+CARD_COLOURS = ["#008080", "#17533f"]  # the driver's two game cards
+
+
+def test_six_keep_ups_throw_six_sparks_in_the_games_colours():
+    ran = _driven(RALLY="keepup")
+    assert ran["sparks"]["thrown"] == 6
+    assert ran["sparks"]["colours"] == CARD_COLOURS
+    assert ran["sparks"]["leftBehind"] == 0
+
+
+def test_a_missed_rally_throws_no_sparks():
+    assert _driven(RALLY="miss")["sparks"]["thrown"] == 0
+
+
+def test_the_os_of_doo_watch_the_ball_and_blink_when_it_lands():
+    ran = _driven(RALLY="keepup")["eyes"]
+    # the word still reads "doo", with a pupil in each o
+    assert ran["letters"] == "doo" and ran["eyes"] == 2
+    assert ran["watched"] and ran["looks"] > 10
+    assert ran["blinked"] == "home"
+    # at rest the mark is D-020's again: no pupils, no blink
+    assert not ran["stillWatching"] and not ran["stillBlinking"]
+
+
+def test_reduced_motion_leaves_the_wordmark_as_it_is():
+    ran = _driven(RALLY="calm")
+    assert "eyes" not in ran or ran["eyes"]["eyes"] == 0
+
+
+def test_the_demo_opens_over_the_homepage_on_a_computer_and_is_still_counted():
+    ran = _driven(SHEET="button")["sheet"]
+    assert ran["pageKeptHome"] and ran["opened"] and ran["dialog"]
+    assert ran["counted"] == ["play-demo-home"]
+    assert ran["frameGoesTo"] == "https://aidoo.biz/play/pour/"
+    # one game at a time, the page held still beneath it, one sheet however often you type
+    assert ran["dockHidden"] and ran["pageHeld"] and ran["sheets"] == 1
+    # links in the game leave the sheet; Esc from inside the game puts it away, and the game goes
+    assert ran["linksLeaveTheSheet"]
+    assert ran["closed"] and ran["gone"] and ran["focusBack"]
+
+
+def test_typing_pour_opens_the_pint_and_esc_puts_it_away():
+    ran = _driven(SHEET="word")["sheet"]
+    assert ran["opened"] and ran["counted"] == []
+    assert ran["closed"] and ran["gone"]
+
+
+def test_typing_pour_in_the_chat_opens_nothing():
+    assert _driven(SHEET="chat")["sheet"]["opened"] is False
+
+
+def test_a_phone_or_reduced_motion_goes_to_the_games_own_page():
+    for how in ("phone", "calm"):
+        ran = _driven(SHEET=how)["sheet"]
+        assert ran["opened"] is False and ran["pageKeptHome"] is False, how
+        assert ran["counted"] == [], (
+            how
+        )  # the analytics script counts the plain link itself
+
+
+def test_only_the_homepages_demo_opens_in_a_sheet():
+    for rel in ("index.html", "promo-games/index.html", "about/index.html", "404.html"):
+        found = re.findall(r"<a [^>]*data-sheet[^>]*>", _text(rel))
+        if rel == "index.html":
+            assert len(found) == 1 and 'href="play/pour/"' in found[0]
+            assert 'data-umami-event="play-demo-home"' in found[0]
+        else:
+            assert found == [], rel
 
 
 # --- the privacy pages and the share card join the frame ------------------------------

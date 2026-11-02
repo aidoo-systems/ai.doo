@@ -510,6 +510,34 @@ body.studio .wmCourt{position:fixed;left:0;right:0;bottom:0;height:50%;z-index:2
 body.studio .wmCourt.all{height:100%}
 body.studio.rally .playDock{transform:translateY(120px);pointer-events:none}
 body.studio .playFab.cheer{animation:cheer .45s ease 2}
+/* More play (D-041). Six keep-ups throw six sparks off the paddle; they rise, fall away and go. */
+body.studio .wmSpark{position:fixed;z-index:299;border-radius:50%;pointer-events:none;opacity:0;animation:wmSpark .74s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes wmSpark{
+  0%{transform:translate(-50%,-50%) scale(.5);opacity:1}
+  45%{transform:translate(calc(var(--dx) * .75 - 50%),calc(var(--dy) - 50%)) scale(1);opacity:1}
+  100%{transform:translate(calc(var(--dx) - 50%),calc(var(--dy) + 46px - 50%)) scale(.4);opacity:0}
+}
+/* The o's of "doo" are eyes while the ball is out: a pupil in each counter, then a blink as it lands home. */
+body.studio .wmEye{position:relative;display:inline-block;transform-origin:50% 57%}
+body.studio .wmPupil{position:absolute;left:50%;top:57%;width:.15em;height:.15em;margin:-.075em 0 0 -.075em;border-radius:50%;background:var(--ink);opacity:0;transition:opacity .15s ease}
+body.studio.watching .wmPupil{opacity:1}
+body.studio .wm-doo.blink .wmEye{animation:wmBlink .2s ease}
+@keyframes wmBlink{50%{transform:scaleY(.12)}}
+/* The pint over the page: on a computer, the homepage's demo rises in a sheet. */
+body.studio .pourBack{position:fixed;inset:0;z-index:400;background:rgba(10,9,8,.6);opacity:0;transition:opacity .3s ease}
+body.studio .pourBack.up{opacity:1}
+body.studio .pourSheet{
+  position:fixed;left:50%;bottom:0;z-index:401;width:min(460px,100%);height:min(860px,94vh);
+  display:flex;flex-direction:column;border-radius:20px 20px 0 0;background:#101214;overflow:hidden;
+  box-shadow:0 -12px 40px rgba(0,0,0,.55);transform:translate(-50%,100%);transition:transform .38s cubic-bezier(.2,.9,.25,1.05);
+}
+body.studio .pourSheet.up{transform:translate(-50%,0)}
+body.studio .pourGrip{flex:none;position:relative;height:30px;cursor:grab;touch-action:none}
+body.studio .pourGrip::before{content:'';position:absolute;left:50%;top:11px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:rgba(255,255,255,.35)}
+body.studio .pourShut{position:absolute;right:8px;top:3px;width:26px;height:26px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:var(--ink);font:700 15px/1 Inter,system-ui,sans-serif;cursor:pointer}
+body.studio .pourShut:hover{background:rgba(255,255,255,.2)}
+body.studio .pourSheet iframe{flex:1 1 auto;width:100%;border:0;background:#101214}
+body.studio.pourOpen .playDock{visibility:hidden}
 @keyframes cheer{50%{transform:translateY(-9px)}}
 
 body.studio .playDock{position:fixed;right:20px;bottom:20px;z-index:150;display:flex;align-items:center;gap:10px;transition:transform .25s ease}
