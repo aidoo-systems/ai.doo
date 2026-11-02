@@ -54,7 +54,6 @@
     .stage.staffin .device.staff{transform:translateX(14%) translateY(3%) rotate(2deg);opacity:1}
     .caption{text-align:center;font-weight:800;font-size:19px;letter-spacing:-.01em;min-height:29px;margin:14px 16px 0}
     .caption span{display:inline-block;animation:enter .35s ease-out}
-    .stage.paused .laser{animation-play-state:paused}
     .controls{display:flex;justify-content:center;gap:18px;margin-top:2px;font-size:14px;color:var(--muted)}
     .controls button{border:0;background:none;color:inherit;text-decoration:underline;padding:6px 2px}
     @media (min-width:760px) and (min-height:860px){:root{--k:.93}}
@@ -124,24 +123,37 @@
     .note .icon{width:32px;height:32px;border-radius:8px;background:var(--brand);color:var(--brandInk);display:grid;place-items:center;flex:none;font-size:17px}
 
     /* The shop's phone */
-    .till{background:#1b1b1f;color:#fff;gap:12px}
-    .till-top{display:flex;justify-content:space-between;font-size:13px;color:#aaa;gap:8px}
-    .till-top b{color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .finder{height:170px;border-radius:16px;background:#2a2a30;position:relative;overflow:hidden;display:grid;place-items:center;flex:none}
-    .finder::before{content:"";position:absolute;width:112px;height:112px;border:3px solid rgba(255,255,255,.75);border-radius:14px;z-index:1}
-    .finder .seen{width:92px;height:92px;background:#fff;border-radius:6px;padding:5px;opacity:.9}
-    .finder .seen svg{width:100%;height:100%;display:block}
-    .laser{position:absolute;left:24%;right:24%;height:2px;background:#ff4d4d;top:50%;z-index:2;animation:scan 1.2s ease-in-out infinite}
-    @keyframes scan{0%,100%{transform:translateY(-50px)}50%{transform:translateY(50px)}}
-    .result{flex:1;min-height:0;border-radius:16px;background:#26262b;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;color:#aaa;font-size:14px;transition:background .2s}
-    .result b{display:block;font-size:34px;line-height:1.1;color:#fff;font-weight:800}
-    .result.ok{background:var(--ok);color:#e8fff0}
-    .result.full{background:var(--full);color:#2a1d00}
-    .result.full b{color:#000}
-    .flash{animation:flash .45s ease-out}
-    @keyframes flash{0%{transform:scale(.94)}60%{transform:scale(1.03)}}
-    .big{border-radius:14px;padding:15px;font-size:17px;font-weight:800;background:var(--brand);color:var(--brandInk);text-align:center;margin-bottom:14px}
-    .big.give{background:var(--full);color:#000}
+    /* The shop's phone, as the live scanner draws it (loyalty's scan.html): the camera, the +N sheet,
+       the green done screen */
+    .till{background:#111;color:#fff;gap:9px;padding:44px 12px 16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:none}
+    .till button,.till .btn{border:0;border-radius:11px;padding:9px 10px;min-height:40px;background:#333;color:#fff;font:inherit;font-size:14px;text-align:center;display:grid;place-items:center}
+    .till .primary{background:#fff;color:#111;font-weight:700}
+    .till .go{background:#15803d;color:#fff;font-weight:700}
+    .cam{flex:1;min-height:0;border-radius:13px;background:radial-gradient(110% 80% at 50% 45%,#3a332c,#0d0c0b);position:relative;overflow:hidden;display:grid;place-items:center}
+    .cam .seen{width:58%;aspect-ratio:1;background:#fff;border-radius:6px;padding:6%;transform:rotate(-3deg);box-shadow:0 8px 20px rgba(0,0,0,.5)}
+    .cam .seen svg{width:100%;height:100%;display:block}
+    .aim{position:absolute;left:50%;top:50%;width:66%;aspect-ratio:1;transform:translate(-50%,-50%);--c:#ffffffdd;--l:22%;--t:4px;
+      background:linear-gradient(var(--c),var(--c)) top left/var(--l) var(--t),linear-gradient(var(--c),var(--c)) top left/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) top right/var(--l) var(--t),linear-gradient(var(--c),var(--c)) top right/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) bottom left/var(--l) var(--t),linear-gradient(var(--c),var(--c)) bottom left/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) bottom right/var(--l) var(--t),linear-gradient(var(--c),var(--c)) bottom right/var(--t) var(--l);background-repeat:no-repeat}
+    .till .shopline{text-align:center;font-size:11px;color:#a8a29e}
+    .till .status{text-align:center;font-size:13px;min-height:18px;opacity:.9}
+    .till .row{display:flex;gap:8px}
+    .till .row>*{flex:1}
+    .sheet,.done{justify-content:center;text-align:center}
+    .cardid{font-size:20px;letter-spacing:.2em;font-weight:700}
+    .sheet .count{font-size:30px;font-weight:800;line-height:1.1}
+    .sheet .due{font-size:18px;font-weight:700;color:#4ade80}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .till .grid .btn{font-size:22px;min-height:62px}
+    .done{background:#14532d}
+    .done .bigline{font-size:40px;font-weight:800;line-height:1.1}
+    .done .sub{font-size:16px}
+    .done .code{background:none;color:#d1fae5;width:auto;margin:0;padding:0;font:600 13px/1.2 system-ui,sans-serif;letter-spacing:.2em}
+    .done .go{background:#fff;color:#14532d}
+    .done .outline{background:transparent;border:2px solid #fff}
+    .till .press{animation:press .45s ease-out}
 
     /* The ask, and the plain facts */
     .end{max-width:520px;margin:26px auto 0;padding:0 16px;text-align:center}
@@ -208,11 +220,27 @@
       <div class="device staff" aria-hidden="true">
         <div class="phone"><div class="screen">
           <div class="island"></div>
-          <div class="view till">
-            <div class="till-top"><b class="shopname"></b><span>Till</span></div>
-            <div class="finder"><div class="seen"><svg class="cardqr" viewBox="0 0 25 25"></svg></div><div class="laser"></div></div>
-            <div class="result" id="result"></div>
-            <div class="big" id="tillAct">Scan card</div>
+          <div class="view till" id="tCam">
+            <div class="cam"><div class="seen"><svg class="cardqr" viewBox="0 0 25 25"></svg></div><div class="aim"></div></div>
+            <div class="shopline shopname"></div>
+            <div class="status" id="tStatus"></div>
+            <div class="row"><span class="btn primary">Type code</span><span class="btn">Shop</span></div>
+          </div>
+          <div class="view till sheet" id="tSheet" hidden>
+            <div class="cardid cardcode"></div>
+            <div class="count" id="tCount"></div>
+            <div class="due" id="tDue">Free item due</div>
+            <div class="grid" id="tGrid"><span class="btn">+1</span><span class="btn">+2</span><span class="btn">+3</span><span class="btn">+4</span></div>
+            <span class="btn go" id="tGive">Give free item</span>
+            <span class="btn">Cancel</span>
+          </div>
+          <div class="view till done" id="tDone" hidden>
+            <div class="bigline" id="tBig"></div>
+            <div class="sub" id="tSub"></div>
+            <div class="code cardcode"></div>
+            <span class="btn go" id="tDoneGive">Give free item</span>
+            <div class="row"><span class="btn outline">Undo</span><span class="btn outline">Change</span></div>
+            <span class="btn primary">Next card</span>
           </div>
         </div></div>
       </div>
@@ -227,7 +255,7 @@
     <li>It opens a page, and one tap puts the stamp card in their Wallet.</li>
     <li>Staff scan the card with the shop's own phone and tap to stamp it.</li>
     <li>The stamp lands on the customer's card, with a note on their lock screen.</li>
-    <li>When the card is full, the till says so; one tap gives the <span class="rewardname"></span> and the card starts again.</li>
+    <li>When the card is full, the shop's phone says a free item is due; one tap gives the <span class="rewardname"></span> and the card starts again.</li>
   </ol>
 
   <div class="end">
@@ -405,18 +433,29 @@
         $("note").classList.add("show");
       }
 
-      function till(kind, big, small) {
-        var r = $("result");
-        r.className = "result" + (kind ? " " + kind : "");
-        r.textContent = "";
-        if (big) { var b = document.createElement("b"); b.textContent = big; r.appendChild(b); }
-        r.appendChild(document.createTextNode(small || ""));
-        if (kind) { void r.offsetWidth; r.classList.add("flash"); }
+      // The shop's phone: which screen, and its words, as the live scanner says them (loyalty's sheet.js)
+      function staffView(id) {
+        ["tCam", "tSheet", "tDone"].forEach(function (v) { $(v).hidden = v !== id; });
       }
-
-      function tillButton(give) {
-        $("tillAct").className = "big" + (give ? " give" : "");
-        $("tillAct").textContent = give ? "Give the " + REWARD : "Scan card";
+      function scanning(text) {
+        staffView("tCam");
+        $("tStatus").textContent = text;
+      }
+      function sheet() {
+        all(".cardcode", function (e) { e.textContent = code; });
+        $("tCount").textContent = "★ " + card.count + " of " + NEED;
+        $("tDue").hidden = !card.full();
+        $("tGive").hidden = !card.full();
+        staffView("tSheet");
+      }
+      function done(big, sub, give) {
+        $("tBig").textContent = big;
+        $("tSub").textContent = sub;
+        $("tDoneGive").hidden = !give;
+        staffView("tDone");
+      }
+      function tapDelta(add) {
+        press(document.querySelectorAll("#tGrid .btn")[add - 1]);
       }
 
       function press(el) {
@@ -437,9 +476,10 @@
         "Full card: " + REWARD,
       ];
 
-      // The visits speed up so the card fills in a few beats: 1, then 2, then 5 at a time.
+      // The visits speed up so the card fills in a few beats: 1, then 2, then 4 at a time, the
+      // sheet's biggest button (scripts/promo-video/stamps.html's demoBeats() keeps the same pace).
       function visits() {
-        var pace = [1, 2, 5], out = [], count = 0;
+        var pace = [1, 2, 4], out = [], count = 0;
         while (count < NEED) {
           var add = Math.min(pace[Math.min(out.length, pace.length - 1)], NEED - count);
           out.push(add); count += add;
@@ -471,14 +511,14 @@
         adds.forEach(function (add, i) {
           var first = i === 0, willFill = i === adds.length - 1;
           beats.push({ cap: 2, ms: first ? 2200 : 1700, run: function () {
-            note(""); tillButton(false);
-            till("", "", first ? "Ready. Scan the customer's card." : "Next visit");
+            note(""); scanning(first ? "Point the camera at the card" : "");
             staff(true);
-            later(first ? 900 : 450, function () { press($("tillAct")); till("", "", "Scanning card " + code + "…"); });
-            later(first ? 1600 : 950, function () {
+            var t = first ? [800, 1350, 1650] : [400, 900, 1150];
+            later(t[0], sheet);
+            later(t[1], function () { tapDelta(add); });
+            later(t[2], function () {
               var after = card.count + add;
-              if (willFill) { till("full", "Card full", "Give the " + REWARD); tillButton(true); }
-              else till("ok", "+" + add + "  ·  " + after + " of " + NEED, "Stamped");
+              done("★ " + after + " of " + NEED, "+" + add + (after >= NEED ? " · Free item ready" : ""), after >= NEED);
             });
           } });
           beats.push({ cap: willFill ? 4 : 3, ms: willFill || first ? 2200 : 1700, run: function () {
@@ -494,10 +534,11 @@
         });
 
         beats.push({ cap: 4, ms: 2000, run: function () {
-          note(""); till("full", "Card full", "Give the " + REWARD); tillButton(true);
+          note(""); scanning("");
           staff(true);
-          later(700, function () { press($("tillAct")); });
-          later(1100, function () { till("ok", "Enjoy! " + S.icon, "The card starts again."); tillButton(false); });
+          later(400, sheet);
+          later(1000, function () { press($("tGive")); });
+          later(1250, function () { done("Free item given", "0 of " + NEED + " now", false); });
         } });
         beats.push({ cap: 4, ms: 3200, run: function () {
           card.redeem();
