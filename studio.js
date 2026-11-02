@@ -238,15 +238,17 @@
       var dx = bx - (r.left + r.width / 2);
       var dy = by - (r.top + r.height * 0.57);
       var far = Math.sqrt(dx * dx + dy * dy) || 1;
-      var reach = 0.04 * Math.min(1, far / 60); // in em: further and the pupil runs into the stroke
+      var reach = 0.11 * Math.min(1, far / 60); // in em: about 3px at 24px, inside the eye's 0.26em
       eye.pupil.style.transform = "translate(" + ((dx / far) * reach).toFixed(3) + "em," + ((dy / far) * reach).toFixed(3) + "em)";
     });
   }
-  // Home: the pupils go, and both o's blink once.
+  // Home: both o's blink once, and the eyes drain back to letters while they're shut.
   function blink() {
     if (!eyes.length) return;
-    body.classList.remove("watching");
     doo.classList.add("blink");
+    setTimeout(function () {
+      body.classList.remove("watching");
+    }, 100);
     setTimeout(function () {
       doo.classList.remove("blink");
     }, 200);

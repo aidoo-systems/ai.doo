@@ -517,10 +517,12 @@ body.studio .wmSpark{position:fixed;z-index:299;border-radius:50%;pointer-events
   45%{transform:translate(calc(var(--dx) * .75 - 50%),calc(var(--dy) - 50%)) scale(1);opacity:1}
   100%{transform:translate(calc(var(--dx) - 50%),calc(var(--dy) + 46px - 50%)) scale(.4);opacity:0}
 }
-/* The o's of "doo" are eyes while the ball is out: a pupil in each counter, then a blink as it lands home. */
+/* The o's of "doo" are googly eyes while the ball is out (owner's pick B): each fills with the ink, a dark pupil half its size rolls inside towards the ball, and the blink drains it back to the letter as it lands home. */
 body.studio .wmEye{position:relative;display:inline-block;transform-origin:50% 57%}
-body.studio .wmPupil{position:absolute;left:50%;top:57%;width:.15em;height:.15em;margin:-.075em 0 0 -.075em;border-radius:50%;background:var(--ink);opacity:0;transition:opacity .15s ease}
-body.studio.watching .wmPupil{opacity:1}
+body.studio .wmEye::before{content:'';position:absolute;left:50%;top:57%;width:.52em;height:.52em;margin:-.26em 0 0 -.26em;border-radius:50%;background:var(--ink);opacity:0;transition:opacity .15s ease}
+body.studio .wmPupil{position:absolute;z-index:1;left:50%;top:57%;width:.25em;height:.25em;margin:-.125em 0 0 -.125em;border-radius:50%;background:var(--bg0);opacity:0;transition:opacity .15s ease}
+body.studio.watching .wmEye::before,
+body.studio.watching .wmPupil{opacity:1} /* they arrive, they don't pop */
 body.studio .wm-doo.blink .wmEye{animation:wmBlink .2s ease}
 @keyframes wmBlink{50%{transform:scaleY(.12)}}
 /* The pint over the page: on a computer, the homepage's demo rises in a sheet. */

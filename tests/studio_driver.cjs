@@ -181,7 +181,14 @@ if (rally && toy) {
     frames.splice(0).forEach((fn) => fn(clock));
     if (rally === "turn" && clock === 160 && live("wmPaddle")) seen.top = up(live("wmPaddle"));
     if (body.classList.contains("watching")) seen.watching = true;
+    if (doo.classList.contains("blink") && !seen.blinked) seen.filledAsItShut = body.classList.contains("watching");
     if (doo.classList.contains("blink")) seen.blinked = seen.blinked || (live("wmBall") ? "with the ball out" : "home");
+    eyes.forEach((o) =>
+      o.children.forEach((p) => {
+        const m = /translate\(([-\d.]+)em,([-\d.]+)em\)/.exec(p.style.transform || "");
+        if (m) seen.reach = Math.max(seen.reach || 0, Math.hypot(+m[1], +m[2]));
+      }),
+    );
     eyes.forEach((o) => o.children.forEach((p) => p.style.transform && looks.add(p.style.transform)));
     created.filter((el) => el.className.split(" ").includes("wmSpark")).forEach((el) => sparks.add(el));
   }
@@ -191,6 +198,8 @@ if (rally && toy) {
     watched: !!seen.watching,
     looks: looks.size,
     blinked: seen.blinked || "never",
+    filledAsItShut: !!seen.filledAsItShut,
+    reach: Math.round((seen.reach || 0) * 1000) / 1000,
     stillWatching: body.classList.contains("watching"),
     stillBlinking: doo.classList.contains("blink"),
   };

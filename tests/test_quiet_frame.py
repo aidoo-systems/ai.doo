@@ -321,6 +321,27 @@ def test_the_os_of_doo_watch_the_ball_and_blink_when_it_lands():
     assert not ran["stillWatching"] and not ran["stillBlinking"]
 
 
+def test_the_eyes_are_googly_so_the_look_reads_at_header_size():
+    # The owner's pick (B, 2026-11-02): at 24px today's 0.04em was about a pixel. While the
+    # ball is out each o fills with the ink and a dark pupil half its size rolls inside it.
+    ran = _driven(RALLY="keepup")["eyes"]
+    # it rolls about 3px at 24px, and never past the fill's edge (0.26em less the pupil's 0.125em)
+    assert 0.1 <= ran["reach"] <= 0.135
+    # the blink drains the fill: still full as the eye shuts, gone once it opens
+    assert ran["filledAsItShut"] and not ran["stillWatching"]
+    css = _text("style.css")
+    fill = css[css.index("body.studio .wmEye::before{") :].split("}")[0]
+    assert "background:var(--ink)" in fill and "width:.52em" in fill
+    # seen only while the ball is out, and fading in rather than popping
+    assert "opacity:0" in fill and "transition:opacity" in fill
+    assert (
+        "body.studio.watching .wmEye::before,\nbody.studio.watching .wmPupil{opacity:1}"
+        in css
+    )
+    pupil = css[css.index("body.studio .wmPupil{") :].split("}")[0]
+    assert "background:var(--bg0)" in pupil and "width:.25em" in pupil
+
+
 def test_reduced_motion_leaves_the_wordmark_as_it_is():
     ran = _driven(RALLY="calm")
     assert "eyes" not in ran or ran["eyes"]["eyes"] == 0
