@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>More play: type pour (mock)</title>
+</head>
+<body>
+<script>
+// The real homepage, untouched, with the mock's script added: fetch it, add the script, and
+// write it in place of this page. index.html itself doesn't change until the owner picks.
+fetch("/index.html", { cache: "no-store" })
+  .then(function (r) { return r.text(); })
+  .then(function (html) {
+    html = html.replace("<head>", '<head><base href="/">')
+      .replace("</body>", '<script src="/internal/prototypes/more-play/pour-sheet.js?v=' + Date.now() + '"><\/script></body>');
+    document.open();
+    document.write(html);
+    document.close();
+    // #open types the word itself, for a screenshot
+    if (location.hash === "#open") setTimeout(function () {
+      "pour".split("").forEach(function (c) { document.dispatchEvent(new KeyboardEvent("keydown", { key: c })); });
+    }, 600);
+  });
+</script>
+</body>
+</html>
