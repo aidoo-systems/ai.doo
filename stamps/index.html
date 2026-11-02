@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Stamp card demo | ai.doo</title>
+  <title>Stamp cards | ai.doo</title>
   <meta name="description" content="A shop's paper stamp card, in Apple or Google Wallet: no app, no sign-up, stamped at the till with the shop's own phone." />
   <meta name="robots" content="noindex">
   <meta name="referrer" content="no-referrer">
@@ -11,7 +11,7 @@
   <!-- The share card is the same for every shop: link previews don't run card.js. -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Your paper stamp card, in their Wallet">
-  <meta property="og:description" content="Half a minute to watch: no app, no sign-up, stamped at the till with the shop's own phone. A demo by ai.doo.">
+  <meta property="og:description" content="No app, no sign-up. Stamped at the till with the shop's own phone, and set up in about a minute.">
   <meta property="og:url" content="https://aidoo.biz/stamps/">
   <meta property="og:site_name" content="ai.doo">
   <meta property="og:image" content="https://aidoo.biz/stamps/og.png">
@@ -54,6 +54,8 @@
     .stage.staffin .device.staff{transform:translateX(14%) translateY(3%) rotate(2deg);opacity:1}
     .caption{text-align:center;font-weight:800;font-size:19px;letter-spacing:-.01em;min-height:29px;margin:14px 16px 0}
     .caption span{display:inline-block;animation:enter .35s ease-out}
+    /* cut 6's captions take two lines on a narrow phone: keep room for both, so nothing below moves */
+    @media (max-width:440px){.caption{min-height:57px}}
     .controls{display:flex;justify-content:center;gap:18px;margin-top:2px;font-size:14px;color:var(--muted)}
     .controls button{border:0;background:none;color:inherit;text-decoration:underline;padding:6px 2px}
     @media (min-width:760px) and (min-height:860px){:root{--k:.93}}
@@ -177,11 +179,11 @@
   <div class="intro">
     <div class="shop"><span class="icon" aria-hidden="true"></span><span class="shopname"></span></div>
     <h1 id="headline"></h1>
-    <p>Your paper stamp card, in Apple or Google Wallet. No app, no sign-up.</p>
+    <p>Your paper stamp card, in their Apple or Google Wallet. No app. No sign-up.</p>
   </div>
 
   <div class="stagewrap">
-    <div class="stage" id="stage" tabindex="0" role="button" aria-label="Stamp card demo. Activate to skip to the next step.">
+    <div class="stage" id="stage" tabindex="0" role="button" aria-label="How the stamp card works. Activate to skip to the next step.">
       <div class="device cust" aria-hidden="true">
         <div class="phone"><div class="screen">
           <div class="island"></div>
@@ -260,14 +262,15 @@
 
   <div class="end">
     <h2 id="endTitle">Want this for your shop?</h2>
-    <p>We're starting with a few Island shops. Reply with your free item.</p>
+    <p>Setting up your shop is simple: name it, add your logo, print the QR. About a minute.</p>
+    <p>We're a new studio on the Isle of Man, looking for our first few shops.</p>
     <p class="price">A free two-week pilot alongside your paper cards, then £15 a month. No setup fee, no contract, stop any time, and our first shops keep that price.</p>
     <a class="act mail" href="mailto:hello@aidoo.biz?subject=Stamp%20cards%20for%20my%20shop">Email hello@aidoo.biz</a>
     <p class="plain">No customer data. No marketing. No new kit.</p>
   </div>
 
   <footer>
-    <p><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#f5b544"/><path d="M50.56 8.44A30 30 0 1 1 8.44 50.56 30 30 0 0 0 50.56 8.44z" fill="#e09a2e"/><ellipse cx="22.5" cy="19.5" rx="8" ry="5" transform="rotate(-38 22.5 19.5)" fill="#ffe9b8"/></svg><span>A demo by <a href="/">ai.doo</a>. Nothing is stored.</span></p>
+    <p><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#f5b544"/><path d="M50.56 8.44A30 30 0 1 1 8.44 50.56 30 30 0 0 0 50.56 8.44z" fill="#e09a2e"/><ellipse cx="22.5" cy="19.5" rx="8" ry="5" transform="rotate(-38 22.5 19.5)" fill="#ffe9b8"/></svg><span>Stamp cards by <a href="/">ai.doo</a>.</span></p>
   </footer>
 
   <div class="bar" id="bar" aria-hidden="true"><span id="barText">Want this for your shop?</span><a class="mail" tabindex="-1" href="mailto:hello@aidoo.biz">Email us</a></div>
@@ -289,7 +292,7 @@
 
       document.documentElement.style.setProperty("--brand", S.color);
       document.documentElement.style.setProperty("--brandInk", S.fg);
-      document.title = (S.shop ? S.shop + " stamp card" : "Stamp card") + " demo | ai.doo";
+      document.title = (S.shop ? S.shop + " stamp card" : "Stamp cards") + " | ai.doo";
       $("headline").textContent = "Buy " + NEED + ", get a " + REWARD;
       all(".shopname", function (e) { e.textContent = SHOP; });
       // The plain page wears Little Gull's own logo; a shop's link, its icon
@@ -469,9 +472,9 @@
       function staff(on) { stage.classList.toggle("staffin", on); }
 
       var CAPTIONS = [
-        "Customer scans the sign",
-        "One tap: it's in their Wallet",
-        "Staff scan it with your phone",
+        "Customers scan the sign by your till",
+        "One tap and the card's in their Wallet",
+        "Staff scan it with the shop's own phone",
         "The stamp lands on their phone",
         "Full card: " + REWARD,
       ];
@@ -526,10 +529,8 @@
             card.stamp(add);
             staff(false);
             renderPasses(before);
-            later(200, function () {
-              note(card.full() ? "Your " + REWARD + " is ready. Show this card at the till."
-                : "Stamp " + card.count + " of " + NEED + ". " + (NEED - card.count) + " to your " + REWARD + ".");
-            });
+            // The pass's own change message, as the live Apple pass sends it: "4 of 8 stamps"
+            later(200, function () { note(card.count + " of " + NEED + " stamps"); });
           } });
         });
 
@@ -544,7 +545,7 @@
           card.redeem();
           staff(false);
           renderPasses();
-          later(200, function () { note("Enjoy your " + REWARD + "! Your card starts again."); });
+          later(200, function () { note("0 of " + NEED + " stamps"); });
         } });
         return beats;
       }

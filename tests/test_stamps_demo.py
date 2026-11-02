@@ -192,10 +192,14 @@ def test_the_link_is_never_written_into_the_page_as_html():
             assert not re.search(r"SHOP|REWARD|S\.\w+|query", line), line
 
 
-def test_the_page_says_it_is_a_demo_and_how_to_ask_for_one():
+def test_the_page_is_signed_by_ai_doo_and_says_how_to_ask_for_one():
     html = _text("stamps/index.html")
-    assert "A demo by" in html
+    assert 'Stamp cards by <a href="/">ai.doo</a>' in html
     assert "mailto:hello@aidoo.biz" in html
+    # No demo framing (owner, 2026-11-02): the page is the stamp card, not a demo of one
+    # (the words, the title, the share card's tags and the labels all come before the scripts)
+    assert "demo" not in html.split("<script")[0].lower()
+    assert '+ " demo' not in html
 
 
 def test_the_page_names_the_price_after_the_pilot():
