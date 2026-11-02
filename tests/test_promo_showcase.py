@@ -840,6 +840,36 @@ def test_the_name_stays_in_the_demo_and_goes_nowhere_else(ui):
     assert not re.search(r"promo-games", js)
 
 
+def test_a_shared_link_to_the_demo_shows_a_card():
+    # P2.1j: Messenger, Facebook and WhatsApp read the page's own tags and run no
+    # script, so the card is the same for every venue and never carries a name.
+    html = _text("play/pour/index.html")
+    meta = dict(
+        re.findall(
+            r'<meta (?:property|name)="((?:og|twitter):[a-z:]+)" content="([^"]*)"',
+            html,
+        )
+    )
+    assert meta.get("og:title") and meta.get("og:description")
+    assert meta.get("og:url") == "https://aidoo.biz/play/pour/"
+    assert (
+        meta.get("og:image")
+        == meta.get("twitter:image")
+        == "https://aidoo.biz/play/pour/og.png"
+    )
+    assert (meta.get("og:image:width"), meta.get("og:image:height")) == ("1200", "630")
+    assert meta.get("twitter:card") == "summary_large_image"
+    assert not [v for v in meta.values() if "name=" in v or "skin=" in v]
+    png = (GAME / "og.png").read_bytes()
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+    assert (int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")) == (
+        1200,
+        630,
+    )
+    # Small enough for WhatsApp, which drops a preview image over about 300KB.
+    assert len(png) < 300_000
+
+
 def test_the_offer_page_stays_short_enough_to_read():
     # It was 989 words in eight sections before it was cut down. Questions sit closed.
     html = _text("promo-games/index.html")
