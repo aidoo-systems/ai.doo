@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>More play: stills</title>
+<style>
+  @font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2) format("woff2");font-weight:100 900}
+  @font-face{font-family:'Bricolage Grotesque';src:url(../../fonts/bricolage-grotesque-latin.woff2) format("woff2");font-weight:200 800}
+  :root{--bg0:#141312;--card:#1d1b1a;--stroke:#34302d;--ink:#f4f1ea;--muted:#b3aca2;--amber:#f5b544}
+  body{margin:0;background:var(--bg0);color:var(--ink);font-family:Inter,system-ui,sans-serif;padding:16px}
+  h1{font:700 24px 'Bricolage Grotesque',sans-serif;margin:0 0 4px}
+  h2{font:650 19px 'Bricolage Grotesque',sans-serif;margin:34px 0 2px}
+  p.note{color:var(--muted);margin:0 0 12px;font-size:14px;max-width:780px;line-height:1.5}
+  p.note b{color:var(--ink)}
+  .row{display:grid;grid-template-columns:repeat(3,minmax(0,260px));gap:12px}
+  figure{margin:0}
+  figcaption{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.4}
+  figcaption b{color:var(--ink)}
+  @media (max-width:640px){.row{grid-template-columns:1fr}}
+
+  /* a phone's worth of the homepage: the bar with the wordmark, and below it whatever the still is about */
+  .phone{position:relative;height:340px;border-radius:16px;background:var(--bg0);border:1px solid var(--stroke);overflow:hidden}
+  .bar{position:absolute;left:0;right:0;top:0;height:56px;display:flex;align-items:center;padding:0 16px}
+  .wm{display:inline-flex;align-items:baseline;font:700 24px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+  .dot{display:inline-block;width:.5em;height:.5em;margin:0 .13em;background:url(../../favicon.svg) center/contain no-repeat}
+  .dot.gone{visibility:hidden}
+  .ball{position:absolute;border-radius:50%;box-shadow:inset -3px -3px 0 rgba(0,0,0,.16),inset 3px 3px 0 rgba(255,255,255,.42)}
+  .paddle{position:absolute;height:14px;border-radius:999px;background:var(--ink);box-shadow:0 4px 0 rgba(0,0,0,.5)}
+  .count{position:absolute;font:700 13px/1 'Bricolage Grotesque',sans-serif;text-align:center}
+  .spark{position:absolute;border-radius:50%}
+  .fab{position:absolute;right:14px;bottom:14px;height:44px;padding:0 18px;border-radius:999px;display:flex;align-items:center;gap:8px;font:700 15px 'Bricolage Grotesque',sans-serif;box-shadow:0 5px 0 rgba(0,0,0,.5);background:var(--amber);color:var(--bg0)}
+  .lines{position:absolute;left:16px;right:16px;top:84px}
+  .lines i{display:block;height:10px;border-radius:5px;background:#26231f;margin:0 0 12px}
+
+  /* the o's of "doo", as eyes: the letter stays, a pupil sits in its counter */
+  .eyes .wm{font-size:44px}
+  .o{position:relative;display:inline-block}
+  .o .pupil{position:absolute;width:.12em;height:.12em;border-radius:50%;background:var(--ink)}
+  .o .pupil.dark{background:var(--bg0)}
+  .shut{display:inline-block;transform:scaleY(.12);transform-origin:50% 51%}
+
+  /* a game card, as on the homepage */
+  .card{position:absolute;left:12px;right:12px;top:70px;border-radius:22px;padding:10px 10px 14px;background:#2b2212;box-shadow:inset 0 0 0 1.5px #f5b544}
+  .card .art{position:relative;aspect-ratio:1024/500;border-radius:12px;overflow:hidden;background:#000}
+  .card .art img{display:block;width:100%;height:100%;object-fit:cover}
+  .card h3{margin:10px 4px 2px;font:700 20px 'Bricolage Grotesque',sans-serif;color:#f5b544}
+  .card p{margin:0 4px;font-size:12px;color:var(--muted)}
+  .tag{position:absolute;left:8px;bottom:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,.6);font-size:11px;color:var(--ink)}
+  .progress{position:absolute;left:0;bottom:0;height:3px;width:46%;background:#f5b544}
+
+  /* typing "pour" */
+  .keys{position:absolute;right:16px;top:70px;font:700 22px/1 'Bricolage Grotesque',sans-serif;letter-spacing:.12em;color:var(--amber)}
+  .keys span{opacity:.35}
+  .sheet{position:absolute;left:0;right:0;bottom:0;height:72%;border-radius:18px 18px 0 0;background:#3a2414;box-shadow:0 -10px 30px rgba(0,0,0,.5);overflow:hidden}
+  .sheet .grip{width:40px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);margin:8px auto}
+  .pint{position:absolute;left:50%;bottom:22px;width:70px;height:120px;transform:translateX(-50%);border-radius:4px 4px 14px 14px;background:linear-gradient(#f4ead2 0 18%,#c8862e 18%);clip-path:polygon(0 0,100% 0,88% 100%,12% 100%)}
+  .sheet .t{position:absolute;left:16px;top:22px;font:700 17px 'Bricolage Grotesque',sans-serif;color:#f4ead2}
+</style>
+</head>
+<body>
+<h1>More play: stills (P2.1m)</h1>
+<p class="note">Four small pieces of play for the homepage, each with options to pick from. Nothing here is built: these are still frames of the moment that matters, drawn in the homepage's own frame at phone size. Every piece moves only when someone makes it move (D-019), stores nothing, and stays still with reduced motion. Pick any, all or none; the ROADMAP row says P2.1m waits for the 26 November review unless you make an exception.</p>
+
+<h2>1. Six keep-ups: the finish</h2>
+<p class="note">Today the sixth hit sends the ball straight home and the Play button bobs ("Play a real one"). It ends quietly for the one thing on the page you've just won at.</p>
+<div class="row">
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot gone"></span>doo</span></div>
+      <!-- six sparks thrown up off the paddle in the games' colours -->
+      <span class="spark" style="left:96px;top:196px;width:10px;height:10px;background:#f5b544"></span>
+      <span class="spark" style="left:120px;top:178px;width:12px;height:12px;background:#4be08a"></span>
+      <span class="spark" style="left:146px;top:170px;width:9px;height:9px;background:#e8562a"></span>
+      <span class="spark" style="left:168px;top:186px;width:11px;height:11px;background:#00b3b3"></span>
+      <span class="spark" style="left:80px;top:220px;width:8px;height:8px;background:#ffd7b5"></span>
+      <span class="spark" style="left:186px;top:214px;width:8px;height:8px;background:#3fbf8a"></span>
+      <span class="ball" style="left:132px;top:120px;width:24px;height:24px;background:#4be08a"></span>
+      <span class="paddle" style="left:84px;top:248px;width:110px;background:#4be08a"></span>
+      <span class="count" style="left:84px;top:274px;width:110px">6 / 6</span>
+    </div>
+    <figcaption><b>A. A burst off the paddle.</b> The sixth hit throws six sparks, one per keep-up, in the games' colours; they fall away as the ball heads home.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot gone"></span>doo</span></div>
+      <!-- the ball's way home, a trail of its colours shrinking behind it -->
+      <span class="spark" style="left:186px;top:210px;width:7px;height:7px;background:#00b3b3;opacity:.5"></span>
+      <span class="spark" style="left:170px;top:168px;width:9px;height:9px;background:#e8562a;opacity:.6"></span>
+      <span class="spark" style="left:148px;top:128px;width:11px;height:11px;background:#4be08a;opacity:.7"></span>
+      <span class="spark" style="left:120px;top:94px;width:13px;height:13px;background:#ffd7b5;opacity:.8"></span>
+      <span class="spark" style="left:90px;top:70px;width:15px;height:15px;background:#3fbf8a;opacity:.9"></span>
+      <span class="ball" style="left:52px;top:44px;width:18px;height:18px;background:#f5b544"></span>
+    </div>
+    <figcaption><b>B. A trail home.</b> No paddle now: the ball arcs back to the wordmark, dropping a dot of every colour it picked up on the way.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <!-- rings out of the dot in the games' colours -->
+      <span class="spark" style="left:28px;top:12px;width:40px;height:40px;background:none;box-shadow:0 0 0 2px #4be08a"></span>
+      <span class="spark" style="left:16px;top:0;width:64px;height:64px;background:none;box-shadow:0 0 0 2px #e8562a;opacity:.7"></span>
+      <span class="spark" style="left:2px;top:-14px;width:92px;height:92px;background:none;box-shadow:0 0 0 2px #00b3b3;opacity:.4"></span>
+      <div class="lines"><i style="width:80%"></i><i style="width:60%"></i><i style="width:70%"></i></div>
+      <div class="fab" style="background:#4be08a">&#9654; Play a real one</div>
+    </div>
+    <figcaption><b>C. The mark answers.</b> The ball lands home and three rings go out from it in the games' colours, as the Play button turns up in the last colour it was.</figcaption>
+  </figure>
+</div>
+
+<h2>2. The o's watch the ball (D-020's held idea)</h2>
+<p class="note">While the ball is out, the two o's of "doo" follow it; when it comes home they blink. This makes the wordmark a face, so it's the biggest change to the mark here. Shown larger than the header so you can see it.</p>
+<div class="row eyes">
+  <figure>
+    <div class="phone">
+      <div class="bar" style="height:90px"><span class="wm">ai<span class="dot gone"></span>d<span class="o">o<span class="pupil" style="left:.28em;top:.41em"></span></span><span class="o">o<span class="pupil" style="left:.28em;top:.41em"></span></span></span></div>
+      <span class="ball" style="left:206px;top:40px;width:22px;height:22px;background:#e8562a"></span>
+    </div>
+    <figcaption><b>A. Pupils.</b> A small dot in each o's middle, the ink's colour, sliding to look at the ball (here up and to the right). Gone when the ball is home.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar" style="height:90px"><span class="wm">ai<span class="dot"></span>d<span class="shut">o</span><span class="shut">o</span></span></div>
+      <div class="lines" style="top:110px"><i style="width:80%"></i><i style="width:60%"></i></div>
+    </div>
+    <figcaption><b>B. The blink.</b> The ball lands and both o's close to a line for a tenth of a second, then open. With A, it's one piece; on its own, it's the quiet version.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar" style="height:90px"><span class="wm">ai<span class="dot gone"></span>d<span class="o">o<span class="pupil" style="left:.28em;top:.49em;background:#e8562a"></span></span><span class="o">o<span class="pupil" style="left:.28em;top:.49em;background:#e8562a"></span></span></span></div>
+      <span class="ball" style="left:150px;top:220px;width:22px;height:22px;background:#e8562a"></span>
+    </div>
+    <figcaption><b>C. Pupils in the ball's colour.</b> As A, but the pupils wear whatever colour the ball has picked up, so the face and the ball read as one toy.</figcaption>
+  </figure>
+</div>
+
+<h2>3. Hovering a game card: one moment from the game</h2>
+<p class="note">Desktop only (phones have no hover). The moment is the game's own footage, not something drawn in code (D-035): here a frame of Submarine Panic's real sonar scope stands in for a two-second clip of the sweep. <b>Against the brand:</b> brand.md says "Nothing moves on hover", so picking A or B changes that rule. Each clip needs recording from the game, about 150 to 300 KB each.</p>
+<div class="row">
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="card"><div class="art"><img src="more-play/sub-console.webp" alt="Submarine Panic's sonar scope, from the game"><span class="progress"></span></div><h3>Submarine Panic</h3><p>Keep a failing Cold War submarine alive.</p></div>
+    </div>
+    <figcaption><b>A. The clip plays in the art.</b> Point at the card and two seconds of the game play once inside its picture, then the feature art comes back. The thin bar is the clip's time.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="card"><div class="art"><img src="../../images/work/submarine-panic.webp" alt="Submarine Panic's feature art" style="transform:scale(1.12)"></div><h3>Submarine Panic</h3><p>Keep a failing Cold War submarine alive.</p></div>
+    </div>
+    <figcaption><b>B. The art leans in.</b> No clip: the feature art pushes in slowly while the pointer is on it. Cheap, no recording, but it's a camera move rather than the game.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="card"><div class="art"><img src="../../images/work/submarine-panic.webp" alt="Submarine Panic's feature art"></div><h3>Submarine Panic</h3><p>Keep a failing Cold War submarine alive.</p></div>
+    </div>
+    <figcaption><b>C. Leave the cards still.</b> The page's tint already answers the pointer. Keeps "nothing moves on hover" as it is.</figcaption>
+  </figure>
+</div>
+
+<h2>4. Type "pour" and the pint opens</h2>
+<p class="note">A secret for anyone with a keyboard: type p, o, u, r anywhere on the homepage (not in the chat box) and the pint comes up. No hint on the page; it's for whoever finds it, and for us to show people.</p>
+<div class="row">
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="lines"><i style="width:80%"></i><i style="width:60%"></i></div>
+      <div class="sheet"><div class="grip"></div><span class="t">A pint on us</span><span class="pint"></span></div>
+    </div>
+    <figcaption><b>A. It rises over the page.</b> The pint slides up from the bottom as a sheet you can play there and then; Esc or a swipe down puts it away.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone" style="background:#2a2014">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="keys">p o u <span>r</span></div>
+      <div class="lines"><i style="width:80%"></i><i style="width:60%"></i><i style="width:70%"></i></div>
+    </div>
+    <figcaption><b>B. The letters show as you type.</b> Each letter lights up in amber in the corner and the page washes towards the pub's colour; on the r, it goes to the pint's own page.</figcaption>
+  </figure>
+  <figure>
+    <div class="phone">
+      <div class="bar"><span class="wm">ai<span class="dot"></span>doo</span></div>
+      <div class="lines"><i style="width:80%"></i><i style="width:60%"></i><i style="width:70%"></i></div>
+      <div class="fab" style="animation:none">&#9654; Pour a pint</div>
+    </div>
+    <figcaption><b>C. The Play button answers.</b> Nothing opens by itself: the Play button turns amber and says "Pour a pint", and Enter (or a click) pours it.</figcaption>
+  </figure>
+</div>
+</body>
+</html>
