@@ -93,7 +93,7 @@ if (SHOP) {
 // visits() in stamps/index.html, so keep the two in step. The card fills in visits of 1, 2,
 // then 5 stamps, so 4 to 8 stamps take three visits and 9 to 12 take four.
 function demoBeats(need) {
-  var pace = [1, 2, 5], adds = [], n = 0;
+  var pace = [1, 2, 4], adds = [], n = 0;
   while (n < need) { var add = Math.min(pace[Math.min(adds.length, pace.length - 1)], need - n); adds.push(add); n += add; }
   var t = 2.8 + 1.7 + 1.9, visits = [];   // the sign, the page, Wallet
   adds.forEach(function (add, i) {

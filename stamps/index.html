@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Stamp card demo | ai.doo</title>
+  <title>Stamp cards | ai.doo</title>
   <meta name="description" content="A shop's paper stamp card, in Apple or Google Wallet: no app, no sign-up, stamped at the till with the shop's own phone." />
   <meta name="robots" content="noindex">
   <meta name="referrer" content="no-referrer">
@@ -11,14 +11,14 @@
   <!-- The share card is the same for every shop: link previews don't run card.js. -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Your paper stamp card, in their Wallet">
-  <meta property="og:description" content="Half a minute to watch: no app, no sign-up, stamped at the till with the shop's own phone. A demo by ai.doo.">
+  <meta property="og:description" content="No app, no sign-up. Stamped at the till with the shop's own phone, and set up in about a minute.">
   <meta property="og:url" content="https://aidoo.biz/stamps/">
   <meta property="og:site_name" content="ai.doo">
-  <meta property="og:image" content="https://aidoo.biz/stamps/og.png">
+  <meta property="og:image" content="https://aidoo.biz/stamps/og.png?v=2">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://aidoo.biz/stamps/og.png">
+  <meta name="twitter:image" content="https://aidoo.biz/stamps/og.png?v=2">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml" sizes="any">
   <style>
     /* The stamp card, playing itself in a loop on one phone: sign, page, Wallet, the staff
@@ -54,7 +54,8 @@
     .stage.staffin .device.staff{transform:translateX(14%) translateY(3%) rotate(2deg);opacity:1}
     .caption{text-align:center;font-weight:800;font-size:19px;letter-spacing:-.01em;min-height:29px;margin:14px 16px 0}
     .caption span{display:inline-block;animation:enter .35s ease-out}
-    .stage.paused .laser{animation-play-state:paused}
+    /* cut 6's captions take two lines on a narrow phone: keep room for both, so nothing below moves */
+    @media (max-width:440px){.caption{min-height:57px}}
     .controls{display:flex;justify-content:center;gap:18px;margin-top:2px;font-size:14px;color:var(--muted)}
     .controls button{border:0;background:none;color:inherit;text-decoration:underline;padding:6px 2px}
     @media (min-width:760px) and (min-height:860px){:root{--k:.93}}
@@ -76,7 +77,7 @@
     .camera{background:radial-gradient(120% 80% at 50% 40%,#5b4a3c,#1e1813);align-items:center;justify-content:center;gap:18px}
     .sign{width:78%;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.45);transform:rotate(-2deg);text-align:center;color:#111}
     .sign-top{background:var(--brand);color:var(--brandInk);padding:10px 8px 8px;font-weight:800;font-size:15px;line-height:1.25}
-    .sign-top .icon{font-size:22px;display:block}
+    .sign-top .icon{font-size:22px;display:block;width:30px;height:30px;margin:0 auto 3px;line-height:30px}
     .sign svg{width:96px;height:96px;margin:10px auto 2px;display:block}
     .sign small{display:block;padding:0 10px 12px;font-size:11px;line-height:1.35;color:#444}
     .pill{border-radius:999px;background:#ffd60a;color:#111;font-weight:700;font-size:14px;padding:9px 16px;box-shadow:0 6px 16px rgba(0,0,0,.35);opacity:0;transform:translateY(8px);transition:opacity .3s,transform .3s}
@@ -92,21 +93,26 @@
     .walletbtn{width:100%;border-radius:12px;padding:13px;font-weight:700;font-size:15px;background:#000;color:#fff;text-align:center}
     .other{color:#555;font-size:13px;text-decoration:underline}
 
-    /* The pass, on the page and in Wallet */
-    .pass{width:100%;background:var(--brand);color:var(--brandInk);border-radius:14px;padding:12px 13px;text-align:left}
-    .pass-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
-    .pass-top b{font-size:19px;line-height:1.2;font-weight:800;overflow-wrap:anywhere}
-    .pass-top .ico{margin-right:6px}
-    .pass-count{text-align:right;flex:none}
-    .pass-count small{display:block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
-    .pass-count span{font-size:19px;font-weight:800}
-    .boxes{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0 8px}
-    .box{aspect-ratio:1;border-radius:50%;border:2px solid currentColor;opacity:.55;display:grid;place-items:center;font-size:17px;line-height:1}
-    .box.on{opacity:1;background:var(--brandInk);border-color:var(--brandInk);animation:pop .35s ease-out backwards}
-    @keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.15)}}
-    .pass-line{text-align:center;font-weight:700;font-size:14px;min-height:21px}
-    .code{background:#fff;color:#111;border-radius:8px;padding:8px;margin:10px auto 0;width:128px;text-align:center;font:600 11px/1.2 ui-monospace,Menlo,monospace;letter-spacing:.08em}
-    .code svg{width:108px;height:108px;display:block;margin:0 auto 4px}
+    /* The pass, on the page and in Wallet, laid out as the live Apple pass is: the shop's mark and
+       name, the count, the printed strip (printed.js, the service's own drawing), the reward, the code */
+    .pass{width:100%;background:var(--brand);color:var(--brandInk);border-radius:12px;padding:9px 0 12px;text-align:left;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif}
+    .pass-top{display:flex;align-items:center;gap:9px;padding:0 12px 7px}
+    .mark{width:28px;height:28px;flex:none;display:grid;place-items:center;font-size:20px;line-height:1}
+    .mark img,.icon img{width:100%;height:100%;display:block;border-radius:50%}
+    .pass-top b{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.2;overflow-wrap:anywhere}
+    .pass-count{text-align:right;flex:none;line-height:1.15}
+    .pass-count small,.pass-field small{display:block;font-size:9px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+    .pass-count span{font-size:16px;text-transform:uppercase;word-spacing:.18em}
+    .strip{position:relative;aspect-ratio:375/144}
+    .strip canvas{position:absolute;left:0;top:0;width:100%;height:100%}
+    .strip .land{border-radius:50%;animation:land .42s cubic-bezier(.3,1.5,.55,1) backwards}
+    @keyframes land{0%{opacity:0;transform:scale(1.55) rotate(-9deg)}55%{opacity:1}}
+    .strip .lit{opacity:0;transition:opacity 1s ease-out}
+    .strip .lit.on{opacity:1}
+    .pass-field{padding:7px 12px 0}
+    .pass-field span{font-size:14px;line-height:1.25}
+    .code{background:#fff;color:#111;border-radius:4px;padding:8px 8px 5px;margin:12px auto 0;width:126px;text-align:center;font:500 12px/1.2 -apple-system,system-ui,sans-serif;letter-spacing:.02em}
+    .code svg{width:110px;height:110px;display:block;margin:0 auto 3px}
     .page .pass .code{display:none}
 
     /* Wallet, and the note on the lock screen */
@@ -119,24 +125,37 @@
     .note .icon{width:32px;height:32px;border-radius:8px;background:var(--brand);color:var(--brandInk);display:grid;place-items:center;flex:none;font-size:17px}
 
     /* The shop's phone */
-    .till{background:#1b1b1f;color:#fff;gap:12px}
-    .till-top{display:flex;justify-content:space-between;font-size:13px;color:#aaa;gap:8px}
-    .till-top b{color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .finder{height:170px;border-radius:16px;background:#2a2a30;position:relative;overflow:hidden;display:grid;place-items:center;flex:none}
-    .finder::before{content:"";position:absolute;width:112px;height:112px;border:3px solid rgba(255,255,255,.75);border-radius:14px;z-index:1}
-    .finder .seen{width:92px;height:92px;background:#fff;border-radius:6px;padding:5px;opacity:.9}
-    .finder .seen svg{width:100%;height:100%;display:block}
-    .laser{position:absolute;left:24%;right:24%;height:2px;background:#ff4d4d;top:50%;z-index:2;animation:scan 1.2s ease-in-out infinite}
-    @keyframes scan{0%,100%{transform:translateY(-50px)}50%{transform:translateY(50px)}}
-    .result{flex:1;min-height:0;border-radius:16px;background:#26262b;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:10px;color:#aaa;font-size:14px;transition:background .2s}
-    .result b{display:block;font-size:34px;line-height:1.1;color:#fff;font-weight:800}
-    .result.ok{background:var(--ok);color:#e8fff0}
-    .result.full{background:var(--full);color:#2a1d00}
-    .result.full b{color:#000}
-    .flash{animation:flash .45s ease-out}
-    @keyframes flash{0%{transform:scale(.94)}60%{transform:scale(1.03)}}
-    .big{border-radius:14px;padding:15px;font-size:17px;font-weight:800;background:var(--brand);color:var(--brandInk);text-align:center;margin-bottom:14px}
-    .big.give{background:var(--full);color:#000}
+    /* The shop's phone, as the live scanner draws it (loyalty's scan.html): the camera, the +N sheet,
+       the green done screen */
+    .till{background:#111;color:#fff;gap:9px;padding:44px 12px 16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;animation:none}
+    .till button,.till .btn{border:0;border-radius:11px;padding:9px 10px;min-height:40px;background:#333;color:#fff;font:inherit;font-size:14px;text-align:center;display:grid;place-items:center}
+    .till .primary{background:#fff;color:#111;font-weight:700}
+    .till .go{background:#15803d;color:#fff;font-weight:700}
+    .cam{flex:1;min-height:0;border-radius:13px;background:radial-gradient(110% 80% at 50% 45%,#3a332c,#0d0c0b);position:relative;overflow:hidden;display:grid;place-items:center}
+    .cam .seen{width:58%;aspect-ratio:1;background:#fff;border-radius:6px;padding:6%;transform:rotate(-3deg);box-shadow:0 8px 20px rgba(0,0,0,.5)}
+    .cam .seen svg{width:100%;height:100%;display:block}
+    .aim{position:absolute;left:50%;top:50%;width:66%;aspect-ratio:1;transform:translate(-50%,-50%);--c:#ffffffdd;--l:22%;--t:4px;
+      background:linear-gradient(var(--c),var(--c)) top left/var(--l) var(--t),linear-gradient(var(--c),var(--c)) top left/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) top right/var(--l) var(--t),linear-gradient(var(--c),var(--c)) top right/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) bottom left/var(--l) var(--t),linear-gradient(var(--c),var(--c)) bottom left/var(--t) var(--l),
+      linear-gradient(var(--c),var(--c)) bottom right/var(--l) var(--t),linear-gradient(var(--c),var(--c)) bottom right/var(--t) var(--l);background-repeat:no-repeat}
+    .till .shopline{text-align:center;font-size:11px;color:#a8a29e}
+    .till .status{text-align:center;font-size:13px;min-height:18px;opacity:.9}
+    .till .row{display:flex;gap:8px}
+    .till .row>*{flex:1}
+    .sheet,.done{justify-content:center;text-align:center}
+    .cardid{font-size:20px;letter-spacing:.2em;font-weight:700}
+    .sheet .count{font-size:30px;font-weight:800;line-height:1.1}
+    .sheet .due{font-size:18px;font-weight:700;color:#4ade80}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .till .grid .btn{font-size:22px;min-height:62px}
+    .done{background:#14532d}
+    .done .bigline{font-size:40px;font-weight:800;line-height:1.1}
+    .done .sub{font-size:16px}
+    .done .code{background:none;color:#d1fae5;width:auto;margin:0;padding:0;font:600 13px/1.2 system-ui,sans-serif;letter-spacing:.2em}
+    .done .go{background:#fff;color:#14532d}
+    .done .outline{background:transparent;border:2px solid #fff}
+    .till .press{animation:press .45s ease-out}
 
     /* The ask, and the plain facts */
     .end{max-width:520px;margin:26px auto 0;padding:0 16px;text-align:center}
@@ -160,11 +179,11 @@
   <div class="intro">
     <div class="shop"><span class="icon" aria-hidden="true"></span><span class="shopname"></span></div>
     <h1 id="headline"></h1>
-    <p>Your paper stamp card, in Apple or Google Wallet. No app, no sign-up.</p>
+    <p>Your paper stamp card, in their Apple or Google Wallet. No app. No sign-up.</p>
   </div>
 
   <div class="stagewrap">
-    <div class="stage" id="stage" tabindex="0" role="button" aria-label="Stamp card demo. Activate to skip to the next step.">
+    <div class="stage" id="stage" tabindex="0" role="button" aria-label="How the stamp card works. Activate to skip to the next step.">
       <div class="device cust" aria-hidden="true">
         <div class="phone"><div class="screen">
           <div class="island"></div>
@@ -203,11 +222,27 @@
       <div class="device staff" aria-hidden="true">
         <div class="phone"><div class="screen">
           <div class="island"></div>
-          <div class="view till">
-            <div class="till-top"><b class="shopname"></b><span>Till</span></div>
-            <div class="finder"><div class="seen"><svg class="cardqr" viewBox="0 0 25 25"></svg></div><div class="laser"></div></div>
-            <div class="result" id="result"></div>
-            <div class="big" id="tillAct">Scan card</div>
+          <div class="view till" id="tCam">
+            <div class="cam"><div class="seen"><svg class="cardqr" viewBox="0 0 25 25"></svg></div><div class="aim"></div></div>
+            <div class="shopline shopname"></div>
+            <div class="status" id="tStatus"></div>
+            <div class="row"><span class="btn primary">Type code</span><span class="btn">Shop</span></div>
+          </div>
+          <div class="view till sheet" id="tSheet" hidden>
+            <div class="cardid cardcode"></div>
+            <div class="count" id="tCount"></div>
+            <div class="due" id="tDue">Free item due</div>
+            <div class="grid" id="tGrid"><span class="btn">+1</span><span class="btn">+2</span><span class="btn">+3</span><span class="btn">+4</span></div>
+            <span class="btn go" id="tGive">Give free item</span>
+            <span class="btn">Cancel</span>
+          </div>
+          <div class="view till done" id="tDone" hidden>
+            <div class="bigline" id="tBig"></div>
+            <div class="sub" id="tSub"></div>
+            <div class="code cardcode"></div>
+            <span class="btn go" id="tDoneGive">Give free item</span>
+            <div class="row"><span class="btn outline">Undo</span><span class="btn outline">Change</span></div>
+            <span class="btn primary">Next card</span>
           </div>
         </div></div>
       </div>
@@ -222,30 +257,33 @@
     <li>It opens a page, and one tap puts the stamp card in their Wallet.</li>
     <li>Staff scan the card with the shop's own phone and tap to stamp it.</li>
     <li>The stamp lands on the customer's card, with a note on their lock screen.</li>
-    <li>When the card is full, the till says so; one tap gives the <span class="rewardname"></span> and the card starts again.</li>
+    <li>When the card is full, the shop's phone says a free item is due; one tap gives the <span class="rewardname"></span> and the card starts again.</li>
   </ol>
 
   <div class="end">
     <h2 id="endTitle">Want this for your shop?</h2>
-    <p>We're starting with a few Island shops: a free pilot, alongside your paper cards. Reply with your free item.</p>
+    <p>Setting up your shop is simple: name it, add your logo, print the QR. About a minute.</p>
+    <p>We're a new studio on the Isle of Man, looking for our first few shops.</p>
+    <p class="price">A free two-week pilot alongside your paper cards, then £15 a month. No setup fee, no contract, stop any time, and our first shops keep that price.</p>
     <a class="act mail" href="mailto:hello@aidoo.biz?subject=Stamp%20cards%20for%20my%20shop">Email hello@aidoo.biz</a>
     <p class="plain">No customer data. No marketing. No new kit.</p>
   </div>
 
   <footer>
-    <p><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#f5b544"/><path d="M50.56 8.44A30 30 0 1 1 8.44 50.56 30 30 0 0 0 50.56 8.44z" fill="#e09a2e"/><ellipse cx="22.5" cy="19.5" rx="8" ry="5" transform="rotate(-38 22.5 19.5)" fill="#ffe9b8"/></svg><span>A demo by <a href="/">ai.doo</a>. Nothing is stored.</span></p>
+    <p><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#f5b544"/><path d="M50.56 8.44A30 30 0 1 1 8.44 50.56 30 30 0 0 0 50.56 8.44z" fill="#e09a2e"/><ellipse cx="22.5" cy="19.5" rx="8" ry="5" transform="rotate(-38 22.5 19.5)" fill="#ffe9b8"/></svg><span>Stamp cards by <a href="/">ai.doo</a>.</span></p>
   </footer>
 
   <div class="bar" id="bar" aria-hidden="true"><span id="barText">Want this for your shop?</span><a class="mail" tabindex="-1" href="mailto:hello@aidoo.biz">Email us</a></div>
 
-  <script src="card.js?v=1"></script>
+  <script src="card.js?v=2"></script>
+  <script src="printed.js?v=1"></script>
   <script>
     (function () {
       "use strict";
       var query = {};
       new URLSearchParams(location.search).forEach(function (value, key) { query[key] = value; });
       var S = StampCard.settings(query);
-      var SHOP = S.shop || "Corner Café"; // the plain link shows a made-up shop
+      var SHOP = S.shop || "Little Gull Coffee"; // the plain link shows a made-up shop, as on its real test pass
       var REWARD = S.reward;
       var NEED = S.stamps;
       var $ = function (id) { return document.getElementById(id); };
@@ -253,11 +291,19 @@
       var stage = $("stage");
 
       document.documentElement.style.setProperty("--brand", S.color);
-      document.documentElement.style.setProperty("--brandInk", S.ink);
-      document.title = (S.shop ? S.shop + " stamp card" : "Stamp card") + " demo | ai.doo";
+      document.documentElement.style.setProperty("--brandInk", S.fg);
+      document.title = (S.shop ? S.shop + " stamp card" : "Stamp cards") + " | ai.doo";
       $("headline").textContent = "Buy " + NEED + ", get a " + REWARD;
       all(".shopname", function (e) { e.textContent = SHOP; });
-      all(".icon", function (e) { e.textContent = S.icon; });
+      // The plain page wears Little Gull's own logo; a shop's link, its icon
+      var logo = null;
+      if (!S.shop) { logo = new Image(); logo.src = "little-gull.png"; logo.alt = ""; }
+      function mark(e) {
+        e.textContent = "";
+        if (logo) e.appendChild(logo.cloneNode());
+        else e.textContent = S.icon;
+      }
+      all(".icon", mark);
       all(".need", function (e) { e.textContent = NEED; });
       all(".rewardname", function (e) { e.textContent = REWARD; });
       var ask = S.shop ? "Want this for " + S.shop + "?" : "Want this for your shop?";
@@ -288,42 +334,100 @@
 
       var code, card;
 
+      // The printed strip at Apple's 2x, one drawing per count (and the lit full card), made once
+      var W = PrintedCard.STRIP_WIDTH, H = PrintedCard.STRIP_HEIGHT, drawn = {};
+      function logoPixels(n) {
+        var c = document.createElement("canvas"), g = c.getContext("2d");
+        c.width = c.height = n;
+        if (logo) { g.drawImage(logo, 0, 0, n, n); return g.getImageData(0, 0, n, n).data; }
+        // An icon stamps as its solid shape
+        g.font = Math.round(n * 0.78) + "px sans-serif";
+        g.textAlign = "center"; g.textBaseline = "middle";
+        g.fillText(S.icon, n / 2, n / 2 + n * 0.04);
+        var px = g.getImageData(0, 0, n, n).data;
+        for (var i = 0; i < px.length; i += 4) px[i] = px[i + 1] = px[i + 2] = 0;
+        return px;
+      }
+      function strip(count, lit) {
+        var key = count + (lit ? ":lit" : "");
+        if (!drawn[key]) {
+          var out = PrintedCard.render({ bg: S.color, fg: S.fg, required: NEED, count: count, lit: lit,
+            logo: logoPixels, logoKey: logo ? "gull" : "icon" }, W, H);
+          var c = document.createElement("canvas");
+          c.width = W; c.height = H;
+          c.getContext("2d").putImageData(new ImageData(out.data, W, H), 0, 0);
+          drawn[key] = c;
+        }
+        return drawn[key];
+      }
+      function copy(src, x, y, w, h) {
+        var c = document.createElement("canvas");
+        c.width = Math.ceil(w); c.height = Math.ceil(h);
+        c.getContext("2d").drawImage(src, x, y, w, h, 0, 0, w, h);
+        return c;
+      }
+      function field(cls, label, value) {
+        var f = document.createElement("div"), l = document.createElement("small"), v = document.createElement("span");
+        f.className = cls; l.textContent = label; v.textContent = value;
+        f.appendChild(l); f.appendChild(v);
+        return f;
+      }
+
+      // `popFrom`: the count before this visit. The new stamps land one by one over the card as it
+      // was, and a card that fills lights up after them.
       function renderPasses(popFrom) {
+        var landing = popFrom !== undefined && card.count > popFrom, full = card.full();
+        var b = PrintedCard.boxes(NEED, W, H, false), r = b.radius + 2, after = 0;
         all(".passview", function (pass) {
           pass.textContent = "";
-          var top = document.createElement("div");
-          top.className = "pass-top";
-          var name = document.createElement("b");
-          var ico = document.createElement("span");
-          ico.className = "ico"; ico.textContent = S.icon;
-          name.appendChild(ico); name.appendChild(document.createTextNode(SHOP));
-          var count = document.createElement("div");
-          count.className = "pass-count";
-          count.innerHTML = "<small>Stamps</small><span></span>";
-          count.lastChild.textContent = card.count + " / " + NEED;
-          top.appendChild(name); top.appendChild(count);
-          var boxes = document.createElement("div");
-          boxes.className = "boxes";
-          boxes.style.gridTemplateColumns = "repeat(" + (NEED <= 5 ? NEED : NEED <= 10 ? 5 : 6) + ",1fr)";
-          for (var i = 0; i < NEED; i++) {
-            var box = document.createElement("div");
-            var on = i < card.count;
-            box.className = "box" + (on ? " on" : "");
-            box.textContent = on ? S.icon : i === NEED - 1 ? "🎁" : "";
-            if (on && popFrom !== undefined && i >= popFrom) box.style.animationDelay = 0.25 + (i - popFrom) * 0.1 + "s";
-            else if (on) box.style.animation = "none";
-            boxes.appendChild(box);
+          var top = document.createElement("div"), m = document.createElement("span"), name = document.createElement("b");
+          top.className = "pass-top"; m.className = "mark"; mark(m); name.textContent = SHOP;
+          top.appendChild(m); top.appendChild(name);
+          top.appendChild(field("pass-count", "Stamps", card.count + " of " + NEED));
+
+          var st = document.createElement("div");
+          st.className = "strip";
+          st.appendChild(copy(strip(landing ? popFrom : card.count, false), 0, 0, W, H));
+          if (landing) for (var i = popFrom; i < card.count; i++) {
+            var c = b.centres[i], land = copy(strip(card.count, false), c[0] - r, c[1] - r, 2 * r, 2 * r);
+            land.className = "land";
+            land.style.left = (c[0] - r) / W * 100 + "%"; land.style.top = (c[1] - r) / H * 100 + "%";
+            land.style.width = 2 * r / W * 100 + "%"; land.style.height = 2 * r / H * 100 + "%";
+            after = 0.25 + (i - popFrom) * 0.14;
+            land.style.animationDelay = after + "s";
+            st.appendChild(land);
           }
-          var line = document.createElement("div");
-          line.className = "pass-line";
-          line.textContent = card.full() ? "Your " + REWARD + " is ready!" : (NEED - card.count) + " to your " + REWARD;
+          if (full) {
+            var lit = copy(strip(card.count, true), 0, 0, W, H);
+            lit.className = "lit";
+            if (landing) lit.style.transitionDelay = after + 0.35 + "s";
+            else lit.style.transition = "none";
+            st.appendChild(lit);
+          }
+
           var codeBox = document.createElement("div");
           codeBox.className = "code";
           codeBox.innerHTML = '<svg viewBox="0 0 25 25" aria-hidden="true"></svg>';
           codeBox.appendChild(document.createTextNode(code));
           drawQr(codeBox.firstChild, code);
-          pass.appendChild(top); pass.appendChild(boxes); pass.appendChild(line); pass.appendChild(codeBox);
+          pass.appendChild(top); pass.appendChild(st);
+          pass.appendChild(field("pass-field", "Reward", full
+            ? "A " + REWARD + " is ready. Show this card to staff."
+            : (NEED - card.count) + " more for a " + REWARD + "."));
+          pass.appendChild(codeBox);
         });
+        if (full) {
+          void document.body.offsetWidth;
+          all(".strip .lit", function (e) { e.classList.add("on"); });
+        }
+      }
+
+      // Draw every count ahead, a little at a time, so no stamp waits on its drawing
+      function warm(count) {
+        if (count > NEED) return;
+        strip(count, false);
+        if (count === NEED) strip(count, true);
+        setTimeout(function () { warm(count + 1); }, 30);
       }
 
       function note(text) {
@@ -332,18 +436,29 @@
         $("note").classList.add("show");
       }
 
-      function till(kind, big, small) {
-        var r = $("result");
-        r.className = "result" + (kind ? " " + kind : "");
-        r.textContent = "";
-        if (big) { var b = document.createElement("b"); b.textContent = big; r.appendChild(b); }
-        r.appendChild(document.createTextNode(small || ""));
-        if (kind) { void r.offsetWidth; r.classList.add("flash"); }
+      // The shop's phone: which screen, and its words, as the live scanner says them (loyalty's sheet.js)
+      function staffView(id) {
+        ["tCam", "tSheet", "tDone"].forEach(function (v) { $(v).hidden = v !== id; });
       }
-
-      function tillButton(give) {
-        $("tillAct").className = "big" + (give ? " give" : "");
-        $("tillAct").textContent = give ? "Give the " + REWARD : "Scan card";
+      function scanning(text) {
+        staffView("tCam");
+        $("tStatus").textContent = text;
+      }
+      function sheet() {
+        all(".cardcode", function (e) { e.textContent = code; });
+        $("tCount").textContent = "★ " + card.count + " of " + NEED;
+        $("tDue").hidden = !card.full();
+        $("tGive").hidden = !card.full();
+        staffView("tSheet");
+      }
+      function done(big, sub, give) {
+        $("tBig").textContent = big;
+        $("tSub").textContent = sub;
+        $("tDoneGive").hidden = !give;
+        staffView("tDone");
+      }
+      function tapDelta(add) {
+        press(document.querySelectorAll("#tGrid .btn")[add - 1]);
       }
 
       function press(el) {
@@ -357,16 +472,17 @@
       function staff(on) { stage.classList.toggle("staffin", on); }
 
       var CAPTIONS = [
-        "Customer scans the sign",
-        "One tap: it's in their Wallet",
-        "Staff scan it with your phone",
+        "Customers scan the sign by your till",
+        "One tap and the card's in their Wallet",
+        "Staff scan it with the shop's own phone",
         "The stamp lands on their phone",
         "Full card: " + REWARD,
       ];
 
-      // The visits speed up so the card fills in a few beats: 1, then 2, then 5 at a time.
+      // The visits speed up so the card fills in a few beats: 1, then 2, then 4 at a time, the
+      // sheet's biggest button (scripts/promo-video/stamps.html's demoBeats() keeps the same pace).
       function visits() {
-        var pace = [1, 2, 5], out = [], count = 0;
+        var pace = [1, 2, 4], out = [], count = 0;
         while (count < NEED) {
           var add = Math.min(pace[Math.min(out.length, pace.length - 1)], NEED - count);
           out.push(add); count += add;
@@ -398,14 +514,14 @@
         adds.forEach(function (add, i) {
           var first = i === 0, willFill = i === adds.length - 1;
           beats.push({ cap: 2, ms: first ? 2200 : 1700, run: function () {
-            note(""); tillButton(false);
-            till("", "", first ? "Ready. Scan the customer's card." : "Next visit");
+            note(""); scanning(first ? "Point the camera at the card" : "");
             staff(true);
-            later(first ? 900 : 450, function () { press($("tillAct")); till("", "", "Scanning card " + code + "…"); });
-            later(first ? 1600 : 950, function () {
+            var t = first ? [800, 1350, 1650] : [400, 900, 1150];
+            later(t[0], sheet);
+            later(t[1], function () { tapDelta(add); });
+            later(t[2], function () {
               var after = card.count + add;
-              if (willFill) { till("full", "Card full", "Give the " + REWARD); tillButton(true); }
-              else till("ok", "+" + add + "  ·  " + after + " of " + NEED, "Stamped");
+              done("★ " + after + " of " + NEED, "+" + add + (after >= NEED ? " · Free item ready" : ""), after >= NEED);
             });
           } });
           beats.push({ cap: willFill ? 4 : 3, ms: willFill || first ? 2200 : 1700, run: function () {
@@ -413,24 +529,23 @@
             card.stamp(add);
             staff(false);
             renderPasses(before);
-            later(200, function () {
-              note(card.full() ? "Your " + REWARD + " is ready. Show this card at the till."
-                : "Stamp " + card.count + " of " + NEED + ". " + (NEED - card.count) + " to your " + REWARD + ".");
-            });
+            // The pass's own change message, as the live Apple pass sends it: "4 of 8 stamps"
+            later(200, function () { note(card.count + " of " + NEED + " stamps"); });
           } });
         });
 
         beats.push({ cap: 4, ms: 2000, run: function () {
-          note(""); till("full", "Card full", "Give the " + REWARD); tillButton(true);
+          note(""); scanning("");
           staff(true);
-          later(700, function () { press($("tillAct")); });
-          later(1100, function () { till("ok", "Enjoy! " + S.icon, "The card starts again."); tillButton(false); });
+          later(400, sheet);
+          later(1000, function () { press($("tGive")); });
+          later(1250, function () { done("Free item given", "0 of " + NEED + " now", false); });
         } });
         beats.push({ cap: 4, ms: 3200, run: function () {
           card.redeem();
           staff(false);
           renderPasses();
-          later(200, function () { note("Enjoy your " + REWARD + "! Your card starts again."); });
+          later(200, function () { note("0 of " + NEED + " stamps"); });
         } });
         return beats;
       }
@@ -506,7 +621,11 @@
       drawQr(document.querySelector(".sign .qr"), SHOP);
       card = StampCard.createCard(NEED);
       beats = timeline();
-      go(0);
+      function begin() { go(0); warm(1); }
+      if (logo && !logo.complete) {
+        logo.onload = begin;
+        logo.onerror = function () { logo = null; all(".icon", mark); begin(); };
+      } else begin();
     })();
   </script>
 </body>

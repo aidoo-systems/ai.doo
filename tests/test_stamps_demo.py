@@ -52,8 +52,9 @@ def test_a_plain_link_is_the_plain_demo():
     s = run()["settings"]
     assert s["shop"] is None
     assert s["reward"] == "free coffee"
-    assert s["stamps"] == 10
-    assert re.fullmatch(r"#[0-9a-f]{6}", s["color"])
+    # Little Gull Coffee, the made-up shop of the real test pass: its teal, its cream, 8 stamps
+    assert s["stamps"] == 8
+    assert (s["color"], s["fg"]) == ("#1f4e5a", "#f3e6cf")
 
 
 def test_a_shops_link_puts_their_card_on_the_page():
@@ -72,8 +73,19 @@ def test_a_shops_link_puts_their_card_on_the_page():
         "reward": "free scoop",
         "color": "#d74000",
         "ink": "#ffffff",
+        "fg": "#ffffff",
         "stamps": 8,
     }
+
+
+def test_a_shop_can_bring_its_own_writing_colour_if_it_reads():
+    # &fg= for the writing and stamps, as the service takes a shop's two colours (3:1 or more)
+    shop = {"shop": "Roots", "color": "1F3B2D"}
+    assert run({**shop, "fg": "F2E6C9"})["settings"]["fg"] == "#f2e6c9"
+    assert (
+        run({**shop, "fg": "26402F"})["settings"]["fg"] == "#ffffff"
+    )  # too close: ink
+    assert run({**shop, "fg": "url(x)"})["settings"]["fg"] == "#ffffff"
 
 
 @pytest.mark.parametrize(
@@ -150,7 +162,7 @@ def test_the_page_is_unlisted():
 
 
 def test_the_page_keeps_and_sends_nothing():
-    for rel in ("stamps/index.html", "stamps/card.js"):
+    for rel in ("stamps/index.html", "stamps/card.js", "stamps/printed.js"):
         text = _text(rel)
         for api in (
             "localStorage",
@@ -180,10 +192,25 @@ def test_the_link_is_never_written_into_the_page_as_html():
             assert not re.search(r"SHOP|REWARD|S\.\w+|query", line), line
 
 
-def test_the_page_says_it_is_a_demo_and_how_to_ask_for_one():
+def test_the_page_is_signed_by_ai_doo_and_says_how_to_ask_for_one():
     html = _text("stamps/index.html")
-    assert "A demo by" in html
+    assert 'Stamp cards by <a href="/">ai.doo</a>' in html
     assert "mailto:hello@aidoo.biz" in html
+    # No demo framing (owner, 2026-11-02): the page is the stamp card, not a demo of one
+    # (the words, the title, the share card's tags and the labels all come before the scripts)
+    assert "demo" not in html.split("<script")[0].lower()
+    assert '+ " demo' not in html
+
+
+def test_the_page_names_the_price_after_the_pilot():
+    # D-037's price, named on the page by the owner (2026-11-02, D-040's update)
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", _text("stamps/index.html")))
+    assert (
+        "A free two-week pilot alongside your paper cards, then £15 a month. No setup fee, "
+        "no contract, stop any time, and our first shops keep that price."
+    ) in text
+    for word in ("—", "promotional"):
+        assert word not in text.lower(), word
 
 
 def test_the_page_makes_no_promise_the_product_rules_out():
@@ -195,7 +222,14 @@ def test_the_page_makes_no_promise_the_product_rules_out():
 
 def test_deploy_serves_the_demo():
     served = check_site.served_files(REPO_ROOT, check_site.deploy_excludes(REPO_ROOT))
-    for rel in ("stamps/index.html", "stamps/card.js"):
+    for rel in (
+        "stamps/index.html",
+        "stamps/card.js",
+        "stamps/printed.js",
+        "stamps/little-gull.png",
+        "stamps/og.png",
+        "images/stamps-pass.webp",
+    ):
         assert rel in served, rel
 
 
@@ -207,6 +241,9 @@ def test_the_homepage_offers_the_stamp_card_in_a_quiet_band():
     assert html.index('id="process"') < start < html.index('id="also"')
     assert 'href="stamps/"' in band and "data-tint=" in band
     assert "data-umami-event=" in band
+    # the plain page's own pass, drawn by printed.js (internal/og-card/stamps.html), not a sketch of one
+    assert 'src="images/stamps-pass.webp' in band and 'alt=""' in band
+    assert "stampDots" not in html
     # the demo plays itself; the Play button offers only games
     assert "data-play" not in band
     text = re.sub(r"<[^>]+>", " ", band)
@@ -216,3 +253,17 @@ def test_the_homepage_offers_the_stamp_card_in_a_quiet_band():
         assert word not in text, word
     # the page's one bright band stays the promo game's: no gradient here
     assert "gradient" not in band
+
+
+def test_the_share_card_fits_a_link_preview():
+    # 1200x630, and under WhatsApp's ~300KB or it shows the link bare; versioned so shares refetch it
+    png = (REPO_ROOT / "stamps" / "og.png").read_bytes()
+    assert png[:4] == bytes([0x89]) + b"PNG"
+    assert (int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")) == (
+        1200,
+        630,
+    )
+    assert len(png) < 300_000
+    assert 'og:image" content="https://aidoo.biz/stamps/og.png?v=' in _text(
+        "stamps/index.html"
+    )

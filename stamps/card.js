@@ -1,6 +1,7 @@
 // The rules of the stamp card demo at /stamps/. No DOM in here: index.html draws it,
 // and tests/test_stamps_demo.py runs it under Node (tests/stamps_driver.cjs).
-// A business is a link: ?shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10
+// A business is a link: ?shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10,
+// and &fg=FFF3E0 for the card's writing and stamps if the shop has its own (else white or near-black).
 // Every value is checked here; anything that isn't one falls back to the plain demo.
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory();
@@ -8,7 +9,8 @@
 })(typeof self !== "undefined" ? self : this, function () {
   "use strict";
 
-  var DEFAULTS = { shop: null, icon: "coffee", reward: "free coffee", color: "#2f6f5e", stamps: 10 };
+  // The plain demo is a made-up shop, Little Gull Coffee, in the colours of its real test pass
+  var DEFAULTS = { shop: null, icon: "coffee", reward: "free coffee", color: "#1f4e5a", fg: "#f3e6cf", stamps: 8 };
   var ICONS = {
     coffee: "☕", tea: "🍵", icecream: "🍦", cake: "🍰", croissant: "🥐", donut: "🍩",
     cookie: "🍪", sandwich: "🥪", pizza: "🍕", burger: "🍔", flower: "🌸", scissors: "✂️",
@@ -30,10 +32,8 @@
     return /^[0-9a-f]{6}$/i.test(hex) ? "#" + hex.toLowerCase() : null;
   }
 
-  // White on the card's colour while it keeps 3.5:1 (a brand's orange or red reads as
-  // theirs in white), near-black on anything paler.
-  function inkFor(color) {
-    var lum = [1, 3, 5]
+  function luminance(color) {
+    return [1, 3, 5]
       .map(function (i) {
         var c = parseInt(color.slice(i, i + 2), 16) / 255;
         return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
@@ -41,14 +41,32 @@
       .reduce(function (sum, c, i) {
         return sum + c * [0.2126, 0.7152, 0.0722][i];
       }, 0);
-    return 1.05 / (lum + 0.05) >= 3.5 ? "#ffffff" : "#1a1a1a";
+  }
+
+  function contrast(a, b) {
+    var la = luminance(a), lb = luminance(b);
+    return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+  }
+
+  // White on the card's colour while it keeps 3.5:1 (a brand's orange or red reads as
+  // theirs in white), near-black on anything paler.
+  function inkFor(color) {
+    return contrast(color, "#ffffff") >= 3.5 ? "#ffffff" : "#1a1a1a";
+  }
+
+  // The card's writing and stamps: the shop's own colour if it reads on the card (3:1, as the
+  // service asks of a shop's two colours), else the plain demo's cream on its own teal, else ink.
+  function fgFor(asked, color, plain) {
+    var fg = cleanColor(asked);
+    if (fg && contrast(fg, color) >= 3) return fg;
+    return plain ? DEFAULTS.fg : inkFor(color);
   }
 
   // The demo's settings from a link's query values (a plain object of strings).
   function settings(query) {
     query = query || {};
     var stamps = parseInt(query.stamps, 10);
-    var color = cleanColor(query.color) || DEFAULTS.color;
+    var asked = cleanColor(query.color), color = asked || DEFAULTS.color;
     var icon = Object.prototype.hasOwnProperty.call(ICONS, query.icon) ? query.icon : DEFAULTS.icon;
     return {
       shop: cleanText(query.shop, 32),
@@ -56,6 +74,7 @@
       reward: cleanText(query.reward, 24) || DEFAULTS.reward,
       color: color,
       ink: inkFor(color),
+      fg: fgFor(query.fg, color, !asked),
       stamps: stamps >= MIN_STAMPS && stamps <= MAX_STAMPS ? stamps : DEFAULTS.stamps,
     };
   }
@@ -108,6 +127,7 @@
     cleanText: cleanText,
     cleanColor: cleanColor,
     inkFor: inkFor,
+    contrast: contrast,
     possessive: possessive,
     cardCode: cardCode,
     createCard: createCard,
