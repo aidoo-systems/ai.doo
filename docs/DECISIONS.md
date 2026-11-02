@@ -397,3 +397,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Wait for the 2026-11-26 review (P2.1b's hold); a cream band in the demo's colours (a second bright band, and its tint washes the page grey); a single line under the promo band (reads as the promo game's footnote).
 - **Consequences:** An exception to the P2.1b hold, like D-023. The `stamps-demo-home` clicks are their own signal at the review, not the promo game's. Naming Google or Apple, a price, or a start date is the owner's call later; Apple Wallet isn't built.
 - **Revisit when:** The 2026-11-26 review, or when Apple Wallet is built.
+
+## D-041 — More play on the homepage, ahead of the review: a finish, eyes, and the pint over the page
+
+- **Status:** Accepted (owner, 2026-11-02, picked from the P2.1m stills and the 4A mock)
+- **Date:** 2026-11-02
+- **Decision:** P2.1m is built now, an exception to the P2.1b hold like D-023 and D-040, with the owner's picks. **1A:** the sixth keep-up throws six sparks off the paddle in the games' colours as the ball goes home. **2A with the blink:** while the ball is out, a pupil in each o of "doo" follows it; when it lands home, both o's blink. **3C:** the game cards stay still on hover ("nothing moves on hover" holds). **4A, made visible:** on a computer, the homepage's "Play the demo" opens the real `/play/pour/` in a sheet over the page (Esc, ×, a click outside or a swipe down puts it away; the Play button hides while it's up; the game goes when it closes); phones keep going to the page. Typing "pour" opens the same sheet, a trick for showing prospects in a meeting.
+- **Why:** The mock showed the sheet is the good part: it acts out the promo pitch, a game living on top of a business's own site. A hidden word alone is seen by almost no one (owner: "no one is going to see it"), so the visible button carries it.
+- **Alternatives:** 1B a trail home, 1C rings from the mark; 2B the blink alone, 2C pupils in the ball's colour; 3A a clip of the game on hover, 3B the art pushing in (both break the hover rule); 4B letters lit as you type, 4C the Play button answering (the same as scrolling to the promo band, which already offers "Pour a pint").
+- **Consequences:** The eyes make the wordmark a face while the ball is out; at rest it is D-020's mark unchanged. The `play-demo-home` click is still counted. Links inside the game must leave the sheet, not load in it. Stills and the 4A mock are in `internal/prototypes/more-play*`.
+- **Revisit when:** The 2026-11-26 review.
