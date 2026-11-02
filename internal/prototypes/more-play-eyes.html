@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>More play: the eyes at real size (stills)</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+  /* the stills page itself */
+  body.studio{margin:0;padding:16px 16px 60px;background:var(--bg0);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}
+  h1.t{font:700 22px/1.2 var(--display);margin:4px 0 6px}
+  p.note{color:var(--muted);margin:0 0 18px;max-width:60ch}
+  section{margin:0 0 30px;padding:0 0 22px;border-bottom:1px solid var(--stroke)}
+  h2.v{font:700 17px/1.2 var(--display);margin:0 0 4px}
+  section > p{color:var(--muted);margin:0 0 12px;font-size:14px;max-width:60ch}
+  .strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .shot{position:relative;height:74px;border-radius:12px;background:var(--bg0);box-shadow:inset 0 0 0 1px var(--stroke);overflow:hidden}
+  .shot .wordmark{position:absolute;left:10px;top:20px}
+  .shot .ball{position:absolute;width:14px;height:14px;border-radius:50%}
+  .shot small{position:absolute;left:8px;bottom:5px;color:var(--muted);font-size:11px}
+  .big{margin-top:8px;height:auto;padding:10px 12px 14px}
+  body.studio .big .wordmark{position:static;font-size:72px;white-space:nowrap}
+  @media (max-width:520px){ .strip{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+  /* A: today's eyes on #118, as built */
+  body.studio .A .wmPupil{opacity:1}
+
+  /* B: googly. While the ball is out the whole o fills with the ink, a dark pupil about
+     half its size rolls inside, and the blink drains it back to the letter. */
+  body.studio .B .wmEye::before,body.studio .C .wmEye::before{content:'';position:absolute;left:50%;top:57%;border-radius:50%;background:var(--ink)}
+  body.studio .B .wmEye::before{width:.52em;height:.52em;margin:-.26em 0 0 -.26em}
+  body.studio .B .wmPupil,body.studio .C .wmPupil{opacity:1;background:var(--bg0);z-index:1}
+  body.studio .B .wmPupil{width:.25em;height:.25em;margin:-.125em 0 0 -.125em}
+  /* C: googly, a touch bigger than the letter while it's out, so the pupil has more room */
+  body.studio .C .wmEye::before{width:.6em;height:.6em;margin:-.3em 0 0 -.3em}
+  body.studio .C .wmPupil{width:.26em;height:.26em;margin:-.13em 0 0 -.13em}
+  /* the blink, held at its middle */
+  body.studio .shut .wmEye{transform:scaleY(.12)}
+  body.studio .rest .wmPupil,body.studio .rest .wmEye::before{display:none}
+</style>
+</head>
+<body class="studio">
+<h1 class="t">The eyes, at real size</h1>
+<p class="note">Each row is the header's wordmark at 24px, as on the phone, with the ball out to one side. Below each row, the same at 3x so you can see what's going on. A is what's on #118 today; B and C are googly. Pick by the 24px rows.</p>
+
+<div id="rows"></div>
+
+<script>
+// Which way each still looks, as the ball sits in it; reach is how far the pupil can go, in em.
+var VARIANTS = [
+  { id: "A", name: "A. Today's eyes (#118)", says: "A pupil in each counter, the ink's colour, sliding up to 0.04em towards the ball. At 24px that's about a pixel.", reach: 0.04 },
+  { id: "B", name: "B. Googly", says: "While the ball is out, each o fills with the ink and a dark pupil half its size rolls inside, up to 0.11em (about 3px). The blink drains it back to the letter.", reach: 0.11 },
+  { id: "C", name: "C. Googly, a touch bigger", says: "As B, but the eye swells a little past the letter while it's out, so the pupil rolls up to 0.15em (about 3.5px). The most visible, and the furthest from the mark at rest.", reach: 0.15 },
+];
+var SHOTS = [
+  { label: "at rest", cls: "rest" },
+  { label: "ball up, right", ball: [150, 4], col: "#e8562a" },
+  { label: "ball down, right", ball: [118, 50], col: "#4be08a" },
+  { label: "the blink", cls: "shut" },
+];
+function mark() {
+  return '<span class="wordmark" aria-label="ai.doo"><span class="wm-ai">ai</span><span class="wm-dot" aria-hidden="true"></span>' +
+    '<span class="wm-doo">d<span class="wmEye">o<span class="wmPupil"></span></span><span class="wmEye">o<span class="wmPupil"></span></span></span></span>';
+}
+var rows = document.getElementById("rows");
+VARIANTS.forEach(function (v) {
+  var sec = document.createElement("section");
+  sec.className = v.id;
+  sec.innerHTML = '<h2 class="v">' + v.name + "</h2><p>" + v.says + '</p><div class="strip"></div><div class="shot big"></div>';
+  var strip = sec.querySelector(".strip");
+  SHOTS.forEach(function (s) {
+    var shot = document.createElement("div");
+    shot.className = "shot " + (s.cls || "");
+    shot.innerHTML = mark() + "<small>" + s.label + "</small>" +
+      (s.ball ? '<span class="ball" style="left:' + s.ball[0] + "px;top:" + s.ball[1] + "px;background:" + s.col + '"></span>' : "");
+    strip.appendChild(shot);
+    shot.ball = s.ball;
+  });
+  var big = sec.querySelector(".big");
+  big.innerHTML = mark();
+  rows.appendChild(sec);
+  sec.v = v;
+});
+// Aim each pupil at its still's ball, as studio.js would; the 4x one looks up and right.
+function aim() {
+  document.querySelectorAll("section").forEach(function (sec) {
+    var reach = sec.v.reach;
+    sec.querySelectorAll(".shot").forEach(function (shot) {
+      var b = shot.querySelector(".ball");
+      var target = b ? b.getBoundingClientRect() : null;
+      shot.querySelectorAll(".wmEye").forEach(function (o) {
+        var r = o.getBoundingClientRect();
+        var cx = r.left + r.width / 2, cy = r.top + r.height * 0.57;
+        var dx = 1, dy = -0.8;
+        if (target) { dx = target.left + 7 - cx; dy = target.top + 7 - cy; }
+        var far = Math.sqrt(dx * dx + dy * dy) || 1;
+        o.querySelector(".wmPupil").style.transform = "translate(" + (dx / far * reach).toFixed(3) + "em," + (dy / far * reach).toFixed(3) + "em)";
+      });
+    });
+  });
+}
+document.fonts.ready.then(aim);
+</script>
+</body>
+</html>
