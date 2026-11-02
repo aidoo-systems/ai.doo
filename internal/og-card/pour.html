@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- The source of /play/pour/og.png, the 1200x630 card shown when a link to the pour demo is
+     shared (P2.1j). Link previews run no script, so it is the same card for every venue and
+     every ?name=; the four phones are the real game, one per shipped skin. pour/*.jpg are
+     stills of each skin's start screen at 390x820, caught mid-pour (the game's own demo pour
+     doesn't run in an iframe under a headless browser, so stills, not frames). To redraw it:
+     serve the repo root, screenshot this page at 1200x630 once the fonts are in, and reduce
+     it to a 256-colour PNG so it stays under 300KB (WhatsApp drops a bigger preview image). -->
+<meta charset="utf-8"><title>Pour demo share card</title>
+<style>
+@font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2);font-weight:100 900}
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#f7f4ef;color:#1f1d1b;font-family:Inter,sans-serif}
+.card{position:relative;width:1200px;height:630px;padding:0 0 0 80px;display:flex;flex-direction:column;justify-content:center}
+h1{margin:0;width:520px;font:800 62px/1.04 Inter;letter-spacing:-.035em}
+p{margin:26px 0 0;width:510px;font-size:25px;line-height:1.4;color:#6b655e}
+.by{margin-top:34px;font-size:22px;color:#6b655e;display:flex;align-items:center;gap:12px}
+.by i{width:24px;height:24px;background:url(../../favicon.svg) center/contain no-repeat}
+.fan{position:absolute;left:600px;top:0;width:600px;height:630px}
+.phone{position:absolute;width:200px;height:400px;padding:10px;border-radius:34px;background:#16161a;box-shadow:0 24px 50px rgba(31,29,27,.28)}
+.phone div{width:180px;height:380px;border-radius:25px;overflow:hidden;position:relative}
+.phone img{display:block;width:180px;height:380px}
+.p1{left:20px;top:160px;transform:rotate(-9deg)}
+.p2{left:150px;top:95px;transform:rotate(-3deg)}
+.p3{left:270px;top:120px;transform:rotate(3deg)}
+.p4{left:385px;top:180px;transform:rotate(9deg)}
+</style>
+<div class="card">
+  <h1>A little game for your customers while they wait</h1>
+  <p>In the phone's browser, in your colours, with your prize. Nothing to download.</p>
+  <div class="by"><i></i>A demo by ai.doo</div>
+  <div class="fan">
+    <div class="phone p1"><div><img src="pour/dozy-otter.jpg" alt=""></div></div>
+    <div class="phone p4"><div><img src="pour/giddy-puffin.jpg" alt=""></div></div>
+    <div class="phone p3"><div><img src="pour/sleepy-cow.jpg" alt=""></div></div>
+    <div class="phone p2"><div><img src="pour/wobbly-gull.jpg" alt=""></div></div>
+  </div>
+</div>
