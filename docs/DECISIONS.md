@@ -366,7 +366,7 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Decision:** After the free two-week pilot, the stamp card is £15 a month per shop, with no setup fee and no contract: a shop can stop any time, and its paper cards keep working either way. The first shops keep that price. No start date is promised until the build is finished.
 - **Why:** The first reply of the experiment (Roots, by Facebook) asked about the stamp card, and "what happens after the pilot?" needed an answer. A small monthly price with no tie-in is an easy yes for a café.
 - **Alternatives:** Free until the Gelatory pilot (the `/stamps/` page's position since 2026-10-22); a setup fee.
-- **Consequences:** A stamp card yes can't meet D-010's services bar (one deposit of £300 or more), so the 2026-11-26 read counts "a shop agreed to pay for stamps" as its own signal and doesn't blur it with the promo-game bet. The `/stamps/` page still says only "a free pilot"; any price on it is the owner's call. Promises nothing beyond what's built: the start date waits on the build.
+- **Consequences:** A stamp card yes can't meet D-010's services bar (one deposit of £300 or more), so the 2026-11-26 read counts "a shop agreed to pay for stamps" as its own signal and doesn't blur it with the promo-game bet. The `/stamps/` page still says only "a free pilot"; any price on it is the owner's call (named there 2026-11-02: D-040's update). Promises nothing beyond what's built: the start date waits on the build.
 - **Revisit when:** The 2026-11-26 review, or the first shop's pilot ends.
 
 ## D-038 — The demo's start screen is the venue, the prize and the glass
@@ -397,6 +397,7 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Wait for the 2026-11-26 review (P2.1b's hold); a cream band in the demo's colours (a second bright band, and its tint washes the page grey); a single line under the promo band (reads as the promo game's footnote).
 - **Consequences:** An exception to the P2.1b hold, like D-023. The `stamps-demo-home` clicks are their own signal at the review, not the promo game's. Naming Google or Apple, a price, or a start date is the owner's call later; Apple Wallet isn't built.
 - **Revisit when:** The 2026-11-26 review, or when Apple Wallet is built.
+- **Update (owner, 2026-11-02):** Apple Wallet is now live alongside Google (loyalty P1.19 onwards; the iPhone's pass is in the stamp card video). The price is now named on the site: `/stamps/` says "A free two-week pilot alongside your paper cards, then £15 a month. No setup fee, no contract, stop any time, and our first shops keep that price." That is D-037's decision, so it makes no new claim. The homepage band still names no wallet and no price; changing that is the owner's call.
 
 ## D-041 — More play on the homepage, ahead of the review: a finish, eyes, and the pint over the page
 

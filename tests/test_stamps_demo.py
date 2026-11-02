@@ -186,6 +186,17 @@ def test_the_page_says_it_is_a_demo_and_how_to_ask_for_one():
     assert "mailto:hello@aidoo.biz" in html
 
 
+def test_the_page_names_the_price_after_the_pilot():
+    # D-037's price, named on the page by the owner (2026-11-02, D-040's update)
+    text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", _text("stamps/index.html")))
+    assert (
+        "A free two-week pilot alongside your paper cards, then £15 a month. No setup fee, "
+        "no contract, stop any time, and our first shops keep that price."
+    ) in text
+    for word in ("—", "promotional"):
+        assert word not in text.lower(), word
+
+
 def test_the_page_makes_no_promise_the_product_rules_out():
     # loyalty's D-001 and D-004: no accounts, no points, no marketing, no personal data.
     text = re.sub(r"<[^>]+>", " ", _text("stamps/index.html")).lower()
