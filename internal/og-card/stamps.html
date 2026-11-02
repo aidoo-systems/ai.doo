@@ -1,0 +1,96 @@
+<!doctype html>
+<!-- The source of /stamps/og.png, the 1200x630 card shown when a link to /stamps/ is shared, and
+     of images/stamps-pass.webp, the pass on the homepage's stamp card band. Link previews run no
+     script, so it is the same card for every shop: Little Gull Coffee at 6 of 8, the pass the
+     plain /stamps/ page shows (printed.js draws the strip, as on the page and the live pass).
+     To redraw them: serve the repo root and screenshot, at device scale 2,
+       this page at 1200x630, scaled to 1200x630 and reduced to a 256-colour PNG (under 300KB,
+         or WhatsApp drops the preview), as stamps/og.png;
+       this page's #pass at 440x520 on a clear background (no QR: the band is about the stamps), cropped to the pass and scaled to 560
+       wide, as images/stamps-pass.webp (quality 88).
+     Bump ?v= on the og:image and the band's img so shares and browsers refetch them. -->
+<meta charset="utf-8"><title>Stamps share card</title>
+<style>
+@font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2);font-weight:100 900}
+*{box-sizing:border-box}
+html,body{margin:0;width:1200px;height:630px;overflow:hidden;background:#f7f4ef;color:#1f1d1b;font-family:Inter,sans-serif}
+.card{position:relative;width:1200px;height:630px;padding:0 0 0 80px;display:flex;flex-direction:column;justify-content:center}
+h1{margin:0;width:520px;font:800 66px/1.04 Inter;letter-spacing:-.035em}
+p{margin:26px 0 0;width:500px;font-size:25px;line-height:1.4;color:#6b655e}
+.by{margin-top:34px;font-size:22px;color:#6b655e;display:flex;align-items:center;gap:12px}
+.by i{width:24px;height:24px;background:url(../../favicon.svg) center/contain no-repeat}
+.hold{position:absolute;left:680px;top:84px;transform:rotate(4deg)}
+
+/* The pass, as /stamps/ lays it out, at 400 wide */
+.pass{width:400px;background:#1f4e5a;color:#f3e6cf;border-radius:22px;padding:16px 0 20px;box-shadow:0 26px 56px rgba(31,29,27,.3)}
+.top{display:flex;align-items:center;gap:14px;padding:0 20px 12px}
+.mark{width:46px;height:46px;flex:none}
+.mark img{width:100%;height:100%;display:block;border-radius:50%}
+.top b{flex:1;font-size:24px;font-weight:600;line-height:1.15}
+.count{text-align:right;line-height:1.1}
+small{display:block;font-size:13px;font-weight:600;letter-spacing:.02em;text-transform:uppercase}
+.count span{font-size:26px;text-transform:uppercase;word-spacing:.18em}
+.strip{display:block;width:400px;height:153.6px}
+.field{padding:12px 20px 0}
+.field span{font-size:21px;line-height:1.25}
+.code{background:#fff;color:#111;border-radius:6px;padding:10px 10px 6px;margin:16px auto 0;width:146px;text-align:center;font:500 16px/1.2 Inter;letter-spacing:.04em}
+.code svg{width:126px;height:126px;display:block;margin:0 auto 4px}
+
+/* #pass: the pass alone, for the homepage band */
+html.solo,.solo body{width:440px;height:520px;background:transparent}
+.solo .card>:not(.hold){display:none}
+.solo .card{width:440px;height:520px;padding:0}
+.solo .hold{left:20px;top:8px;transform:none}
+.solo .pass{box-shadow:none}
+.solo .code{display:none}
+</style>
+<div class="card">
+  <h1>Your paper stamp card, in their Wallet</h1>
+  <p>No app. No sign-up. Stamped at the till with the shop's own phone.</p>
+  <div class="by"><i></i>Stamp cards by ai.doo</div>
+  <div class="hold">
+    <div class="pass">
+      <div class="top"><span class="mark"><img id="logo" src="../../stamps/little-gull.png" alt=""></span><b>Little Gull Coffee</b>
+        <div class="count"><small>Stamps</small><span>6 of 8</span></div></div>
+      <canvas class="strip" id="strip" width="750" height="288"></canvas>
+      <div class="field"><small>Reward</small><span>2 more for a free coffee.</span></div>
+      <div class="code"><svg id="qr" viewBox="0 0 25 25"></svg>RHU9P</div>
+    </div>
+  </div>
+</div>
+<script src="../../stamps/printed.js"></script>
+<script>
+  if (location.hash === "#pass") document.documentElement.className = "solo";
+  // The same made-up QR as the page's (stamps/index.html's drawQr)
+  (function (svg, seed) {
+    var n = 25, s = 0, cells = [];
+    for (var i = 0; i < seed.length; i++) s = (s * 31 + seed.charCodeAt(i)) % 233280;
+    var rnd = function () { return (s = (s * 9301 + 49297) % 233280) / 233280; };
+    var finder = function (x, y) {
+      return [[0, 0], [n - 7, 0], [0, n - 7]].some(function (o) {
+        return x >= o[0] - 1 && x <= o[0] + 7 && y >= o[1] - 1 && y <= o[1] + 7;
+      });
+    };
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++)
+      if (!finder(x, y) && rnd() > 0.52) cells.push("M" + x + " " + y + "h1v1h-1z");
+    [[0, 0], [n - 7, 0], [0, n - 7]].forEach(function (o) {
+      cells.push("M" + o[0] + " " + o[1] + "h7v7h-7zM" + (o[0] + 1) + " " + (o[1] + 1) + "v5h5v-5z" +
+        "M" + (o[0] + 2) + " " + (o[1] + 2) + "h3v3h-3z");
+    });
+    svg.innerHTML = '<rect width="25" height="25" fill="#fff"/><path fill="#000" fill-rule="evenodd" d="' + cells.join("") + '"/>';
+  })(document.getElementById("qr"), "RHU9P");
+
+  var logo = document.getElementById("logo");
+  function draw() {
+    var W = PrintedCard.STRIP_WIDTH, H = PrintedCard.STRIP_HEIGHT;
+    var out = PrintedCard.render({ bg: "#1f4e5a", fg: "#f3e6cf", required: 8, count: 6, logoKey: "gull",
+      logo: function (n) {
+        var c = document.createElement("canvas"), g = c.getContext("2d");
+        c.width = c.height = n; g.drawImage(logo, 0, 0, n, n);
+        return g.getImageData(0, 0, n, n).data;
+      } }, W, H);
+    document.getElementById("strip").getContext("2d").putImageData(new ImageData(out.data, W, H), 0, 0);
+    document.body.dataset.ready = "1";
+  }
+  if (logo.complete) draw(); else logo.onload = draw;
+</script>

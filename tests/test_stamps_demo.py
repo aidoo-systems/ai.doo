@@ -227,6 +227,8 @@ def test_deploy_serves_the_demo():
         "stamps/card.js",
         "stamps/printed.js",
         "stamps/little-gull.png",
+        "stamps/og.png",
+        "images/stamps-pass.webp",
     ):
         assert rel in served, rel
 
@@ -239,6 +241,9 @@ def test_the_homepage_offers_the_stamp_card_in_a_quiet_band():
     assert html.index('id="process"') < start < html.index('id="also"')
     assert 'href="stamps/"' in band and "data-tint=" in band
     assert "data-umami-event=" in band
+    # the plain page's own pass, drawn by printed.js (internal/og-card/stamps.html), not a sketch of one
+    assert 'src="images/stamps-pass.webp' in band and 'alt=""' in band
+    assert "stampDots" not in html
     # the demo plays itself; the Play button offers only games
     assert "data-play" not in band
     text = re.sub(r"<[^>]+>", " ", band)
@@ -248,3 +253,17 @@ def test_the_homepage_offers_the_stamp_card_in_a_quiet_band():
         assert word not in text, word
     # the page's one bright band stays the promo game's: no gradient here
     assert "gradient" not in band
+
+
+def test_the_share_card_fits_a_link_preview():
+    # 1200x630, and under WhatsApp's ~300KB or it shows the link bare; versioned so shares refetch it
+    png = (REPO_ROOT / "stamps" / "og.png").read_bytes()
+    assert png[:4] == bytes([0x89]) + b"PNG"
+    assert (int.from_bytes(png[16:20], "big"), int.from_bytes(png[20:24], "big")) == (
+        1200,
+        630,
+    )
+    assert len(png) < 300_000
+    assert 'og:image" content="https://aidoo.biz/stamps/og.png?v=' in _text(
+        "stamps/index.html"
+    )
