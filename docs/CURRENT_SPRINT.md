@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-11-01
+Last updated: 2026-11-02
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: in-progress (P2.1l, a 404 that plays (mock A), merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, on `item/p20ac-split-the-mark` (#113): the polish and the drink's edges are built; the glass's bottom is built (pick B); the owner plays it on a phone and merges; P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
+State: in-progress (P2.1m, more play on the homepage (D-041), In Progress on `item/p21m-more-play`: stills and the 4A mock picked; next, build 1A, 2A and 4A into the homepage; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
 ## Goal
 
@@ -43,6 +43,11 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-02
+
+- P2.1m: stills for the four pieces of play (A, B, C each), then a working mock of 4A (type "pour", the real pint rises over the homepage in a sheet). Owner picked 1A, 2A with the blink, 3C, and 4A; on 4A, "no one is going to see it", so "Play the demo" opens the sheet on a computer and the word stays as a meeting trick (D-041). Built next, from the stills and `internal/prototypes/more-play/pour-sheet.js`. Banked.
+- P2.0ac merged (#113). The 404 is on the server (`/404.html` 200) but aidoo.biz/nope is still blank until the Caddy rule.
 
 ### 2026-10-30
 - **P2.0ac built (`item/p20ac-split-the-mark`, `engine.js?v=20`, `split.js?v=1`, `game.js?v=51`, D-039).** Split the mark, the pub's second way to play, at `/play/pour/?mode=split`: the start screen (it plays itself), three glasses (a stout, a porter, a dark ale), the sip and the settle as in the prototype (a stout creeps furthest), "Split it: 1.8mm off", the results with the closest glass as a card to screenshot, sound, the given names and its own live board (`/api/pour/*` with `mode: "split"`, kept as `wobbly-gull/split`). Look A: the emblem in a printed ring, the gap cut on the right 60% up, the venue's name over it in Bricolage; a prospect's `?name=` is printed instead, with no made-up emblem. The rules are `createSplit` in `engine.js`, the drawing `split.js`, the skin's `mark` the data; a drink lighter than 0.05 luminance is refused, so only dark ales can be served, and a skin without a mark plays its pour whatever the link says. The pour's start screen and results link to it ("Or split the mark") and back; `/promo-games/` says "Pubs get a second game: split the mark on a stout." (`play-demo-split`). No skin or page says down, neck, chug or Guinness (tested). Tests: `tests/split_driver.cjs` (the falling line, the settle, the score), the UI driver plays three glasses, the board keeps the split apart. A 1.12s hold splits the first glass dead on (the prototype was about 1.1s). **Next:** the owner plays it on a phone over the LAN and approves the feel, then merges.
