@@ -91,6 +91,26 @@ def test_a_shop_on_the_list_wears_its_own_logo():
 
 
 @pytest.mark.parametrize(
+    "key, logo",
+    [
+        # The Roundhouse's round teal badge, in its own colours like Little Gull's
+        (
+            "theroundhouse",
+            {"key": "theroundhouse", "src": "logos/theroundhouse.png", "tint": False},
+        ),
+        # Gourmet Shakes' shake cup, cut from their main logo: one colour, worn in the card's writing
+        (
+            "gourmetshakes",
+            {"key": "gourmetshakes", "src": "logos/gourmetshakes.png", "tint": True},
+        ),
+    ],
+)
+def test_the_batch_3_shops_wear_their_own_logos(key, logo):
+    assert run({"shop": "x", "logo": key})["settings"]["logo"] == logo
+    assert (REPO_ROOT / "stamps" / logo["src"]).read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.parametrize(
     "query",
     [
         {"shop": "Gelatory", "logo": "gelatory"},
