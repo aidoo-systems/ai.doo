@@ -428,3 +428,4 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A mock cookie banner; "This site doesn't need your sugary treats to work."; "No cookies here. We ate them all."; a hover-only trigger (phones have no hover, and most visitors are on phones).
 - **Consequences:** An exception to the P2.1b hold, like D-040 to D-042. The dotted underline and the biscuit are the visible way in (D-041). The stills are in `internal/prototypes/biscuit-stills.html`.
 - **Revisit when:** Anything on a studio page needs a cookie.
+- **Update (owner, 2026-11-04, after playing it):** tap-only: no hover and no hold. The instruction ("Tap to pull it out.") shows only after the first tap, because a hold and a hover felt like things happening without him. The 2-second snap is the only thing that happens by itself.

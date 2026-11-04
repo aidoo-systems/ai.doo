@@ -13,6 +13,12 @@
 // SHEET=button|word|chat|phone|calm opens the pint over the page (D-041) as a computer
 // would: clicking "Play the demo", typing "pour", typing it in the chat box, or the same
 // click on a phone or with reduced motion, then puts it away again.
+//
+// BISCUIT=path|snap|bites|keys|hover|calm|calmsnap|at|quick works the footer biscuit (D-043),
+// which is tap-only: tap in and tap out inside two seconds, tap in and no second tap, three
+// bites, the keyboard, a mouse hovering, reduced motion, a screen reader's click, and taps
+// in quick succession. It reports the words, the classes that draw each step,
+// and anything written to cookies or storage.
 
 const fs = require("fs");
 const path = require("path");
@@ -63,6 +69,10 @@ const page = element(); // everything already on the page, behind a sheet
 body.children.push(page);
 const sheetRun = process.env.SHEET || "";
 // the homepage's "Play the demo", which opens over the page on a computer
+const biscuitRun = process.env.BISCUIT || "";
+const LINE = "No cookie banner. There are no cookies. Have a biscuit instead.";
+const biscuit = element({ tagName: "P", className: "biscuit", textContent: LINE });
+const wrote = [];
 const demo = element({ tagName: "A", dataset: { sheet: "", umamiEvent: "play-demo-home" }, href: "https://aidoo.biz/play/pour/" });
 demo.attrs.href = "play/pour/";
 demo.closest = () => demo;
@@ -75,21 +85,29 @@ const timers = [];
 const onWindow = element();
 const onDocument = element();
 
-const one = { 'meta[name="theme-color"]': meta, main: element(), "header .wm-dot": dot, "header .nav": nav, "header .brand": brand, "header .wm-doo": doo, "a[data-play]": link, "a[data-sheet]": demo };
+const one = { 'meta[name="theme-color"]': meta, main: element(), "header .wm-dot": dot, "header .nav": nav, "header .brand": brand, "header .wm-doo": doo, "a[data-play]": link, "a[data-sheet]": demo, "[data-biscuit]": biscuit };
 const many = { ".work, [data-tint]": [above, inView], "a[data-play]": [link], "[data-open-chat]": [footerAsk] };
 
 const window = {
   innerHeight: 800,
   performance: { now: () => clock },
   requestAnimationFrame: (fn) => frames.push(fn),
-  setTimeout: (fn, ms) => timers.push({ at: clock + (ms || 0), fn }),
+  setTimeout: (fn, ms) => {
+    const t = { at: clock + (ms || 0), fn };
+    timers.push(t);
+    return t;
+  },
+  clearTimeout: (t) => {
+    const i = timers.indexOf(t);
+    if (i >= 0) timers.splice(i, 1);
+  },
   addEventListener: onWindow.addEventListener,
   removeEventListener: onWindow.removeEventListener,
   // no hover, no fine pointer (a computer's mouse for a sheet run); motion allowed unless the run asks for calm
   matchMedia: (query) => ({
     matches: query.includes("reduced-motion")
-      ? rally === "calm" || sheetRun === "calm"
-      : query.includes("hover") && !!sheetRun && sheetRun !== "phone",
+      ? rally === "calm" || sheetRun === "calm" || biscuitRun.startsWith("calm")
+      : query.includes("hover") && ((!!sheetRun && sheetRun !== "phone") || false),
   }),
   umami: { track: (name) => counted.push(name) },
   getComputedStyle: (el) => ({ getPropertyValue: (name) => (el.vars && el.vars[name]) || "" }),
@@ -111,6 +129,12 @@ const window = {
   },
 };
 window.window = window;
+
+// nothing may be kept: a read of storage or a write to a cookie is recorded
+for (const k of ["localStorage", "sessionStorage", "indexedDB"]) {
+  Object.defineProperty(window, k, { get: () => (wrote.push(k), null) });
+}
+Object.defineProperty(window.document, "cookie", { get: () => (wrote.push("cookie read"), ""), set: () => wrote.push("cookie write") });
 
 const out = { error: null };
 try {
@@ -272,5 +296,118 @@ if (sheetRun) {
     s.pageBack = page.inert === false;
   }
   out.sheet = s;
+}
+if (biscuitRun) {
+  const b = {};
+  const made = (name) => created.find((el) => el.className.split(" ").includes(name));
+  const say = made("biscuitSay");
+  const stage = made("bskStage");
+  const words = made("bskWords");
+  const hint = made("bskHint");
+  const fire = (el, type, ev) => (el.on[type] || []).slice().forEach((fn) => fn(Object.assign({ preventDefault() {}, pointerType: "touch", key: "", detail: 1 }, ev)));
+  const tick = (ms) => {
+    const to = clock + ms;
+    for (;;) {
+      const next = timers.filter((t) => t.at <= to).sort((a, c) => a.at - c.at)[0];
+      if (!next) break;
+      timers.splice(timers.indexOf(next), 1);
+      clock = Math.max(clock, next.at);
+      next.fn();
+    }
+    clock = to;
+  };
+  const snap = () => ({
+    says: words ? words.textContent : null,
+    hint: hint ? hint.textContent : null,
+    stage: stage ? stage.className.trim() : null,
+    root: biscuit.className.trim(),
+  });
+  b.mounted = !!say && !!stage;
+  b.start = snap();
+  b.role = say ? say.attrs.role : null;
+  b.tabindex = say ? say.attrs.tabindex : null;
+  if (say) {
+    const tap = () => fire(say, "pointerdown");
+    const mode = biscuitRun;
+    if (mode === "path" || mode === "calm") {
+      tap();
+      tick(100);
+      b.in = snap(); // tap 1: the biscuit is in
+      tick(900);
+      fire(say, "pointerup"); // letting go of a press does nothing
+      b.held = snap();
+      tick(600); // 1.6 s in, inside two seconds
+      tap();
+      b.out = snap();
+      tick(4000);
+      b.after = snap();
+    } else if (mode === "snap" || mode === "calmsnap") {
+      tap();
+      tick(1900);
+      b.before = snap(); // not yet
+      tick(200); // 2.1 s in, no second tap
+      b.snapped = snap();
+      tick(4000);
+      b.after = snap();
+      tap(); // the next tap bites what's left
+      b.bite = snap();
+      tick(4000);
+    } else if (mode === "bites") {
+      tap();
+      tap();
+      b.said = [];
+      b.classes = [];
+      for (let i = 0; i < 4; i++) {
+        tick(100);
+        tap();
+        b.said.push(words.textContent);
+        b.classes.push(snap().root);
+      }
+      b.stage = snap().stage;
+      tick(6000);
+      b.stageLater = snap().stage;
+    } else if (mode === "keys") {
+      fire(say, "keydown", { key: "Enter" });
+      fire(say, "keyup", { key: "Enter" });
+      tick(900);
+      b.in = snap();
+      fire(say, "keydown", { key: " " });
+      fire(say, "keyup", { key: " " });
+      b.out = snap();
+      tick(3000);
+      fire(say, "keydown", { key: " " });
+      b.bite = snap();
+      fire(say, "keydown", { key: "a" });
+      b.other = snap();
+      fire(say, "keydown", { key: "Enter", repeat: true }); // a held key is one press
+      b.repeat = snap();
+    } else if (mode === "hover") {
+      fire(say, "pointerenter", { pointerType: "mouse" });
+      tick(3000);
+      b.hovered = snap(); // a mouse resting on it dunks nothing
+      fire(say, "pointerleave", { pointerType: "mouse" });
+      b.left = snap();
+      fire(say, "pointerdown", { pointerType: "mouse" }); // a click is a tap
+      b.click = snap();
+    } else if (mode === "at") {
+      fire(say, "click", { detail: 0 });
+      b.click = snap();
+      fire(say, "click", { detail: 1 }); // a click that followed a pointer press is the press's own
+      b.after = snap();
+    } else if (mode === "quick") {
+      tap();
+      tick(50);
+      tap(); // out almost at once: still a tap out
+      tick(300);
+      b.out = snap();
+      tap(); // a tap while the mug is going back down is a bite
+      b.bite = snap();
+      tick(6000);
+      b.after = snap();
+    }
+  }
+  b.stored = wrote;
+  b.timersLeft = timers.length;
+  out.biscuit = b;
 }
 process.stdout.write(JSON.stringify(out));

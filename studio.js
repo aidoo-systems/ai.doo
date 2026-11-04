@@ -5,6 +5,7 @@
 //   3. The dot in the wordmark is a ball. Flick it, and a paddle turns up to keep it in the air,
 //      and the o's of "doo" watch it while it's out (D-041).
 //   4. On a computer, the homepage's demo opens over the page in a sheet (D-041).
+//   5. The footer's line about cookies is a biscuit you can dunk in tea or bite (D-043).
 // Nothing is stored, and nothing is fetched.
 (function () {
   "use strict";
@@ -597,5 +598,225 @@
       s.el.remove(); // the game goes with it: nothing keeps running
     }, 400);
     if (s.before && s.before.focus) s.before.focus();
+  }
+
+  // ---------------------------------------------------------------- 5. the footer biscuit
+
+  // The footer says there are no cookies and offers a biscuit instead (D-043). Every step is a
+  // tap (or a click, Enter or Space): the first lowers the biscuit into a mug of tea that rises
+  // over the footer, moving nothing, and the biscuit darkens as it soaks; a second inside two
+  // seconds pulls it out ("Perfect dunk."), and with none the soaked half snaps off and sinks.
+  // After that, taps bite, and the third leaves crumbs. Nothing starts on hover or a hold, and
+  // nothing is stored, so a reload brings the biscuit back. The drawing is in style.css
+  // (.biscuit): this decides which classes are on.
+  var cookieLine = document.querySelector("[data-biscuit]");
+  if (cookieLine) biscuit(cookieLine);
+
+  function biscuit(root) {
+    var LINE = root.textContent;
+    var SNAP = 2000; // in the tea this long with no second tap, the soaked half snaps off
+    var ASK = "Tap to pull it out.";
+    var SAYS = {
+      perfect: "Perfect dunk.",
+      lost: "Lost it. Happens to everyone.",
+      bite: "Go on, then.",
+      gone: "We'd remember you ate it, but that would need a cookie.",
+    };
+    var CRUMBS = [[18, 19, 1.1], [23, 21, 0.8], [13, 21, 0.7], [-14, 21, 1.1], [-7, 21.5, 0.8], [2, 21, 1.2], [9, 21.6, 0.7]];
+
+    // the biscuit is the ball's three flat shapes plus four docking holes
+    var defs =
+      '<svg class="bskDefs" width="0" height="0" aria-hidden="true" focusable="false"><defs>' +
+      '<g id="bskBody"><circle r="14" fill="#dcae6a"/>' +
+      '<path d="M8.66 -10.99A14 14 0 1 1 -10.99 8.66 14 14 0 0 0 8.66 -10.99z" fill="#c4914b"/>' +
+      '<ellipse cx="-5" cy="-6.5" rx="3.6" ry="2.2" transform="rotate(-38 -5 -6.5)" fill="#f3d9a4"/>' +
+      '<circle cx="-4" cy="1" r="1.15" fill="#a9763a"/><circle cx="2.5" cy="-4.5" r="1.15" fill="#a9763a"/>' +
+      '<circle cx="4.5" cy="3.5" r="1.15" fill="#a9763a"/><circle cx="-1" cy="7" r="1.15" fill="#a9763a"/></g>' +
+      '<clipPath id="bskSoakClip"><path d="M-16 4C-11 2 -7 5.5 -2 3.5S6 2 10 4.5 14 3 16 3.5V17H-16Z"/></clipPath>' +
+      '<clipPath id="bskTopClip"><path d="M-16 -16H16V1.5L11 3.5 7 1 3 4 -1 1.5 -5 4 -9 1 -13 3.5 -16 2z"/></clipPath>' +
+      '<clipPath id="bskLowClip"><path d="M-16 16H16V1.5L11 3.5 7 1 3 4 -1 1.5 -5 4 -9 1 -13 3.5 -16 2z"/></clipPath>' +
+      '<mask id="bskBite"><rect x="-16" y="-16" width="32" height="32" fill="#fff"/>' +
+      '<circle class="bskCut c1" cx="13" cy="-9" r="6" fill="#000"/><circle class="bskCut c2" cx="16" cy="-1" r="5.5" fill="#000"/>' +
+      '<circle class="bskCut c3" cx="9" cy="9" r="7" fill="#000"/><circle class="bskCut c4" cx="-1" cy="15" r="6" fill="#000"/></mask>' +
+      // the half left after a snap: the second bite takes from what's there, not from the half in the tea
+      '<mask id="bskBiteHalf"><rect x="-16" y="-16" width="32" height="32" fill="#fff"/>' +
+      '<circle class="bskCut c1" cx="13" cy="-9" r="6" fill="#000"/><circle class="bskCut c2" cx="16" cy="-1" r="5.5" fill="#000"/>' +
+      '<circle class="bskCut c5" cx="-10" cy="-5" r="6.5" fill="#000"/><circle class="bskCut c6" cx="-3" cy="-13.5" r="6" fill="#000"/></mask>' +
+      "</defs></svg>";
+    var soak = '<g clip-path="url(#bskSoakClip)"><circle class="bskSoak" r="14" fill="#8a5a2b"/></g>';
+    var body = '<use href="#bskBody"/>';
+    // whole, then the two halves it snaps into
+    function pieces(cls, drip) {
+      return (
+        '<g class="' + cls + 'bskWhole"><g mask="url(#bskBite)">' + body + soak + "</g>" + (drip || "") + "</g>" +
+        '<g class="' + cls + 'bskTop"><g clip-path="url(#bskTopClip)"><g mask="url(#bskBiteHalf)">' + body + "</g></g></g>" +
+        '<g class="' + cls + 'bskLow"><g clip-path="url(#bskLowClip)"><g mask="url(#bskBite)">' + body +
+        '<circle class="bskSoakFix" r="14" fill="#8a5a2b"/></g></g></g>'
+      );
+    }
+    var mugBack =
+      '<g class="bskMug"><ellipse class="bskRip" cx="2" cy="1.4" rx="14" ry="2.9" fill="none" stroke="#8a5a2b" stroke-width=".6"/>' +
+      '<ellipse class="bskRip" cx="2" cy="1.4" rx="9" ry="2" fill="none" stroke="#8a5a2b" stroke-width=".9"/>' +
+      '<ellipse cx="0" cy="0" rx="20" ry="5" fill="#d9d2c4"/><ellipse cx="0" cy="1.2" rx="17.5" ry="3.6" fill="#6e4322"/></g>';
+    var mugFront =
+      '<g class="bskMug"><path d="M20 4C29 4 31 9 30 14S24 23 18.5 22" fill="none" stroke="#d9d2c4" stroke-width="3.2" stroke-linecap="round"/>' +
+      '<path d="M-20 0A20 5 0 0 0 20 0L17.5 27Q0 31 -17.5 27Z" fill="#eee8dc"/>' +
+      '<path d="M8 4.6A20 5 0 0 0 20 0L17.5 27Q13 28.6 8 29.2Z" fill="#d9d2c4"/>' +
+      // tea that jumps the rim as the biscuit goes in
+      '<g class="bskSplash" fill="#6e4322"><circle class="s1" cx="-14" cy="0.5" r="2.3"/><circle class="s2" cx="13" cy="0" r="1.9"/>' +
+      '<circle class="s3" cx="-7" cy="-0.5" r="1.6"/></g></g>';
+    var drip = '<ellipse class="bskDrip" cx="1" cy="17.5" rx="1.3" ry="1.8" fill="#6e4322"/>';
+    var crumbs = CRUMBS.map(function (c, i) {
+      return '<circle class="bskCrumb k' + (i + 1) + '" cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="#c4914b"/>';
+    }).join("");
+
+    var say = document.createElement("span");
+    say.className = "biscuitSay";
+    say.setAttribute("role", "button");
+    say.setAttribute("tabindex", "0");
+    say.setAttribute("aria-live", "polite");
+    var words = document.createElement("span");
+    words.className = "bskWords";
+    words.textContent = LINE;
+    var tiny = document.createElement("span");
+    tiny.innerHTML =
+      '<svg class="bskInline" viewBox="-15 -15 30 30" width="15" height="15" aria-hidden="true" focusable="false">' + pieces("") + "</svg>";
+    var holder = document.createElement("span");
+    holder.innerHTML = defs;
+    var stage = document.createElement("div");
+    stage.className = "bskStage";
+    stage.setAttribute("aria-hidden", "true");
+    stage.innerHTML =
+      '<svg viewBox="-38 -40 76 76" width="76" height="76" focusable="false"><g class="bskScene">' +
+      mugBack + pieces("bsk ", drip) + mugFront +
+      '</g><g transform="translate(0 12)">' + crumbs + "</g></svg>";
+    // the instruction: empty and invisible until the first tap, and its room is kept so nothing shifts
+    var hint = document.createElement("span");
+    hint.className = "bskHint";
+    say.appendChild(words);
+    say.appendChild(tiny);
+    root.textContent = "";
+    root.appendChild(say);
+    root.appendChild(hint);
+    root.appendChild(holder);
+    root.appendChild(stage);
+    root.classList.add("on");
+
+    var bites = 0;
+    var stage_ = "idle"; // idle, in (the biscuit is in the tea), done (dunked or lost), then bites
+    var snapT = null;
+    var endT = null;
+    var tidyT = null;
+
+    function has(el, name) {
+      return el.className.split(" ").indexOf(name) >= 0;
+    }
+    function eaten() {
+      return has(root, "eaten");
+    }
+    function saying(text) {
+      words.textContent = text;
+      say.classList.add("said");
+      if (calm) return;
+      words.classList.remove("pop");
+      words.getBoundingClientRect(); // restart the fade
+      words.classList.add("pop");
+    }
+    function off(names) {
+      names.forEach(function (n) {
+        stage.classList.remove(n);
+      });
+    }
+    function settle() {
+      clearTimeout(snapT);
+      clearTimeout(endT);
+      clearTimeout(tidyT);
+    }
+    // the mug goes back down; a finished biscuit leaves its crumbs
+    function retire() {
+      off(["up", "dunk", "drip"]);
+      if (!eaten()) off(["show"]);
+      root.classList.remove("busy");
+      tidyT = setTimeout(function () {
+        off(["snapped"]);
+      }, 1200);
+    }
+
+    // tap 1: the mug rises and the biscuit goes in; only now is the visitor told what to do
+    function dunk() {
+      stage_ = "in";
+      settle();
+      hint.textContent = ASK;
+      root.classList.add("asking");
+      if (!calm) {
+        off(["eat", "drip", "snapped"]);
+        stage.getBoundingClientRect(); // drawn where it was first, so the mug rises
+        stage.classList.add("show");
+        stage.classList.add("up");
+        stage.classList.add("dunk");
+        root.classList.add("busy");
+      }
+      // no second tap in time: the one thing that happens by itself
+      snapT = setTimeout(snap, SNAP);
+    }
+    // tap 2, inside two seconds: out it comes, dark at the bottom, one drip
+    function pullOut() {
+      stage_ = "done";
+      clearTimeout(snapT);
+      root.classList.remove("asking");
+      saying(SAYS.perfect);
+      root.classList.add("soaked");
+      if (!calm) {
+        off(["dunk"]);
+        stage.classList.add("drip");
+      }
+      endT = setTimeout(retire, 1700);
+    }
+    function snap() {
+      stage_ = "done";
+      root.classList.remove("asking");
+      root.classList.add("half");
+      root.classList.remove("soaked");
+      if (!calm) stage.classList.add("snapped");
+      saying(SAYS.lost);
+      endT = setTimeout(retire, 1500); // let the sinking finish
+    }
+    function bite() {
+      settle();
+      bites++;
+      root.classList.add(bites < 3 ? "bit" + bites : "eaten");
+      saying(bites < 3 ? SAYS.bite : SAYS.gone);
+      if (calm) return;
+      off(["up", "dunk", "drip"]); // a snap in progress is left to finish sinking
+      stage.getBoundingClientRect();
+      stage.classList.add("show");
+      stage.classList.add("eat");
+      root.classList.add("busy");
+      endT = setTimeout(function () {
+        if (eaten()) root.classList.remove("busy");
+        else retire();
+      }, 1800);
+    }
+
+    // every step is a tap, a click, Enter or Space: nothing starts on hover or on a hold
+    function tap() {
+      if (eaten()) return;
+      if (stage_ === "idle") dunk();
+      else if (stage_ === "in") pullOut();
+      else bite();
+    }
+    say.addEventListener("pointerdown", tap);
+    say.addEventListener("contextmenu", function (ev) {
+      ev.preventDefault();
+    });
+    say.addEventListener("keydown", function (ev) {
+      if (ev.key !== "Enter" && ev.key !== " ") return;
+      ev.preventDefault();
+      if (!ev.repeat) tap();
+    });
+    // a screen reader's "activate" arrives as a click with no pointer behind it
+    say.addEventListener("click", function (ev) {
+      if (ev.detail === 0) tap();
+    });
   }
 })();
