@@ -418,3 +418,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** Offers first (reads as an agency that also makes games); today's order (offers out of reach); tiles that open to show their links (read as a FAQ accordion, and a ragged row).
 - **Consequences:** An exception to the P2.1b hold, like D-040 and D-041. The chatbot no longer reads the game blurbs from the homepage, only names and store links. The tile picks the store by user agent. The floating Play button also offers what works right here and isn't a game (owner, 2026-11-04): "Watch a stamp card" on the stamp card band, in its green, to `/stamps/`, and "Plan a meal" on SPICE, to spice.aidoo.biz. D-019's rule reads "usable in a browser", not "a game"; Pomodorable and Reality Check, store links only, stay off it.
 - **Revisit when:** The 2026-11-26 review, with the `play-demo-home` and `stamps-demo-home` clicks.
+
+## D-043 — Say there are no cookies, and offer a biscuit
+
+- **Status:** Accepted (owner, 2026-11-04, in a plain chat: picked the line, then the stills: "That looks bloody awesome")
+- **Date:** 2026-11-04
+- **Decision:** The studio pages' footers carry one line: "No cookie banner. There are no cookies. Have a biscuit instead." It plays (P2.1n): hold to dunk the biscuit in tea, tap to bite it. The claim is "no cookies", never "no tracking" or "nothing counted": Umami counts visits without cookies (the privacy page says so), and the chat keeps its history in `sessionStorage`, which goes when the tab closes. If anything on a studio page ever needs a cookie, the line comes off in the same change.
+- **Why:** The owner worried that having no cookie banner reads as less professional. It is the opposite, a small proof of the privacy-first pitch, but nobody notices an absence, so the site says it. A footer line rather than a joke banner: a pop-up breaks D-018's quiet frame, and people close banners unread.
+- **Alternatives:** A mock cookie banner; "This site doesn't need your sugary treats to work."; "No cookies here. We ate them all."; a hover-only trigger (phones have no hover, and most visitors are on phones).
+- **Consequences:** An exception to the P2.1b hold, like D-040 to D-042. The dotted underline and the biscuit are the visible way in (D-041). The stills are in `internal/prototypes/biscuit-stills.html`.
+- **Revisit when:** Anything on a studio page needs a cookie.
