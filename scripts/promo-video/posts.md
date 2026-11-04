@@ -135,6 +135,25 @@ The link is the game itself, `aidoo.biz/play/pour`, not the offer page.
 
 > Can you pour the perfect pint? 🍺 Our little pour game now has a real leaderboard. Hold to pour, let go at the line, and see where you land this week. The board starts fresh every Monday. Play it on your phone: aidoo.biz/play/pour #aidoo #IsleOfMan #IndieDev #ShopLocal #MobileGame
 
+## Stamp card explainer (posted 2026-11-04)
+
+The cartoon (Little Gull Coffee, three Veo clips the owner made), not a `render.mjs` video:
+`C:\tmp\stamps-cut\explainer1-9x16.mp4`, by `C:\tmp\stamps-cut\tools\explainer1_9x16.py`, with
+music. Posted to Instagram and Facebook as a Reel through Buffer, video titled "Left my stamp
+card at home". The same words on both:
+
+> Ever left your coffee card at home on free coffee day?
+>
+> Our stamp card lives in your Apple or Google Wallet instead. Scan the sign at the till, and staff stamp it with the shop's own phone. No app, no sign-up.
+>
+> We're looking for our first few shops on the Isle of Man, with a free two-week pilot. Know a café who'd love this? Tag them below.
+>
+> aidoo.biz/stamps
+>
+> #isleofman #iom #coffee #smallbusiness #shoplocal
+
+The 16:9 (`explainer1-16x9.mp4`) is for LinkedIn, by hand.
+
 ## What to post next
 
 Daily on Facebook and Instagram, two or three times a week on LinkedIn, TikTok and Shorts

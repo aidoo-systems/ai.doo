@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-02
+Last updated: 2026-11-03
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
@@ -43,6 +43,12 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-04
+- **A stamp card explainer, made and posted to Instagram and Facebook (owner, in a plain chat; no roadmap row).** A cartoon, not the phone footage: three Veo 3.1 clips the owner made in Leonardo (Little Gull Coffee: a customer finds his paper card is at home on his free coffee day, remembers it's in his phone, and is stamped at the till), cut with music in CapCut. Over it, the customer's own words in Bricolage, the owner's script ("Oh no! My stamp card's at home. And today's my free coffee." / "Wait a minute... It's on my phone now. It goes everywhere I go." / "That's my tenth stamp. Thanks for the coffee!"), then a fade to the near-black end card: the ball drops into the wordmark, "Want this for your shop?", amber `aidoo.biz/stamps`, "Your stamp card in Apple or Google Wallet. A free two-week pilot." The music runs on under the end card by repeating whole bars from before its fade. Made by `C:\tmp\stamps-cut\tools\explainer1.py` (16:9, 23.9s) and `explainer1_9x16.py` (the cartoon in a rounded panel under the words); outputs `C:\tmp\stamps-cut\explainer1-16x9.mp4` and `explainer1-9x16.mp4`. Owner: "Ooh my god. Yes!" The 9:16 went out 2026-11-04 through Buffer, with the video titled "Left my stamp card at home" (so Facebook doesn't say "Untitled Video") and marked AI-generated on Instagram: Instagram Reel `6aea861869ad1ef03b6c4396`, Facebook Reel `6aea8624b8d162e0d8f70bf1`; the words are in `scripts/promo-video/posts.md`. Not on TikTok (it needs a sound added in the app). Also: Woodbourne Deli (#62), introduced by a friend by email; the reply is drafted for the owner. **Next:** the owner checks the Facebook Reel's title on the page, and whether to post the 16:9 to LinkedIn by hand.
+
+### 2026-11-03
+- **Stamps outreach, batch 2 drafted (owner, in a plain chat; no roadmap row).** Status first: Gelatory's one follow-up went 2026-10-30 and Roots' 2026-11-02 (Facebook), both unanswered, so both stop unless they write (logged). Five new stamp card prospects, #57 to #61, four on or beside Village Walk, Onchan (The Nutty Chef Cafe, groomers Madrina and The Barking Barber, Onchan Barber Shop) and The Caff on Lord Street, Douglas, the only one the web shows with a paper card (8 stamps, a free meal; an undated review). Drafts S6 to S10 in [batch 2](design/2026-11-03-stamps-outreach-batch-2.md), each with its `/stamps/` link and D-037's price: free two weeks alongside paper, then £15 a month, no setup fee or contract. Found: **Loyal IOM**, a local NFC stamp app already at some cafés and salons; ask each shop and log it as "We already use X". **Next:** the owner checks each counter for a paper card, fixes the link to match, and sends.
 
 ### 2026-11-02
 
