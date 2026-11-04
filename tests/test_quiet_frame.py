@@ -517,9 +517,9 @@ def test_the_homepage_shows_the_games_as_a_shelf_then_the_offers():
     tiles = re.findall(r'<article class="work tile[^"]*" id="([^"]+)"', shelf)
     assert tiles == [
         "submarine-panic",
+        "reactor-panic",
         "thunee",
         "orbital-panic",
-        "reactor-panic",
         "tea-tower",
     ]
     assert shelf.count("shelfLead") == 1 and 'tile glow w-submarine shelfLead"' in shelf
