@@ -115,6 +115,8 @@ def test_the_play_button_only_offers_things_that_play_in_a_browser():
         "https://forcesensitivesaiyan.itch.io/reactor-panic": "Play Reactor Panic",
         "https://pipes98.com/": "Play Pipes 98",
         "play/pour/": "Pour a pint",
+        "stamps/": "Watch a stamp card",
+        "https://spice.aidoo.biz/": "Plan a meal",
     }
     # on the offer page it is the demo and nothing that leads a buyer away
     offer = dict(
