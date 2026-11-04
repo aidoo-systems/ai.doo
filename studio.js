@@ -615,10 +615,13 @@
     var LINE = root.textContent;
     var HOLD = 220; // a press this long is a hold, not a tap
     var SNAP = 2000; // held this long, the soaked half snaps off
+    var SOAKED = 600; // in the tea this long, it has visibly soaked; let go before that and it is "a bit longer"
     var SAYS = {
       perfect: "Perfect dunk.",
       lost: "Lost it. Happens to everyone.",
       bite: "Go on, then.",
+      first: "Go on, then. Now try holding it.",
+      short: "A bit longer.",
       gone: "We'd remember you ate it, but that would need a cookie.",
     };
     var CRUMBS = [[18, 19, 1.1], [23, 21, 0.8], [13, 21, 0.7], [-14, 21, 1.1], [-7, 21.5, 0.8], [2, 21, 1.2], [9, 21.6, 0.7]];
@@ -682,10 +685,15 @@
       '<svg viewBox="-38 -40 76 76" width="76" height="76" focusable="false"><g class="bskScene">' +
       mugBack + pieces("bsk ", drip) + mugFront +
       '</g><g transform="translate(0 12)">' + crumbs + "</g></svg>";
+    // a quiet line saying what to do; under reduced motion nothing dunks, so it only promises the bite
+    var hint = document.createElement("span");
+    hint.className = "bskHint";
+    hint.textContent = calm ? "Tap to bite." : "Hold to dunk. Tap to bite.";
     say.appendChild(words);
     say.appendChild(tiny);
     root.textContent = "";
     root.appendChild(say);
+    root.appendChild(hint);
     root.appendChild(holder);
     root.appendChild(stage);
     root.classList.add("on");
@@ -695,6 +703,8 @@
     var tapBites = false;
     var dunking = false;
     var snapped = false;
+    var soaked = false;
+    var soakT = null;
     var holdT = null;
     var snapT = null;
     var endT = null;
@@ -721,6 +731,7 @@
     }
     function settle() {
       clearTimeout(snapT);
+      clearTimeout(soakT);
       clearTimeout(endT);
       clearTimeout(tidyT);
     }
@@ -740,6 +751,10 @@
       settle();
       dunking = true;
       snapped = false;
+      soaked = false;
+      soakT = setTimeout(function () {
+        soaked = true;
+      }, SOAKED);
       if (!calm) {
         off(["eat", "drip", "snapped"]);
         stage.getBoundingClientRect(); // drawn where it was first, so the mug rises
@@ -762,6 +777,14 @@
       if (!dunking) return;
       dunking = false;
       clearTimeout(snapT);
+      clearTimeout(soakT);
+      if (!snapped && !soaked) {
+        // out before it has soaked: not a dunk yet
+        saying(SAYS.short);
+        if (!calm) off(["dunk"]);
+        endT = setTimeout(retire, 900);
+        return;
+      }
       if (snapped) {
         endT = setTimeout(retire, 1300); // let the sinking finish
         return;
@@ -776,14 +799,11 @@
     }
     function bite() {
       if (eaten()) return;
-      if (dunking) {
-        dunking = false;
-        clearTimeout(snapT);
-      }
+      dunking = false;
       settle();
       bites++;
       root.classList.add(bites < 3 ? "bit" + bites : "eaten");
-      saying(bites < 3 ? SAYS.bite : SAYS.gone);
+      saying(bites === 1 ? SAYS.first : bites < 3 ? SAYS.bite : SAYS.gone);
       if (calm) return;
       off(["up", "dunk", "drip", "snapped"]);
       stage.getBoundingClientRect();

@@ -545,6 +545,9 @@ COOKIE_LINE = "No cookie banner. There are no cookies. Have a biscuit instead."
 PERFECT = "Perfect dunk."
 LOST = "Lost it. Happens to everyone."
 GO_ON = "Go on, then."
+FIRST = "Go on, then. Now try holding it."
+SHORT = "A bit longer."
+HINT = "Hold to dunk. Tap to bite."
 EATEN = "We'd remember you ate it, but that would need a cookie."
 
 
@@ -566,7 +569,7 @@ def test_every_studio_page_says_there_are_no_cookies_in_the_footer():
         assert "studio.js" in html, rel
     # the words are the owner's: no em dash in them or in the script's copy
     js = _text("studio.js")
-    for words in (PERFECT, LOST, GO_ON, EATEN):
+    for words in (PERFECT, LOST, GO_ON, FIRST, SHORT, HINT, EATEN):
         assert words in js
     assert chr(0x2014) not in js
 
@@ -630,13 +633,13 @@ def test_a_hold_past_two_seconds_snaps_the_soaked_half_off():
     assert _classes(ran["after"]["stage"]) & {"show", "up", "dunk", "snapped"} == set()
     assert "half" in _classes(ran["after"]["root"])  # you keep the dry half
     # and a tap on what's left is still a bite
-    assert ran["bitHalf"]["says"] == GO_ON
+    assert ran["bitHalf"]["says"] == FIRST
     assert "bit1" in _classes(ran["bitHalf"]["root"])
 
 
 def test_three_taps_eat_the_biscuit_and_leave_crumbs():
     ran = _biscuit("taps")
-    assert ran["said"] == [GO_ON, GO_ON, EATEN, EATEN]
+    assert ran["said"] == [FIRST, GO_ON, EATEN, EATEN]
     assert "bit1" in _classes(ran["classes"][0]) and "bit2" not in _classes(
         ran["classes"][0]
     )
@@ -654,7 +657,7 @@ def test_the_keyboard_dunks_with_enter_and_bites_with_space():
     ran = _biscuit("keys")
     assert {"up", "dunk"} <= _classes(ran["mid"]["stage"])
     assert ran["out"]["says"] == PERFECT
-    assert ran["tap"]["says"] == GO_ON
+    assert ran["tap"]["says"] == FIRST
     assert ran["other"] == ran["tap"]  # any other key does nothing
 
 
@@ -663,12 +666,12 @@ def test_a_mouse_dunks_on_hover_after_a_beat_and_bites_on_click():
     assert "show" not in _classes(ran["quick"]["stage"])
     assert {"up", "dunk"} <= _classes(ran["mid"]["stage"])
     assert ran["out"]["says"] == PERFECT
-    assert ran["click"]["says"] == GO_ON
+    assert ran["click"]["says"] == FIRST
 
 
 def test_a_screen_readers_click_takes_a_bite_and_a_pointers_click_does_not_double_it():
     ran = _biscuit("at")
-    assert ran["click"]["says"] == GO_ON
+    assert ran["click"]["says"] == FIRST
     assert "bit1" in _classes(ran["click"]["root"])
     assert ran["after"] == ran["click"]
 
@@ -691,3 +694,32 @@ def test_reduced_motion_keeps_the_words_and_drops_the_movement():
 def test_the_biscuit_writes_nothing_anywhere():
     for how in ("under", "over", "taps", "keys", "hover", "calm", "at"):
         assert _biscuit(how)["stored"] == [], how
+
+
+def test_a_quiet_hint_says_what_to_do_and_never_promises_a_dunk_under_reduced_motion():
+    assert _biscuit("under")["hint"] == HINT
+    assert _biscuit("calm")["hint"] == "Tap to bite."
+    css = _text("style.css")
+    hint = css[css.index("body.studio .bskHint{") :].split("}")[0]
+    assert "font-size:12px" in hint and "var(--muted)" in hint
+    # a line under the joke, not a shelf: nothing is positioned over the footer for it
+    assert "position" not in hint
+
+
+def test_the_first_bite_teaches_the_hold_and_only_the_first():
+    ran = _biscuit("taps")
+    assert ran["said"][0] == FIRST
+    assert ran["said"][1] == GO_ON
+
+
+def test_a_hold_let_go_before_it_has_soaked_is_a_bit_longer_not_a_dunk():
+    ran = _biscuit("short")
+    assert ran["out"]["says"] == SHORT
+    assert "soaked" not in _classes(ran["out"]["root"])
+    assert "drip" not in _classes(ran["out"]["stage"])
+    assert _classes(ran["after"]["stage"]) & {"show", "up", "dunk"} == set()
+    # a proper hold afterwards is still a perfect dunk
+    assert ran["then"]["says"] == PERFECT
+    assert "soaked" in _classes(ran["then"]["root"])
+    # and a plain tap is still a bite, never a too-short dunk
+    assert _biscuit("taps")["said"][0] == FIRST

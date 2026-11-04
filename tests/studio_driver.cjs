@@ -318,6 +318,8 @@ if (biscuitRun) {
   const snap = () => ({ says: words ? words.textContent : null, stage: stage ? stage.className.trim() : null, root: biscuit.className.trim() });
   b.mounted = !!say && !!stage;
   b.start = snap();
+  const hint = made("bskHint");
+  b.hint = hint ? hint.textContent : null;
   b.role = say ? say.attrs.role : null;
   b.tabindex = say ? say.attrs.tabindex : null;
   if (say) {
@@ -335,6 +337,17 @@ if (biscuitRun) {
       tick(4000);
       b.after = snap();
       b.timersLeft = timers.length;
+    } else if (biscuitRun === "short") {
+      down();
+      tick(500); // in the tea for 0.28 s
+      up();
+      b.out = snap();
+      tick(4000);
+      b.after = snap();
+      down();
+      tick(900); // then a proper hold
+      up();
+      b.then = snap();
     } else if (biscuitRun === "over") {
       down();
       tick(2600);

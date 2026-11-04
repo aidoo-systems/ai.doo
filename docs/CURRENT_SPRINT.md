@@ -34,7 +34,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- P2.1n (the footer biscuit): on the branch `item/P2.1n-footer-biscuit`, play it on a phone: hold the line under two seconds ("Perfect dunk."), hold past it (the soaked half snaps off), tap three times (crumbs, "We'd remember you ate it, but that would need a cookie."). Then merge, and the row is Complete.
+- P2.1n (the footer biscuit): on the branch `item/P2.1n-footer-biscuit`, play it on a phone: hold the line under two seconds ("Perfect dunk."), hold past it (the soaked half snaps off), tap three times (crumbs, "We'd remember you ate it, but that would need a cookie."). After the owner's first play it gained a hint line, a first-bite nudge to hold, and "A bit longer." for a hold under 0.6 s; play it again. Then merge, and the row is Complete.
 - P2.0c (the live board): merged (#98) and live; the board answers since the VPS fix. Last check: play one game on aidoo.biz and see the given name on the week's board (`curl -s "https://aidoo.biz/api/pour/board?skin=wobbly-gull"` shows the row); then the row is Complete.
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
