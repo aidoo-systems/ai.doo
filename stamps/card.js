@@ -21,6 +21,8 @@
   // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground.
   var LOGOS = {
     davisons: { key: "davisons", src: "logos/davisons.png", tint: true }, // their site's tab icon
+    theroundhouse: { key: "theroundhouse", src: "logos/theroundhouse.png", tint: false }, // their site's round logo
+    gourmetshakes: { key: "gourmetshakes", src: "logos/gourmetshakes.png", tint: true }, // the cup from their logo
   };
   var MIN_STAMPS = 4;
   var MAX_STAMPS = 12;

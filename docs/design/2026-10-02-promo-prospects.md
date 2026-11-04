@@ -90,6 +90,8 @@ Four on or beside Village Walk, Onchan, so one morning on foot covers them, and 
 | 60 | The Barking Barber (13B Village Walk, Onchan) | **Stamp card**, the same; next door to #59, so the pilot goes to whoever says yes first. Email drafted |
 | 61 | Onchan Barber Shop (2 Church Road, Onchan; listing from 2021, check it trades) | **Stamp card**: every tenth cut. Email drafted |
 | 62 | Woodbourne Deli | **Stamp card**: introduced by a friend by email, with its named link (10 stamps, Fire Island sauce). Woodbourne Kitchen runs Café 360 (#20), so it may be the same people |
+| 63 | The Roundhouse (Braddan Commissioners' community hub, Ballaoates Road, Strang, IM4 4RE; 01624 852808) | **Stamp card**, added 2026-11-04 (batch 3): its soft play started a paper loyalty card on 28 July 2026, one stamp per paying child entry, 10 for a free session (their Facebook post). Run by the commissioners, so the yes may need the clerk or a board. Email drafted, with their own logo (`?logo=theroundhouse`) |
+| 64 | Gourmet Shakes N Snacks (2 Windsor Road, Douglas, IM1 3JY; 07624 308790) | **Stamp card**, added 2026-11-04 (batch 3): a milkshake café (thick shakes, brunch all day, loaded fries); no card seen. Their only site is an ordering page (gourmetshakes.bytable.net); some listings say 10 Castle Street, so check the door. Email drafted, with the cup from their logo (`?logo=gourmetshakes`) |
 
 Spares on the same walk: Scissors Hairdressers (next to #58) and Heavenly Hounds (groomer, Unit 3C). Ask each whether it uses **Loyal IOM**, a local NFC stamp app, and log it under "We already use X".
 
