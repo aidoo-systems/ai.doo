@@ -588,6 +588,20 @@ body.studio .bskStage .bsk{transform:translate(0,-26px) rotate(-8deg);transition
 /* in past the rim: the soak line meets the tea, the mug's front hides what's under, and it bobs once as it goes in */
 body.studio .dunk .bsk{transform:translate(0,-2px) rotate(-8deg);transition:transform .6s cubic-bezier(.5,0,.3,1.3) .3s,opacity .45s ease}
 body.studio .dunk .bskRip{animation:bskRing .9s ease-out .7s}
+body.studio .bskSplash circle{opacity:0}
+body.studio .dunk .bskSplash .s1{animation:bskDropL .8s .7s}
+body.studio .dunk .bskSplash .s3{animation:bskDropL .65s .76s}
+body.studio .dunk .bskSplash .s2{animation:bskDropR .75s .72s}
+@keyframes bskDropL{
+  0%{opacity:1;transform:translate(0,0);animation-timing-function:ease-out}
+  35%{opacity:1;transform:translate(-4px,-7px);animation-timing-function:ease-in}
+  100%{opacity:0;transform:translate(-8px,18px)}
+}
+@keyframes bskDropR{
+  0%{opacity:1;transform:translate(0,0);animation-timing-function:ease-out}
+  35%{opacity:1;transform:translate(3px,-6px);animation-timing-function:ease-in}
+  100%{opacity:0;transform:translate(6px,16px)}
+}
 @keyframes bskRing{
   0%{opacity:0;transform:scale(.4)}
   25%{opacity:1}

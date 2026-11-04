@@ -638,6 +638,10 @@
       '<mask id="bskBite"><rect x="-16" y="-16" width="32" height="32" fill="#fff"/>' +
       '<circle class="bskCut c1" cx="13" cy="-9" r="6" fill="#000"/><circle class="bskCut c2" cx="16" cy="-1" r="5.5" fill="#000"/>' +
       '<circle class="bskCut c3" cx="9" cy="9" r="7" fill="#000"/><circle class="bskCut c4" cx="-1" cy="15" r="6" fill="#000"/></mask>' +
+      // the half left after a snap: the second bite takes from what's there, not from the half in the tea
+      '<mask id="bskBiteHalf"><rect x="-16" y="-16" width="32" height="32" fill="#fff"/>' +
+      '<circle class="bskCut c1" cx="13" cy="-9" r="6" fill="#000"/><circle class="bskCut c2" cx="16" cy="-1" r="5.5" fill="#000"/>' +
+      '<circle class="bskCut c5" cx="-10" cy="-5" r="6.5" fill="#000"/><circle class="bskCut c6" cx="-3" cy="-13.5" r="6" fill="#000"/></mask>' +
       "</defs></svg>";
     var soak = '<g clip-path="url(#bskSoakClip)"><circle class="bskSoak" r="14" fill="#8a5a2b"/></g>';
     var body = '<use href="#bskBody"/>';
@@ -645,7 +649,7 @@
     function pieces(cls, drip) {
       return (
         '<g class="' + cls + 'bskWhole"><g mask="url(#bskBite)">' + body + soak + "</g>" + (drip || "") + "</g>" +
-        '<g class="' + cls + 'bskTop"><g clip-path="url(#bskTopClip)"><g mask="url(#bskBite)">' + body + "</g></g></g>" +
+        '<g class="' + cls + 'bskTop"><g clip-path="url(#bskTopClip)"><g mask="url(#bskBiteHalf)">' + body + "</g></g></g>" +
         '<g class="' + cls + 'bskLow"><g clip-path="url(#bskLowClip)"><g mask="url(#bskBite)">' + body +
         '<circle class="bskSoakFix" r="14" fill="#8a5a2b"/></g></g></g>'
       );
@@ -657,7 +661,10 @@
     var mugFront =
       '<g class="bskMug"><path d="M20 4C29 4 31 9 30 14S24 23 18.5 22" fill="none" stroke="#d9d2c4" stroke-width="3.2" stroke-linecap="round"/>' +
       '<path d="M-20 0A20 5 0 0 0 20 0L17.5 27Q0 31 -17.5 27Z" fill="#eee8dc"/>' +
-      '<path d="M8 4.6A20 5 0 0 0 20 0L17.5 27Q13 28.6 8 29.2Z" fill="#d9d2c4"/></g>';
+      '<path d="M8 4.6A20 5 0 0 0 20 0L17.5 27Q13 28.6 8 29.2Z" fill="#d9d2c4"/>' +
+      // tea that jumps the rim as the biscuit goes in
+      '<g class="bskSplash" fill="#6e4322"><circle class="s1" cx="-14" cy="0.5" r="2.3"/><circle class="s2" cx="13" cy="0" r="1.9"/>' +
+      '<circle class="s3" cx="-7" cy="-0.5" r="1.6"/></g></g>';
     var drip = '<ellipse class="bskDrip" cx="1" cy="17.5" rx="1.3" ry="1.8" fill="#6e4322"/>';
     var crumbs = CRUMBS.map(function (c, i) {
       return '<circle class="bskCrumb k' + (i + 1) + '" cx="' + c[0] + '" cy="' + c[1] + '" r="' + c[2] + '" fill="#c4914b"/>';

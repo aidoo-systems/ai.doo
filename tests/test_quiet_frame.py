@@ -715,3 +715,28 @@ def test_the_biscuit_writes_nothing_anywhere():
         "quick",
     ):
         assert _biscuit(how)["stored"] == [], how
+
+
+def test_after_a_snap_each_bite_takes_from_the_half_that_is_left():
+    # Owner, 2026-11-04: after a snap the second bite cut the half in the tea, so it barely showed
+    import re
+
+    js = _text("studio.js")
+    assert 'bskTop"><g clip-path="url(#bskTopClip)"><g mask="url(#bskBiteHalf)">' in js
+    half = js[js.index('<mask id="bskBiteHalf">') :].split("</mask>")[0]
+    cuts = re.findall(
+        r'class="bskCut (c\d)" cx="(-?[\d.]+)" cy="(-?[\d.]+)" r="([\d.]+)"', half
+    )
+    second = [
+        (float(x), float(y), float(r)) for c, x, y, r in cuts if c not in ("c1", "c2")
+    ]
+    assert len(second) >= 2
+    # the half left after a snap sits above y=2, so every second-bite cut must reach into it
+    assert all(y - r < 0 for x, y, r in second)
+
+
+def test_tea_jumps_the_rim_as_the_biscuit_goes_in():
+    js, css = _text("studio.js"), _text("style.css")
+    assert 'class="bskSplash"' in js
+    assert "body.studio .bskSplash circle{opacity:0}" in css
+    assert ".dunk .bskSplash" in css
