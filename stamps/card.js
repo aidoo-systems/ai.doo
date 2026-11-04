@@ -1,7 +1,8 @@
 // The rules of the stamp card demo at /stamps/. No DOM in here: index.html draws it,
 // and tests/test_stamps_demo.py runs it under Node (tests/stamps_driver.cjs).
 // A business is a link: ?shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10,
-// and &fg=FFF3E0 for the card's writing and stamps if the shop has its own (else white or near-black).
+// and &fg=FFF3E0 for the card's writing and stamps if the shop has its own (else white or near-black),
+// and &logo=davisons for a shop whose logo we hold (LOGOS).
 // Every value is checked here; anything that isn't one falls back to the plain demo.
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory();
@@ -15,6 +16,11 @@
     coffee: "☕", tea: "🍵", icecream: "🍦", cake: "🍰", croissant: "🥐", donut: "🍩",
     cookie: "🍪", sandwich: "🥪", pizza: "🍕", burger: "🍔", flower: "🌸", scissors: "✂️",
     paw: "🐾", star: "⭐",
+  };
+  // A shop's own logo, by name from this list only (a link never names a file). `tint` marks a
+  // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground.
+  var LOGOS = {
+    davisons: { key: "davisons", src: "logos/davisons.png", tint: true }, // their site's tab icon
   };
   var MIN_STAMPS = 4;
   var MAX_STAMPS = 12;
@@ -68,14 +74,18 @@
     var stamps = parseInt(query.stamps, 10);
     var asked = cleanColor(query.color), color = asked || DEFAULTS.color;
     var icon = Object.prototype.hasOwnProperty.call(ICONS, query.icon) ? query.icon : DEFAULTS.icon;
+    var shop = cleanText(query.shop, 32);
+    // The plain page is Little Gull's, so a logo needs a shop
+    var logo = shop && Object.prototype.hasOwnProperty.call(LOGOS, query.logo) ? LOGOS[query.logo] : null;
     return {
-      shop: cleanText(query.shop, 32),
+      shop: shop,
       icon: ICONS[icon],
       reward: cleanText(query.reward, 24) || DEFAULTS.reward,
       color: color,
       ink: inkFor(color),
       fg: fgFor(query.fg, color, !asked),
       stamps: stamps >= MIN_STAMPS && stamps <= MAX_STAMPS ? stamps : DEFAULTS.stamps,
+      logo: logo,
     };
   }
 
@@ -122,6 +132,7 @@
 
   return {
     ICONS: ICONS,
+    LOGOS: LOGOS,
     DEFAULTS: DEFAULTS,
     settings: settings,
     cleanText: cleanText,

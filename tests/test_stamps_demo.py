@@ -75,7 +75,39 @@ def test_a_shops_link_puts_their_card_on_the_page():
         "ink": "#ffffff",
         "fg": "#ffffff",
         "stamps": 8,
+        "logo": None,
     }
+
+
+def test_a_shop_on_the_list_wears_its_own_logo():
+    # A logo comes only from a fixed list of files we hold, never from the link itself
+    s = run(
+        {"shop": "Davison's", "logo": "davisons", "color": "296260", "fg": "FFFFFF"}
+    )["settings"]
+    assert s["logo"] == {"key": "davisons", "src": "logos/davisons.png", "tint": True}
+    assert (REPO_ROOT / "stamps" / "logos" / "davisons.png").read_bytes()[
+        :8
+    ] == b"\x89PNG\r\n\x1a\n"
+
+
+@pytest.mark.parametrize(
+    "query",
+    [
+        {"shop": "Gelatory", "logo": "gelatory"},
+        {"shop": "Gelatory", "logo": "constructor"},
+        {"shop": "Gelatory", "logo": "../little-gull"},
+        {"shop": "Gelatory", "logo": "//evil.example/x.png"},
+        {"logo": "davisons"},  # the plain page is Little Gull's, whatever the link says
+    ],
+)
+def test_a_logo_off_the_list_is_no_logo(query):
+    assert run(query)["settings"]["logo"] is None
+
+
+def test_every_listed_logo_is_served():
+    served = check_site.served_files(REPO_ROOT, check_site.deploy_excludes(REPO_ROOT))
+    for entry in run({"shop": "x"})["logos"]:
+        assert "stamps/" + entry["src"] in served, entry
 
 
 def test_a_shop_can_bring_its_own_writing_colour_if_it_reads():

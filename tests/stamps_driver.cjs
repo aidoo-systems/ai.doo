@@ -18,4 +18,5 @@ const steps = actions.map(([kind, n]) => {
 });
 let seed = 1;
 const codes = [0, 1, 2].map(() => card.cardCode(() => ((seed = (seed * 9301 + 49297) % 233280) / 233280)));
-process.stdout.write(JSON.stringify({ settings, steps, codes, possessive: ["Gelatory", "Jess"].map(card.possessive) }));
+const logos = Object.keys(card.LOGOS).map((key) => card.LOGOS[key]);
+process.stdout.write(JSON.stringify({ settings, steps, codes, logos, possessive: ["Gelatory", "Jess"].map(card.possessive) }));
