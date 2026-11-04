@@ -408,3 +408,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** 1B a trail home, 1C rings from the mark; 2B the blink alone, 2C pupils in the ball's colour; 3A a clip of the game on hover, 3B the art pushing in (both break the hover rule); 4B letters lit as you type, 4C the Play button answering (the same as scrolling to the promo band, which already offers "Pour a pint").
 - **Consequences:** The eyes make the wordmark a face while the ball is out; at rest it is D-020's mark unchanged. The `play-demo-home` click is still counted. Links inside the game must leave the sheet, not load in it. Stills and the 4A mock are in `internal/prototypes/more-play*`.
 - **Revisit when:** The 2026-11-26 review.
+
+## D-042 — The homepage shows the games as a shelf, then the two offers
+
+- **Status:** Accepted (owner, 2026-11-04, in a plain chat: "Yes, build it")
+- **Date:** 2026-11-04
+- **Decision:** The homepage runs: hero, the games as a shelf, the promo band, the stamp card band, the apps, the PIKA and VERA line, contact. The shelf shows each game's art and name; Submarine Panic, the newest, is the wide tile on top and the other four sit under it (two to a row on a phone, four on a computer). A tile is one link to its store: the App Store on an iPhone or iPad where the game has one, Google Play otherwise. Each keeps its Android and iOS links, "Play in browser" where an itch.io build exists (the Play button's games, D-019) and its privacy page in view. The game blurbs go. "How a promo game gets made" (the six steps) comes off the homepage; `/promo-games/` keeps the process. The hero's last line names both offers: "For local shops and events, we make promo games and stamp cards."
+- **Why:** Most homepage visitors now are shops and cafés from outreach, looking us up. On a phone the promo band started at screen 6 and the stamp card at screen 9. Putting the offers first (mocked) failed D-018's five-second test: the first colour was an orange sales band. The shelf keeps the games as the first colour and the proof behind the offers, and brings the promo band to about screen 2 and the stamp card to screen 3. Chosen from three phone mocks and a designer review (stills in the PR).
+- **Alternatives:** Offers first (reads as an agency that also makes games); today's order (offers out of reach); tiles that open to show their links (read as a FAQ accordion, and a ragged row).
+- **Consequences:** An exception to the P2.1b hold, like D-040 and D-041. The chatbot no longer reads the game blurbs from the homepage, only names and store links. The tile picks the store by user agent.
+- **Revisit when:** The 2026-11-26 review, with the `play-demo-home` and `stamps-demo-home` clicks.

@@ -502,3 +502,35 @@ def test_the_about_page_shows_three_games_with_their_art_uncropped():
         assert 'width="1024" height="500"' in img, img
     assert re.search(r"\.made img\{[^}]*aspect-ratio:1024/500", html)
     assert 'href="/#games"' in html
+
+
+def test_the_homepage_shows_the_games_as_a_shelf_then_the_offers():
+    # D-042: the games as a shelf of tiles, then the promo game and stamp card, then the apps
+    html = _text("index.html")
+    order = [
+        html.index(f'id="{s}"') for s in ("games", "promo", "stamps", "apps", "also")
+    ]
+    assert order == sorted(order)
+    assert 'id="process"' not in html
+    assert "the games above" in html
+    shelf = html[html.index('class="workGrid shelf"') : html.index('id="promo"')]
+    tiles = re.findall(r'<article class="work tile[^"]*" id="([^"]+)"', shelf)
+    assert tiles == [
+        "submarine-panic",
+        "thunee",
+        "orbital-panic",
+        "reactor-panic",
+        "tea-tower",
+    ]
+    assert shelf.count("shelfLead") == 1 and 'tile glow w-submarine shelfLead"' in shelf
+    # every tile is one link to a store, and keeps its store links and privacy page in view
+    for t in tiles:
+        tile = shelf[shelf.index(f'id="{t}"') :]
+        tile = tile[: tile.index("</article>")]
+        assert 'class="tileLink" href="https://play.google.com/' in tile, t
+        assert ">Android</a>" in tile and f'href="privacy-{t}/"' in tile, t
+        assert ("data-ios=" in tile) == (">iOS</a>" in tile), t
+    assert (
+        'href="#promo">promo games</a>' in html
+        and 'href="#stamps">stamp cards</a>' in html
+    )

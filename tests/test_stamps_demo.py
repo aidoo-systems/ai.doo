@@ -234,11 +234,11 @@ def test_deploy_serves_the_demo():
 
 
 def test_the_homepage_offers_the_stamp_card_in_a_quiet_band():
-    # D-040: one dark band after the promo game's steps, linking the demo
+    # D-040: one dark band right after the promo band (D-042), linking the demo
     html = (REPO_ROOT / "index.html").read_text(encoding="utf-8")
     start = html.index('id="stamps"')
     band = html[start : html.index("</section>", start)]
-    assert html.index('id="process"') < start < html.index('id="also"')
+    assert html.index('id="promo"') < start < html.index('id="apps"')
     assert 'href="stamps/"' in band and "data-tint=" in band
     assert "data-umami-event=" in band
     # the plain page's own pass, drawn by printed.js (internal/og-card/stamps.html), not a sketch of one

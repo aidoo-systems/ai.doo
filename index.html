@@ -167,7 +167,23 @@
     .processSteps .step::after{display:none}
     .processSteps .step-num{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:14px;color:var(--n)}
     .processSteps .step h3{font-size:19px;font-weight:750;letter-spacing:-.01em}
-    .processSteps .step p{font-size:14.5px}
+    /* The games shelf: art and name, the newest game wide on top; a tile is one link to its store */
+    .shelf{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+    .shelf .shelfLead{grid-column:1 / -1;display:grid;grid-template-columns:1.6fr 1fr;align-items:center}
+    .shelf .shelfLead .workArt{padding:16px}
+    .shelf .workArt{padding:12px 12px 0}
+    .shelf .work img{border-radius:14px}
+    .tile{position:relative}
+    .shelf .workBody{padding:12px 16px 16px}
+    .shelf .work h3{font-size:18px;font-weight:700;margin:0}
+    .shelf .shelfLead h3{font-size:30px}
+    .tileLink{color:inherit;text-decoration:none}
+    .tileLink::after{content:"";position:absolute;inset:0;border-radius:inherit}
+    .tileLink:focus-visible{outline:none}
+    .tile:has(.tileLink:focus-visible){outline:2px solid var(--t);outline-offset:3px}
+    .tileMore{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:2px 14px;margin-top:6px}
+    .tileMore a{color:inherit;font-size:13px;font-weight:700;padding:4px 0;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+    .tileMore a.quiet{font-weight:500;text-decoration:none;opacity:.72}
     /* The stamp card: a quiet band in the steps' colour, so the promo band stays the bright one (D-040) */
     .stampBand{display:grid;grid-template-columns:1.3fr auto;gap:40px;align-items:center;padding:56px;border-radius:40px;background:var(--card)}
     /* the plain /stamps/ page's pass, drawn by printed.js (internal/og-card/stamps.html) */
@@ -177,6 +193,16 @@
     .alsoLine a{color:var(--suite);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
     @media (max-width:920px){
       .workGrid{grid-template-columns:1fr}
+      .shelf{grid-template-columns:1fr 1fr;gap:10px}
+      .shelf .shelfLead{display:flex}
+      .shelf .work{border-radius:18px}
+      .shelf .workArt,.shelf .shelfLead .workArt{padding:8px 8px 0}
+      .shelf .work img{border-radius:11px}
+      .shelf .shelfLead img{aspect-ratio:1024/400}
+      .shelf .workBody{padding:10px 12px 12px}
+      .shelf .work h3{font-size:15px}
+      .shelf .shelfLead h3{font-size:20px}
+      .tileMore a{font-size:12px}
       .workWide{display:flex}
       .workArt,.workWide .workArt{padding:16px 16px 0}
       .workBody{padding:20px 22px 22px}
@@ -245,8 +271,8 @@
     <h1>Small games and apps, made with care.</h1>
 
     <p class="sub">
-      We're a small studio on the Isle of Man. We make games for Android and iOS, useful little apps and toys for the web.
-      And if your business or event wants a game of its own, <a class="textLink" href="#promo">we'll make that too</a>.
+      We're a small studio on the Isle of Man. We make games for Android and iOS, and little apps and web toys.
+      For local shops and events, we make <a class="textLink" href="#promo">promo games</a> and <a class="textLink" href="#stamps">stamp cards</a>.
     </p>
   </section>
 
@@ -256,73 +282,95 @@
     <h2 class="h2">Out now on Android and iOS.</h2>
     <p class="lead">Short, replayable games to pick up in a spare minute and put down without guilt.</p>
 
-    <div class="workGrid">
-      <article class="work glow w-submarine" id="submarine-panic">
+    <div class="workGrid shelf">
+      <article class="work tile glow w-submarine shelfLead" id="submarine-panic">
         <div class="workArt"><img src="images/work/submarine-panic.webp" width="1024" height="500" loading="lazy" alt="Submarine Panic: a sonar scope with contacts on a dark control panel"></div>
         <div class="workBody">
-          <h3>Submarine Panic</h3>
-          <p>Keep a failing Cold War submarine alive from a CRT control room of gauges, sonar, ballast and torpedo tubes.</p>
-          <div class="workLinks">
-            <a href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener">Google Play</a>
-            <a href="https://apps.apple.com/us/app/submarine-panic/id6786455427" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener" data-play="Play Submarine Panic">itch.io</a>
+          <h3><a class="tileLink" href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener" data-ios="https://apps.apple.com/us/app/submarine-panic/id6786455427">Submarine Panic</a></h3>
+          <div class="tileMore">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.submarinepanic" target="_blank" rel="noopener">Android</a> <a href="https://apps.apple.com/us/app/submarine-panic/id6786455427" target="_blank" rel="noopener">iOS</a>
+            <a href="https://forcesensitivesaiyan.itch.io/submarine-panic" target="_blank" rel="noopener" data-play="Play Submarine Panic">Play in browser</a>
             <a class="quiet" href="privacy-submarine-panic/">Privacy</a>
           </div>
         </div>
       </article>
 
-      <article class="work w-thunee" id="thunee">
+      <article class="work tile w-thunee" id="thunee">
         <div class="workArt"><img src="images/work/thunee.webp" width="1024" height="500" loading="lazy" alt="Thunee: three playing cards fanned on a green table"></div>
         <div class="workBody">
-          <h3>Thunee</h3>
-          <p>South Africa's partnership trick-taking classic in 3D. Bid for trump, read the table and race to 12 balls. Plays offline.</p>
-          <div class="workLinks">
-            <a href="https://play.google.com/store/apps/details?id=com.aidoo.thunee" target="_blank" rel="noopener">Google Play</a>
-            <a href="https://apps.apple.com/gb/app/durbans-thunee/id6800611695" target="_blank" rel="noopener">App Store</a>
+          <h3><a class="tileLink" href="https://play.google.com/store/apps/details?id=com.aidoo.thunee" target="_blank" rel="noopener" data-ios="https://apps.apple.com/gb/app/durbans-thunee/id6800611695">Thunee</a></h3>
+          <div class="tileMore">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.thunee" target="_blank" rel="noopener">Android</a> <a href="https://apps.apple.com/gb/app/durbans-thunee/id6800611695" target="_blank" rel="noopener">iOS</a>
             <a class="quiet" href="privacy-thunee/">Privacy</a>
           </div>
         </div>
       </article>
 
-      <article class="work glow w-orbital" id="orbital-panic">
+      <article class="work tile glow w-orbital" id="orbital-panic">
         <div class="workArt"><img src="images/work/orbital-panic.webp" width="1024" height="500" loading="lazy" alt="Orbital Panic: a small probe orbiting a planet near a sun"></div>
         <div class="workBody">
-          <h3>Orbital Panic</h3>
-          <p>A one-tap arcade game. Break orbit, thread the capture ring around the next planet, dodge black holes and hold the chain.</p>
-          <div class="workLinks">
-            <a href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener">Google Play</a>
-            <a href="https://apps.apple.com/us/app/orbital-panic/id6795683174" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/orbital-panic" target="_blank" rel="noopener" data-play="Play Orbital Panic">itch.io</a>
+          <h3><a class="tileLink" href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener" data-ios="https://apps.apple.com/us/app/orbital-panic/id6795683174">Orbital Panic</a></h3>
+          <div class="tileMore">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.orbitalpanic" target="_blank" rel="noopener">Android</a> <a href="https://apps.apple.com/us/app/orbital-panic/id6795683174" target="_blank" rel="noopener">iOS</a>
+            <a href="https://forcesensitivesaiyan.itch.io/orbital-panic" target="_blank" rel="noopener" data-play="Play Orbital Panic">Play in browser</a>
             <a class="quiet" href="privacy-orbital-panic/">Privacy</a>
           </div>
         </div>
       </article>
 
-      <article class="work light w-reactor" id="reactor-panic">
+      <article class="work tile light w-reactor" id="reactor-panic">
         <div class="workArt"><img src="images/work/reactor-panic.webp" width="1024" height="500" loading="lazy" alt="Reactor Panic: a glowing reactor core on a dark control panel"></div>
         <div class="workBody">
-          <h3>Reactor Panic</h3>
-          <p>Sort plasma cores into containment tubes before instability triggers a meltdown, on a Soviet control-panel console.</p>
-          <div class="workLinks">
-            <a href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener">Google Play</a>
-            <a href="https://apps.apple.com/us/app/reactor-panic/id6773935208" target="_blank" rel="noopener">App Store</a>
-            <a href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener" data-play="Play Reactor Panic">itch.io</a>
+          <h3><a class="tileLink" href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener" data-ios="https://apps.apple.com/us/app/reactor-panic/id6773935208">Reactor Panic</a></h3>
+          <div class="tileMore">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic" target="_blank" rel="noopener">Android</a> <a href="https://apps.apple.com/us/app/reactor-panic/id6773935208" target="_blank" rel="noopener">iOS</a>
+            <a href="https://forcesensitivesaiyan.itch.io/reactor-panic" target="_blank" rel="noopener" data-play="Play Reactor Panic">Play in browser</a>
             <a class="quiet" href="privacy-reactor-panic/">Privacy</a>
           </div>
         </div>
       </article>
 
-      <article class="work workWide w-tea" id="tea-tower">
+      <article class="work tile w-tea" id="tea-tower">
         <div class="workArt"><img src="images/work/tea-tower.webp" width="1024" height="500" loading="lazy" alt="Tea Tower: a swaying stack of teacups in a cosy room"></div>
         <div class="workBody">
-          <h3>Tea Tower</h3>
-          <p>A one-tap physics stacker. A teacup swings above a growing tower; tap to drop it, and the stack either holds or comes down in slow motion.</p>
-          <div class="workLinks">
-            <a href="https://play.google.com/store/apps/details?id=com.aidoo.teatower" target="_blank" rel="noopener">Google Play</a>
+          <h3><a class="tileLink" href="https://play.google.com/store/apps/details?id=com.aidoo.teatower" target="_blank" rel="noopener">Tea Tower</a></h3>
+          <div class="tileMore">
+            <a href="https://play.google.com/store/apps/details?id=com.aidoo.teatower" target="_blank" rel="noopener">Android</a>
             <a class="quiet" href="privacy-tea-tower/">Privacy</a>
           </div>
         </div>
       </article>
+    </div>
+  </section>
+
+  <!-- PROMO -->
+  <section class="section reveal" id="promo">
+    <div class="promoBand" data-tint="#f5b544">
+      <div>
+        <div class="kicker">For businesses and events</div>
+        <h2 class="h2">A mini-game with your name on it.</h2>
+        <p class="lead">A short branded game for your customers to play while they wait: in the queue, at the table, at your stand. Made by the studio behind the games above. A 20-minute chat, about two weeks to build, three months live.</p>
+        <div class="ctaRow">
+          <a class="btn primary" href="play/pour/" data-sheet data-umami-event="play-demo-home" data-play="Pour a pint" data-play-back="#f5b544" data-play-ink="#1a0f08">Play the demo</a>
+          <a class="btn subtle" href="promo-games/">How it works and the price</a>
+        </div>
+      </div>
+      <p class="promoPrice">from £750</p>
+    </div>
+  </section>
+
+  <!-- STAMP CARD -->
+  <section class="section reveal" id="stamps">
+    <div class="stampBand" data-tint="#2f6f5e">
+      <div>
+        <div class="kicker">For shops and cafés</div>
+        <h2 class="h2">Your stamp card, in their phone.</h2>
+        <p class="lead">No app and no sign-up for your customers. Staff stamp it with the shop's own phone, and your paper cards keep working. Free two-week pilot for the first shops.</p>
+        <div class="ctaRow">
+          <a class="btn primary" href="stamps/" data-umami-event="stamps-demo-home">See it work</a>
+        </div>
+      </div>
+      <img class="stampCard" src="images/stamps-pass.webp?v=1" width="560" height="422" alt="">
     </div>
   </section>
 
@@ -376,77 +424,6 @@
           </div>
         </div>
       </article>
-    </div>
-  </section>
-
-  <!-- PROMO -->
-  <section class="section reveal" id="promo">
-    <div class="promoBand" data-tint="#f5b544">
-      <div>
-        <div class="kicker">For businesses and events</div>
-        <h2 class="h2">A mini-game with your name on it.</h2>
-        <p class="lead">A short branded game for your customers to play while they wait: in the queue, at the table, at your stand. Made by the studio behind the games above. A 20-minute chat, about two weeks to build, three months live.</p>
-        <div class="ctaRow">
-          <a class="btn primary" href="play/pour/" data-sheet data-umami-event="play-demo-home" data-play="Pour a pint" data-play-back="#f5b544" data-play-ink="#1a0f08">Play the demo</a>
-          <a class="btn subtle" href="promo-games/">How it works and the price</a>
-        </div>
-      </div>
-      <p class="promoPrice">from £750</p>
-    </div>
-  </section>
-
-  <!-- PROCESS -->
-  <section class="section reveal" id="process">
-    <div class="kicker">How it works</div>
-    <h2 class="h2">How a promo game gets made.</h2>
-    <p class="lead">From a first chat to a game people play from a QR code.</p>
-
-    <div class="steps processSteps">
-      <div class="step" style="--n:#f5b544">
-        <div class="step-num">01</div>
-        <h3>Concept chat</h3>
-        <p>Twenty minutes about your business or event, and who you want to reach.</p>
-      </div>
-      <div class="step" style="--n:#4be08a">
-        <div class="step-num">02</div>
-        <h3>The idea</h3>
-        <p>We suggest a simple game that fits. You say yes or no.</p>
-      </div>
-      <div class="step" style="--n:#00b3b3">
-        <div class="step-num">03</div>
-        <h3>Build</h3>
-        <p>About two weeks. Your logo, colours and products, in a one-tap game anyone can pick up.</p>
-      </div>
-      <div class="step" style="--n:#ff9a6b">
-        <div class="step-num">04</div>
-        <h3>You play it first</h3>
-        <p>You try it before anyone else does, and get one round of changes.</p>
-      </div>
-      <div class="step" style="--n:#e8562a">
-        <div class="step-num">05</div>
-        <h3>Launch</h3>
-        <p>A link and QR code artwork for the till, your stand or a poster. Plays in any phone browser.</p>
-      </div>
-      <div class="step" style="--n:#3fbf8a">
-        <div class="step-num">06</div>
-        <h3>Three months live</h3>
-        <p>A leaderboard gives players a reason to come back. Then it switches off, unless you want to keep it running.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- STAMP CARD -->
-  <section class="section reveal" id="stamps">
-    <div class="stampBand" data-tint="#2f6f5e">
-      <div>
-        <div class="kicker">For shops and cafés</div>
-        <h2 class="h2">Your stamp card, in their phone.</h2>
-        <p class="lead">No app and no sign-up for your customers. Staff stamp it with the shop's own phone, and your paper cards keep working. Free two-week pilot for the first shops.</p>
-        <div class="ctaRow">
-          <a class="btn primary" href="stamps/" data-umami-event="stamps-demo-home">See it work</a>
-        </div>
-      </div>
-      <img class="stampCard" src="images/stamps-pass.webp?v=1" width="560" height="422" alt="">
     </div>
   </section>
 
@@ -525,6 +502,10 @@
 </div>
 
 <script>
+  // a game tile goes to the store for this phone: the App Store on an iPhone or iPad, else Google Play
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) {
+    document.querySelectorAll(".tileLink[data-ios]").forEach(function (a) { a.href = a.dataset.ios; });
+  }
   document.getElementById("year").textContent = new Date().getFullYear();
 
   const menuBtn = document.getElementById("menuBtn");
