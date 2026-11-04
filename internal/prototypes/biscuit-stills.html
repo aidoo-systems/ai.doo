@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Biscuit stills</title>
+<link rel="stylesheet" href="/style.css">
+<style>
+  /* Stills for the footer biscuit. Not a build: every state is drawn still, at footer size. */
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 16px 80px}
+  .intro{color:var(--muted);font-size:14px;max-width:62ch;margin:6px 0 28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+  .panel{border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px 18px 18px}
+  .label{font-size:12px;font-weight:700;color:var(--ink);margin:0 0 2px}
+  .how{font-size:12px;color:var(--muted);margin:0 0 14px}
+  .foot{font-size:13px;color:var(--muted)}
+  .foot p{margin:0}
+  .stage:empty{display:none}
+  .stage{height:76px;display:flex;align-items:flex-end;margin:6px 0 2px}
+  .stage svg{width:76px;height:76px;display:block}
+  .biscuitLine{display:inline;color:var(--muted);text-decoration:underline dotted rgba(234,240,255,.45);text-underline-offset:4px;cursor:pointer}
+  .biscuitLine.said{color:var(--ink);text-decoration:none}
+  .inlineB{display:inline-block;width:15px;height:15px;vertical-align:-3px;margin-left:5px}
+  .zoom{display:flex;gap:10px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+  .zoom svg{width:150px;height:150px}
+  .zoom span{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body class="studio">
+<div class="wrap">
+  <h1 style="font-size:34px">The footer biscuit</h1>
+  <p class="intro">Six stills at real footer size, with a close-up under each. In the build the mug rises over the footer
+    without pushing anything down, and every change animates in. Nothing is stored: reload and the biscuit is back.</p>
+  <div class="grid" id="grid"></div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- The biscuit: the ball's three flat shapes (body, shaded side, glint) plus four docking holes. -->
+    <g id="bBody">
+      <circle r="14" fill="#dcae6a"/>
+      <path d="M8.66 -10.99A14 14 0 1 1 -10.99 8.66 14 14 0 0 0 8.66 -10.99z" fill="#c4914b"/>
+      <ellipse cx="-5" cy="-6.5" rx="3.6" ry="2.2" transform="rotate(-38 -5 -6.5)" fill="#f3d9a4"/>
+      <circle cx="-4" cy="1" r="1.15" fill="#a9763a"/>
+      <circle cx="2.5" cy="-4.5" r="1.15" fill="#a9763a"/>
+      <circle cx="4.5" cy="3.5" r="1.15" fill="#a9763a"/>
+      <circle cx="-1" cy="7" r="1.15" fill="#a9763a"/>
+    </g>
+    <clipPath id="soakClip"><path d="M-16 4C-11 2 -7 5.5 -2 3.5S6 2 10 4.5 14 3 16 3.5V17H-16Z"/></clipPath>
+    <mask id="biteMask">
+      <rect x="-16" y="-16" width="32" height="32" fill="#fff"/>
+      <circle cx="13" cy="-9" r="6" fill="#000"/>
+      <circle cx="16" cy="-1" r="5.5" fill="#000"/>
+    </mask>
+    <mask id="bite2Mask">
+      <rect x="-16" y="-16" width="32" height="32" fill="#fff"/>
+      <circle cx="13" cy="-9" r="6" fill="#000"/>
+      <circle cx="16" cy="-1" r="5.5" fill="#000"/>
+      <circle cx="9" cy="9" r="7" fill="#000"/>
+      <circle cx="-1" cy="15" r="6" fill="#000"/>
+    </mask>
+    <!-- Snapped: the top piece keeps everything above a jagged line. -->
+    <clipPath id="topPiece"><path d="M-16 -16H16V1.5L11 3.5 7 1 3 4 -1 1.5 -5 4 -9 1 -13 3.5 -16 2z"/></clipPath>
+    <clipPath id="lowPiece"><path d="M-16 16H16V1.5L11 3.5 7 1 3 4 -1 1.5 -5 4 -9 1 -13 3.5 -16 2z"/></clipPath>
+
+    <!-- The mug: flat oat-white, a shaded side, tea at the rim. Back is drawn before the biscuit, front after. -->
+    <g id="mugBack">
+      <ellipse cx="0" cy="0" rx="20" ry="5" fill="#d9d2c4"/>
+      <ellipse cx="0" cy="1.2" rx="17.5" ry="3.6" fill="#6e4322"/>
+    </g>
+    <g id="mugFront">
+      <path d="M20 4C29 4 31 9 30 14S24 23 18.5 22" fill="none" stroke="#d9d2c4" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M-20 0A20 5 0 0 0 20 0L17.5 27Q0 31 -17.5 27Z" fill="#eee8dc"/>
+      <path d="M8 4.6A20 5 0 0 0 20 0L17.5 27Q13 28.6 8 29.2Z" fill="#d9d2c4"/>
+    </g>
+  </defs>
+</svg>
+
+<script>
+  const B = (extra = "") => `<g ${extra}><use href="#bBody"/></g>`;
+  const crumbs = (pts) => pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#c4914b"/>`).join("");
+  const art = {
+    rest: `<svg viewBox="-38 -40 76 76"><g transform="translate(0 14)">${B()}</g></svg>`,
+    dunk: `<svg viewBox="-38 -40 76 76"><g transform="translate(-4 4)">
+             <use href="#mugBack"/>
+             <g transform="translate(0 -6) rotate(-8)">${B()}<g clip-path="url(#soakClip)"><circle r="14" fill="#9c6a35" opacity=".55"/></g></g>
+             <use href="#mugFront"/>
+             <path d="M-6 -26q-3 -4 0 -8M2 -28q-3 -4 0 -8" stroke="rgba(234,240,255,.35)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+           </g></svg>`,
+    perfect: `<svg viewBox="-38 -40 76 76"><g transform="translate(-4 8)">
+             <use href="#mugBack"/><use href="#mugFront"/>
+             <g transform="translate(0 -26) rotate(-8)">${B()}<g clip-path="url(#soakClip)"><circle r="14" fill="#8a5a2b" opacity=".7"/></g>
+               <ellipse cx="1" cy="17.5" rx="1.3" ry="1.8" fill="#6e4322"/></g>
+           </g></svg>`,
+    snap: `<svg viewBox="-38 -40 76 76"><g transform="translate(-4 8)">
+             <use href="#mugBack"/>
+             <ellipse cx="2" cy="1.4" rx="9" ry="2" fill="none" stroke="#8a5a2b" stroke-width=".9"/>
+             <ellipse cx="2" cy="1.4" rx="14" ry="2.9" fill="none" stroke="#8a5a2b" stroke-width=".6" opacity=".6"/>
+             <g transform="translate(3 7) rotate(28)" clip-path="url(#lowPiece)">${B()}<circle r="14" fill="#8a5a2b" opacity=".7"/></g>
+             <use href="#mugFront"/>
+             <g transform="translate(-2 -27) rotate(-14)"><g clip-path="url(#topPiece)">${B()}</g></g>
+           </g></svg>`,
+    bite: `<svg viewBox="-38 -40 76 76"><g transform="translate(0 12)"><g mask="url(#biteMask)">${B()}</g>
+             ${crumbs([[18, 19, 1.1], [23, 21, .8], [13, 21, .7]])}</g></svg>`,
+    gone: `<svg viewBox="-38 -40 76 76"><g transform="translate(0 12)"><g mask="url(#bite2Mask)">${B()}</g>
+             ${crumbs([[-14, 21, 1.1], [-7, 21.5, .8], [2, 21, 1.2], [9, 21.6, .7], [16, 21, 1]])}</g></svg>`,
+    goneAll: `<svg viewBox="-38 -40 76 76"><g transform="translate(0 12)">
+             ${crumbs([[-16, 21, 1.1], [-9, 21.5, .8], [-2, 21, 1.2], [5, 21.6, .7], [12, 21, 1], [19, 21.4, .8]])}</g></svg>`,
+  };
+  const LINE = "No cookie banner. There are no cookies. Have a biscuit instead.";
+  const stills = [
+    { label: "1. At rest", how: "The line, with a small biscuit after it. The dotted underline says it does something.",
+      stage: "", line: `<span class="biscuitLine">${LINE}</span><svg class="inlineB" viewBox="-15 -15 30 30"><use href="#bBody"/></svg>`, zoom: art.rest },
+    { label: "2. Holding: mid-dunk", how: "Press and hold (or hover on desktop). The mug rises, the biscuit goes in and darkens as it soaks.",
+      stage: art.dunk, line: `<span class="biscuitLine">${LINE}</span>`, zoom: art.dunk },
+    { label: "3. Let go in time", how: "Under about 2 seconds: out it comes, dark at the bottom, one drip.",
+      stage: art.perfect, line: `<span class="biscuitLine said">Perfect dunk.</span>`, zoom: art.perfect },
+    { label: "4. Held too long", how: "The soaked half snaps off and sinks, with a ripple. You keep the dry half.",
+      stage: art.snap, line: `<span class="biscuitLine said">Lost it. Happens to everyone.</span>`, zoom: art.snap },
+    { label: "5. Tap: a bite", how: "A plain tap takes a bite. Crumbs settle on the footer.",
+      stage: art.bite, line: `<span class="biscuitLine said">Go on, then.</span>`, zoom: art.bite },
+    { label: "6. Third tap: gone", how: "The punchline, and it's true: nothing is kept.",
+      stage: art.goneAll, line: `<span class="biscuitLine said">We'd remember you ate it, but that would need a cookie.</span>`, zoom: art.goneAll },
+  ];
+  document.getElementById("grid").innerHTML = stills.map(s => `
+    <section class="panel">
+      <p class="label">${s.label}</p><p class="how">${s.how}</p>
+      <div class="foot">
+        <p class="trustline">A small studio on the Isle of Man.</p>
+        <div class="stage">${s.stage}</div>
+        <p>${s.line}</p>
+        <p style="margin-top:10px">&copy; 2026 ai.doo</p>
+      </div>
+      <div class="zoom">${s.zoom}<span>close-up, 2x</span></div>
+    </section>`).join("");
+</script>
+</body>
+</html>
