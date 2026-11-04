@@ -585,7 +585,14 @@ body.studio .bskScene{transform:translate(-4px,8px)}
 body.studio .bskMug{transform:translate(0,60px);opacity:0;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .45s ease}
 body.studio .up .bskMug{transform:translate(0,0);opacity:1}
 body.studio .bskStage .bsk{transform:translate(0,-26px) rotate(-8deg);transition:transform .7s ease-in-out,opacity .45s ease}
-body.studio .dunk .bsk{transform:translate(0,-10px) rotate(-8deg)}
+/* in past the rim: the soak line meets the tea, the mug's front hides what's under, and it bobs once as it goes in */
+body.studio .dunk .bsk{transform:translate(0,-2px) rotate(-8deg);transition:transform .6s cubic-bezier(.5,0,.3,1.3) .3s,opacity .45s ease}
+body.studio .dunk .bskRip{animation:bskRing .9s ease-out .7s}
+@keyframes bskRing{
+  0%{opacity:0;transform:scale(.4)}
+  25%{opacity:1}
+  100%{opacity:0;transform:scale(1.15)}
+}
 body.studio .bskTop,body.studio .bskLow{visibility:hidden}
 body.studio .half .bskWhole,body.studio .half .bskLow{visibility:hidden}
 body.studio .half .bskTop{visibility:visible}
@@ -595,7 +602,7 @@ body.studio .snapped .bskTop{transform:translate(-2px,-27px) rotate(-14deg);tran
 body.studio .snapped .bskLow{transform:translate(3px,26px) rotate(34deg);opacity:0;transition:transform 1s ease-in,opacity .9s ease-in .15s}
 /* the soak darkens while the biscuit is in the tea, and stays on a biscuit that came out perfect */
 body.studio .bskSoak{opacity:0;transition:opacity .8s ease}
-body.studio .dunk .bskSoak{opacity:.7;transition:opacity 2s ease-in}
+body.studio .dunk .bskSoak{opacity:.7;transition:opacity 1.6s ease-in .6s}
 body.studio .soaked .bskSoak{opacity:.7}
 body.studio .bskSoakFix{opacity:.7}
 body.studio .eat .bskWhole,body.studio .eat .bskTop{transform:translate(4px,4px) rotate(0)}
