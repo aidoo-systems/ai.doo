@@ -14,9 +14,10 @@
 // would: clicking "Play the demo", typing "pour", typing it in the chat box, or the same
 // click on a phone or with reduced motion, then puts it away again.
 //
-// BISCUIT=under|over|taps|keys|hover|calm|at works the footer biscuit (D-043): a hold let go
-// inside two seconds, one held past it, three taps, the keyboard, a mouse hovering, reduced
-// motion, and a screen reader's click. It reports the words, the classes that draw each step,
+// BISCUIT=path|snap|bites|keys|hover|calm|calmsnap|at|quick works the footer biscuit (D-043),
+// which is tap-only: tap in and tap out inside two seconds, tap in and no second tap, three
+// bites, the keyboard, a mouse hovering, reduced motion, a screen reader's click, and taps
+// in quick succession. It reports the words, the classes that draw each step,
 // and anything written to cookies or storage.
 
 const fs = require("fs");
@@ -105,8 +106,8 @@ const window = {
   // no hover, no fine pointer (a computer's mouse for a sheet run); motion allowed unless the run asks for calm
   matchMedia: (query) => ({
     matches: query.includes("reduced-motion")
-      ? rally === "calm" || sheetRun === "calm" || biscuitRun === "calm"
-      : query.includes("hover") && ((!!sheetRun && sheetRun !== "phone") || biscuitRun === "hover"),
+      ? rally === "calm" || sheetRun === "calm" || biscuitRun.startsWith("calm")
+      : query.includes("hover") && ((!!sheetRun && sheetRun !== "phone") || false),
   }),
   umami: { track: (name) => counted.push(name) },
   getComputedStyle: (el) => ({ getPropertyValue: (name) => (el.vars && el.vars[name]) || "" }),
@@ -300,8 +301,9 @@ if (biscuitRun) {
   const b = {};
   const made = (name) => created.find((el) => el.className.split(" ").includes(name));
   const say = made("biscuitSay");
-  const words = made("bskWords");
   const stage = made("bskStage");
+  const words = made("bskWords");
+  const hint = made("bskHint");
   const fire = (el, type, ev) => (el.on[type] || []).slice().forEach((fn) => fn(Object.assign({ preventDefault() {}, pointerType: "touch", key: "", detail: 1 }, ev)));
   const tick = (ms) => {
     const to = clock + ms;
@@ -314,94 +316,93 @@ if (biscuitRun) {
     }
     clock = to;
   };
-  const has = (el, c) => !!el && el.className.split(" ").includes(c);
-  const snap = () => ({ says: words ? words.textContent : null, stage: stage ? stage.className.trim() : null, root: biscuit.className.trim() });
+  const snap = () => ({
+    says: words ? words.textContent : null,
+    hint: hint ? hint.textContent : null,
+    stage: stage ? stage.className.trim() : null,
+    root: biscuit.className.trim(),
+  });
   b.mounted = !!say && !!stage;
   b.start = snap();
-  const hint = made("bskHint");
-  b.hint = hint ? hint.textContent : null;
   b.role = say ? say.attrs.role : null;
   b.tabindex = say ? say.attrs.tabindex : null;
   if (say) {
-    const down = (type) => fire(say, "pointerdown", { pointerType: type || "touch" });
-    const up = () => fire(say, "pointerup");
-    if (biscuitRun === "under" || biscuitRun === "calm") {
-      down();
+    const tap = () => fire(say, "pointerdown");
+    const mode = biscuitRun;
+    if (mode === "path" || mode === "calm") {
+      tap();
       tick(100);
-      b.beforeHold = snap();
-      tick(900); // 1.0 s in: the mug is up and the biscuit is in
-      b.mid = snap();
+      b.in = snap(); // tap 1: the biscuit is in
+      tick(900);
+      fire(say, "pointerup"); // letting go of a press does nothing
+      b.held = snap();
       tick(600); // 1.6 s in, inside two seconds
-      up();
+      tap();
       b.out = snap();
       tick(4000);
       b.after = snap();
-      b.timersLeft = timers.length;
-    } else if (biscuitRun === "short") {
-      down();
-      tick(500); // in the tea for 0.28 s
-      up();
-      b.out = snap();
+    } else if (mode === "snap" || mode === "calmsnap") {
+      tap();
+      tick(1900);
+      b.before = snap(); // not yet
+      tick(200); // 2.1 s in, no second tap
+      b.snapped = snap();
       tick(4000);
       b.after = snap();
-      down();
-      tick(900); // then a proper hold
-      up();
-      b.then = snap();
-    } else if (biscuitRun === "over") {
-      down();
-      tick(2600);
-      b.snapped = snap(); // the words come the moment it goes
-      up();
+      tap(); // the next tap bites what's left
+      b.bite = snap();
       tick(4000);
-      b.after = snap();
-      down();
-      tick(100);
-      up(); // a tap on the half that's left is a bite
-      b.bitHalf = snap();
-    } else if (biscuitRun === "taps") {
+    } else if (mode === "bites") {
+      tap();
+      tap();
       b.said = [];
       b.classes = [];
       for (let i = 0; i < 4; i++) {
-        down();
-        tick(60);
-        up();
         tick(100);
+        tap();
         b.said.push(words.textContent);
         b.classes.push(snap().root);
       }
       b.stage = snap().stage;
-      tick(4000);
+      tick(6000);
       b.stageLater = snap().stage;
-    } else if (biscuitRun === "keys") {
+    } else if (mode === "keys") {
       fire(say, "keydown", { key: "Enter" });
-      tick(900);
-      b.mid = snap();
       fire(say, "keyup", { key: "Enter" });
+      tick(900);
+      b.in = snap();
+      fire(say, "keydown", { key: " " });
+      fire(say, "keyup", { key: " " });
       b.out = snap();
       tick(3000);
       fire(say, "keydown", { key: " " });
-      fire(say, "keyup", { key: " " });
-      b.tap = snap();
+      b.bite = snap();
       fire(say, "keydown", { key: "a" });
-      fire(say, "keyup", { key: "a" });
       b.other = snap();
-    } else if (biscuitRun === "hover") {
+      fire(say, "keydown", { key: "Enter", repeat: true }); // a held key is one press
+      b.repeat = snap();
+    } else if (mode === "hover") {
       fire(say, "pointerenter", { pointerType: "mouse" });
-      tick(150);
-      b.quick = snap(); // a mouse passing over doesn't start a dunk
-      tick(900);
-      b.mid = snap();
-      fire(say, "pointerleave", { pointerType: "mouse" });
-      b.out = snap();
       tick(3000);
-      fire(say, "pointerenter", { pointerType: "mouse" });
-      fire(say, "pointerdown", { pointerType: "mouse" });
+      b.hovered = snap(); // a mouse resting on it dunks nothing
+      fire(say, "pointerleave", { pointerType: "mouse" });
+      b.left = snap();
+      fire(say, "pointerdown", { pointerType: "mouse" }); // a click is a tap
       b.click = snap();
-    } else if (biscuitRun === "at") {
+    } else if (mode === "at") {
       fire(say, "click", { detail: 0 });
       b.click = snap();
-      fire(say, "click", { detail: 1 }); // a click that followed a pointer press is the press's, not a second bite
+      fire(say, "click", { detail: 1 }); // a click that followed a pointer press is the press's own
+      b.after = snap();
+    } else if (mode === "quick") {
+      tap();
+      tick(50);
+      tap(); // out almost at once: still a tap out
+      tick(300);
+      b.out = snap();
+      tap(); // a tap while the mug is going back down is a bite
+      b.bite = snap();
+      tick(6000);
       b.after = snap();
     }
   }

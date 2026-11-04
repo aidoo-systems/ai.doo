@@ -602,26 +602,24 @@
 
   // ---------------------------------------------------------------- 5. the footer biscuit
 
-  // The footer says there are no cookies and offers a biscuit instead (D-043). Hold the line (or
-  // hover it on a computer) and a mug of tea rises over the footer, moving nothing, and the
-  // biscuit goes in and darkens as it soaks. Let go inside two seconds and it is a perfect dunk;
-  // hold longer and the soaked half snaps off and sinks. A tap takes a bite, and the third
-  // leaves crumbs. Nothing is stored, so a reload brings the biscuit back. The drawing is in
-  // style.css (.biscuit): this decides which classes are on.
+  // The footer says there are no cookies and offers a biscuit instead (D-043). Every step is a
+  // tap (or a click, Enter or Space): the first lowers the biscuit into a mug of tea that rises
+  // over the footer, moving nothing, and the biscuit darkens as it soaks; a second inside two
+  // seconds pulls it out ("Perfect dunk."), and with none the soaked half snaps off and sinks.
+  // After that, taps bite, and the third leaves crumbs. Nothing starts on hover or a hold, and
+  // nothing is stored, so a reload brings the biscuit back. The drawing is in style.css
+  // (.biscuit): this decides which classes are on.
   var cookieLine = document.querySelector("[data-biscuit]");
   if (cookieLine) biscuit(cookieLine);
 
   function biscuit(root) {
     var LINE = root.textContent;
-    var HOLD = 220; // a press this long is a hold, not a tap
-    var SNAP = 2000; // held this long, the soaked half snaps off
-    var SOAKED = 600; // in the tea this long, it has visibly soaked; let go before that and it is "a bit longer"
+    var SNAP = 2000; // in the tea this long with no second tap, the soaked half snaps off
+    var ASK = "Tap to pull it out.";
     var SAYS = {
       perfect: "Perfect dunk.",
       lost: "Lost it. Happens to everyone.",
       bite: "Go on, then.",
-      first: "Go on, then. Now try holding it.",
-      short: "A bit longer.",
       gone: "We'd remember you ate it, but that would need a cookie.",
     };
     var CRUMBS = [[18, 19, 1.1], [23, 21, 0.8], [13, 21, 0.7], [-14, 21, 1.1], [-7, 21.5, 0.8], [2, 21, 1.2], [9, 21.6, 0.7]];
@@ -685,10 +683,9 @@
       '<svg viewBox="-38 -40 76 76" width="76" height="76" focusable="false"><g class="bskScene">' +
       mugBack + pieces("bsk ", drip) + mugFront +
       '</g><g transform="translate(0 12)">' + crumbs + "</g></svg>";
-    // a quiet line saying what to do; under reduced motion nothing dunks, so it only promises the bite
+    // the instruction: empty and invisible until the first tap, and its room is kept so nothing shifts
     var hint = document.createElement("span");
     hint.className = "bskHint";
-    hint.textContent = calm ? "Tap to bite." : "Hold to dunk. Tap to bite.";
     say.appendChild(words);
     say.appendChild(tiny);
     root.textContent = "";
@@ -699,13 +696,7 @@
     root.classList.add("on");
 
     var bites = 0;
-    var pressing = false;
-    var tapBites = false;
-    var dunking = false;
-    var snapped = false;
-    var soaked = false;
-    var soakT = null;
-    var holdT = null;
+    var stage_ = "idle"; // idle, in (the biscuit is in the tea), done (dunked or lost), then bites
     var snapT = null;
     var endT = null;
     var tidyT = null;
@@ -731,7 +722,6 @@
     }
     function settle() {
       clearTimeout(snapT);
-      clearTimeout(soakT);
       clearTimeout(endT);
       clearTimeout(tidyT);
     }
@@ -745,16 +735,12 @@
       }, 1200);
     }
 
-    function startDunk() {
-      holdT = null;
-      if (dunking || eaten()) return;
+    // tap 1: the mug rises and the biscuit goes in; only now is the visitor told what to do
+    function dunk() {
+      stage_ = "in";
       settle();
-      dunking = true;
-      snapped = false;
-      soaked = false;
-      soakT = setTimeout(function () {
-        soaked = true;
-      }, SOAKED);
+      hint.textContent = ASK;
+      root.classList.add("asking");
       if (!calm) {
         off(["eat", "drip", "snapped"]);
         stage.getBoundingClientRect(); // drawn where it was first, so the mug rises
@@ -763,32 +749,14 @@
         stage.classList.add("dunk");
         root.classList.add("busy");
       }
+      // no second tap in time: the one thing that happens by itself
       snapT = setTimeout(snap, SNAP);
     }
-    function snap() {
-      snapped = true;
-      var whole = !has(root, "half");
-      root.classList.add("half");
-      root.classList.remove("soaked");
-      if (!calm && whole) stage.classList.add("snapped");
-      saying(SAYS.lost);
-    }
-    function endDunk() {
-      if (!dunking) return;
-      dunking = false;
+    // tap 2, inside two seconds: out it comes, dark at the bottom, one drip
+    function pullOut() {
+      stage_ = "done";
       clearTimeout(snapT);
-      clearTimeout(soakT);
-      if (!snapped && !soaked) {
-        // out before it has soaked: not a dunk yet
-        saying(SAYS.short);
-        if (!calm) off(["dunk"]);
-        endT = setTimeout(retire, 900);
-        return;
-      }
-      if (snapped) {
-        endT = setTimeout(retire, 1300); // let the sinking finish
-        return;
-      }
+      root.classList.remove("asking");
       saying(SAYS.perfect);
       root.classList.add("soaked");
       if (!calm) {
@@ -797,15 +765,22 @@
       }
       endT = setTimeout(retire, 1700);
     }
+    function snap() {
+      stage_ = "done";
+      root.classList.remove("asking");
+      root.classList.add("half");
+      root.classList.remove("soaked");
+      if (!calm) stage.classList.add("snapped");
+      saying(SAYS.lost);
+      endT = setTimeout(retire, 1500); // let the sinking finish
+    }
     function bite() {
-      if (eaten()) return;
-      dunking = false;
       settle();
       bites++;
       root.classList.add(bites < 3 ? "bit" + bites : "eaten");
-      saying(bites === 1 ? SAYS.first : bites < 3 ? SAYS.bite : SAYS.gone);
+      saying(bites < 3 ? SAYS.bite : SAYS.gone);
       if (calm) return;
-      off(["up", "dunk", "drip", "snapped"]);
+      off(["up", "dunk", "drip"]); // a snap in progress is left to finish sinking
       stage.getBoundingClientRect();
       stage.classList.add("show");
       stage.classList.add("eat");
@@ -816,65 +791,25 @@
       }, 1800);
     }
 
-    // a press that turns into a hold dunks; one that ends first is a tap
-    function press(tap) {
-      if (pressing || eaten()) return;
-      pressing = true;
-      tapBites = tap;
-      holdT = setTimeout(startDunk, HOLD);
+    // every step is a tap, a click, Enter or Space: nothing starts on hover or on a hold
+    function tap() {
+      if (eaten()) return;
+      if (stage_ === "idle") dunk();
+      else if (stage_ === "in") pullOut();
+      else bite();
     }
-    function release(cancelled) {
-      if (!pressing) return;
-      pressing = false;
-      if (holdT) {
-        clearTimeout(holdT);
-        holdT = null;
-        if (tapBites && !cancelled) bite();
-        return;
-      }
-      endDunk();
-    }
-
-    say.addEventListener("pointerdown", function (ev) {
-      if (ev.pointerType === "mouse") {
-        // a click bites, even when the pointer has already been hovering
-        pressing = false;
-        clearTimeout(holdT);
-        holdT = null;
-        bite();
-      } else {
-        press(true);
-      }
-    });
-    say.addEventListener("pointerup", function () {
-      release(false);
-    });
-    say.addEventListener("pointercancel", function () {
-      release(true);
-    });
-    say.addEventListener("pointerenter", function (ev) {
-      if (ev.pointerType === "mouse") press(false);
-    });
-    say.addEventListener("pointerleave", function (ev) {
-      if (ev.pointerType === "mouse") release(true);
-    });
+    say.addEventListener("pointerdown", tap);
     say.addEventListener("contextmenu", function (ev) {
-      ev.preventDefault(); // a long press is a dunk, not a menu
+      ev.preventDefault();
     });
     say.addEventListener("keydown", function (ev) {
       if (ev.key !== "Enter" && ev.key !== " ") return;
       ev.preventDefault();
-      if (!ev.repeat) press(true);
-    });
-    say.addEventListener("keyup", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") release(false);
-    });
-    say.addEventListener("blur", function () {
-      release(true);
+      if (!ev.repeat) tap();
     });
     // a screen reader's "activate" arrives as a click with no pointer behind it
     say.addEventListener("click", function (ev) {
-      if (ev.detail === 0) bite();
+      if (ev.detail === 0) tap();
     });
   }
 })();
