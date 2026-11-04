@@ -78,6 +78,21 @@ Stamp-card prospects (#44 to #47, and #23 Roots by the Sea) get the stamps pitch
 game: one pitch per business. Their emails, and new pour-game emails for #11, #15 and #24, are
 in [the second outreach emails](2026-10-22-second-outreach-emails.md).
 
+## Tier 2c: stamp cards, batch 2 (added 2026-11-03)
+
+Four on or beside Village Walk, Onchan, so one morning on foot covers them, and The Caff in Douglas, the only Island shop the web shows with a paper card. None checked at the counter yet. Emails in [batch 2](2026-11-03-stamps-outreach-batch-2.md).
+
+| # | Organisation | Angle |
+|---|---|---|
+| 57 | The Caff (1 Lord Street, Douglas) | **Stamp card**: already runs a paper one, 8 stamps for a free meal (an undated Tripadvisor review). Email drafted |
+| 58 | The Nutty Chef Cafe (Village Walk, Onchan) | **Stamp card**: village regulars. Email drafted |
+| 59 | Madrina Professional Pet Grooming (12B Village Walk, Onchan; was Wagging Tails) | **Stamp card**: clients every six to eight weeks. Email drafted |
+| 60 | The Barking Barber (13B Village Walk, Onchan) | **Stamp card**, the same; next door to #59, so the pilot goes to whoever says yes first. Email drafted |
+| 61 | Onchan Barber Shop (2 Church Road, Onchan; listing from 2021, check it trades) | **Stamp card**: every tenth cut. Email drafted |
+| 62 | Woodbourne Deli | **Stamp card**: introduced by a friend by email, with its named link (10 stamps, Fire Island sauce). Woodbourne Kitchen runs Café 360 (#20), so it may be the same people |
+
+Spares on the same walk: Scissors Hairdressers (next to #58) and Heavenly Hounds (groomer, Unit 3C). Ask each whether it uses **Loyal IOM**, a local NFC stamp app, and log it under "We already use X".
+
 ## Tier 3: charities and clubs (fundraising, shareable leaderboards)
 
 | # | Organisation | Angle |
@@ -139,7 +154,7 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-10-23 | 44 | Gelatory | Email (owner), stamp card | | | | |
 | 2026-10-23 | 45 | Porter's Kitchen | Email (owner), stamp card | | | | |
 | 2026-10-23 | 46 | Drewry's | Email (owner), stamp card | | | | |
-| 2026-10-23 | 23 | Roots by the Sea | **Facebook message** (owner), stamp card, with their named `/stamps/` link | **Yes** (Facebook), the first reply of the experiment. Owner answered 2026-10-28: £15 a month after the two-week pilot (D-037), asked their stamp count and free item, offered a look on his phone at the pop-up | Not yet: no answer by 2026-10-28. If still quiet on 2026-11-02, one follow-up: "passing Saturday morning, no need to reply" | n/a (stamps, D-037) | |
+| 2026-10-23 | 23 | Roots by the Sea | **Facebook message** (owner), stamp card, with their named `/stamps/` link | **Yes** (Facebook), the first reply of the experiment. Owner answered 2026-10-28: £15 a month after the two-week pilot (D-037), asked their stamp count and free item, offered a look on his phone at the pop-up | Not yet: no answer to the price by 2026-11-03, after the one follow-up (2026-11-02). Stop here unless they write | n/a (stamps, D-037) | |
 | 2026-10-27 | 19 | Noa Bakehouse | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 20 | Café 360 | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 6 | Villa Marina and Gaiety Theatre | Follow-up (owner) | | | | |
@@ -148,6 +163,10 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-10-27 | 31 | Hospice Isle of Man | Follow-up, same thread (owner) | | | | |
 | 2026-10-27 | 48 | Laxey Beach Cafe | Email (owner), whippy | | | | |
 | 2026-10-27 | 16 | Silverdale Glen | Email (owner), whippy; **bounced** from silverdale@manx.net (2026-10-28). Resend to a working address as a first email, not a follow-up | | | | |
+| 2026-10-30 | 44 | Gelatory | Follow-up, same thread (owner), stamp card | No reply by 2026-11-03. Its one follow-up: stop here unless they write | | | |
+| 2026-11-02 | 23 | Roots by the Sea | Follow-up, **Facebook message** (owner): "passing Saturday morning, no need to reply" | No answer by 2026-11-03 | | | |
+| 2026-11-04 | 62 | Woodbourne Deli | **Introduction** by a friend (email, owner cc'd), stamp card. Reply-all drafted: the friend to bcc, the free two-week pilot, then £15 a month, no contract (D-037). Owner sends | | | | |
+| 2026-11-04 | 28 | Davisons | **Phone call** from the directors, after the whippy email (I3), then their email | **Yes**, the second reply of the experiment: probably not the game, but keen to meet about ideas for their ice cream; the owner raised the stamp card and they want to see it. Not Tuesdays or Thursdays; 10.30 to 11.00 is best to call | **Yes**: a meeting being booked. Reply drafted 2026-11-04 with their `/stamps/` link | n/a so far | They talked through their own current setup on the call |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
