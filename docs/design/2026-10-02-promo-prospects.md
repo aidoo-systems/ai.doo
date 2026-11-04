@@ -166,6 +166,7 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-10-30 | 44 | Gelatory | Follow-up, same thread (owner), stamp card | No reply by 2026-11-03. Its one follow-up: stop here unless they write | | | |
 | 2026-11-02 | 23 | Roots by the Sea | Follow-up, **Facebook message** (owner): "passing Saturday morning, no need to reply" | No answer by 2026-11-03 | | | |
 | 2026-11-04 | 62 | Woodbourne Deli | **Introduction** by a friend (email, owner cc'd), stamp card. Reply-all drafted: the friend to bcc, the free two-week pilot, then £15 a month, no contract (D-037). Owner sends | | | | |
+| 2026-11-04 | 28 | Davisons | **Phone call** from the directors, after the whippy email (I3), then their email | **Yes**, the second reply of the experiment: probably not the game, but keen to meet about ideas for their ice cream; the owner raised the stamp card and they want to see it. Not Tuesdays or Thursdays; 10.30 to 11.00 is best to call | **Yes**: a meeting being booked. Reply drafted 2026-11-04 with their `/stamps/` link | n/a so far | They talked through their own current setup on the call |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
