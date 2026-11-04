@@ -99,6 +99,8 @@
     .pass-top{display:flex;align-items:center;gap:9px;padding:0 12px 7px}
     .mark{width:28px;height:28px;flex:none;display:grid;place-items:center;font-size:20px;line-height:1}
     .mark img,.icon img{width:100%;height:100%;display:block;border-radius:50%}
+    .mark img.whole,.icon img.whole{border-radius:0;object-fit:contain}
+    .logo img.whole{width:78%;height:78%}
     .mark .tinted,.icon .tinted{width:100%;height:100%;display:block;background:var(--brandInk);-webkit-mask:center/contain no-repeat;mask:center/contain no-repeat}
     .pass-top b{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.2;overflow-wrap:anywhere}
     .pass-count{text-align:right;flex:none;line-height:1.15}
@@ -276,7 +278,7 @@
 
   <div class="bar" id="bar" aria-hidden="true"><span id="barText">Want this for your shop?</span><a class="mail" tabindex="-1" href="mailto:hello@aidoo.biz">Email us</a></div>
 
-  <script src="card.js?v=3"></script>
+  <script src="card.js?v=4"></script>
   <script src="printed.js?v=1"></script>
   <script>
     (function () {
@@ -309,7 +311,11 @@
           m.className = "tinted";
           m.style.webkitMaskImage = m.style.maskImage = "url(" + S.logo.src + ")";
           e.appendChild(m);
-        } else if (logo) e.appendChild(logo.cloneNode());
+        } else if (logo) {
+          var im = logo.cloneNode();
+          if (S.logo && S.logo.whole) im.className = "whole";
+          e.appendChild(im);
+        }
         else e.textContent = S.icon;
       }
       all(".icon", mark);
