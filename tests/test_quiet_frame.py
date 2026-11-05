@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 STUDIO_PAGES = ("index.html", "promo-games/index.html", "about/index.html")
+ALL_STUDIO_PAGES = STUDIO_PAGES + ("404.html",)
 SUITE_PAGES = ("pika/index.html", "vera/index.html")
 
 
@@ -536,3 +537,206 @@ def test_the_homepage_shows_the_games_as_a_shelf_then_the_offers():
         'href="#promo">promo games</a>' in html
         and 'href="#stamps">stamp cards</a>' in html
     )
+
+
+# --- D-043 / P2.1n: the footer biscuit --------------------------------------------------
+
+COOKIE_LINE = "No cookie banner. There are no cookies. Have a biscuit instead."
+PERFECT = "Perfect dunk."
+LOST = "Lost it. Happens to everyone."
+GO_ON = "Go on, then."
+ASK = "Tap to pull it out."
+EATEN = "We'd remember you ate it, but that would need a cookie."
+
+
+def _biscuit(how):
+    return _driven(BISCUIT=how)["biscuit"]
+
+
+def _classes(text):
+    return set(text.split())
+
+
+def test_the_biscuit_is_found_and_stays_quiet_until_it_is_tapped():
+    ran = _biscuit("path")
+    assert ran["mounted"]
+    assert ran["start"]["says"] == COOKIE_LINE
+    # a button for a keyboard and a screen reader, and the dotted underline only once it works
+    assert ran["role"] == "button" and ran["tabindex"] == "0"
+    assert "on" in _classes(ran["start"]["root"])
+    # no instruction and nothing drawn before the first tap
+    assert ran["start"]["hint"] == ""
+    assert "asking" not in _classes(ran["start"]["root"])
+    assert "show" not in _classes(ran["start"]["stage"])
+
+
+def test_the_first_tap_lowers_the_biscuit_and_only_then_says_what_to_do():
+    ran = _biscuit("path")
+    assert {"show", "up", "dunk"} <= _classes(ran["in"]["stage"])
+    assert ran["in"]["hint"] == ASK and "asking" in _classes(ran["in"]["root"])
+    assert ran["in"]["says"] == COOKIE_LINE  # still the joke: nothing is judged yet
+    # letting go of that press does nothing
+    assert (
+        ran["held"]["stage"] == ran["in"]["stage"]
+        and ran["held"]["says"] == COOKIE_LINE
+    )
+
+
+def test_a_second_tap_inside_two_seconds_is_a_perfect_dunk():
+    ran = _biscuit("path")
+    assert ran["out"]["says"] == PERFECT
+    assert "soaked" in _classes(ran["out"]["root"])
+    assert "asking" not in _classes(ran["out"]["root"])
+    assert "drip" in _classes(ran["out"]["stage"])
+    assert "dunk" not in _classes(ran["out"]["stage"])
+    assert "snapped" not in _classes(ran["out"]["stage"]) and "half" not in _classes(
+        ran["out"]["root"]
+    )
+    # then the mug goes back down and the footer is as it was, with a darker biscuit
+    assert _classes(ran["after"]["stage"]) & {"show", "up", "dunk", "drip"} == set()
+    assert "busy" not in _classes(ran["after"]["root"])
+    assert ran["after"]["says"] == PERFECT
+    assert ran["timersLeft"] == 0
+
+
+def test_no_second_tap_by_two_seconds_snaps_the_soaked_half_off_by_itself():
+    ran = _biscuit("snap")
+    assert ran["before"]["says"] == COOKIE_LINE and "snapped" not in _classes(
+        ran["before"]["stage"]
+    )
+    assert ran["snapped"]["says"] == LOST
+    assert "snapped" in _classes(ran["snapped"]["stage"])
+    assert "half" in _classes(ran["snapped"]["root"])
+    assert "soaked" not in _classes(ran["snapped"]["root"])
+    assert "asking" not in _classes(ran["snapped"]["root"])  # the instruction fades
+    assert ran["after"]["says"] == LOST
+    assert _classes(ran["after"]["stage"]) & {"show", "up", "dunk", "snapped"} == set()
+    assert "half" in _classes(ran["after"]["root"])  # you keep the dry half
+    # the next tap bites what's left
+    assert ran["bite"]["says"] == GO_ON
+    assert "bit1" in _classes(ran["bite"]["root"])
+    assert ran["timersLeft"] == 0
+
+
+def test_taps_after_the_dunk_take_three_bites_and_leave_crumbs():
+    ran = _biscuit("bites")
+    assert ran["said"] == [GO_ON, GO_ON, EATEN, EATEN]
+    assert "bit1" in _classes(ran["classes"][0]) and "bit2" not in _classes(
+        ran["classes"][0]
+    )
+    assert "bit2" in _classes(ran["classes"][1]) and "eaten" not in _classes(
+        ran["classes"][1]
+    )
+    assert "eaten" in _classes(ran["classes"][2])
+    # a fourth tap changes nothing
+    assert ran["classes"][3] == ran["classes"][2]
+    # the crumbs stay: the stage is still showing once the biscuit has gone
+    assert "show" in _classes(ran["stageLater"])
+
+
+def test_the_keyboard_does_every_step_with_enter_or_space():
+    ran = _biscuit("keys")
+    assert {"up", "dunk"} <= _classes(ran["in"]["stage"]) and ran["in"]["hint"] == ASK
+    assert ran["out"]["says"] == PERFECT
+    assert ran["bite"]["says"] == GO_ON
+    assert ran["other"] == ran["bite"]  # any other key does nothing
+    assert ran["repeat"] == ran["bite"]  # a held key is one press, not a bite a frame
+
+
+def test_a_mouse_resting_on_it_does_nothing_and_a_click_is_a_tap():
+    ran = _biscuit("hover")
+    assert ran["hovered"] == ran["start"] and ran["left"] == ran["start"]
+    assert {"up", "dunk"} <= _classes(ran["click"]["stage"])
+    js = _text("studio.js")
+    js = js[js.index("5. the footer biscuit") :]
+    assert (
+        "pointerenter" not in js and "pointerleave" not in js and "mouseenter" not in js
+    )
+
+
+def test_a_screen_readers_click_does_the_step_and_a_pointers_click_does_not_double_it():
+    ran = _biscuit("at")
+    assert ran["click"]["hint"] == ASK and {"up", "dunk"} <= _classes(
+        ran["click"]["stage"]
+    )
+    assert ran["after"] == ran["click"]
+
+
+def test_taps_in_quick_succession_never_break_the_state():
+    ran = _biscuit("quick")
+    assert ran["out"]["says"] == PERFECT
+    assert ran["bite"]["says"] == GO_ON and "bit1" in _classes(ran["bite"]["root"])
+    assert "eat" in _classes(ran["bite"]["stage"])
+    assert _classes(ran["after"]["stage"]) & {"show", "up", "dunk", "drip"} == set()
+    assert "busy" not in _classes(ran["after"]["root"])
+    assert ran["timersLeft"] == 0
+
+
+def test_reduced_motion_is_the_same_taps_and_words_with_no_movement():
+    ran = _biscuit("calm")
+    assert ran["in"]["hint"] == ASK
+    assert ran["out"]["says"] == PERFECT
+    assert "soaked" in _classes(ran["out"]["root"])
+    for step in ("in", "out", "after"):
+        assert _classes(ran[step]["stage"]) & {"show", "up", "dunk", "drip"} == set(), (
+            step
+        )
+    # the two-second snap still runs, so the words still change
+    snap = _biscuit("calmsnap")
+    assert snap["snapped"]["says"] == LOST and "half" in _classes(
+        snap["snapped"]["root"]
+    )
+    assert _classes(snap["snapped"]["stage"]) & {"show", "snapped"} == set()
+    assert snap["bite"]["says"] == GO_ON
+    css = _text("style.css")
+    reduce = css[
+        css.index("@media (prefers-reduced-motion:reduce){", css.index("bskStage")) :
+    ]
+    assert "body.studio .bskStage" in reduce
+
+
+def test_the_instruction_is_quiet_and_keeps_its_room_so_nothing_shifts():
+    css = _text("style.css")
+    hint = css[css.index("body.studio .bskHint{") :].split("}")[0]
+    assert "font-size:12px" in hint and "var(--muted)" in hint and "min-height" in hint
+    assert "opacity:0" in hint and "position" not in hint
+
+
+def test_the_biscuit_writes_nothing_anywhere():
+    for how in (
+        "path",
+        "snap",
+        "bites",
+        "keys",
+        "hover",
+        "calm",
+        "calmsnap",
+        "at",
+        "quick",
+    ):
+        assert _biscuit(how)["stored"] == [], how
+
+
+def test_after_a_snap_each_bite_takes_from_the_half_that_is_left():
+    # Owner, 2026-11-04: after a snap the second bite cut the half in the tea, so it barely showed
+    import re
+
+    js = _text("studio.js")
+    assert 'bskTop"><g clip-path="url(#bskTopClip)"><g mask="url(#bskBiteHalf)">' in js
+    half = js[js.index('<mask id="bskBiteHalf">') :].split("</mask>")[0]
+    cuts = re.findall(
+        r'class="bskCut (c\d)" cx="(-?[\d.]+)" cy="(-?[\d.]+)" r="([\d.]+)"', half
+    )
+    second = [
+        (float(x), float(y), float(r)) for c, x, y, r in cuts if c not in ("c1", "c2")
+    ]
+    assert len(second) >= 2
+    # the half left after a snap sits above y=2, so every second-bite cut must reach into it
+    assert all(y - r < 0 for x, y, r in second)
+
+
+def test_tea_jumps_the_rim_as_the_biscuit_goes_in():
+    js, css = _text("studio.js"), _text("style.css")
+    assert 'class="bskSplash"' in js
+    assert "body.studio .bskSplash circle{opacity:0}" in css
+    assert ".dunk .bskSplash" in css

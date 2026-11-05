@@ -558,3 +558,86 @@ body.studio .askFab{
 }
 body.studio .askFab:hover{border-color:var(--ink)}
 body.studio .priceBig small{font-family:Inter,system-ui,sans-serif}
+
+/* The footer biscuit (D-043): studio.js turns the line into a button and toggles the classes; every change eases in. */
+body.studio .biscuit{position:relative;margin:10px 0 0;font-size:13px;color:var(--muted)}
+body.studio .biscuitSay{
+  -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+body.studio .biscuit.on .biscuitSay{cursor:pointer}
+body.studio .biscuit.on .bskWords{text-decoration:underline dotted rgba(234,240,255,.45);text-underline-offset:4px}
+body.studio .biscuit.on .biscuitSay.said{color:var(--ink)}
+body.studio .biscuit.on .biscuitSay.said .bskWords{text-decoration:none}
+body.studio .biscuit.on .biscuitSay:focus-visible{outline:2px solid var(--ink);outline-offset:3px;border-radius:3px}
+body.studio .bskWords.pop{animation:bskSay .4s ease-out}
+body.studio .bskHint{display:block;min-height:16px;margin-top:4px;font-size:12px;line-height:16px;color:var(--muted);opacity:0;transition:opacity .4s ease}
+body.studio .biscuit.asking .bskHint{opacity:.7}
+body.studio .bskInline{width:15px;height:15px;vertical-align:-3px;margin-left:5px;opacity:1;transition:opacity .3s ease}
+body.studio .biscuit.busy .bskInline{opacity:0}
+body.studio .bskStage{
+  position:absolute;left:0;bottom:100%;width:76px;height:76px;margin-bottom:-2px;pointer-events:none;overflow:visible;
+  opacity:0;transition:opacity .35s ease;
+}
+body.studio .bskStage.show{opacity:1}
+body.studio .bskDefs{position:absolute;width:0;height:0}
+/* the scene: mug, ripples and the biscuit's pieces, all drawn at the origin and moved by transform */
+body.studio .bskScene{transform:translate(-4px,8px)}
+body.studio .bskMug{transform:translate(0,60px);opacity:0;transition:transform .6s cubic-bezier(.2,.8,.3,1),opacity .45s ease}
+body.studio .up .bskMug{transform:translate(0,0);opacity:1}
+body.studio .bskStage .bsk{transform:translate(0,-26px) rotate(-8deg);transition:transform .7s ease-in-out,opacity .45s ease}
+/* in past the rim: the soak line meets the tea, the mug's front hides what's under, and it bobs once as it goes in */
+body.studio .dunk .bsk{transform:translate(0,-2px) rotate(-8deg);transition:transform .6s cubic-bezier(.5,0,.3,1.3) .3s,opacity .45s ease}
+body.studio .dunk .bskRip{animation:bskRing .9s ease-out .7s}
+body.studio .bskSplash circle{opacity:0}
+body.studio .dunk .bskSplash .s1{animation:bskDropL .8s .7s}
+body.studio .dunk .bskSplash .s3{animation:bskDropL .65s .76s}
+body.studio .dunk .bskSplash .s2{animation:bskDropR .75s .72s}
+@keyframes bskDropL{
+  0%{opacity:1;transform:translate(0,0);animation-timing-function:ease-out}
+  35%{opacity:1;transform:translate(-4px,-7px);animation-timing-function:ease-in}
+  100%{opacity:0;transform:translate(-8px,18px)}
+}
+@keyframes bskDropR{
+  0%{opacity:1;transform:translate(0,0);animation-timing-function:ease-out}
+  35%{opacity:1;transform:translate(3px,-6px);animation-timing-function:ease-in}
+  100%{opacity:0;transform:translate(6px,16px)}
+}
+@keyframes bskRing{
+  0%{opacity:0;transform:scale(.4)}
+  25%{opacity:1}
+  100%{opacity:0;transform:scale(1.15)}
+}
+body.studio .bskTop,body.studio .bskLow{visibility:hidden}
+body.studio .half .bskWhole,body.studio .half .bskLow{visibility:hidden}
+body.studio .half .bskTop{visibility:visible}
+body.studio .snapped .bskWhole{visibility:hidden}
+body.studio .snapped .bskTop,body.studio .snapped .bskLow{visibility:visible}
+body.studio .snapped .bskTop{transform:translate(-2px,-27px) rotate(-14deg);transition:transform .5s ease-out}
+body.studio .snapped .bskLow{transform:translate(3px,26px) rotate(34deg);opacity:0;transition:transform 1s ease-in,opacity .9s ease-in .15s}
+/* the soak darkens while the biscuit is in the tea, and stays on a biscuit that came out perfect */
+body.studio .bskSoak{opacity:0;transition:opacity .8s ease}
+body.studio .dunk .bskSoak{opacity:.7;transition:opacity 1.6s ease-in .6s}
+body.studio .soaked .bskSoak{opacity:.7}
+body.studio .bskSoakFix{opacity:.7}
+body.studio .eat .bskWhole,body.studio .eat .bskTop{transform:translate(4px,4px) rotate(0)}
+body.studio .bskDrip{opacity:0;transform:translate(0,-3px);transition:opacity .5s ease,transform .8s ease-in}
+body.studio .drip .bskDrip{opacity:1;transform:translate(0,5px)}
+body.studio .bskRip{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.4);transition:transform .9s ease-out,opacity .9s ease-out}
+body.studio .snapped .bskRip{opacity:1;transform:scale(1)}
+/* a bite grows out of the edge; the third takes the lot and leaves crumbs */
+body.studio .bskCut{transform-box:fill-box;transform-origin:center;transform:scale(0);transition:transform .35s ease-out}
+body.studio .bit1 .bskCut.c1,body.studio .bit1 .bskCut.c2,body.studio .bit2 .bskCut{transform:scale(1)}
+body.studio .eaten .bskWhole,body.studio .eaten .bskTop{opacity:0;transition:opacity .45s ease .1s}
+body.studio .bskCrumb{opacity:0;transform:translate(0,-6px);transition:opacity .4s ease,transform .5s ease-in}
+body.studio .bit1 .bskCrumb.k1,body.studio .bit1 .bskCrumb.k2,body.studio .bit1 .bskCrumb.k3,
+body.studio .bit2 .bskCrumb.k1,body.studio .bit2 .bskCrumb.k2,body.studio .bit2 .bskCrumb.k3,body.studio .bit2 .bskCrumb.k4,body.studio .bit2 .bskCrumb.k5,
+body.studio .eaten .bskCrumb{opacity:1;transform:translate(0,0)}
+@keyframes bskSay{
+  0%{opacity:0;transform:translateY(3px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  body.studio .bskStage{display:none}
+  body.studio .bskWords.pop{animation:none}
+  body.studio .bskInline,body.studio .bskCut,body.studio .bskSoak,body.studio .bskWhole,body.studio .bskTop{transition:none}
+}

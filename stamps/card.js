@@ -22,7 +22,9 @@
   // `whole` a mark shown uncropped (not in a circle), as a heart's lobes would be cut.
   var LOGOS = {
     davisons: { key: "davisons", src: "logos/davisons.png", tint: true }, // their site's tab icon
-    madrina: { key: "madrina", src: "logos/madrina.png", tint: false, whole: true }, // their site's icon
+    madrina: { key: "madrina", src: "logos/madrina.png", tint: false, whole: true }, // the heart from their main logo
+    theroundhouse: { key: "theroundhouse", src: "logos/theroundhouse.png", tint: false }, // their site's round logo
+    gourmetshakes: { key: "gourmetshakes", src: "logos/gourmetshakes.png", tint: true }, // the cup from their logo
   };
   var MIN_STAMPS = 4;
   var MAX_STAMPS = 12;
