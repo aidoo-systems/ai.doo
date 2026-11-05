@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-11-04
+Last updated: 2026-11-05
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: in-progress (P2.1n, the footer biscuit (D-043), approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it 2026-11-04 (Codex at its limit): no blockers; PR #133 is ready for the owner to merge; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
+State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
 ## Goal
 
@@ -34,7 +34,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- P2.1n (the footer biscuit): approved on a phone (2026-11-04, "Feels right"). Stage 5: Gemini, high, NO BLOCKERS (2026-11-04; Codex at its limit until 2026-11-09, queued for its re-check). **Next:** the owner merges PR #133.
+- P2.1n (the footer biscuit): approved on a phone (2026-11-04, "Feels right"). Stage 5: Gemini, high, NO BLOCKERS (2026-11-04; Codex at its limit until 2026-11-09, queued for its re-check). Merged by the owner (#133) 2026-11-04; the deploy and the gates on main passed, and aidoo.biz serves the footer line. **Next:** the owner taps the biscuit on aidoo.biz on a phone.
 - P2.0c (the live board): merged (#98) and live; the board answers since the VPS fix. Last check: play one game on aidoo.biz and see the given name on the week's board (`curl -s "https://aidoo.biz/api/pour/board?skin=wobbly-gull"` shows the row); then the row is Complete.
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
