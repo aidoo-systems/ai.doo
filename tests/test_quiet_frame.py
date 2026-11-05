@@ -436,23 +436,38 @@ def _jpeg_size(rel):
 
 
 def test_the_share_card_is_the_right_size_and_every_page_asks_for_the_new_one():
-    assert _jpeg_size("og-image.jpg") == (1200, 630)
-    assert (REPO_ROOT / "og-image.jpg").stat().st_size < 300_000
-    asked = 0
+    # P2.1o: the homepage card leads with the shop offers; PIKA and VERA take the plain one
+    for card in ("og-image.jpg", "og-plain.jpg"):
+        assert _jpeg_size(card) == (1200, 630)
+        assert (REPO_ROOT / card).stat().st_size < 300_000
+    asked = {}
     for path in REPO_ROOT.rglob("*.html"):
-        if {".git", "docs", "_docs_build", "internal"} & set(
+        if {".git", ".claude", "docs", "_docs_build", "internal"} & set(
             path.relative_to(REPO_ROOT).parts
         ):
             continue
+        rel = path.relative_to(REPO_ROOT).as_posix()
         for url in re.findall(
-            r'content="(https://aidoo\.biz/og-image[^"]*)"',
+            r'content="(https://aidoo\.biz/og-(?:image|plain)[^"]*)"',
             path.read_text(encoding="utf-8"),
         ):
-            assert url == "https://aidoo.biz/og-image.jpg?v=4", path
-            asked += 1
-    assert asked == 6
-    # its source is kept, and kept off the public site
+            want = (
+                "https://aidoo.biz/og-plain.jpg?v=1"
+                if rel.startswith(("pika/", "vera/"))
+                else "https://aidoo.biz/og-image.jpg?v=5"
+            )
+            assert url == want, rel
+            asked[rel] = asked.get(rel, 0) + 1
+    assert asked == {
+        "index.html": 2,
+        "pika/index.html": 1,
+        "pika/changelog.html": 1,
+        "vera/index.html": 1,
+        "vera/changelog.html": 1,
+    }
+    # their sources are kept, and kept off the public site
     assert (REPO_ROOT / "internal" / "og-card" / "index.html").is_file()
+    assert (REPO_ROOT / "internal" / "og-card" / "plain.html").is_file()
     assert "--exclude='internal/'" in (
         REPO_ROOT / ".github" / "workflows" / "deploy.yml"
     ).read_text(encoding="utf-8")
