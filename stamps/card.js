@@ -18,9 +18,11 @@
     paw: "🐾", star: "⭐",
   };
   // A shop's own logo, by name from this list only (a link never names a file). `tint` marks a
-  // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground.
+  // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground;
+  // `whole` a mark shown uncropped (not in a circle), as a heart's lobes would be cut.
   var LOGOS = {
     davisons: { key: "davisons", src: "logos/davisons.png", tint: true }, // their site's tab icon
+    madrina: { key: "madrina", src: "logos/madrina.png", tint: false, whole: true }, // the heart from their main logo
     theroundhouse: { key: "theroundhouse", src: "logos/theroundhouse.png", tint: false }, // their site's round logo
     gourmetshakes: { key: "gourmetshakes", src: "logos/gourmetshakes.png", tint: true }, // the cup from their logo
   };

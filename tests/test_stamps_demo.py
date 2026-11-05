@@ -90,6 +90,17 @@ def test_a_shop_on_the_list_wears_its_own_logo():
     ] == b"\x89PNG\r\n\x1a\n"
 
 
+def test_a_full_colour_mark_is_shown_whole_not_tinted():
+    # Madrina's heart (their site's icon): its own colours, and not cropped to a circle
+    s = run({"shop": "Madrina", "logo": "madrina"})["settings"]
+    assert s["logo"] == {
+        "key": "madrina",
+        "src": "logos/madrina.png",
+        "tint": False,
+        "whole": True,
+    }
+
+
 @pytest.mark.parametrize(
     "key, logo",
     [

@@ -127,7 +127,7 @@ check the sign's name before sending, since the link prints it)
 > lives in your clients' Apple or Google Wallet, and here's a sample with your name on it, half
 > a minute to watch:
 >
-> aidoo.biz/stamps/?shop=Madrina&icon=paw&reward=free%20nail%20trim&stamps=6
+> aidoo.biz/stamps/?shop=Madrina&icon=paw&reward=free%20nail%20trim&stamps=6&logo=madrina
 >
 > Why I think it suits a groomer:
 >

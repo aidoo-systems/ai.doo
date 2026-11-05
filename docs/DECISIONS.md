@@ -429,3 +429,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Consequences:** An exception to the P2.1b hold, like D-040 to D-042. The dotted underline and the biscuit are the visible way in (D-041). The stills are in `internal/prototypes/biscuit-stills.html`.
 - **Revisit when:** Anything on a studio page needs a cookie.
 - **Update (owner, 2026-11-04, after playing it):** tap-only: no hover and no hold. The instruction ("Tap to pull it out.") shows only after the first tap, because a hold and a hover felt like things happening without him. The 2-second snap is the only thing that happens by itself.
+
+## D-044 — A stamp card prospect's own logo, from a fixed list
+
+- **Status:** Accepted (owner, 2026-11-04, in a plain chat: "Add Davison's logo to their stamps link... from a fixed list"; then "should we scrape some other business logos as well? All the potential outreach clients?")
+- **Date:** 2026-11-04
+- **Decision:** A shop's `/stamps/` link can carry its own logo, `&logo=<key>`, named from a fixed list (`LOGOS` in `stamps/card.js`) of files we hold in `stamps/logos/`. A link never names a file, and a logo needs `shop=`. A logo is taken only from the shop's own website, never Facebook or a directory. A one-colour line mark is tinted to the card's writing colour (`tint`); a full-colour mark is shown whole (`whole`) when a circle would cut it.
+- **Why:** Davison's asked to see the card, and their own mark on it makes the sample theirs. A fixed list keeps the link from loading anything we haven't checked.
+- **Alternatives:** A logo URL in the link (it would load any image from anywhere); the shop's icon only (the default, still used where no clean mark exists).
+- **Consequences:** Every logo is checked at real size first (Madrina's site icon was clipped at its edges, so the heart was cut from their main logo). A shop's logo is for its private sample only: not in any post or video unless they say yes. The list in `card.js` is public, so it names the shops we've pitched.
+- **Revisit when:** A shop signs up and uploads its own logo to the real service.
