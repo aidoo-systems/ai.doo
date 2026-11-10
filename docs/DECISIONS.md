@@ -439,3 +439,13 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A logo URL in the link (it would load any image from anywhere); the shop's icon only (the default, still used where no clean mark exists).
 - **Consequences:** Every logo is checked at real size first (Madrina's site icon was clipped at its edges, so the heart was cut from their main logo). A shop's logo is for its private sample only: not in any post or video unless they say yes. The list in `card.js` is public, so it names the shops we've pitched.
 - **Revisit when:** A shop signs up and uploads its own logo to the real service.
+
+## D-045 — One stamp card per business, £15 a month for all its counters
+
+- **Status:** Accepted (owner, 2026-11-10, in a plain chat preparing the Davison's meeting: "Yes, 15 for business")
+- **Date:** 2026-11-10
+- **Decision:** A business with several counters (Davison's: Peel, Douglas and Ramsey) is one shop on the stamps service: one card that stamps at every counter, a paired phone per counter, and D-037's £15 a month once for the whole business, not per parlour.
+- **Why:** Customers don't think in parlours: stamps from Peel should count in Ramsey, and three separate cards would feel broken. One of the first shops, and a known Island name, is worth more as a happy reference than the extra £30.
+- **Alternatives:** One shop and £15 per parlour.
+- **Consequences:** D-037's "per shop" means per business. Phones are paired by the owner only, in person or over a video call, never by a link in a message.
+- **Revisit when:** A business with many counters, or the 2026-11-26 review.
