@@ -439,6 +439,7 @@ Keep superseded decisions. Link the replacement rather than rewriting history.
 - **Alternatives:** A logo URL in the link (it would load any image from anywhere); the shop's icon only (the default, still used where no clean mark exists).
 - **Consequences:** Every logo is checked at real size first (Madrina's site icon was clipped at its edges, so the heart was cut from their main logo). A shop's logo is for its private sample only: not in any post or video unless they say yes. The list in `card.js` is public, so it names the shops we've pitched.
 - **Revisit when:** A shop signs up and uploads its own logo to the real service.
+- **Exception (owner, 2026-11-10):** Terry's Tato's has no website, so its logo is the one on its Facebook page, which the owner saved and chose ("Let's go with this for terry's"). Terry is cut out whole from it (`whole`), on the logo's own black, writing in its orange `#F7A504`. A Facebook logo is taken only when the owner picks it; still for the private sample only.
 
 ## D-045 — One stamp card per business, £15 a month for all its counters
 

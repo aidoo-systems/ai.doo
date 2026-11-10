@@ -15,7 +15,7 @@
   var ICONS = {
     coffee: "☕", tea: "🍵", icecream: "🍦", cake: "🍰", croissant: "🥐", donut: "🍩",
     cookie: "🍪", sandwich: "🥪", pizza: "🍕", burger: "🍔", flower: "🌸", scissors: "✂️",
-    paw: "🐾", star: "⭐",
+    paw: "🐾", star: "⭐", potato: "🥔",
   };
   // A shop's own logo, by name from this list only (a link never names a file). `tint` marks a
   // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground;
@@ -25,6 +25,7 @@
     madrina: { key: "madrina", src: "logos/madrina.png", tint: false, whole: true }, // the heart from their main logo
     theroundhouse: { key: "theroundhouse", src: "logos/theroundhouse.png", tint: false }, // their site's round logo
     gourmetshakes: { key: "gourmetshakes", src: "logos/gourmetshakes.png", tint: true }, // the cup from their logo
+    terrystatos: { key: "terrystatos", src: "logos/terrystatos.png", tint: false, whole: true }, // Terry from their Facebook logo (D-044 exception)
   };
   var MIN_STAMPS = 4;
   var MAX_STAMPS = 12;
