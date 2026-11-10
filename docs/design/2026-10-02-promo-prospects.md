@@ -92,6 +92,8 @@ Four on or beside Village Walk, Onchan, so one morning on foot covers them, and 
 | 62 | Woodbourne Deli | **Stamp card**: introduced by a friend by email, with its named link (10 stamps, Fire Island sauce). Woodbourne Kitchen runs Café 360 (#20), so it may be the same people |
 | 63 | The Roundhouse (Braddan Commissioners' community hub, Ballaoates Road, Strang, IM4 4RE; 01624 852808) | **Stamp card**, added 2026-11-04 (batch 3): its soft play started a paper loyalty card on 28 July 2026, one stamp per paying child entry, 10 for a free session (their Facebook post). Run by the commissioners, so the yes may need the clerk or a board. Email drafted, with their own logo (`?logo=theroundhouse`) |
 | 64 | Gourmet Shakes N Snacks (2 Windsor Road, Douglas, IM1 3JY; 07624 308790) | **Stamp card**, added 2026-11-04 (batch 3): a milkshake café (thick shakes, brunch all day, loaded fries); no card seen. Their only site is an ordering page (gourmetshakes.bytable.net); some listings say 10 Castle Street, so check the door. Email drafted, with the cup from their logo (`?logo=gourmetshakes`) |
+| 65 | Terry's Tato's (Strand Street, Douglas; listings say 79 or 10; 07624 259082) | **Stamp card**, added 2026-11-10 (batch 4): a jacket potato takeaway with a paper card, 10 for a free jacket (seen by the owner). No website; the logo is Terry from their Facebook logo (D-044's exception, `?logo=terrystatos`). Sent 2026-11-10 |
+| 66 | Ground & Co (the coffee machine at Spar) | **Stamp card**, added 2026-11-10: a paper card for the machine's coffee, 10 for a free coffee (seen by the owner). Who runs it on the Island isn't known yet, so not pitched: pitch the Spar store or Ground & Co once that's known |
 
 Spares on the same walk: Scissors Hairdressers (next to #58) and Heavenly Hounds (groomer, Unit 3C). Ask each whether it uses **Loyal IOM**, a local NFC stamp app, and log it under "We already use X".
 
@@ -169,6 +171,7 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-11-02 | 23 | Roots by the Sea | Follow-up, **Facebook message** (owner): "passing Saturday morning, no need to reply" | No answer by 2026-11-03 | | | |
 | 2026-11-04 | 62 | Woodbourne Deli | **Introduction** by a friend (email, owner cc'd), stamp card. Reply-all drafted: the friend to bcc, the free two-week pilot, then £15 a month, no contract (D-037). Owner sends | | | | |
 | 2026-11-04 | 28 | Davisons | **Phone call** from the directors, after the whippy email (I3), then their email | **Yes**, the second reply of the experiment: probably not the game, but keen to meet about ideas for their ice cream; the owner raised the stamp card and they want to see it. Not Tuesdays or Thursdays; 10.30 to 11.00 is best to call | **Yes**: a meeting being booked. Reply drafted 2026-11-04 with their `/stamps/` link | n/a so far | They talked through their own current setup on the call |
+| 2026-11-10 | 65 | Terry's Tato's | Sent by the owner (channel not recorded) | | | | |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
