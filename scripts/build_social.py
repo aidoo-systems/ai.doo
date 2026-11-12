@@ -1,8 +1,8 @@
-"""Redraw the profile banners in images/brand/ from internal/social/index.html.
+"""Redraw the profile banners in images/brand/ from internal/og-card/index.html (?s=<kind>).
 
 Serves the repo root on a local port, takes one headless Edge screenshot per banner at its
-exact size, and writes PNGs. Run it by hand when the wordmark or the line changes; no gate
-runs it.
+exact size, and writes PNGs. Run it by hand when the share card's look changes; no gate runs
+it. The Facebook cover (?s=banner) is drawn by hand at 2x: see the page's own comment.
 """
 
 from __future__ import annotations
@@ -76,7 +76,7 @@ def main() -> None:
                     f"--window-size={width},{height}",
                     "--virtual-time-budget=3000",
                     f"--screenshot={target}",
-                    f"http://127.0.0.1:{port}/internal/social/?kind={kind}",
+                    f"http://127.0.0.1:{port}/internal/og-card/?s={kind}",
                 ],
                 check=True,
                 capture_output=True,
