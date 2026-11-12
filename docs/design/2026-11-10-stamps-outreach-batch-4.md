@@ -1,6 +1,6 @@
 # Stamps outreach, batch 4: Terry's Tato's (P2.0, D-010)
 
-Status: **draft, 2026-11-10**, for the owner to adjust and send himself. Same rules as
+Status: **sent 2026-11-10** by the owner (S13, Terry's). Declined 2026-11-12 (keeping paper): no follow-up. Same rules as
 [batch 2](2026-11-03-stamps-outreach-batch-2.md): plain text from your own address or Facebook
 profile, no family names, one follow-up after a week, then stop. Log it in the
 [prospect list](2026-10-02-promo-prospects.md)'s contact log when sent, with its channel.
