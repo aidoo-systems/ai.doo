@@ -87,4 +87,5 @@ facts kept for visitors who ask.
 - `/pika/` and `/vera/` still sell pilots; whether they keep doing so waits for
   P2.0's result (D-004, D-010).
 - ~~`og-image.png` still shows the AI positioning.~~ Redrawn 2026-10-08 in the D-012 look (studio headline, game cards); now `og-image.jpg` (a new URL, so share caches refetch; under WhatsApp's ~300 KB limit).
+- Share card redrawn again 2026-11-05 (P2.1o): the shop offers lead, the games sit behind; `?v=5`. PIKA and VERA share `og-plain.jpg`.
 - Success measures and the Umami baseline.
