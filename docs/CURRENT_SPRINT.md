@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-05
+Last updated: 2026-11-10
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
@@ -44,6 +44,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-10
+- **Davison's meeting, Wednesday 11 November 10.30 (moved from Monday; owner, in a plain chat; no roadmap row).** Prepared a real two-week pilot, not a demo: the shop is to be created on `stamps.aidoo.biz/owner` as `davisons` (10 stamps, A free scoop, the cone as logo, their name logo as the name picture, card `#FFFFFF`, text `#296260`: teal on white, chosen over the dark teal after renders from loyalty's own renderer). The pack, in `internal/davisons/` (untracked, not served): an A6 framed counter sign with the live QR (`sign.html`), a laminated A4 guide for staff (`leaflet.html`, every line checked against loyalty's OWNER_GUIDE) and the owner's notes (`briefing.html`). Ian scans the sign himself and the owner pairs a phone live. One shop for the whole business at £15 a month (D-045). Loyalty PRs #74 (Email it no longer claims an attached QR) and #75 (hex colour fields on the owner page) merged by the owner. Their logos are for their pack only. **Next:** the owner creates the shop and scans the framed sign; after the meeting, log how it went.
 
 ### 2026-11-05
 - **P2.1o: the share card leads with the shop offers (`item/P2.1o-shop-share-card`).** The owner felt the cover art and share card were out of date; three mocks (A: the offers as the headline on the dark frame; B: the studio line kept; C: cream like the `/stamps/` card) and the owner chose A. `og-image.jpg` and the Facebook cover are redrawn from `internal/og-card/index.html`; PIKA and VERA now share a plain wordmark card, `og-plain.jpg`. The homepage order stays. After merge the owner uploads `images/brand/ai-doo-banner-facebook.png` to Facebook by hand.

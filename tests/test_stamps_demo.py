@@ -333,3 +333,20 @@ def test_the_share_card_fits_a_link_preview():
     assert 'og:image" content="https://aidoo.biz/stamps/og.png?v=' in _text(
         "stamps/index.html"
     )
+
+
+def test_terrys_tatos_wears_terry_whole_and_has_a_potato():
+    # Terry, cut whole from their Facebook logo (D-044's exception): a circle would cut his arms
+    settings = run({"shop": "Terry's Tato's", "logo": "terrystatos", "icon": "potato"})[
+        "settings"
+    ]
+    assert settings["logo"] == {
+        "key": "terrystatos",
+        "src": "logos/terrystatos.png",
+        "tint": False,
+        "whole": True,
+    }
+    assert settings["icon"] == "🥔"
+    assert (REPO_ROOT / "stamps" / "logos" / "terrystatos.png").read_bytes()[
+        :8
+    ] == b"\x89PNG\r\n\x1a\n"
