@@ -7,7 +7,10 @@
        msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --virtual-time-budget=3000
               --window-size=1200,630 --screenshot=card.png http://localhost:PORT/internal/og-card/
      (1640,624 and ?s=banner for the cover), and scale the 2x PNG down to 1x: the card as a JPEG
-     (quality 88), the cover as a PNG. Bump ?v= on every og:image so shares refetch it. -->
+     (quality 88), the cover as a PNG. Bump ?v= on every og:image so shares refetch it.
+     The profile banners in images/brand/ (YouTube, LinkedIn company and personal, a 1500x500
+     header) are this page too, as strips (?s=<kind>): python scripts/build_social.py redraws
+     all four. -->
 <meta charset="utf-8"><title>ai.doo share card</title>
 <style>
 @font-face{font-family:Bricolage;src:url(../../fonts/bricolage-grotesque-latin.woff2);font-weight:200 800}
@@ -21,6 +24,7 @@ body.banner{width:1640px;height:624px}
 .wm i{width:.5em;height:.5em;margin:0 .13em;background:url(../../favicon.svg) center/contain no-repeat}
 .copy{position:absolute;left:64px;top:56px;width:560px}
 h1{margin:78px 0 0;font:700 68px/1.02 Bricolage;letter-spacing:-.025em}
+h1 br{display:none}
 p{margin:26px 0 0;font-size:26px;line-height:1.35;color:#b3aca2}
 
 .shelf{position:absolute;right:-60px;top:-60px;width:560px;display:grid;grid-template-columns:1fr 1fr;gap:16px;transform:rotate(-7deg);opacity:.28}
@@ -43,6 +47,31 @@ p{margin:26px 0 0;font-size:26px;line-height:1.35;color:#b3aca2}
 .banner .shelf{right:-40px;top:-80px;width:520px}
 .banner .phone{left:860px;top:72px;transform:rotate(-6deg) scale(.94)}
 .banner .pass{left:960px;top:280px;width:340px}
+
+/* the profile banners (?s=youtube, linkedin-company, linkedin-personal, header): strips, so the
+   headline sets in two lines (three where .wrap is set) and the phone runs off the bottom. --u is the height of the part a
+   platform always shows (the safe part, centred in the file) and every size hangs off it; --k is
+   --u over the card's 630px, to scale the phone. The copy and both offers stay inside the safe
+   part; only the faded games run past it. --pad keeps the left clear where LinkedIn lays the
+   profile picture over the banner; --ox is where the offers start; --hs sizes the headline. */
+body.strip{width:var(--w);height:var(--h)}
+.strip .copy{left:calc(var(--sx) + var(--u)*var(--pad));top:var(--sy);width:auto;height:var(--u);display:flex;flex-direction:column;justify-content:center;align-items:flex-start;font-size:calc(var(--u)*var(--hs))}
+.strip .wm{font-size:.87em;margin-bottom:.5em}
+.strip h1{margin:0;font-size:1em;white-space:nowrap}
+.strip h1 br{display:inline}
+.strip.wrap h1{white-space:normal;width:8.7em}
+.strip.wrap h1 br{display:none}
+.strip p{margin-top:.95em;font-size:.42em;white-space:nowrap}
+.strip .phone{left:calc(var(--sx) + var(--u)*var(--ox));top:calc(var(--sy) + var(--u)*.1);transform-origin:0 0;transform:rotate(-6deg) scale(calc(var(--k)*1.7))}
+.strip .pass{left:calc(var(--sx) + var(--u)*(var(--ox) + .46));top:calc(var(--sy) + var(--u)*.33);width:calc(var(--u)*.7)}
+.strip .shelf{left:calc(var(--sx) + var(--u)*(var(--ox) + .55));right:auto;top:50%;width:auto;display:flex;gap:calc(var(--u)*.05);transform:translateY(-50%) rotate(-7deg)}
+.strip .col{gap:calc(var(--u)*.05)}
+.strip .col:nth-child(1){margin-top:0}
+.strip .col:nth-child(2){margin-top:calc(var(--u)*.2)}
+.strip .col:nth-child(3){margin-top:calc(var(--u)*-.14)}
+.strip .col:nth-child(4){margin-top:calc(var(--u)*.1)}
+.strip .g{width:calc(var(--u)*.62);height:calc(var(--u)*.4);border-radius:calc(var(--u)*.06);padding:calc(var(--u)*.032)}
+.strip .g img{border-radius:calc(var(--u)*.032)}
 </style>
 <body>
 <div class="card">
@@ -62,10 +91,51 @@ p{margin:26px 0 0;font-size:26px;line-height:1.35;color:#b3aca2}
   </div>
   <div class="copy">
     <span class="wm">ai<i></i>doo</span>
-    <h1>Stamp cards and mini-games for local shops.</h1>
+    <h1>Stamp cards and mini-games <br>for local shops.</h1>
     <p>Made with care, on the Isle of Man.</p>
   </div>
   <div class="phone"><div><img src="pour/wobbly-gull.jpg" alt=""></div></div>
   <img class="pass" src="../../images/stamps-pass.webp" alt="">
 </div>
-<script>if (new URLSearchParams(location.search).get('s') === 'banner') document.body.classList.add('banner');</script>
+<script>
+var kind = new URLSearchParams(location.search).get('s');
+// w, h: the file. sw, sh: the part shown on every device. pad, ox: where the copy and the offers
+// start, as shares of sh. hs: the headline's size, likewise. cols: columns of games behind.
+// wrap: the headline in three lines, where the profile picture takes more of the left (on a
+// phone LinkedIn's covers about the left third of a personal banner's lower half).
+var STRIPS = {
+  'youtube':           {w: 2560, h: 1440, sw: 1546, sh: 423, pad: 0.1,  ox: 2.42, hs: 0.15,  cols: 4},
+  'linkedin-company':  {w: 1128, h: 191,  sw: 1128, sh: 191, pad: 1.4,  ox: 4.05, hs: 0.17,  cols: 3},
+  'linkedin-personal': {w: 1584, h: 396,  sw: 1584, sh: 396, pad: 1.25, ox: 2.62, hs: 0.135, cols: 2, wrap: true},
+  'header':            {w: 1500, h: 500,  sw: 1300, sh: 360, pad: 0.1,  ox: 2.38, hs: 0.15,  cols: 3}
+};
+var GAMES = [
+  ['thunee', '#17533f'], ['reactor-panic', '#d9a03b'], ['pomodorable', '#ffd7b5'],
+  ['submarine-panic', '#2b2212'], ['orbital-panic', '#10261c'], ['reality-check', '#f3e7da'],
+  ['tea-tower', '#6a4a3f']
+];
+var k = STRIPS[kind];
+if (kind === 'banner') document.body.classList.add('banner');
+else if (k) {
+  document.body.classList.add('strip');
+  if (k.wrap) document.body.classList.add('wrap');
+  var s = document.documentElement.style;
+  s.setProperty('--w', k.w + 'px'); s.setProperty('--h', k.h + 'px');
+  s.setProperty('--sx', (k.w - k.sw) / 2 + 'px'); s.setProperty('--sy', (k.h - k.sh) / 2 + 'px');
+  s.setProperty('--u', k.sh + 'px'); s.setProperty('--k', k.sh / 630);
+  s.setProperty('--pad', k.pad); s.setProperty('--ox', k.ox); s.setProperty('--hs', k.hs);
+  // Columns of five; each starts two further along the list, so no game sits beside itself.
+  var shelf = document.querySelector('.shelf');
+  shelf.textContent = '';
+  for (var c = 0; c < k.cols; c++) {
+    var col = document.createElement('div'); col.className = 'col';
+    for (var r = 0; r < 5; r++) {
+      var game = GAMES[(c * 2 + r) % GAMES.length];
+      var card = document.createElement('div'); card.className = 'g'; card.style.background = game[1];
+      var img = new Image(); img.src = '../../images/work/' + game[0] + '.webp'; img.alt = '';
+      card.appendChild(img); col.appendChild(card);
+    }
+    shelf.appendChild(col);
+  }
+}
+</script>
