@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- Mock stills for a new share card (/og-image.jpg) and Facebook cover, putting the stamp card and
+     the promo games up front (2026-11-05). Not deployed. ?o=a|b|c picks the option, ?s=card|banner
+     the size (1200x630 or 1640x624). Screenshot with msedge --headless at device scale 2. -->
+<meta charset="utf-8"><title>Cover mockups</title>
+<style>
+@font-face{font-family:Bricolage;src:url(../../fonts/bricolage-grotesque-latin.woff2);font-weight:200 800}
+@font-face{font-family:Inter;src:url(../../fonts/inter-latin.woff2);font-weight:100 900}
+*{box-sizing:border-box}
+html,body{margin:0;overflow:hidden;font-family:Inter,sans-serif}
+body{width:1200px;height:630px;background:#141312;color:#f4f1ea}
+body.banner{width:1640px;height:624px}
+.card{position:relative;width:100%;height:100%;overflow:hidden}
+.wm{font:700 46px/1 Bricolage;letter-spacing:-.02em;display:inline-flex;align-items:baseline}
+.wm i{width:.5em;height:.5em;margin:0 .13em;background:url(../../favicon.svg) center/contain no-repeat}
+h1{margin:0;font:700 70px/1.02 Bricolage;letter-spacing:-.025em}
+p{margin:0;font-size:26px;line-height:1.35;color:#b3aca2}
+.copy{position:absolute;left:64px;top:56px;width:560px}
+.copy h1{margin-top:78px}
+.copy p{margin-top:26px}
+
+/* the two offers */
+.phone{position:absolute;width:230px;height:470px;padding:11px;border-radius:38px;background:#0c0c0e;box-shadow:0 30px 60px rgba(0,0,0,.45)}
+.phone div{width:208px;height:448px;border-radius:28px;overflow:hidden}
+.phone img{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+.pass{position:absolute;width:390px;filter:drop-shadow(0 26px 40px rgba(0,0,0,.45))}
+.tag{position:absolute;font:600 17px/1 Inter;letter-spacing:.01em;padding:9px 14px;border-radius:99px;background:#f4f1ea;color:#141312}
+
+/* the game shelf, as on the current card */
+.shelf{position:absolute;display:grid;grid-template-columns:1fr 1fr;gap:16px;transform:rotate(-7deg)}
+.col{display:grid;gap:16px;align-content:start}
+.col.b{margin-top:70px}
+.g{border-radius:22px;padding:12px;height:150px}
+.g img{display:block;width:100%;height:100%;object-fit:cover;border-radius:12px}
+
+/* A: dark studio frame; the shop offer is the headline, the games sit behind */
+.a .shelf{right:-60px;top:-60px;width:560px;opacity:.28}
+.a .phone{left:690px;top:92px;transform:rotate(-6deg)}
+.a .pass{left:800px;top:250px;transform:rotate(5deg)}
+.a .copy h1{font-size:68px}
+
+/* B: keep the studio line; the two offers replace the front of the shelf */
+.b .shelf{right:-90px;top:-50px;width:600px;opacity:.55}
+.b .phone{left:705px;top:118px;transform:rotate(-4deg)}
+.b .pass{left:790px;top:300px;width:360px;transform:rotate(6deg)}
+.b .copy h1{font-size:78px}
+.b .copy p{font-size:25px}
+.b .copy p b{color:#f4f1ea;font-weight:600}
+
+/* C: cream, the same family as the /stamps/ and /play/pour/ cards */
+.c{background:#f7f4ef;color:#1f1d1b}
+.c .wm{color:#1f1d1b}
+.c h1{font:800 62px/1.04 Inter;letter-spacing:-.035em}
+.c p{color:#6b655e}
+.c .copy h1{margin-top:70px}
+.c .phone{left:650px;top:70px;transform:rotate(-5deg);box-shadow:0 26px 52px rgba(31,29,27,.3)}
+.c .pass{left:790px;top:230px;width:380px;transform:rotate(5deg);filter:drop-shadow(0 26px 40px rgba(31,29,27,.32))}
+.c .shelf{display:none}
+
+/* banners: 1640x624. Facebook crops the sides on phones, so the offers sit near the middle */
+.banner .copy{left:150px;top:150px;width:600px}
+.banner .copy .wm:not(.bigwm){display:none}
+.banner .copy{top:96px}
+.banner .copy h1{margin-top:0}
+.banner.a .phone{left:820px;top:70px}
+.banner.a .pass{left:930px;top:230px}
+.banner.a .shelf{right:-40px;top:-80px;width:520px}
+.banner.b .phone{left:840px;top:80px}
+.banner.b .pass{left:930px;top:270px}
+.banner.b .shelf{right:-40px;top:-80px;width:520px}
+.banner.c .phone{left:820px;top:60px}
+.banner.c .pass{left:960px;top:220px}
+.bigwm{display:none}
+.banner .bigwm{display:inline-flex;font-size:58px;margin-bottom:34px}
+</style>
+<body>
+<div class="card">
+  <div class="shelf">
+    <div class="col">
+      <div class="g" style="background:#17533f"><img src="../../images/work/thunee.webp" alt=""></div>
+      <div class="g" style="background:#2b2212"><img src="../../images/work/submarine-panic.webp" alt=""></div>
+      <div class="g" style="background:#ffd7b5"><img src="../../images/work/pomodorable.webp" alt=""></div>
+      <div class="g" style="background:#6a4a3f"><img src="../../images/work/tea-tower.webp" alt=""></div>
+    </div>
+    <div class="col b">
+      <div class="g" style="background:#d9a03b"><img src="../../images/work/reactor-panic.webp" alt=""></div>
+      <div class="g" style="background:#10261c"><img src="../../images/work/orbital-panic.webp" alt=""></div>
+      <div class="g" style="background:#f3e7da"><img src="../../images/work/reality-check.webp" alt=""></div>
+      <div class="g" style="background:#e8562a"><img src="../../images/work/orbital-panic.webp" alt=""></div>
+    </div>
+  </div>
+  <div class="copy">
+    <span class="wm">ai<i></i>doo</span>
+    <span class="wm bigwm">ai<i></i>doo</span>
+    <h1 id="h"></h1>
+    <p id="p"></p>
+  </div>
+  <div class="phone"><div><img src="../og-card/pour/wobbly-gull.jpg" alt=""></div></div>
+  <img class="pass" src="../../images/stamps-pass.webp" alt="">
+</div>
+<script>
+const q = new URLSearchParams(location.search), o = q.get('o') || 'a';
+document.body.classList.add(o, q.get('s') === 'banner' ? 'banner' : 'og');
+const copy = {
+  a: ['Stamp cards and mini-games for local shops.', 'Made with care, on the Isle of Man.'],
+  b: ['Small games and apps, made with care.', 'Now for local shops: <b>a stamp card in their phone</b> and <b>a game with your name on it</b>.'],
+  c: ['Your stamp card and a little game, in their phone.', 'For cafés, pubs and shops. Nothing for anyone to download.'],
+}[o];
+document.getElementById('h').textContent = copy[0];
+document.getElementById('p').innerHTML = copy[1];
+</script>
