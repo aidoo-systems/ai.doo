@@ -10,6 +10,7 @@ deploy's exclude list.
 | `stamps.html` | The stamp card video: hook, the demo's own phones (sign, Wallet, staff scan, full card), end card |
 | `clock.js` | A virtual clock loaded into every frame, so each frame is exact however slow the screenshot |
 | `render.mjs` | Serves the repo, plays the page, screenshots at 2x, encodes with ffmpeg |
+| `reactor.py` | The Reactor Panic video: cuts footage recorded from the game itself (see below) |
 | `posts.md` | Which video goes on which account, and the words to post with it |
 
 ## Setup (once)
@@ -50,6 +51,29 @@ to two minutes. If ffmpeg is missing, the frames stay in `out/<name>/`.
 `docs/design/2026-10-22-second-outreach-emails.md`); the end card then asks
 "Want this for <shop>?". Those carry a real business's name: send each to that shop only,
 never post them.
+
+## The Reactor Panic video
+
+`reactor.py` is the odd one out: real footage with sound, not a page played in a browser. It
+cuts what reactor-panic's `tools/promo_film.gd` records (the staged takes, as 360x640 frames,
+a WAV and `marks.json`) into "It starts at the end": the meltdown countdown, the quiet night,
+three ejections, the storm, the incident report, then the game's title screen with one line of
+ours over its sky window. Captions are Bricolage from `/fonts/`; nothing else is drawn on the game.
+
+```
+# 1. Record the takes, from a reactor-panic checkout (about seven minutes; a game window shows)
+godot --path . --rendering-method gl_compatibility --resolution 360x640 --fixed-fps 60 --write-movie C:/tmp/rp-film/f.png -s res://tools/promo_film.gd
+
+# 2. Cut it (pip install av pillow numpy fonttools brotli; PyAV carries its own ffmpeg)
+python reactor.py C:/tmp/rp-film out/reactor-starts-at-the-end-9x16.mp4
+python reactor.py C:/tmp/rp-film out/reactor-strip.jpg --strip    # stills only, to check a change
+```
+
+The timeline is `CUTS` at the top of `reactor.py`: take, where it starts, how long, caption.
+The takes themselves (boards, clocks, taps) are staged in reactor-panic's
+`tools/promo_film_stage.gd`. Each recording differs a little (the intercom line, the orders on
+the desk), so look at the strip before posting a new render. The sound is the game's, made
+about 3.5 dB louder; nobody has listened to it on a phone until the owner does.
 
 ## Changing a video
 

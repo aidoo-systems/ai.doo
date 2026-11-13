@@ -199,6 +199,67 @@ For the next post about us rather than a product:
 
 This is the plan's LinkedIn "Who builds it?" (day 6 below).
 
+## Reactor Panic v8.3
+
+One video, `reactor-starts-at-the-end-9x16.mp4` (17.8s, 1080x1920), made by `reactor.py` from
+footage of the real game. It carries the game's own sound: add no track.
+
+- **Post it the day both stores show v8.3**, not before: the video is the new control room, and
+  a player who installs an older build won't find it. Check the version on each listing first.
+- Free posts only, on TikTok, YouTube Shorts, Instagram and Facebook. No boost: the one small
+  paid campaign is Submarine Panic's (D-015), and Reactor Panic takes no paid installs until
+  its Phase 3 has shipped (its own D-008).
+- Not LinkedIn: that page talks to shops.
+- "Free" was checked on 2026-11-13: Google Play shows Install with no price, the App Store
+  shows Free. The posts don't say "no ads": the App Store's age rating block still lists
+  "Advertising", left from an older build. Fix the listing before saying it.
+- The score in the video is staged (4,870, grade C), so "beat it" is a dare, not a record.
+- Links: `play.google.com/store/apps/details?id=com.aidoo.reactorpanic` and
+  `apps.apple.com/us/app/reactor-panic/id6773935208`. TikTok and Instagram take one bio link:
+  use `aidoo.biz`, where the game's card has both.
+
+**TikTok**
+
+> This is your fault.
+>
+> 4,870. Grade C. Beat it.
+>
+> Reactor Panic is free on Google Play and the App Store. Link in bio.
+>
+> #reactorpanic #indiegame #arcadegame #pixelart #mobilegame
+
+**YouTube Shorts**
+
+Title: The meltdown is your fault (Reactor Panic)
+
+> Sort the cores. Keep it stable. Read the incident report when you don't.
+>
+> Reactor Panic is a one-thumb arcade game about a night shift going wrong, free on Google Play and the App Store. 4,870, grade C. Beat it.
+>
+> Android: https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic
+> iPhone: https://apps.apple.com/us/app/reactor-panic/id6773935208
+
+**Instagram**
+
+> It starts at the end. This is your fault.
+>
+> The new Reactor Panic: one night shift, a reactor that will not sort itself, and an incident report with your name on it. Ours said "Operator error". Grade C.
+>
+> 4,870. Beat it. Free on Google Play and the App Store, link in bio.
+>
+> #reactorpanic #indiegame #arcadegame #pixelart #mobilegame #isleofman
+
+**Facebook**
+
+> We make small games on the Isle of Man, and this is the new version of one of them.
+>
+> Reactor Panic is a night shift in a control room. Cores come down on a hoist, you sort them into tubes with one thumb, and a full tube of one colour ejects. Get it wrong for long enough and a storm comes in, the alarm goes, and the game files an incident report on you. Ours came back "Operator error", grade C.
+>
+> It's free on Google Play and the App Store. 4,870 is the score to beat. Tell us what yours says.
+>
+> Android: https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic
+> iPhone: https://apps.apple.com/us/app/reactor-panic/id6773935208
+
 ## What to post next
 
 Daily on Facebook and Instagram, two or three times a week on LinkedIn, TikTok and Shorts
