@@ -56,33 +56,41 @@ never post them.
 
 `reactor.py` is the odd one out: real footage with sound, not a page played in a browser. It
 cuts what reactor-panic's `tools/promo_film.gd` records (the staged takes, as 360x640 frames,
-a WAV and `marks.json`) into "It starts at the end": the meltdown countdown ("This is your
-fault"), the quiet night, three ejections ("Just sort the cores. Nice and steady."), the
-Overdrive button waiting ("But then"), the press and the runway ("You hit Overdrive"), then,
-with no words, the storm, the incident report and the game's title screen with one line of
-ours over its sky window. The press is real: the night take taps the game's own button
-(it needs reactor-panic's `tools/promo_film_stage.gd` from 2026-11-13 or later). Captions and that line are in the game's own 5x7 stencil face, copied
+a WAV and `marks.json`) into "It starts at the end". Up to the report it is one run of the
+game, so the score and clock agree throughout: it opens on that run's meltdown countdown ("This
+is your fault"), goes back to the quiet night, and one sentence in pieces carries it through
+the ejections ("Earlier that night / you were supposed / to sort the cores. / Nice and
+steady."), the Overdrive button waiting ("But then"), the press and the runway ("You hit
+Overdrive"). Then, with no words, Overdrive's mismatches climb the bar through CAUTION,
+CRITICAL and MELTDOWN IMMINENT, the countdown reaches zero, the report is filed, and the
+game's title screen comes up with one line of ours over its sky window. The press is real: the
+night take taps the game's own button (it needs reactor-panic's `tools/promo_film_stage.gd` with
+the one-run night take, reactor-panic PR #29). Captions and that line are in the game's own 5x7 stencil face, copied
 from reactor-panic's `scripts/StencilFont.gd`, in the paper white of its incident report (the
 owner's pick, face B); only the ai.doo wordmark is Bricolage. Nothing else is drawn on the game.
 
 ```
 # 1. Record the takes, from a reactor-panic checkout (about seven minutes; a game window shows)
-godot --path . --rendering-method gl_compatibility --resolution 360x640 --fixed-fps 60 --write-movie C:/tmp/rp-film2/f.png -s res://tools/promo_film.gd
+godot --path . --rendering-method gl_compatibility --resolution 360x640 --fixed-fps 60 --write-movie C:/tmp/rp-film4/f.png -s res://tools/promo_film.gd
 
 # 2. Cut it (pip install av pillow numpy fonttools brotli; PyAV carries its own ffmpeg)
-python reactor.py C:/tmp/rp-film2 out/reactor-starts-at-the-end-9x16.mp4
-python reactor.py C:/tmp/rp-film2 out/reactor-strip.jpg --strip    # stills only, to check a change
+python reactor.py C:/tmp/rp-film4 out/reactor-starts-at-the-end-9x16.mp4
+python reactor.py C:/tmp/rp-film4 out/reactor-strip.jpg --strip    # stills only, to check a change
 ```
 
 The timeline is `CUTS` at the top of `reactor.py`: take, where it starts, how long, caption,
 and how the cut hands over to the next one. No two cuts are joined the same way: the
-countdown freezes in silence for a third of a second before the quiet night; the sorting
-cuts to the storm on the frame its lightning lands (found in the footage, so a new
-recording needs no retiming); the klaxon comes in a third of a second early under the end
-of the storm; the report dips to black and the title comes up out of it. Captions are off
+countdown freezes in silence for a third of a second before the quiet night; the night
+runs on through the captions; the climb jumps to the last moment of the countdown with the
+klaxon coming in a third of a second early under it; the report dips to black and the title
+comes up out of it. A cut names any mark in `marks.json` and may start before it, so the
+opener and the zero are found from the recording's own `countdown_start` and `zero`. Captions are off
 before every cut and on after it.
 The takes themselves (boards, clocks, taps) are staged in reactor-panic's
-`tools/promo_film_stage.gd`. Each recording differs a little (the intercom line, the orders on
+`tools/promo_film_stage.gd`. Two things there are staged beyond the board: the climb is sped up
+(through the game's own damage path, so the panic levels and the countdown are the game's), and
+once the countdown starts the bar is held and no more cores come down, so the run reaches zero
+instead of filling up first. Each recording differs a little (the intercom line, the orders on
 the desk), so look at the strip before posting a new render. The sound is the game's, made
 about 3.5 dB louder; nobody has listened to it on a phone until the owner does.
 

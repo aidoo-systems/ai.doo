@@ -1,9 +1,12 @@
-"""The Reactor Panic v8.3 video: "It starts at the end" (21.1s, 1080x1920, with the game's own sound).
+"""The Reactor Panic v8.3 video: "It starts at the end" (24.3s, 1080x1920, with the game's own sound).
 
 Cuts the footage that reactor-panic's tools/promo_film.gd records (360x640 PNG frames, f.wav and
-marks.json) into six beats, scales it 3x with hard pixels, and lays the captions and the last line
-over it in the game's own stencil face. Nothing else is drawn on the game. Each beat hands over to the next in its own way
-(see CUTS): a freeze in silence, a cut on the lightning, the klaxon arriving early, a dip to black.
+marks.json) and scales it 3x with hard pixels. Everything up to the report is one run of the game:
+the video opens on its meltdown countdown, goes back to the quiet night, and plays on through the
+ejections, the Overdrive press and the climb to the countdown again, so the score and clock agree
+throughout. The captions are one sentence told in pieces, in the game's own stencil face; nothing
+else is drawn on the game. Each cut hands over in its own way (see CUTS): a freeze in silence, the
+klaxon arriving early, a dip to black.
 
     python reactor.py <film folder> <out.mp4>            the video
     python reactor.py <film folder> <strip.jpg> --strip  stills only, three a second, to check a layout
@@ -24,33 +27,32 @@ REPO = HERE.parent.parent
 W, H, FPS, RATE, SCALE = 1080, 1920, 60, 48000, 3
 INK, AMBER = (244, 241, 234), (245, 181, 68)
 
-# The timeline. Each cut: the take it comes from (a mark in marks.json), where in the take it
-# starts (seconds, or STRIKE: the frame the lightning lands), how long it runs, the caption over
-# it, and how it hands over to the next cut:
+# The timeline. Each cut: a mark in marks.json, where it starts from that mark (seconds; before
+# it if negative), how long it runs, the caption over it, and how it hands over to the next cut:
 #   freeze   the picture holds on its last frame, in silence, then cuts
 #   runs on  the same take carries on; only the words change
-#   flash    the next cut starts on the lightning, lifted towards white for a few frames
 #   lead     the next cut's sound comes in early, under the end of this one
 #   dip      down to black, and the next cut comes up out of it
 #   loop     the last cut: its sound eases out so the loop back to the start is clean
-STRIKE = "strike"
+# One sentence, told in pieces: "Earlier that night you were supposed to sort the cores."
 CUTS = [
-    ("countdown", 0.05, 1.9, "This is your fault.", "freeze"),
-    ("night", 0.0, 1.8, "Earlier that night.", "runs on"),
-    ("night", 1.8, 1.9, "Just sort the cores.", "runs on"),
-    ("night", 3.7, 2.7, "Nice and steady.", "runs on"),
+    # MELTDOWN IN 5 to 3, from the end of the same run, once the runway has gone.
+    ("countdown_start", 4.5, 1.9, "This is your fault.", "freeze"),
+    ("night", 0.0, 1.4, "Earlier that night", "runs on"),
+    ("night", 1.4, 1.2, "you were supposed", "runs on"),
+    ("night", 2.6, 1.3, "to sort the cores.", "runs on"),
+    ("night", 3.9, 2.5, "Nice and steady.", "runs on"),
     # Overdrive is live after the ejections; the button waits, then is pressed at 7.8s.
     ("night", 6.4, 1.4, "But then", "runs on"),
-    ("night", 7.8, 2.3, "You hit Overdrive.", "flash"),
-    # What Overdrive did: no words.
-    ("storm", STRIKE, 1.6, None, "lead"),
+    ("night", 7.8, 2.3, "You hit Overdrive.", "runs on"),
+    # What Overdrive did, with no words: mismatches, CAUTION, CRITICAL, MELTDOWN IMMINENT.
+    ("night", 10.1, 4.8, None, "lead"),
     # The countdown reaches zero; the report is the joke, so no words. It runs until the grade
     # is stamped, then dips.
-    ("end", 0.5, 4.4, None, "dip"),
+    ("zero", -0.35, 4.4, None, "dip"),
     ("title", 0.0, 2.8, None, "loop"),  # the last line goes over the sky window instead
 ]
 FREEZE = 0.3  # seconds held, silent
-FLASH, FLASH_LEN = 0.5, 0.12  # how far towards white, and for how long
 LEAD = 0.33  # seconds of the next cut's sound under this one
 LEAD_DUCK = 0.55  # what this cut's own sound falls to under the lead
 DIP = 0.3  # seconds down to black, and the same back up
@@ -235,26 +237,14 @@ def ball(size):
     return _ball[size]
 
 
-def strike(film, marks):
-    """How far into the storm take the lightning lands, in frames: the window jumps brighter."""
-    last = None
-    for f in range(marks["storm"], marks["storm_end"]):
-        sky = np.asarray(Image.open(film / f"f{f:08d}.png").convert("L"))[60:150].mean()
-        if last is not None and sky > last * 1.4:
-            return f - marks["storm"]
-        last = sky
-    raise SystemExit(
-        "No lightning found in the storm take: give that cut a start in seconds."
-    )
-
-
 def shots(film, marks):
     """CUTS in frames: where each starts in the footage and in the video, how long it runs
     and how long it then holds."""
     out, at = [], 0
     for take, start, length, caption, ends in CUTS:
-        into = strike(film, marks) if start == STRIKE else round(start * FPS)
-        shot = dict(take=take, first=marks[take] + into, run=round(length * FPS))
+        shot = dict(
+            take=take, first=marks[take] + round(start * FPS), run=round(length * FPS)
+        )
         shot.update(caption=caption, ends=ends, at=at)
         shot["hold"] = round(FREEZE * FPS) if ends == "freeze" else 0
         out.append(shot)
@@ -276,7 +266,9 @@ def overlay(plan, i, n):
         # On after the cut, off before the next. Where the take runs on there is no cut, so the
         # band stays and only the words change.
         swapped_in = i > 0 and plan[i - 1]["ends"] == "runs on"
-        swaps_out = shot["ends"] == "runs on"
+        swaps_out = (
+            shot["ends"] == "runs on" and i + 1 < len(plan) and plan[i + 1]["caption"]
+        )
         start = (
             CAPTION_SWAP if swapped_in else CAPTION_OPEN if i == 0 else CAPTION_AFTER
         )
@@ -339,9 +331,6 @@ def frame(film, plan, i, n):
     )
     t, left = n / FPS, (shot["run"] + shot["hold"] - n) / FPS
     arrived = plan[i - 1]["ends"] if i else None
-    if arrived == "flash" and t < FLASH_LEN:
-        white = Image.new("RGB", (W, H), (255, 255, 255))
-        game = Image.blend(game, white, FLASH * (1 - t / FLASH_LEN) ** 2)
     game = game.convert("RGBA")
     game.alpha_composite(overlay(plan, i, n))
     game = game.convert("RGB")
@@ -384,7 +373,7 @@ def sound(film, marks, plan):
         if shot["ends"] == "lead":
             nxt = plan[i + 1]
             b = nxt["first"] * per_frame
-            n = min(int(RATE * LEAD), b - marks[nxt["take"]] * per_frame, len(part))
+            n = min(int(RATE * LEAD), b, len(part))
             part[-n:] *= np.linspace(1.0, LEAD_DUCK, n, dtype=np.float32)[:, None]
             part[-n:] += raw[b - n : b] * up(n)
         elif shot["ends"] == "dip":
