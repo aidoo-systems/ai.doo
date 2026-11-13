@@ -135,6 +135,45 @@ The link is the game itself, `aidoo.biz/play/pour`, not the offer page.
 
 > Can you pour the perfect pint? 🍺 Our little pour game now has a real leaderboard. Hold to pour, let go at the line, and see where you land this week. The board starts fresh every Monday. Play it on your phone: aidoo.biz/play/pour #aidoo #IsleOfMan #IndieDev #ShopLocal #MobileGame
 
+## Stamp card video (posted 2026-11-02)
+
+P2.1k's cut 6 with the owner's music added in CapCut, not a `render.mjs` video:
+`1102.mp4` (9:16) and `1102 (1).mp4` (16:9) in `C:\Users\keith\AppData\Local\CapCut\Videos`,
+27.7s. The 9:16 went through Buffer as a Reel: Facebook at 18:00 (`6ae8af6da8c7e34921593097`),
+Instagram at 19:30, shared to the grid (`6ae8af6e31e164b233eee5f8`), cover at 3.0s (the video
+opens on black). Not on TikTok (the pilot is for Island shops). The video had no title, so
+Facebook shows "Untitled Video" under it, and a published reel's title can't be edited: always
+set the video's title in Buffer. The 16:9 is for LinkedIn, by hand; its words below still need
+the price and "new studio" lines.
+
+**Facebook**
+
+> Island shops: what if your stamp card lived in your customers' phones?
+>
+> They scan a sign by the till, tap once, and the card's in their Wallet. No app, no sign-up. Staff stamp it with the shop's own phone, and setting your shop up takes about a minute.
+>
+> We're a new studio here on the Isle of Man, looking for our first few shops to try it: a free two-week pilot, alongside your paper cards. After that it's £15 a month, with no setup fee and no contract, and our first shops keep that price. No customer data, no marketing, no new kit.
+>
+> Know a shop who'd love this? Tag them in the comments.
+>
+> See it work: aidoo.biz/stamps
+> Questions? Message us or email hello@aidoo.biz.
+
+**Instagram**
+
+> Paper stamp card? Put it in their Wallet.
+>
+> Customers scan a sign by your till and tap once. No app, no sign-up. You stamp it with the shop's own phone.
+>
+> We're a new Isle of Man studio looking for our first few shops: a free two-week pilot, then £15 a month. No contract, and our first shops keep that price. Demo: link in bio.
+>
+> Know a shop who'd love this? Tag them below 👇
+>
+> #isleofman #iomshops #smallbusiness #shoplocal
+
+"£15 a month" is the price, not a promotional one: nothing higher is set, and D-037 says the
+first shops keep it.
+
 ## Stamp card explainer (posted 2026-11-04)
 
 The cartoon (Little Gull Coffee, three Veo clips the owner made), not a `render.mjs` video:
