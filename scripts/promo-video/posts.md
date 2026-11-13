@@ -199,6 +199,74 @@ For the next post about us rather than a product:
 
 This is the plan's LinkedIn "Who builds it?" (day 6 below).
 
+## Reactor Panic v8.3
+
+One video, cut 5: `reactor-cut5-one-take-9x16.mp4` (24.3s, 1080x1920), in
+`internal/prototypes/reactor-video/` in the primary checkout (untracked). `reactor.py` renders it
+from footage of the real game (the README's line writes it as `out/reactor-starts-at-the-end-9x16.mp4`). It carries the game's own sound: add no track.
+
+- **Post it the day both stores show v8.3**, not before: the video is the new control room, and
+  a player who installs an older build won't find it. Both showed v8.3 on 2026-11-13 (Google
+  Play's version reads "83", the build's version name).
+- Free posts only, on TikTok, YouTube Shorts, Instagram and Facebook. No boost: the one small
+  paid campaign is Submarine Panic's (D-015), and Reactor Panic takes no paid installs until
+  its Phase 3 has shipped (its own D-008).
+- Not LinkedIn: that page talks to shops.
+- Queued in Buffer on 2026-11-13 for Saturday 2026-11-14: Facebook 10:00, Instagram 18:00,
+  TikTok 19:30 (owner's go-ahead, times Claude's pick).
+- In Buffer: video title "The meltdown is your fault" (left empty, Facebook shows "Untitled
+  Video"); cover at 20,800 ms, the report with its D stamp (the video opens on a dark frame).
+  Not AI-made: it's the game's own footage. TikTok can post directly: the video has its sound.
+- "Free" was checked on 2026-11-13: Google Play shows Install with no price, the App Store
+  shows Free. The posts don't say "no ads": the App Store's age rating block still lists
+  "Advertising", left from an older build. Fix the listing before saying it.
+- The score in the video is staged (1,840, grade D, at 1:13), so "beat it" is a dare, not a record.
+- Links: `play.google.com/store/apps/details?id=com.aidoo.reactorpanic` and
+  `apps.apple.com/us/app/reactor-panic/id6773935208`. TikTok and Instagram take one bio link:
+  use `aidoo.biz`, where the game's card has both.
+
+**TikTok**
+
+> This is your fault.
+>
+> 1,840. Grade D. Beat it.
+>
+> Reactor Panic is free on Google Play and the App Store. Link in bio.
+>
+> #reactorpanic #indiegame #arcadegame #pixelart #mobilegame
+
+**YouTube Shorts**
+
+Title: The meltdown is your fault (Reactor Panic)
+
+> Just sort the cores. Leave Overdrive alone. Read the incident report when you don't.
+>
+> Reactor Panic is a one-thumb arcade game about a night shift going wrong, free on Google Play and the App Store. 1,840, grade D. Beat it.
+>
+> Android: https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic
+> iPhone: https://apps.apple.com/us/app/reactor-panic/id6773935208
+
+**Instagram**
+
+> It starts at the end. This is your fault.
+>
+> The new Reactor Panic: one night shift, a reactor that will not sort itself, and an incident report with your name on it. Ours said "Operator error". Grade D.
+>
+> 1,840. Beat it. Free on Google Play and the App Store, link in bio.
+>
+> #reactorpanic #indiegame #arcadegame #pixelart #mobilegame #isleofman
+
+**Facebook**
+
+> We make small games on the Isle of Man, and this is the new version of one of them.
+>
+> Reactor Panic is a night shift in a control room. Cores come down on a hoist, you sort them into tubes with one thumb, and a full tube of one colour ejects. Then there's the Overdrive button: double score, but the cores come down twice as fast. Hit it, lose your grip, and the alarm goes, a countdown starts and the game files an incident report on you. Ours came back "Operator error", grade D.
+>
+> It's free on Google Play and the App Store. 1,840 is the score to beat. Tell us what yours says.
+>
+> Android: https://play.google.com/store/apps/details?id=com.aidoo.reactorpanic
+> iPhone: https://apps.apple.com/us/app/reactor-panic/id6773935208
+
 ## What to post next
 
 Daily on Facebook and Instagram, two or three times a week on LinkedIn, TikTok and Shorts
