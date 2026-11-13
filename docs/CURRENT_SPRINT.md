@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-12
+Last updated: 2026-11-13
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
@@ -45,6 +45,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-13
+- **An introduction post, with the professional photos (owner, in a plain chat; no roadmap row).** The owner wrote and posted it on Facebook and Instagram: who the studio is, with thanks to Amoré du Plessis Photography. Asked whether LinkedIn should get the same, Claude said yes with different words: the dressing-up line and the thanks kept, most emojis dropped, and a sentence for small businesses on the Island with a way to get in touch. The owner posted it by hand. Both texts, and what to do the next time a post is about the studio rather than a product, are in [the posting notes](../scripts/promo-video/posts.md) ("Introducing ourselves").
 
 ### 2026-11-12
 - **Profile banners in the P2.1o look (`item/profile-banners-shop-look`; owner, in a plain chat; no roadmap row).** P2.1o left the LinkedIn, YouTube and header banners out of scope, so they still said "Small games and apps, made with care." The owner asked for the two LinkedIn banners and, when asked, chose all four. Each now carries the share card's shop offers: the wordmark, "Stamp cards and mini-games for local shops.", "Made with care, on the Isle of Man.", the Wobbly Gull phone and the Little Gull Coffee pass, with the games faded behind. They are strips, so the headline sets in two lines (three on the LinkedIn personal banner, whose copy starts further right to clear the profile picture on a phone) and the phone runs off the bottom. One source now: `internal/og-card/index.html` draws them as `?s=youtube`, `linkedin-company`, `linkedin-personal` and `header`, `scripts/build_social.py` redraws all four from it, and `internal/social/index.html` is retired. The copy and both offers sit inside the part every device shows (YouTube's middle 1546x423). Not measured: where LinkedIn lays the profile picture; the clearances are estimates. The share card and Facebook cover are unchanged (the cover redrawn from the edited page differs from the committed one only by resampling). Owner approved the stills in chat. `bash scripts/gates.sh` all PASS. Stage 5: Codex, medium, round 1, no actionable defects. **Merged by the owner (#142) 2026-11-12.** Left to the owner: upload the four (the owner gate above says which goes where).
