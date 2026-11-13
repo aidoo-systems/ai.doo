@@ -69,7 +69,15 @@ python reactor.py C:/tmp/rp-film out/reactor-starts-at-the-end-9x16.mp4
 python reactor.py C:/tmp/rp-film out/reactor-strip.jpg --strip    # stills only, to check a change
 ```
 
-The timeline is `CUTS` at the top of `reactor.py`: take, where it starts, how long, caption.
+The timeline is `CUTS` at the top of `reactor.py`: take, where it starts, how long, caption,
+and how the cut hands over to the next one. No two cuts are joined the same way: the
+countdown freezes in silence for a third of a second before the quiet night; the sorting
+cuts to the storm on the frame its lightning lands (found in the footage, so a new
+recording needs no retiming); the klaxon comes in a third of a second early under the end
+of the storm; the report dips to black and the title comes up out of it. Captions are off
+before every cut and on after it. `--face stencil` (or `signal`) sets the captions in the
+game's own 5x7 stencil face, copied from reactor-panic's `scripts/StencilFont.gd`; the
+wordmark stays in Bricolage.
 The takes themselves (boards, clocks, taps) are staged in reactor-panic's
 `tools/promo_film_stage.gd`. Each recording differs a little (the intercom line, the orders on
 the desk), so look at the strip before posting a new render. The sound is the game's, made

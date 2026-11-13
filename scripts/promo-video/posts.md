@@ -201,7 +201,7 @@ This is the plan's LinkedIn "Who builds it?" (day 6 below).
 
 ## Reactor Panic v8.3
 
-One video, `reactor-starts-at-the-end-9x16.mp4` (17.8s, 1080x1920), made by `reactor.py` from
+One video, `reactor-starts-at-the-end-9x16.mp4` (17.3s, 1080x1920), made by `reactor.py` from
 footage of the real game. It carries the game's own sound: add no track.
 
 - **Post it the day both stores show v8.3**, not before: the video is the new control room, and
