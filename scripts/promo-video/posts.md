@@ -201,7 +201,7 @@ This is the plan's LinkedIn "Who builds it?" (day 6 below).
 
 ## Reactor Panic v8.3
 
-One video, `reactor-starts-at-the-end-9x16.mp4` (17.3s, 1080x1920), made by `reactor.py` from
+One video, `reactor-starts-at-the-end-9x16.mp4` (21.1s, 1080x1920), made by `reactor.py` from
 footage of the real game. It carries the game's own sound: add no track.
 
 - **Post it the day both stores show v8.3**, not before: the video is the new control room, and
@@ -232,7 +232,7 @@ footage of the real game. It carries the game's own sound: add no track.
 
 Title: The meltdown is your fault (Reactor Panic)
 
-> Sort the cores. Keep it stable. Read the incident report when you don't.
+> Just sort the cores. Leave Overdrive alone. Read the incident report when you don't.
 >
 > Reactor Panic is a one-thumb arcade game about a night shift going wrong, free on Google Play and the App Store. 4,870, grade C. Beat it.
 >

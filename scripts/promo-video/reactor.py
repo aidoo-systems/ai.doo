@@ -1,4 +1,4 @@
-"""The Reactor Panic v8.3 video: "It starts at the end" (17.3s, 1080x1920, with the game's own sound).
+"""The Reactor Panic v8.3 video: "It starts at the end" (21.1s, 1080x1920, with the game's own sound).
 
 Cuts the footage that reactor-panic's tools/promo_film.gd records (360x640 PNG frames, f.wav and
 marks.json) into six beats, scales it 3x with hard pixels, and lays the captions and the last line
@@ -36,9 +36,14 @@ INK, AMBER = (244, 241, 234), (245, 181, 68)
 STRIKE = "strike"
 CUTS = [
     ("countdown", 0.05, 1.9, "This is your fault.", "freeze"),
-    ("night", 0.0, 2.0, "Earlier that night.", "runs on"),
-    ("night", 2.0, 4.0, "Sort the cores.", "flash"),
-    ("storm", STRIKE, 1.9, "Keep it stable.", "lead"),
+    ("night", 0.0, 1.8, "Earlier that night.", "runs on"),
+    ("night", 1.8, 1.9, "Just sort the cores.", "runs on"),
+    ("night", 3.7, 2.7, "Nice and steady.", "runs on"),
+    # Overdrive is live after the ejections; the button waits, then is pressed at 7.8s.
+    ("night", 6.4, 1.4, "But then", "runs on"),
+    ("night", 7.8, 2.3, "You hit Overdrive.", "flash"),
+    # What Overdrive did: no words.
+    ("storm", STRIKE, 1.6, None, "lead"),
     # The countdown reaches zero; the report is the joke, so no words. It runs until the grade
     # is stamped, then dips.
     ("end", 0.5, 4.4, None, "dip"),
