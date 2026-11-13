@@ -58,7 +58,9 @@ never post them.
 cuts what reactor-panic's `tools/promo_film.gd` records (the staged takes, as 360x640 frames,
 a WAV and `marks.json`) into "It starts at the end": the meltdown countdown, the quiet night,
 three ejections, the storm, the incident report, then the game's title screen with one line of
-ours over its sky window. Captions are Bricolage from `/fonts/`; nothing else is drawn on the game.
+ours over its sky window. Captions and that line are in the game's own 5x7 stencil face, copied
+from reactor-panic's `scripts/StencilFont.gd`, in the paper white of its incident report (the
+owner's pick, face B); only the ai.doo wordmark is Bricolage. Nothing else is drawn on the game.
 
 ```
 # 1. Record the takes, from a reactor-panic checkout (about seven minutes; a game window shows)
@@ -75,9 +77,7 @@ countdown freezes in silence for a third of a second before the quiet night; the
 cuts to the storm on the frame its lightning lands (found in the footage, so a new
 recording needs no retiming); the klaxon comes in a third of a second early under the end
 of the storm; the report dips to black and the title comes up out of it. Captions are off
-before every cut and on after it. `--face stencil` (or `signal`) sets the captions in the
-game's own 5x7 stencil face, copied from reactor-panic's `scripts/StencilFont.gd`; the
-wordmark stays in Bricolage.
+before every cut and on after it.
 The takes themselves (boards, clocks, taps) are staged in reactor-panic's
 `tools/promo_film_stage.gd`. Each recording differs a little (the intercom line, the orders on
 the desk), so look at the strip before posting a new render. The sound is the game's, made

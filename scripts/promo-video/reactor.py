@@ -2,12 +2,11 @@
 
 Cuts the footage that reactor-panic's tools/promo_film.gd records (360x640 PNG frames, f.wav and
 marks.json) into six beats, scales it 3x with hard pixels, and lays the captions and the last line
-over it. Nothing else is drawn on the game. Each beat hands over to the next in its own way
+over it in the game's own stencil face. Nothing else is drawn on the game. Each beat hands over to the next in its own way
 (see CUTS): a freeze in silence, a cut on the lightning, the klaxon arriving early, a dip to black.
 
     python reactor.py <film folder> <out.mp4>            the video
     python reactor.py <film folder> <strip.jpg> --strip  stills only, three a second, to check a layout
-    ... --face stencil                                   captions in another face (see FACES)
 
 Needs: pip install av pillow numpy fonttools brotli  (PyAV carries its own ffmpeg).
 """
@@ -63,17 +62,11 @@ MARK_SIZE, MARK_Y = 84, 410
 LAST_AT, MARK_AT, BALL_AT = 0.35, 0.6, 0.85  # seconds into the title cut
 GAIN, CEILING = 1.5, 0.97  # the game's mix is quiet for a phone feed
 
-# The caption faces. "bricolage" is the studio's own; the stencil ones are the game's 5x7 face
-# (reactor-panic's scripts/StencilFont.gd, the letters of its title), drawn in blocks the way
-# the game draws them. `caption` and `last` are type sizes for Bricolage, block sizes for stencil.
-FACES = {
-    "bricolage": dict(caption=86, last=54, ink=INK, band=(0, 0, 0), rule=None),
-    "stencil": dict(caption=9, last=5, ink=(240, 232, 209), band=(0, 0, 0), rule=None),
-    "signal": dict(
-        caption=9, last=5, ink=(89, 242, 255), band=(4, 10, 22), rule=(89, 242, 255)
-    ),
-}
-FACE = "bricolage"
+# The words are in the game's 5x7 stencil face (reactor-panic's scripts/StencilFont.gd, the
+# letters of its title), drawn in blocks the way the game draws them, in the paper white of its
+# incident report (the owner's pick, face B, 2026-11-13). Sizes are block widths in output
+# pixels. Only the wordmark is in the studio's Bricolage.
+CAPTION_CELL, LAST_CELL, PAPER = 9, 5, (240, 232, 209)
 STENCIL = {
     "A": "01110 10001 10001 11111 10001 10001 10001",
     "B": "11110 10001 10001 11110 10001 10001 11110",
@@ -198,14 +191,6 @@ def stencil(text, cell, fill):
     return _sprites[key]
 
 
-def words(text, role):
-    """A caption (`role` "caption") or the last line ("last") in the chosen face."""
-    face = FACES[FACE]
-    if FACE == "bricolage":
-        return sprite(text, face[role], 800 if role == "caption" else 700, face["ink"])
-    return stencil(text, face[role], face["ink"])
-
-
 def paste(canvas, im, xy, alpha):
     if alpha <= 0.0:
         return
@@ -280,7 +265,7 @@ def timeline(plan):
 def overlay(plan, i, n):
     """Everything of ours for this frame, on a clear canvas: the caption band, or the last line."""
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    shot, face = plan[i], FACES[FACE]
+    shot = plan[i]
     t, length = n / FPS, (shot["run"] + shot["hold"]) / FPS
     if shot["caption"]:
         # On after the cut, off before the next. Where the take runs on there is no cut, so the
@@ -297,12 +282,9 @@ def overlay(plan, i, n):
         d = ImageDraw.Draw(canvas)
         d.rectangle(
             (0, BAND_TOP, W, BAND_TOP + BAND_H),
-            fill=(*face["band"], int(BAND_ALPHA * band)),
+            fill=(0, 0, 0, int(BAND_ALPHA * band)),
         )
-        if face["rule"]:
-            for y in (BAND_TOP, BAND_TOP + BAND_H - 3):
-                d.rectangle((0, y, W, y + 2), fill=(*face["rule"], int(150 * band)))
-        im, pad, base, width, half = words(shot["caption"], "caption")
+        im, pad, base, width, half = stencil(shot["caption"], CAPTION_CELL, PAPER)
         arrive = ease((t - start) / CAPTION_IN)
         a = arrive * min(1.0, max(0.0, (gone - t) / CAPTION_OUT))
         y = BAND_TOP + BAND_H / 2 + half - base + (1 - arrive) * CAPTION_RISE
@@ -310,7 +292,7 @@ def overlay(plan, i, n):
     elif shot["take"] == "title":
         scrim = ease((t - LAST_AT + 0.1) / 0.4)
         ImageDraw.Draw(canvas).rectangle(SKY, fill=(4, 8, 20, int(150 * scrim)))
-        im, pad, base, width, _ = words(LAST_LINE, "last")
+        im, pad, base, width, _ = stencil(LAST_LINE, LAST_CELL, PAPER)
         a = ease((t - LAST_AT) / 0.4)
         paste(canvas, im, ((W - width) / 2 - pad, LAST_Y - base + (1 - a) * 22), a)
         # The wordmark, always in the studio's own face: "ai", the ball on the baseline where
@@ -484,8 +466,6 @@ def render(film, marks, out):
 
 if __name__ == "__main__":
     film, out = Path(sys.argv[1]), Path(sys.argv[2])
-    if "--face" in sys.argv:
-        FACE = sys.argv[sys.argv.index("--face") + 1]
     marks = json.loads((film / "marks.json").read_text())["marks"]
     out.parent.mkdir(parents=True, exist_ok=True)
     (strip if "--strip" in sys.argv else render)(film, marks, out)
