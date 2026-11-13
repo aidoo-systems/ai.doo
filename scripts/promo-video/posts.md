@@ -212,6 +212,8 @@ from footage of the real game (the README's line writes it as `out/reactor-start
   paid campaign is Submarine Panic's (D-015), and Reactor Panic takes no paid installs until
   its Phase 3 has shipped (its own D-008).
 - Not LinkedIn: that page talks to shops.
+- Queued in Buffer on 2026-11-13 for Saturday 2026-11-14: Facebook 10:00, Instagram 18:00,
+  TikTok 19:30 (owner's go-ahead, times Claude's pick).
 - In Buffer: video title "The meltdown is your fault" (left empty, Facebook shows "Untitled
   Video"); cover at 20,800 ms, the report with its D stamp (the video opens on a dark frame).
   Not AI-made: it's the game's own footage. TikTok can post directly: the video has its sound.
