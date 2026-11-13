@@ -47,6 +47,7 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 ## Work log
 
 ### 2026-11-13
+- **Tea Tower on the App Store (owner, in a plain chat; no roadmap row).** The owner said Tea Tower is on iOS too and gave the listing (`https://apps.apple.com/gb/app/tea-tower/id6822895776`; not yet found by search). Its homepage card now has iOS beside Android, and its title carries `data-ios`, so it opens the App Store on Apple devices like the other four mobile games. Site, build, audit and docs gates PASS locally; tests failed locally only because they swept up a stale copy of the site in `.claude/worktrees/amazing-panini-518452` (the owner can delete it); CI Gates green. **Merged by the owner (#147) 2026-11-13**; the deploy passed and aidoo.biz serves both links.
 - **An introduction post, with the professional photos (owner, in a plain chat; no roadmap row).** The owner wrote and posted it on Facebook and Instagram: who the studio is, with thanks to Amoré du Plessis Photography. Asked whether LinkedIn should get the same, Claude said yes with different words: the dressing-up line and the thanks kept, most emojis dropped, and a sentence for small businesses on the Island with a way to get in touch. The owner posted it by hand. Both texts, and what to do the next time a post is about the studio rather than a product, are in [the posting notes](../scripts/promo-video/posts.md) ("Introducing ourselves").
 
 ### 2026-11-12
