@@ -154,6 +154,51 @@ card at home". The same words on both:
 
 The 16:9 (`explainer1-16x9.mp4`) is for LinkedIn, by hand.
 
+## Introducing ourselves (posted by 2026-11-13)
+
+Photos, not a video: the professional pictures by Amoré du Plessis Photography. The owner
+wrote and posted the Facebook and Instagram one, the same words on both:
+
+> We figured it was time to introduce ourselves, and somehow, that meant dressing up and having professional photos taken. 😂
+>
+> We’re a small, independent software studio on the Isle of Man, creating games, apps, websites and clever tools to make everyday life a little easier.
+>
+> We believe technology should be useful, accessible and, now and then, a bit of fun.
+>
+> We’re learning, growing and building, and can’t wait to bring you along for the ride!
+>
+> 📸 Huge thanks to Amoré du Plessis Photography for capturing us so wonderfully (and making us look much more professional than we feel most days!). ❤️
+>
+> Thanks for stopping by! 🚀
+>
+> 🌐 aidoo.biz
+>
+> #aidoo #IsleOfMan
+
+LinkedIn got its own words, drafted with Claude and posted by the owner by hand:
+
+> We thought it was time to introduce ourselves properly, which somehow meant dressing up and having professional photos taken.
+>
+> ai.doo is a small, independent software studio on the Isle of Man. We make games, apps, websites and tools that make everyday things a bit easier, for people and for the small businesses around us.
+>
+> We're new, which means you deal directly with the people who build it. If you run a shop, a café or a small business on the island and there's something you wish was simpler, we'd love to hear about it.
+>
+> Thank you to Amoré du Plessis Photography for the photos, and for making us look more professional than we feel most days.
+>
+> aidoo.biz
+>
+> #IsleOfMan #aidoo
+
+For the next post about us rather than a product:
+
+- It goes on LinkedIn as well as Facebook and Instagram, with the same photos and different words. Facebook and Instagram are friends, family and customers; LinkedIn is the Island's business owners (D-031).
+- On LinkedIn keep the warmth, drop most of the emojis, and add one sentence on who we work with and one way to get in touch. "New" comes with what it buys them: they deal with the people who build it.
+- Post on the company page, then the owner reshares it from his own profile with a line of his own. The company page is new, so his network is most of the reach.
+- Tag whoever helped (here the photographer), so it reaches their followers too.
+- Two or three photos at most.
+
+This is the plan's LinkedIn "Who builds it?" (day 6 below).
+
 ## What to post next
 
 Daily on Facebook and Instagram, two or three times a week on LinkedIn, TikTok and Shorts
