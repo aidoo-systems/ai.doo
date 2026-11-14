@@ -350,3 +350,21 @@ def test_terrys_tatos_wears_terry_whole_and_has_a_potato():
     assert (REPO_ROOT / "stamps" / "logos" / "terrystatos.png").read_bytes()[
         :8
     ] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_get_stuffed_stamps_with_a_flame():
+    # Their paper card's stamp is a flame, so the demo stamps one until their logo is in
+    settings = run(
+        {
+            "shop": "Get Stuffed",
+            "icon": "fire",
+            "reward": "free meal",
+            "stamps": "5",
+            "color": "000000",
+            "fg": "7B7FE0",
+        }
+    )["settings"]
+    assert settings["icon"] == "🔥"
+    assert settings["stamps"] == 5
+    assert settings["color"] == "#000000"
+    assert settings["fg"] == "#7b7fe0"

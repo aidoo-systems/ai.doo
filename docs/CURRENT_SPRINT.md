@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-13
+Last updated: 2026-11-14
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
 
@@ -45,6 +45,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-14
+- **Stamps batch 5: Get Stuffed (owner, in a plain chat; no roadmap row).** A friend of the owner spotted their paper stamp card: a mobile caterer, six circles with the last free, stamped with their flame. Their demo is a link in their black and purple-blue, five stamps to a free meal. The stamp is a new icon, `fire` (🔥), because their own stamp is the flame; `card.js?v=7`. No logo from Facebook: the owner chose the flame stamp alone. Email and follow-up drafted in [batch 5](design/2026-11-14-stamps-outreach-batch-5.md); prospect #67. **Next:** the owner merges, opens the link on a phone, then sends the email.
 
 ### 2026-11-13
 - **An introduction post, with the professional photos (owner, in a plain chat; no roadmap row).** The owner wrote and posted it on Facebook and Instagram: who the studio is, with thanks to Amoré du Plessis Photography. Asked whether LinkedIn should get the same, Claude said yes with different words: the dressing-up line and the thanks kept, most emojis dropped, and a sentence for small businesses on the Island with a way to get in touch. The owner posted it by hand. Both texts, and what to do the next time a post is about the studio rather than a product, are in [the posting notes](../scripts/promo-video/posts.md) ("Introducing ourselves").
