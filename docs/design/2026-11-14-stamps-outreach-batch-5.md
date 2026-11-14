@@ -15,10 +15,8 @@ costs nothing.
 ## Before sending
 
 Open the link on your phone first. The stamp is a 🔥 because their paper card's stamp is their
-flame (the one stamped circle on the card the owner saw). If the owner saves their flame logo
-from Facebook and picks it (D-044's exception), it goes on the list as `getstuffed` and the link
-gains `&logo=getstuffed`: the demo then stamps with the flame itself, as the real service stamps
-with a shop's logo.
+flame (the one stamped circle on the card the owner saw). No logo: the owner chose the flame
+stamp alone (2026-11-14), so the card's header wears the 🔥 too.
 
 ---
 
