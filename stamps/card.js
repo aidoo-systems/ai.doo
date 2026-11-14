@@ -15,7 +15,7 @@
   var ICONS = {
     coffee: "☕", tea: "🍵", icecream: "🍦", cake: "🍰", croissant: "🥐", donut: "🍩",
     cookie: "🍪", sandwich: "🥪", pizza: "🍕", burger: "🍔", flower: "🌸", scissors: "✂️",
-    paw: "🐾", star: "⭐", potato: "🥔",
+    paw: "🐾", star: "⭐", potato: "🥔", fire: "🔥",
   };
   // A shop's own logo, by name from this list only (a link never names a file). `tint` marks a
   // one-colour line mark, worn in the card's writing colour so it reads on the shop's ground;
