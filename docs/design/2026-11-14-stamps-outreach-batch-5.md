@@ -1,6 +1,6 @@
 # Stamps outreach, batch 5: Get Stuffed (P2.0, D-010)
 
-Status: **drafted 2026-11-14**, not sent. Same rules as
+Status: **sent 2026-11-14** by the owner (S14, Get Stuffed; channel not recorded). Follow-up due 2026-11-21. Same rules as
 [batch 2](2026-11-03-stamps-outreach-batch-2.md): plain text from your own address or Facebook
 profile, no family names, one follow-up after a week, then stop. Log it in the
 [prospect list](2026-10-02-promo-prospects.md)'s contact log when sent, with its channel.
