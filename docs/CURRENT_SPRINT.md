@@ -1,8 +1,8 @@
 # Current Sprint
 
-Last updated: 2026-11-16
+Last updated: 2026-11-17
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
-State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed)
+State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed; every row waiting on the owner is listed under Owner gates)
 
 ## Goal
 
@@ -34,7 +34,13 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- P2.0c (the live board): merged (#98) and live; the board answers since the VPS fix. Last check: play one game on aidoo.biz and see the given name on the week's board (`curl -s "https://aidoo.biz/api/pour/board?skin=wobbly-gull"` shows the row); then the row is Complete.
+- P2.0l (their name on the pour): open a `?name=` link on a phone and judge all three screens.
+- P2.0s (the milk skin): play `?skin=dairy&name=Isle%20of%20Man%20Creamery` on a phone.
+- P2.0q (venue links): try `&name=` with `?skin=cafe` and `?skin=pub` on a phone. Partly seen: the venue links and the pint in P2.0v.
+- P2.0ac (split the mark): play the live `?mode=split` on a phone, with the glass-bottom fix. Partly seen: the split was played and loved 2026-10-30.
+- P2.1j (the share card): paste https://aidoo.biz/play/pour/ into Messenger and check the card.
+- P2.1l (a 404 that plays): first add the Caddy `handle_errors` rule (CLAUDE.md, VPS step 7); aidoo.biz/nope returns an empty 404 today. Then flick the ball on a phone.
+- P2.0c (the live board): merged (#98) and live; the board answers since the VPS fix. Partly seen: the branch was played ("Love it."). Last check: play one game on aidoo.biz and see the given name on the week's board (`curl -s "https://aidoo.biz/api/pour/board?skin=wobbly-gull"` shows the row); then the row is Complete.
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Upload the redrawn profile banners (2026-11-12): `images/brand/ai-doo-banner-linkedin-company.png` and `-linkedin-personal.png` to LinkedIn, `-youtube.png` to YouTube, and `-header.png` wherever a 1500x500 header is used.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
@@ -44,6 +50,9 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
 ## Work log
+
+### 2026-11-17
+- **Roadmap tidy (`docs/rft-tidy`; owner approved in a plain chat: "Yes, open both").** P2.0n Complete (machine gate, merged in #56, tests green); P2.0r Complete as a judgement call (#61, Codex clean; the owner has since played `/play/pour/` skins on a phone in P2.0z #88 and P2.0v #91); P2.0p Superseded (by P2.0q, D-025), with `Superseded (by what)` added to the roadmap's status list. P2.0u's evidence no longer reads as Ready For Test. Owner gates now name every row still waiting on the owner: P2.0l, P2.0s, P2.0q, P2.0ac, P2.0c, P2.1j and P2.1l. Docs only.
 
 ### 2026-11-14
 - **Stamps batch 5: Get Stuffed (owner, in a plain chat; no roadmap row).** A friend of the owner spotted their paper stamp card: a mobile caterer, six circles with the last free, stamped with their flame. Their demo is a link in their black and purple-blue, five stamps to a free meal. The stamp is a new icon, `fire` (🔥), because their own stamp is the flame; `card.js?v=7`. No logo from Facebook: the owner chose the flame stamp alone. Email and follow-up drafted in [batch 5](design/2026-11-14-stamps-outreach-batch-5.md); prospect #67. Merged (#149) and live 2026-11-14; the owner sent the email the same day. **Next:** one follow-up on 2026-11-21, same channel, then stop.
