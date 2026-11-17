@@ -34,13 +34,12 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 
 ## Owner gates — waiting on a human
 
-- P2.1n (the footer biscuit): approved on a phone (2026-11-04, "Feels right"). Stage 5: Gemini, high, NO BLOCKERS (2026-11-04; Codex at its limit until 2026-11-09, queued for its re-check). Merged by the owner (#133) 2026-11-04; the deploy and the gates on main passed, and aidoo.biz serves the footer line. **Next:** the owner taps the biscuit on aidoo.biz on a phone.
 - P2.0c (the live board): merged (#98) and live; the board answers since the VPS fix. Last check: play one game on aidoo.biz and see the given name on the week's board (`curl -s "https://aidoo.biz/api/pour/board?skin=wobbly-gull"` shows the row); then the row is Complete.
 - Upload `images/brand/ai-doo-avatar-1024.png` as the avatar on GitHub, LinkedIn, YouTube, TikTok and the store developer pages, and the matching `images/brand/ai-doo-banner-*.png` as each profile's background. Paste the homepage link into a chat to see the new share card.
 - Upload the redrawn profile banners (2026-11-12): `images/brand/ai-doo-banner-linkedin-company.png` and `-linkedin-personal.png` to LinkedIn, `-youtube.png` to YouTube, and `-header.png` wherever a 1500x500 header is used.
 - Send the follow-ups on 2026-10-27, find a working Villa Gaiety address, and keep up the outreach (2–3 hours a week). Set up a Google Ads account for the Submarine Panic campaign (about £50, D-015) once its analytics release is live.
 - Fix the two stray DNS records.
-- Merge #80 (the Facebook cover). The Pomodorable screen recordings in Downloads could become a 15-second clip for TikTok and Instagram, if wanted.
+- The Pomodorable screen recordings in Downloads could become a 15-second clip for TikTok and Instagram, if wanted.
 - For the About page (P2.1g, D-023): read it on a phone with the photos in, and approve the photos and every sentence.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 
