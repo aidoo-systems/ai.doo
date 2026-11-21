@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>$name_html stamp card guide</title>
+<!-- The one-page guide for $name_poss pack ($occasion), A4, to laminate.
+     Every line is what the live service does today (loyalty docs/OWNER_GUIDE.md) and the price is D-037.
+     Their name logo is for their own pack only: never in a post or video unless they say yes. -->
+<style>
+  @font-face { font-family: "Bricolage"; src: url("$fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("$fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
+  @page { size: A4 portrait; margin: 0; }
+  :root { --teal: $ink; --light: $accent; --wash: $wash; --ink: $deep; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: $backdrop; }
+  body { display: grid; place-items: center; padding: 24px 16px; font-family: "Inter", system-ui, sans-serif; color: var(--ink); }
+  .page {
+    width: 210mm; height: 297mm; background: $paper; position: relative; overflow: hidden;
+    padding: 14mm 15mm 11mm; display: flex; flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,.18);
+  }
+  .page::before { content: ""; position: absolute; inset: 6mm; border: .6mm solid var(--light); border-radius: 4mm; pointer-events: none; }
+  .page::after { content: ""; position: absolute; inset: 7.4mm; border: .25mm solid var(--light); border-radius: 3.2mm; pointer-events: none; }
+  header { display: flex; align-items: center; gap: 8mm; }
+  header img { width: ${leaflet_wordmark_mm}mm; height: auto; display: block; }
+  header h1 { font-family: "Bricolage", "Inter", sans-serif; font-weight: 700; font-size: 10mm; line-height: 1; letter-spacing: -.02em; color: var(--teal); margin: 0; }
+  header p { margin: 2mm 0 0; font-size: 3.6mm; color: var(--teal); }
+  h2 { font-family: "Bricolage", "Inter", sans-serif; font-weight: 700; font-size: 5.2mm; letter-spacing: -.01em; color: var(--teal); margin: 0 0 2.5mm; }
+  p, li { font-size: 3.35mm; line-height: 1.45; }
+  p { margin: 0; }
+  b { color: var(--teal); }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin: 7mm 0 0; }
+  .step { background: var(--wash); border-radius: 3mm; padding: 4mm 4mm 4.5mm; }
+  .num { font-family: "Bricolage", sans-serif; font-weight: 700; font-size: 7mm; line-height: 1; color: var(--light); }
+  .step h3 { font-family: "Bricolage", sans-serif; font-size: 4.3mm; margin: 1.5mm 0 1.2mm; color: var(--teal); }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 8mm; margin: 7mm 0 0; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { position: relative; padding-left: 4.5mm; margin: 0 0 2.2mm; }
+  li::before { content: ""; position: absolute; left: 0; top: 1.6mm; width: 1.8mm; height: 1.8mm; border-radius: 50%; background: var(--light); }
+  .key { display: inline-block; font-weight: 700; color: #fff; background: var(--teal); border-radius: 1.2mm; padding: 0 1.4mm; font-size: 3mm; }
+
+  .phones { margin: 6mm 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 5mm; }
+  .phones h2 { grid-column: 1 / -1; }
+  .phone { background: var(--wash); border-radius: 3mm; padding: 3.5mm 4mm; }
+  .phone h3 { font-family: "Bricolage", sans-serif; font-size: 4.2mm; margin: 0 0 1mm; color: var(--teal); }
+  .seen { margin: 6mm 0 0; display: grid; grid-template-columns: 50mm 1fr; gap: 7mm; align-items: center; }
+  .seen img { width: 100%; height: auto; display: block; }
+  .price { margin: 6mm 0 0; border: .5mm solid var(--teal); border-radius: 3mm; padding: 5mm 6mm; display: grid; grid-template-columns: auto 1fr; gap: 6mm; align-items: center; }
+  .big { font-family: "Bricolage", sans-serif; font-weight: 700; font-size: 6.4mm; line-height: 1.1; color: var(--teal); }
+
+  footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; font-size: 3.2mm; color: var(--teal); }
+  footer .by { font-size: 2.6mm; letter-spacing: .04em; opacity: .65; }
+
+  @media print {
+    html, body { background: #fff; }
+    body { display: block; padding: 0; }
+    .page { box-shadow: none; }
+    .step, .key, .phone { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    $leaflet_wordmark
+    <div>
+      <h1>Your stamp card</h1>
+      <p>$Stamps_word stamps earns $reward_lower. It works like your paper card, but it lives on the customer's phone.</p>
+    </div>
+  </header>
+
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h3>Getting a card</h3>
+      <p>The customer points their phone camera at the QR sign on the counter and taps <b>Get my card</b>. It goes into Apple or Google Wallet. There's nothing to download and nothing to sign up for.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h3>Stamping</h3>
+      <p>Open the stamper on the shop phone, scan the card on the customer's phone and tap <span class="key">+1</span>. The stamp shows up on their card straight away.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h3>The free $reward_noun</h3>
+      <p>On the $stamps_ordinal stamp, the stamper shows <span class="key">Give free item</span>. Tap it, give them their $reward_noun, and their card starts again.</p>
+    </div>
+  </div>
+
+  <div class="cols">
+    <section>
+      <h2>Day to day</h2>
+      <ul>
+        <li>For a bigger order, you can add more than one stamp in one go.</li>
+        <li>Pressed the wrong thing? <span class="key">Undo</span> takes the stamp off again. You've got 30 seconds.</li>
+        <li>If the signal drops, keep stamping as normal. The phone saves the stamps and sends them once it's connected again.</li>
+        <li><span class="key">Shop</span> shows how many stamps you've given today and in total.</li>
+        <li>Customers can't stamp their own cards. Only your shop phone can.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Worth knowing</h2>
+      <ul>
+        <li>The QR on your sign never changes, so you can put it on menus or post it on Facebook and Instagram.</li>
+        <li>$counters_line</li>
+        <li>If a shop phone goes missing, let me know and I'll stop it stamping straight away.</li>
+        <li>To change the reward, the number of stamps or the look of the card, just ask.</li>
+        <li>The card never asks for a name, an email or a phone number, so nobody's details are kept.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="phones">
+    <h2>Setting up the shop phone</h2>
+    <div class="phone">
+      <h3>On an iPhone</h3>
+      <p>Open the stamper in <b>Safari</b> and leave that tab open. Don't add it to the Home Screen: it won't be paired there and can't stamp.</p>
+    </div>
+    <div class="phone">
+      <h3>On an Android phone</h3>
+      <p>Open the stamper in <b>Chrome</b>, tap the menu (the three dots) and choose <b>Add to Home screen</b>. Then open it from the new icon.</p>
+    </div>
+  </div>
+
+  <div class="price">
+    <div class="big">Two weeks<br>free</div>
+    <p>Try it for two weeks first, free. If you'd like to keep it after that, it's <b>&pound;15 a month</b>. There's no setup fee and no contract, so you can stop whenever you like.</p>
+  </div>
+
+  <footer>
+    <div>
+      Any questions, just get in touch.<br>
+      <b>Keith</b> &middot; hello@aidoo.biz &middot; aidoo.biz
+    </div>
+    <div class="by">stamps by ai.doo</div>
+  </footer>
+</div>
+</body>
+</html>

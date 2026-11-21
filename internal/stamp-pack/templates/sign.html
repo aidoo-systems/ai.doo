@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>$name_html counter sign</title>
+<!-- The framed counter sign for $name_html ($occasion). A6, for a 10x15cm frame.
+     The QR is the live counter link, $card_url (qr.svg).
+     Their name logo is for their own sign only: never in a post or video unless they say yes. -->
+<style>
+  @font-face { font-family: "Bricolage"; src: url("$fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("$fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
+  @page { size: A6 portrait; margin: 0; }
+  :root { --teal: $ink; --light: $accent; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: $backdrop; }
+  body { display: grid; place-items: center; min-height: 100vh; padding: 24px 16px; font-family: "Inter", system-ui, sans-serif; color: var(--teal); }
+  .sign {
+    width: 105mm; height: 148mm; background: $paper; position: relative;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 11mm 10mm 8mm; box-shadow: 0 10px 40px rgba(0,0,0,.18);
+  }
+  .sign::before { content: ""; position: absolute; inset: 4.5mm; border: .5mm solid var(--light); border-radius: 3mm; pointer-events: none; }
+  .sign::after { content: ""; position: absolute; inset: 5.6mm; border: .2mm solid var(--light); border-radius: 2.4mm; pointer-events: none; }
+  .wordmark { width: ${sign_wordmark_mm}mm; height: auto; display: block; }
+  h1 { font-family: "Bricolage", "Inter", sans-serif; font-weight: 700; font-size: 6.4mm; line-height: 1.1; letter-spacing: -.02em; margin: 6mm 0 0; }
+  .qr { width: 46mm; height: 46mm; margin: 6mm 0 0; display: block; }
+  .scan { font-weight: 600; font-size: 3.7mm; margin: 4mm 0 0; }
+  .small { font-size: 2.8mm; line-height: 1.35; margin: 1.6mm 0 0; color: rgba($ink_rgb,.8); }
+  .by { margin-top: auto; font-size: 2.2mm; letter-spacing: .04em; color: rgba($ink_rgb,.55); }
+  @media print {
+    html, body { background: #fff; }
+    body { display: block; min-height: 0; padding: 0; }
+    .sign { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="sign">
+    $sign_wordmark
+    <h1>$headline_html</h1>
+    <img class="qr" src="qr.svg" alt="QR code for your $name_html stamp card">
+    <p class="scan">Scan for your stamp card</p>
+    <p class="small">Nothing to download. It saves to your<br>phone's Wallet, and we stamp it at the counter.</p>
+    <p class="by">stamps by ai.doo</p>
+  </div>
+</body>
+</html>

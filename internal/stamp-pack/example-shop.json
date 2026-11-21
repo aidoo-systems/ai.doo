@@ -1,0 +1,20 @@
+{
+  "slug": "example-shop",
+  "name": "Example Shop",
+  "stamps": 8,
+  "reward": "A free coffee",
+  "reward_noun": "coffee",
+  "card": {
+    "bg": "#222222",
+    "fg": "#FFFFFF"
+  },
+  "print": {
+    "ink": "#222222",
+    "accent": "#888888"
+  },
+  "logo": "mark.png",
+  "logo_desc": "their mark",
+  "wordmark": "wordmark.png",
+  "occasion": "walk-in",
+  "when_html": "Walk-in"
+}
