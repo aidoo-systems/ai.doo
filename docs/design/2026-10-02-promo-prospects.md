@@ -95,6 +95,8 @@ Four on or beside Village Walk, Onchan, so one morning on foot covers them, and 
 | 65 | Terry's Tato's (Strand Street, Douglas; listings say 79 or 10; 07624 259082) | **Stamp card**, added 2026-11-10 (batch 4): a jacket potato takeaway with a paper card, 10 for a free jacket (seen by the owner). No website; the logo is Terry from their Facebook logo (D-044's exception, `?logo=terrystatos`). Sent 2026-11-10; declined 2026-11-12 (keeping paper) |
 | 66 | Ground & Co (the coffee machine at Spar) | **Stamp card**, added 2026-11-10: a paper card for the machine's coffee, 10 for a free coffee (seen by the owner). Who runs it on the Island isn't known yet, so not pitched: pitch the Spar store or Ground & Co once that's known |
 | 67 | Get Stuffed (mobile catering: burgers, hot dogs, Philly cheesesteaks, loaded fries; 234786 / 231182; GetStuffedIOM@gmail.com) | **Stamp card**, added 2026-11-14 (batch 5): spotted by a friend of the owner; a paper card of six circles, the last free (main, classic fries and drink), stamped with their flame. No website found. Sent 2026-11-14 with a flame stamp (`?icon=fire`); no logo (owner's choice, the flame stamp is enough) |
+| 68 | Coffee Corner (37 Finch Road, Douglas, IM1 2PR; 01624 619209; coffeecorner.im; open weekdays 8 to 3) | **Stamp card**, added 2026-11-21: a café that also does buffet catering, with weekday office regulars; no card on their site. Facebook message with its named link in their plum and cream (`color=3E2229&fg=F6F1EB`, 8 stamps, a free coffee) |
+| 69 | The Windsor Coffee Co (26/27 Loch Promenade, Douglas, above Paparazzi pizzeria; Facebook only, its email is Paparazzi's) | **Stamp card**, added 2026-11-21: a café; new menu posted 2026-11-05. Facebook message with its named link in the plain coffee colours (their website didn't load; colours to follow if they reply) |
 
 Spares on the same walk: Scissors Hairdressers (next to #58) and Heavenly Hounds (groomer, Unit 3C). Ask each whether it uses **Loyal IOM**, a local NFC stamp app, and log it under "We already use X".
 
@@ -175,6 +177,10 @@ first message used. Facebook messages go from the owner's own profile to the bus
 | 2026-11-10 | 65 | Terry's Tato's | Sent by the owner (channel not recorded) | 2026-11-12: declined. Keeping paper (about £15 for 500 cards, no monthly fee); money tight; a friend's husband may build them an app. Owner replied warmly, no further pitch | No | No | Paper cards |
 | 2026-11-11 | 28 | Davisons | Email (owner): the 11-11 meeting postponed, all ill; asked for Thu 12 or Mon 16 | | | | |
 | 2026-11-14 | 67 | Get Stuffed | Sent by the owner (channel not recorded), stamp card, flame stamp link (#149 live first) | | | | |
+| 2026-11-21 | 44 | Gelatory | **Facebook message** (owner), stamp card, its October link: a new channel after the unanswered email and follow-up. Its last message: stop here unless they write | | | | |
+| 2026-11-21 | 62 | Woodbourne Deli | Follow-up, same thread as the friend's introduction (owner): the card is on its first counter, an offer to drop by and show it, two weeks free, no pressure | | | | |
+| 2026-11-21 | 68 | Coffee Corner | **Facebook message** (owner), stamp card, named link | | | | |
+| 2026-11-21 | 69 | The Windsor Coffee Co | **Facebook message** (owner), stamp card, named link; opened on their new menu | | | | |
 
 Sources for #49 to #56 (retrieved 2026-10-27, not yet checked as trading): Visit Isle of Man
 (Laxey Beach Stop Cafe, Davison's, the Manx Menu pages for Manx Moos and the Gelato Shed),
