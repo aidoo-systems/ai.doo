@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-17
+Last updated: 2026-11-21
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed; every row waiting on the owner is listed under Owner gates)
 
@@ -48,8 +48,12 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - The Pomodorable screen recordings in Downloads could become a 15-second clip for TikTok and Instagram, if wanted.
 - For the About page (P2.1g, D-023): read it on a phone with the photos in, and approve the photos and every sentence.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
+- Davison's pilot (live since 2026-11-20): about 2026-12-02, message Ian and Greig with their stamp count (the stamper's **Shop** button) and ask whether to keep the card going at £15 a month (D-045); the free two weeks end 2026-12-04. Share their post when it appears; nothing of theirs goes in ours until they say yes.
 
 ## Work log
+
+### 2026-11-20
+- **Davison's pilot is live: the sign is on their counter (owner, in a plain chat; no roadmap row).** The owner met Ian and Greig and reported it on 2026-11-20: they were happy, the framed sign with the live QR (`stamps.aidoo.biz/s/davisons/new`) is on the counter, and a device of theirs is paired as the stamper ("the phone/iPad we paired"). Greig suggested they post about it and asked for ai.doo's social links. The owner then sent both an onboarding email: the card link (it never changes, so it can go in a post or a bio), the scanner (`stamps.aidoo.biz/scan`, on the paired device), the four social links and the site, an ask to share their post and to post the owner's photo of the sign on their counter, and an offer to pair more devices over a video call. The price was left out on purpose: it is on the laminated guide and in the first email. A PNG of their QR for posts and menus is `internal/davisons/davisons-stamp-card-qr.png` (1184px, their teal on white with a quiet zone; a QR reader decodes it to the card link, down to 120px), untracked like the rest of the pack. The free two weeks, counted from 2026-11-20, end 2026-12-04; then £15 a month for the whole business (D-045). Their name, logo and the counter photo stay out of ai.doo's posts until they say yes. **Next:** about 2026-12-02 the owner messages them with their stamp count (the stamper's **Shop** button) and asks whether to keep it going; share their post when it appears.
 
 ### 2026-11-17
 - **Roadmap tidy (`docs/rft-tidy`; owner approved in a plain chat: "Yes, open both").** P2.0n Complete (machine gate, merged in #56, tests green); P2.0r Complete as a judgement call (#61, Codex clean; the owner has since played `/play/pour/` skins on a phone in P2.0z #88 and P2.0v #91); P2.0p Superseded (by P2.0q, D-025), with `Superseded (by what)` added to the roadmap's status list. P2.0u's evidence no longer reads as Ready For Test. Owner gates now name every row still waiting on the owner: P2.0l, P2.0s, P2.0q, P2.0ac, P2.0c, P2.1j and P2.1l. Docs only.
