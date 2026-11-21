@@ -9,8 +9,8 @@
      The QR is the live counter link, $card_url (qr.svg).
      Their name logo is for their own sign only: never in a post or video unless they say yes. -->
 <style>
-  @font-face { font-family: "Bricolage"; src: url("../../fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
-  @font-face { font-family: "Inter"; src: url("../../fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Bricolage"; src: url("$fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("$fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
   @page { size: A6 portrait; margin: 0; }
   :root { --teal: $ink; --light: $accent; }
   * { box-sizing: border-box; }
@@ -38,7 +38,7 @@
 </head>
 <body>
   <div class="sign">
-    <img class="wordmark" src="wordmark.png" alt="$name_html">
+    $sign_wordmark
     <h1>$headline_html</h1>
     <img class="qr" src="qr.svg" alt="QR code for your $name_html stamp card">
     <p class="scan">Scan for your stamp card</p>

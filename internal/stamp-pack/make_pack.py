@@ -34,6 +34,7 @@ from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 TEMPLATES = HERE / "templates"
+REPO_FONTS = HERE.parents[1] / "fonts"  # the site's own self-hosted fonts
 LOYALTY_SRC = Path(os.environ.get("LOYALTY_SRC", HERE.parents[2] / "loyalty" / "src"))
 
 WORDS = {
@@ -228,6 +229,25 @@ def fields(shop: dict, folder: Path) -> dict:
     }
 
 
+def placed(shop: dict, out: Path) -> dict:
+    """What depends on where the pack is written: the path to the site's fonts, and the name
+    picture (the shop's name set in type when there is no `wordmark`)."""
+    try:
+        fonts = Path(os.path.relpath(REPO_FONTS, out)).as_posix()
+    except ValueError:  # another drive on Windows: no relative path exists
+        fonts = REPO_FONTS.as_uri()
+    name = html.escape(shop["name"], quote=False)
+    alt = name.replace('"', "&quot;")
+    if shop.get("wordmark"):
+        sign = f'<img class="wordmark" src="wordmark.png" alt="{alt}">'
+        leaflet = f'<img src="wordmark.png" alt="{alt}">'
+    else:
+        type_ = "font-family: &quot;Bricolage&quot;, &quot;Inter&quot;, sans-serif; font-weight: 700; letter-spacing: -.02em; margin: 0"
+        sign = f'<p class="name" style="{type_}; font-size: 9mm; line-height: 1.05">{name}</p>'
+        leaflet = f'<p class="name" style="{type_}; font-size: 8mm; line-height: 1; color: var(--teal)">{name}</p>'
+    return {"fonts": fonts, "sign_wordmark": sign, "leaflet_wordmark": leaflet}
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("shop", type=Path, help="the shop's shop.json")
@@ -244,6 +264,7 @@ def main() -> None:
     out = (args.out or folder).resolve()
     out.mkdir(parents=True, exist_ok=True)
     values = fields(shop, folder)
+    values.update(placed(shop, out))
 
     for name in ("sign.html", "leaflet.html", "briefing.html"):
         text = Template((TEMPLATES / name).read_text(encoding="utf-8")).substitute(

@@ -9,8 +9,8 @@
      Every line is what the live service does today (loyalty docs/OWNER_GUIDE.md) and the price is D-037.
      Their name logo is for their own pack only: never in a post or video unless they say yes. -->
 <style>
-  @font-face { font-family: "Bricolage"; src: url("../../fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
-  @font-face { font-family: "Inter"; src: url("../../fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
+  @font-face { font-family: "Bricolage"; src: url("$fonts/bricolage-grotesque-latin.woff2") format("woff2"); font-weight: 200 800; }
+  @font-face { font-family: "Inter"; src: url("$fonts/inter-latin.woff2") format("woff2"); font-weight: 100 900; }
   @page { size: A4 portrait; margin: 0; }
   :root { --teal: $ink; --light: $accent; --wash: $wash; --ink: $deep; }
   * { box-sizing: border-box; }
@@ -66,7 +66,7 @@
 <body>
 <div class="page">
   <header>
-    <img src="wordmark.png" alt="$name_html">
+    $leaflet_wordmark
     <div>
       <h1>Your stamp card</h1>
       <p>$Stamps_word stamps earns $reward_lower. It works like your paper card, but it lives on the customer's phone.</p>
