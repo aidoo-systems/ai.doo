@@ -149,7 +149,7 @@ def render_card(shop: dict, folder: Path) -> bytes:
     from loyalty import render
 
     logo = plain_png((folder / shop["logo"]).read_bytes()) if shop.get("logo") else None
-    wm_file = shop.get("card_wordmark") or shop.get("wordmark")
+    wm_file = card_picture(shop)
     wordmark = plain_png((folder / wm_file).read_bytes()) if wm_file else None
     card = shop["card"]
     return render.stamp_boxes_png(
@@ -215,18 +215,36 @@ def fields(shop: dict, folder: Path) -> dict:
         "notes_kind": shop.get("notes_kind", "visit notes"),
         "when_html": shop.get("when_html", "Walk-in"),
         "logo_file": shop.get("logo_upload", Path(shop.get("logo", "")).name),
-        "wordmark_upload": shop.get(
-            "wordmark_upload", "their name logo, <b>wordmark.png</b>"
-        ),
+        "wordmark_upload": shop.get("wordmark_upload", default_upload(shop)),
         "notes_comment": shop.get(
             "notes_comment",
             f"Keith's own notes for {name_html}, {shop.get('occasion', 'visit')}. Not for the shop.",
         ),
         "logo_desc": shop.get("logo_desc", "their mark"),
-        "wordmark_desc": shop.get("wordmark_desc", "their name logo"),
+        "name_picture": (
+            f"{shop.get('wordmark_desc', 'their name logo')} as the name picture"
+            if card_picture(shop)
+            else "no name picture"
+        ),
         "in_the_bag": bag_html,
         "talking_points": talking.read_text(encoding="utf-8"),
     }
+
+
+def card_picture(shop: dict) -> str | None:
+    """The name picture the card uses (and card.png shows): `card_wordmark`, else `wordmark`."""
+    return shop.get("card_wordmark") or shop.get("wordmark")
+
+
+def default_upload(shop: dict) -> str:
+    """What the briefing says to upload as the name picture on /owner: the card's own file."""
+    if shop.get("card_wordmark"):
+        return (
+            f"their name logo, <b>{html.escape(Path(shop['card_wordmark']).name)}</b>"
+        )
+    if shop.get("wordmark"):
+        return "their name logo, <b>wordmark.png</b>"
+    return "none, leave it empty"
 
 
 def placed(shop: dict, out: Path) -> dict:
