@@ -29,13 +29,13 @@ so it goes out while that is still true, and any later render needs the board re
 Not like the pour and stamps videos in one way worth deciding on purpose: **it shows other
 players' display names**. They are pseudonymous in-game callsigns, already public on the
 board inside the game, and the top two are the whole story. The pour video's rule is that it
-never shows a real player, so this is a deliberate exception, limited to rows 1 to 9.
+never shows a real player, so this is a deliberate exception, limited to rows 1 to 9. The owner chose callsigns and scores for all nine rows (2026-11-24).
 
 > I made this game, and someone has beaten my high score. Not edged it. Annihilated it.
 >
 > ENS Wahoo 620 put 45,354 on the board in Submarine Panic. I'm second on 34,403.
 >
-> The gap between them and me is bigger than the gap between me and ninth place. They held it together for nine and a half minutes down there, nearly twice as long as my best run ever lasted. And they never changed their callsign. That's just the name the game gives you.
+> The gap between them and me is bigger than the gap between me and ninth place. They held it together for nine and a half minutes down there, nearly twice as long as my best run ever lasted. And they didn't even bother to change their callsign. That's just the name the game gives you.
 >
 > I have absolutely no idea who this is.
 >
@@ -43,7 +43,7 @@ never shows a real player, so this is a deliberate exception, limited to rows 1 
 >
 > Submarine Panic. No ads. A new studio on the Isle of Man making small games we'd want on our own phones.
 >
-> Can someone please take it off them?
+> Can someone sink them for me? 🫡
 
 ## Pour game
 
