@@ -8,6 +8,7 @@ which carries its own ffmpeg (pip install av).
     python encode.py out/submarine-full-9x16
     python encode.py out/submarine-full-9x16 out/submarine.mp4 --fps 30
 """
+
 import argparse
 import pathlib
 import sys
@@ -52,7 +53,9 @@ def encode(frames_dir: pathlib.Path, out: pathlib.Path, fps: int) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("frames", type=pathlib.Path, help="folder of f0000.png frames")
-    ap.add_argument("out", type=pathlib.Path, nargs="?", help="MP4 to write (default: <folder>.mp4)")
+    ap.add_argument(
+        "out", type=pathlib.Path, nargs="?", help="MP4 to write (default: <folder>.mp4)"
+    )
     ap.add_argument("--fps", type=int, default=FPS)
     a = ap.parse_args()
     encode(a.frames, a.out or a.frames.with_suffix(".mp4"), a.fps)
