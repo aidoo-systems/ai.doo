@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-21
+Last updated: 2026-11-24
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed; every row waiting on the owner is listed under Owner gates)
 
@@ -52,6 +52,10 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - Stamp card walk-ins (packs approved 2026-11-21, in `internal/<shop>/`): for each of Coffee Corner, Gelatory and Woodbourne Deli, create the shop on `stamps.aidoo.biz/owner` with exactly its slug (`coffee-corner`, `gelatory`, `woodbourne-deli`) before printing, so the sign's QR works; then print the sign and leaflet and walk in.
 
 ## Work log
+
+### 2026-11-24
+
+- **Submarine Panic board video (owner, in a plain chat; no roadmap row, PR #156).** A stranger, ENS Wahoo 620, took first on the all time Fleet Board with 45,354; the owner is second on 34,403. `scripts/promo-video/submarine.html` renders a 27.0s silent 9:16 from the board as read that day (rows 1 to 9 with callsigns, the owner's call). It opens on "I made this game. And someone beat my high score" and ends "Can someone sink them for me?". Scheduled in Buffer for 2026-11-24: Facebook 18:30 (with both store links), Instagram 19:30, TikTok 20:30 (silent). Post copy in `scripts/promo-video/posts.md`. Row 14 of the live board carries a slur the English-only filter misses: fix it in submarine-panic.
 
 ### 2026-11-21
 - **The stamp card pack is a template (`item/stamp-pack`; owner, in a plain chat; no roadmap row).** `internal/stamp-pack/` turns one `shop.json` into Davison's pack in the shop's own colours: the A6 framed counter sign with the live QR, the A4 laminated staff guide (the only place the price appears), the owner's visit notes, `qr.svg`, a 1184px QR PNG for posts and menus, and a card render from loyalty's own renderer (`py internal/stamp-pack/make_pack.py internal/<shop>/shop.json`; needs Pillow, `qrcode` and the loyalty repo beside this one). Checked by rebuilding Davison's: sign, leaflet and briefing come out the same as the pack that went to their counter. Only the template is tracked; each shop's pack stays untracked in `internal/<shop>/`, because a shop's name and logo are for its own pack, never ai.doo's posts.

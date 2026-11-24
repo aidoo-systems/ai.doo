@@ -10,7 +10,10 @@ deploy's exclude list.
 | `stamps.html` | The stamp card video: hook, the demo's own phones (sign, Wallet, staff scan, full card), end card |
 | `clock.js` | A virtual clock loaded into every frame, so each frame is exact however slow the screenshot |
 | `render.mjs` | Serves the repo, plays the page, screenshots at 2x, encodes with ffmpeg |
+| `submarine.html` | The Submarine Panic video: a stranger annihilated the owner's score on the live Fleet Board |
+| `stills/` | Game plates for `submarine.html`, copied from submarine-panic's store screenshots |
 | `reactor.py` | The Reactor Panic video: cuts footage recorded from the game itself (see below) |
+| `encode.py` | Frames to MP4 with PyAV, for machines with no ffmpeg on the PATH |
 | `posts.md` | Which video goes on which account, and the words to post with it |
 
 ## Setup (once)
@@ -33,11 +36,18 @@ node render.mjs pour                      # pour, full, 9:16
 node render.mjs pour --cut short --land   # pour, 15s, 16:9
 node render.mjs pour --cut board          # pour, 15s, for players: the live weekly board
 node render.mjs stamps --shop "shop=Gelatory&icon=icecream&reward=free%20scoop&color=D74000&stamps=10"
+node render.mjs submarine                 # the Submarine Panic board video, 9:16. Not in `all`
 node render.mjs pour --frames 0,345,640   # stills only, to check a layout
 ```
 
 MP4s land in `out/` (ignored by git), named like `pour-full-9x16.mp4`. A full video takes one
-to two minutes. If ffmpeg is missing, the frames stay in `out/<name>/`.
+to two minutes. If ffmpeg is missing, the frames stay in `out/<name>/`, and `encode.py` turns
+them into the same MP4 with PyAV, which carries its own ffmpeg:
+
+```
+pip install av
+python encode.py out/submarine-full-9x16        # -> out/submarine-full-9x16.mp4
+```
 
 | Video | Length | Notes |
 |-------|--------|-------|
@@ -93,6 +103,33 @@ once the countdown starts the bar is held and no more cores come down, so the ru
 instead of filling up first. Each recording differs a little (the intercom line, the orders on
 the desk), so look at the strip before posting a new render. The sound is the game's, made
 about 3.5 dB louder; nobody has listened to it on a phone until the owner does.
+
+## The Submarine Panic video
+
+`node render.mjs submarine` (9:16, about 26s, silent). Not in `all`: it is about one
+moment on the live board, not an evergreen product video, so re-render it only on purpose.
+
+The numbers are the real all-time endless board, read from `spsb.aidoo.biz` on
+2026-11-24 and written into `ROWS` at the top of the page: ENS Wahoo 620 on 45,354,
+the owner (Nauti Buoy) second on 34,403, and the board nine deep. The two figures it
+draws are both arithmetic on those rows, so changing `ROWS` changes them: 10,951 from
+first to the owner, 9,821 from the owner to ninth. **If you re-read the board, re-read
+all nine rows**, because the claim the video makes ("the gap to first is bigger than
+the gap to ninth") only holds for this snapshot.
+
+Two things are deliberately left out:
+
+- **Rows 10 and below.** Row 14 of the live board is a transliterated Russian slur that
+  the backend's English-only wordlist (`BANNED_WORDS` in submarine-panic's
+  `backend/app/main.py`) does not catch. Until that filter is fixed, nothing below row 9
+  goes in a render.
+- **The menu and board store screenshots** (`1_menu.png`, `4_board.png`). Both carry the
+  harness's staged captain, "BEST 41,220 / #137 OF 5,120", which would contradict the
+  real board in the same video. Only the two patrol plates in `stills/` are used.
+
+The plates are stills with a slow drift, not footage: submarine-panic has no capture
+tool yet (its V.1), so there is no equivalent of reactor-panic's `tools/promo_film.gd`
+to record from. Real footage needs that tool, or a screen recording from a phone.
 
 ## Changing a video
 

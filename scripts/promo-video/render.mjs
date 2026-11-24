@@ -48,7 +48,7 @@ function args(argv) {
     else if (argv[i] === '--frames') a.frames = new Set(argv[++i].split(',').map(Number));
     else throw new Error('unknown option ' + argv[i]);
   }
-  if (!['pour', 'stamps', 'all'].includes(a.film)) throw new Error('say which video: pour, stamps or all');
+  if (!['pour', 'stamps', 'submarine', 'all'].includes(a.film)) throw new Error('say which video: pour, stamps, submarine or all');
   if (!['full', 'short', 'board'].includes(a.cut)) throw new Error('--cut is full, short or board');
   if (a.cut === 'board' && a.film !== 'pour') throw new Error('--cut board is for the pour video');
   if (a.shop && a.film !== 'stamps') throw new Error('--shop is for the stamps video');
@@ -132,6 +132,17 @@ async function stamps(page, base, frame) {
   }
 }
 
+// A film that is only its own page, with no demo to drive: every frame is window.render(t).
+async function plain(page, base, frame) {
+  const C = await page.evaluate(() => window.CUT);
+  const n = Math.round(C.dur * FPS);
+  for (let i = 0; i < n; i++) {
+    await page.evaluate(t => window.render(t), i / FPS);
+    await frame(i);
+    await page.evaluate(ms => window.__step(ms), 1000 / FPS);
+  }
+}
+
 async function render(browser, port, a) {
   const shop = new URLSearchParams(a.shop).get('shop');
   const name = [a.film, shop && shop.toLowerCase().replace(/[^a-z0-9]+/g, '-'), a.cut, a.land ? '16x9' : '9x16'].filter(Boolean).join('-');
@@ -159,7 +170,7 @@ async function render(browser, port, a) {
   const frame = async i => {
     if (!a.frames || a.frames.has(i)) await page.screenshot({ path: path.join(dir, 'f' + String(i).padStart(4, '0') + '.png') });
   };
-  await (a.film === 'pour' ? pour : stamps)(page, base, frame);
+  await (a.film === 'pour' ? pour : a.film === 'stamps' ? stamps : plain)(page, base, frame);
   await page.close();
 
   if (a.frames) { console.log('  stills in', dir); return; }
