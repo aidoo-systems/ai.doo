@@ -41,9 +41,10 @@ html,body{margin:0;width:540px;height:960px;overflow:hidden;background:var(--hul
 
 /* ---- 1. hook ---- */
 #hook{display:flex;flex-direction:column;justify-content:center;padding:0 44px 90px;gap:18px}
-#hook .big{font-size:44px;line-height:1.1;color:#dbe6ee}
+#hook .made{font-size:30px;color:#dbe6ee;margin-bottom:10px}
+#hook .big{font-size:36px;line-height:1.1;color:#dbe6ee}
 #hook .mid{font-size:30px;color:var(--dim)}
-#hook .hit{font-size:52px;color:var(--amber-lit)}
+#hook .hit{font-size:44px;color:var(--amber-lit)}
 
 /* ---- 2. the board ---- */
 #board{display:flex;flex-direction:column;justify-content:center;padding:0 14px}
@@ -110,7 +111,8 @@ html,body{margin:0;width:540px;height:960px;overflow:hidden;background:var(--hul
 <div id="sonar"></div>
 
 <div class="layer t" id="hook">
-  <div class="big" id="h1">Someone beat<br>my high score.</div>
+  <div class="made" id="h0">I made this game.</div>
+  <div class="big" id="h1">And someone beat<br>my high score.</div>
   <div class="mid" id="h2">Not edged it.</div>
   <div class="hit" id="h3">Annihilated it.</div>
 </div>
@@ -140,7 +142,6 @@ html,body{margin:0;width:540px;height:960px;overflow:hidden;background:var(--hul
 </div>
 
 <div class="layer t" id="end">
-  <div class="made">I made this game.</div>
   <div class="ttl">Submarine Panic</div>
   <div class="ask">Can someone please<br>take it off them?</div>
   <div class="where">iOS and Android &middot; No ads</div>
@@ -184,12 +185,12 @@ brkB.style.top = ROWH + 'px';
 rowsEl.appendChild(brkA); rowsEl.appendChild(brkB);
 
 var CUT = window.CUT = {
-  hook: 0, hookOut: 3.9, plateOut: 5.5,
-  board: 5.6, rows: 5.9, meAt: 7.3, topAt: 8.4, brkA: 9.2, brkB: 10.9, bcap: 12.1, boardOut: 14.2,
-  time: 14.5, tcap: 16.1, timeOut: 18.2,
-  call: 18.5, ccap: 19.4, callOut: 21.3,
-  end: 21.6,
-  dur: 25.8
+  hook: 0, hookOut: 5.1, plateOut: 6.7,
+  board: 6.8, rows: 7.1, meAt: 8.5, topAt: 9.6, brkA: 10.4, brkB: 12.1, bcap: 13.3, boardOut: 15.4,
+  time: 15.7, tcap: 17.3, timeOut: 19.4,
+  call: 19.7, ccap: 20.6, callOut: 22.5,
+  end: 22.8,
+  dur: 27.0
 };
 
 function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -242,9 +243,10 @@ window.render = function (t) {
   $('#sonar').style.opacity = (1 - ph) * 0.3 * (ph < 0.02 ? ph / 0.02 : 1);
 
   $('#hook').style.opacity = t < c.hookOut ? 1 : 1 - clamp((t - c.hookOut) / 0.3);
-  show($('#h1'), t, c.hook);
-  show($('#h2'), t, c.hook + 1.6);
-  show($('#h3'), t, c.hook + 2.5, null, 28);
+  show($('#h0'), t, c.hook);
+  show($('#h1'), t, c.hook + 1.2);
+  show($('#h2'), t, c.hook + 2.8);
+  show($('#h3'), t, c.hook + 3.7, null, 28);
 
   var bOn = t >= c.board && t < c.boardOut + 0.3;
   $('#board').style.opacity = bOn ? 1 - clamp((t - c.boardOut) / 0.3) : 0;

@@ -22,7 +22,7 @@ File names are `render.mjs` output in `out/`. Every claim below is on `/promo-ga
 
 ## Submarine Panic: the board video
 
-`submarine-full-9x16.mp4`. Facebook and Instagram as a Reel; TikTok only if the owner
+`submarine-full-9x16.mp4` (27.0s). It opens on "I made this game", so the end card doesn't repeat it. Facebook and Instagram as a Reel; TikTok only if the owner
 wants it there. One-off, not evergreen: it is about the board as it stood on 2026-11-24,
 so it goes out while that is still true, and any later render needs the board re-read.
 
@@ -31,9 +31,9 @@ players' display names**. They are pseudonymous in-game callsigns, already publi
 board inside the game, and the top two are the whole story. The pour video's rule is that it
 never shows a real player, so this is a deliberate exception, limited to rows 1 to 9.
 
-> Someone has beaten my high score. Not edged it. Annihilated it.
+> I made this game, and someone has beaten my high score. Not edged it. Annihilated it.
 >
-> ENS Wahoo 620 put 45,354 on the board in Submarine Panic. I'm second on 34,403, and I made the game.
+> ENS Wahoo 620 put 45,354 on the board in Submarine Panic. I'm second on 34,403.
 >
 > The gap between them and me is bigger than the gap between me and ninth place. They held it together for nine and a half minutes down there, nearly twice as long as my best run ever lasted. And they never changed their callsign. That's just the name the game gives you.
 >
