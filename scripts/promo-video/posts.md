@@ -20,6 +20,31 @@ File names are `render.mjs` output in `out/`. Every claim below is on `/promo-ga
 - Add a quiet track from the app's own library on Instagram, TikTok and Shorts; the videos are silent.
 - Instagram and TikTok allow one bio link: `aidoo.biz/promo-games` for the pour week, then `aidoo.biz/stamps`.
 
+## Submarine Panic: the board video
+
+`submarine-full-9x16.mp4`. Facebook and Instagram as a Reel; TikTok only if the owner
+wants it there. One-off, not evergreen: it is about the board as it stood on 2026-11-24,
+so it goes out while that is still true, and any later render needs the board re-read.
+
+Not like the pour and stamps videos in one way worth deciding on purpose: **it shows other
+players' display names**. They are pseudonymous in-game callsigns, already public on the
+board inside the game, and the top two are the whole story. The pour video's rule is that it
+never shows a real player, so this is a deliberate exception, limited to rows 1 to 9.
+
+> Someone has beaten my high score. Not edged it. Annihilated it.
+>
+> ENS Wahoo 620 put 45,354 on the board in Submarine Panic. I'm second on 34,403, and I made the game.
+>
+> The gap between them and me is bigger than the gap between me and ninth place. They held it together for nine and a half minutes down there, nearly twice as long as my best run ever lasted. And they never changed their callsign. That's just the name the game gives you.
+>
+> I have absolutely no idea who this is.
+>
+> The all time board is a big ask from a standing start, so there's a Daily Dive instead. Same ocean, same handicap, everybody, wiped at midnight. Tonight's is wide open.
+>
+> Submarine Panic. No ads. A new studio on the Isle of Man making small games we'd want on our own phones.
+>
+> Can someone please take it off them?
+
 ## Pour game
 
 **Instagram**

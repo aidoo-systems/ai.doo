@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Submarine Panic video</title>
+<style>
+@font-face{font-family:'Bricolage Grotesque';font-weight:200 800;src:url('/fonts/bricolage-grotesque-latin.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-weight:100 900;src:url('/fonts/inter-latin.woff2') format('woff2')}
+*{box-sizing:border-box}
+/* The game's own palette: the Fleet Board's amber on a near-black hull, sampled
+   from the board screenshot. Only the ai.doo mark is the studio's Bricolage. */
+:root{
+  --hull:#05080b; --panel:#0b1219; --amber:#eb9a26; --amber-lit:#f5b544;
+  --row:#9fb6c4; --dim:#5e7482; --rule:rgba(159,182,196,.20);
+}
+html,body{margin:0;width:540px;height:960px;overflow:hidden;background:var(--hull);color:var(--row);
+  font-family:Inter,sans-serif;-webkit-font-smoothing:antialiased}
+/* Tracked uppercase is what the board does (DisplayType.gd letter-spaces every
+   glyph); captions borrow it so the type belongs to the game, not to us. */
+.t{text-transform:uppercase;letter-spacing:.15em;font-weight:600;line-height:1.3}
+.num{font-variant-numeric:tabular-nums;letter-spacing:.02em;font-weight:700}
+.layer{position:absolute;inset:0;opacity:0}
+
+/* sonar: one slow ring under everything, so no beat is ever fully still */
+#sonar{position:absolute;left:50%;top:50%;width:1200px;height:1200px;margin:-600px 0 0 -600px;
+  border-radius:50%;border:1px solid rgba(235,154,38,.5);opacity:0;pointer-events:none}
+#vign{position:absolute;inset:0;pointer-events:none;opacity:1;
+  background:radial-gradient(120% 80% at 50% 45%,transparent 40%,rgba(0,0,0,.75) 100%)}
+#scan{position:absolute;inset:0;pointer-events:none;opacity:.055;
+  background:repeating-linear-gradient(180deg,#9fb6c4 0 1px,transparent 1px 3px)}
+
+/* the game itself, under the type. Both plates are real patrol screenshots from the
+   game's own store set; the menu and board shots are not used, because their staged
+   "BEST 41,220 / #137 OF 5,120" would contradict the real board this video is about. */
+#shot{position:absolute;inset:0;overflow:hidden;opacity:0}
+#shot img{position:absolute;left:50%;top:50%;width:540px;height:960px;object-fit:cover;
+  transform-origin:50% 50%;opacity:0}
+#dim{position:absolute;inset:0;background:var(--hull);opacity:0}
+
+.mark{position:absolute;left:44px;top:70px;font-family:'Bricolage Grotesque';font-weight:800;
+  font-size:24px;letter-spacing:-.02em;color:#f4f1ea;display:flex;align-items:center;opacity:.9}
+.ball{display:inline-block;width:.5em;height:.5em;margin:0 .13em;background:url('/favicon.svg') center/contain no-repeat;position:relative;top:.12em}
+
+/* ---- 1. hook ---- */
+#hook{display:flex;flex-direction:column;justify-content:center;padding:0 44px 90px;gap:18px}
+#hook .big{font-size:44px;line-height:1.1;color:#dbe6ee}
+#hook .mid{font-size:30px;color:var(--dim)}
+#hook .hit{font-size:52px;color:var(--amber-lit)}
+
+/* ---- 2. the board ---- */
+#board{display:flex;flex-direction:column;justify-content:center;padding:0 14px}
+.bhead{text-align:center;margin-bottom:6px}
+.bhead .ttl{font-size:27px;letter-spacing:.26em;color:var(--amber);font-weight:700}
+.bhead .sub{margin-top:9px;font-size:12px;letter-spacing:.17em;color:var(--dim);font-weight:600}
+/* the left gutter carries the two gap brackets and their figures */
+.rows{position:relative;margin:20px 0 0 104px;border-top:1px solid var(--rule)}
+/* the board itself is mixed case and barely tracked, as in the game */
+.r{position:relative;display:flex;align-items:center;height:36px;padding:0 10px;text-transform:none;
+  letter-spacing:.01em;border-bottom:1px solid var(--rule);font-size:17px;opacity:0}
+.r .n{width:30px;color:var(--dim);font-variant-numeric:tabular-nums}
+.r .nm{flex:1;color:var(--row);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .sc{color:var(--row);font-variant-numeric:tabular-nums;font-weight:600}
+.r.top .nm,.r.top .sc{color:var(--amber-lit)}
+.r .lit{position:absolute;inset:0;background:rgba(235,154,38,.13);opacity:0;pointer-events:none}
+.tag{display:inline-block;margin-left:12px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--amber-lit);opacity:0;vertical-align:1px;font-style:normal}
+/* the two gap brackets, drawn down the gutter: first-to-me nearest the rows,
+   me-to-ninth outside it, so the two never sit on the same line */
+.brk{position:absolute;left:-16px;width:12px;border-left:2px solid;border-top:2px solid;border-bottom:2px solid;
+  border-color:var(--amber-lit);opacity:0}
+.brk.b{left:-44px;border-color:var(--dim)}
+.brk .v{position:absolute;left:-10px;top:50%;transform:translate(-100%,-50%);white-space:nowrap;
+  font-size:19px;font-variant-numeric:tabular-nums;font-weight:700;color:var(--amber-lit)}
+.brk.b .v{color:var(--dim);font-size:17px}
+/* the first-to-me figure rides at the top of its bracket, clear of the longer one's corner */
+.brk:not(.b) .v{top:14px;transform:translate(-100%,0)}
+#bcap{margin-top:30px;text-align:center;font-size:19px;color:#dbe6ee;opacity:0;line-height:1.45}
+
+/* ---- 3. time under ---- */
+#time{display:flex;flex-direction:column;justify-content:center;padding:0 32px 70px}
+/* over live game, the type sits in a console panel rather than fighting the picture */
+.panel{background:rgba(5,8,11,.93);border:1px solid rgba(159,182,196,.26);padding:30px 26px 32px}
+.vs{display:flex;align-items:flex-end;gap:26px;margin-bottom:34px}
+.col{flex:1}
+.col .lab{font-size:13px;letter-spacing:.2em;color:var(--dim);margin-bottom:10px}
+.col .clk{font-size:52px;line-height:1;color:var(--row);font-variant-numeric:tabular-nums;font-weight:700}
+.col.them .clk{color:var(--amber-lit)}
+.bar{margin-top:14px;height:7px;background:rgba(159,182,196,.16);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--row)}
+.col.them .bar i{background:var(--amber-lit)}
+#time .cap{font-size:21px;color:#dbe6ee;line-height:1.45}
+
+/* ---- 4. the callsign ---- */
+#call{display:flex;flex-direction:column;justify-content:center;padding:0 44px 70px}
+#call .who{font-size:40px;color:var(--amber-lit);letter-spacing:.09em;margin-bottom:26px}
+#call .cap{font-size:21px;color:#dbe6ee;line-height:1.5}
+
+/* ---- 5. end card ---- */
+#end{display:flex;flex-direction:column;justify-content:center;padding:0 44px 110px}
+#end .made{font-size:30px;color:var(--dim);margin-bottom:22px}
+#end .ttl{font-family:'Bricolage Grotesque';font-weight:800;font-size:56px;letter-spacing:-.02em;
+  text-transform:none;color:#f4f1ea;line-height:1.02}
+#end .ask{margin-top:26px;font-size:24px;color:var(--amber-lit);line-height:1.35}
+#end .where{margin-top:30px;font-size:15px;color:var(--dim);letter-spacing:.14em}
+</style></head>
+<body>
+<div id="shot">
+  <img id="plA" src="/__v/stills/alert.png" alt="">
+  <img id="plB" src="/__v/stills/scope.png" alt="">
+</div>
+<div id="dim"></div>
+<div id="sonar"></div>
+
+<div class="layer t" id="hook">
+  <div class="big" id="h1">Someone beat<br>my high score.</div>
+  <div class="mid" id="h2">Not edged it.</div>
+  <div class="hit" id="h3">Annihilated it.</div>
+</div>
+
+<div class="layer t" id="board">
+  <div class="bhead">
+    <div class="ttl" id="btl">Fleet Board</div>
+    <div class="sub" id="bsb">All time &middot; Endless patrol</div>
+  </div>
+  <div class="rows" id="rows"></div>
+  <div id="bcap"></div>
+</div>
+
+<div class="layer t" id="time">
+  <div class="panel">
+    <div class="vs">
+      <div class="col them"><div class="lab">Them</div><div class="clk" id="ct">9:34</div><div class="bar"><i id="bt"></i></div></div>
+      <div class="col me"><div class="lab">Me</div><div class="clk" id="cm">5:27</div><div class="bar"><i id="bm"></i></div></div>
+    </div>
+    <div class="cap" id="tcap">They stayed under nearly twice as long as my best run ever lasted.</div>
+  </div>
+</div>
+
+<div class="layer t" id="call">
+  <div class="who">ENS Wahoo 620</div>
+  <div class="cap" id="ccap">They never even changed their callsign.<br>That's just the name the game gives you.</div>
+</div>
+
+<div class="layer t" id="end">
+  <div class="made">I made this game.</div>
+  <div class="ttl">Submarine Panic</div>
+  <div class="ask">Can someone please<br>take it off them?</div>
+  <div class="where">iOS and Android &middot; No ads</div>
+</div>
+
+<div id="scan"></div>
+<div id="vign"></div>
+<div class="mark">ai<span class="ball"></span>doo</div>
+
+<script>
+var $ = function (s) { return document.querySelector(s); };
+
+// The real board, read from spsb.aidoo.biz on 2026-11-24. Rows 1 to 9 only:
+// everything here is a generated or jokey callsign, and row 14 on the live board
+// carries a slur the English-only filter missed.
+var ROWS = [
+  [1, 'ENS Wahoo 620', 45354], [2, 'Nauti Buoy', 34403], [3, 'LT John Dory', 31705],
+  [4, 'LT Marinara Quench', 28386], [5, 'LT Boaty McBoat', 27611], [6, 'SKIPPER Grayback 192', 26596],
+  [7, 'CMDR Nautilus 987', 25595], [8, 'SKIPPER Stoney Boy', 25164], [9, 'CDR Cachalot 895', 24582]
+];
+var ME = 2, GAP_A = ROWS[0][2] - ROWS[1][2], GAP_B = ROWS[1][2] - ROWS[8][2];
+var ROWH = 36;
+
+var rowsEl = $('#rows');
+ROWS.forEach(function (r, i) {
+  var d = document.createElement('div');
+  d.className = 'r' + (i === 0 ? ' top' : '');
+  d.id = 'r' + r[0];
+  d.innerHTML = '<span class="lit"></span><span class="n">' + r[0] + '</span>' +
+    '<span class="nm">' + r[1] + (r[0] === ME ? '<i class="tag" id="metag">Me</i>' : '') + '</span>' +
+    '<span class="sc">' + r[2].toLocaleString('en-GB') + '</span>';
+  rowsEl.appendChild(d);
+});
+// bracket A spans rows 1 to 2; bracket B spans rows 2 to 9
+var brkA = document.createElement('div'); brkA.className = 'brk'; brkA.id = 'brkA';
+brkA.innerHTML = '<span class="v" id="vA"></span>';
+var brkB = document.createElement('div'); brkB.className = 'brk b'; brkB.id = 'brkB';
+brkB.innerHTML = '<span class="v" id="vB"></span>';
+brkA.style.top = '0px';
+brkB.style.top = ROWH + 'px';
+rowsEl.appendChild(brkA); rowsEl.appendChild(brkB);
+
+var CUT = window.CUT = {
+  hook: 0, hookOut: 3.9, plateOut: 5.5,
+  board: 5.6, rows: 5.9, meAt: 7.3, topAt: 8.4, brkA: 9.2, brkB: 10.9, bcap: 12.1, boardOut: 14.2,
+  time: 14.5, tcap: 16.1, timeOut: 18.2,
+  call: 18.5, ccap: 19.4, callOut: 21.3,
+  end: 21.6,
+  dur: 25.8
+};
+
+function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+function out3(x) { x = clamp(x); return 1 - Math.pow(1 - x, 3); }
+// Beats arrive and leave; nothing pops. (The in is eased, the out is a short fade.)
+function show(el, t, t0, t1, rise) {
+  var a = t0 <= -1 ? 1 : out3((t - t0) / 0.45), o = t1 == null ? 1 : 1 - clamp((t - t1) / 0.25);
+  el.style.opacity = Math.min(a, o);
+  el.style.transform = 'translateY(' + ((1 - a) * (rise == null ? 20 : rise)) + 'px)';
+}
+function count(el, t, t0, to, dur) {
+  var p = out3((t - t0) / (dur || 0.8));
+  el.textContent = Math.round(to * p).toLocaleString('en-GB');
+}
+// A gap bracket: it opens downward over `draw` seconds, then its figure counts up beside it.
+function drawBracket(el, val, t, t0, draw, h, to) {
+  el.style.opacity = out3((t - t0) / 0.3);
+  el.style.height = (h * out3((t - t0) / draw)) + 'px';
+  val.style.opacity = out3((t - t0 - draw) / 0.3);
+  if (t >= t0 + draw) count(val, t, t0 + draw, to, 0.8); else val.textContent = '';
+}
+
+// A game plate: it fades up, drifts across its whole beat (never a still), and fades out.
+function plate(el, t, t0, t1, s0, s1) {
+  var o = Math.max(0, Math.min(out3((t - t0) / 0.5), 1 - clamp((t - t1) / 0.35)));
+  el.style.opacity = o;
+  el.style.transform = 'translate(-50%,-50%) scale(' + (s0 + (s1 - s0) * clamp((t - t0) / (t1 - t0))) + ')';
+  return o;
+}
+
+window.render = function (t) {
+  var c = CUT;
+
+  // The game under the type: the red alert plate carries the hook, then holds alone
+  // for its own beat; the periscope plate carries the time comparison.
+  var oA = plate($('#plA'), t, 0, c.plateOut, 1.12, 1.0);
+  var oB = plate($('#plB'), t, c.time - 0.3, c.timeOut, 1.0, 1.10);
+  $('#shot').style.opacity = Math.max(oA, oB);
+  // dark enough to read type over, lifting to near-clear for the plate's own beat.
+  // The time beat needs less, because its type sits in a panel of its own.
+  var dimv = oB > 0 ? 0.42 : 0.70 - 0.62 * out3((t - c.hookOut) / 0.5);
+  var lit = Math.max(oA, oB);
+  $('#dim').style.opacity = dimv * lit;
+  // ease the vignette off while a plate is carrying the frame
+  $('#vign').style.opacity = 1 - 0.55 * lit * (1 - dimv / 0.70);
+
+  // one sonar ring every 4.2s, always running
+  var ph = (t % 4.2) / 4.2, s = 0.06 + out3(ph) * 0.94;
+  $('#sonar').style.transform = 'scale(' + s + ')';
+  $('#sonar').style.opacity = (1 - ph) * 0.3 * (ph < 0.02 ? ph / 0.02 : 1);
+
+  $('#hook').style.opacity = t < c.hookOut ? 1 : 1 - clamp((t - c.hookOut) / 0.3);
+  show($('#h1'), t, c.hook);
+  show($('#h2'), t, c.hook + 1.6);
+  show($('#h3'), t, c.hook + 2.5, null, 28);
+
+  var bOn = t >= c.board && t < c.boardOut + 0.3;
+  $('#board').style.opacity = bOn ? 1 - clamp((t - c.boardOut) / 0.3) : 0;
+  if (bOn) {
+    show($('#btl'), t, c.board, null, 14);
+    show($('#bsb'), t, c.board + 0.15, null, 14);
+    ROWS.forEach(function (r, i) { show($('#r' + r[0]), t, c.rows + i * 0.11, null, 12); });
+    // me first, then the one above me
+    $('#r' + ME + ' .lit').style.opacity = out3((t - c.meAt) / 0.4) * 0.9;
+    show($('#metag'), t, c.meAt + 0.1, null, 0);
+    $('#r1 .lit').style.opacity = out3((t - c.topAt) / 0.4);
+    // Each bracket opens downward by growing its own height; the figure counts up
+    // once it is fully drawn. (Not clip-path: that clips the figure beside it too.)
+    drawBracket(brkA, $('#vA'), t, c.brkA, 0.5, ROWH * 2, GAP_A);
+    drawBracket(brkB, $('#vB'), t, c.brkB, 0.6, ROWH * 8, GAP_B);
+    $('#bcap').innerHTML = 'The gap to first is bigger<br>than the gap to ninth.';
+    show($('#bcap'), t, c.bcap, null, 14);
+  }
+
+  var tOn = t >= c.time && t < c.timeOut + 0.3;
+  $('#time').style.opacity = tOn ? 1 - clamp((t - c.timeOut) / 0.3) : 0;
+  if (tOn) {
+    show($('#ct').parentNode, t, c.time, null, 16);
+    show($('#cm').parentNode, t, c.time + 0.25, null, 16);
+    $('#bt').style.width = out3((t - c.time - 0.4) / 1.1) * 100 + '%';
+    $('#bm').style.width = out3((t - c.time - 0.65) / 1.1) * (327.07 / 574.19) * 100 + '%';
+    show($('#tcap'), t, c.tcap, null, 14);
+  }
+
+  var cOn = t >= c.call && t < c.callOut + 0.3;
+  $('#call').style.opacity = cOn ? 1 - clamp((t - c.callOut) / 0.3) : 0;
+  if (cOn) { show($('#call .who'), t, c.call, null, 18); show($('#ccap'), t, c.ccap, null, 14); }
+
+  show($('#end'), t, c.end, null, 16);
+  $('#end').style.opacity = t >= c.end ? out3((t - c.end) / 0.45) : 0;
+};
+render(0);
+</script>
+</body></html>
