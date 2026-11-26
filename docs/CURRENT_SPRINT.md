@@ -1,6 +1,6 @@
 # Current Sprint
 
-Last updated: 2026-11-24
+Last updated: 2026-11-26
 Sprint: 2 — Pivot experiment (P2.0, D-010), 2026-10-01 to 2026-11-26
 State: in-progress (P2.1n, the footer biscuit (D-043), Complete: approved by the owner on a phone 2026-11-04 ("Feels right"), Gemini reviewed it (no blockers), merged (#133) 2026-11-04 and deployed; P2.1j, a share card for the pour demo, merged (#121) 2026-11-02, Ready For Test: the owner pastes aidoo.biz/play/pour/ into Messenger and sees the card; P2.1m, more play on the homepage (D-041), Complete: googly eyes picked from stills, played on a phone by the owner ("This looks amazing!") and merged (#118) 2026-11-02; P2.1l, a 404 that plays, merged (#115), Ready For Test: the owner adds the Caddy rule (CLAUDE.md VPS step 7) and opens aidoo.biz/nope on a phone; P2.0ac, split the mark, merged (#113); P2.0c's first live score still to be seen; P2.1e (#75) on hold (D-035); #94 still open, no longer needed; every row waiting on the owner is listed under Owner gates)
 
@@ -49,9 +49,13 @@ Held until then: new titles, the rest of the site rework (P2.1b), and suite road
 - For the About page (P2.1g, D-023): read it on a phone with the photos in, and approve the photos and every sentence.
 - Before P2.0b is built: the ai.doo showcase discount and its terms (D-016), and whether the demo goes in `sitemap.xml`. A real prize, drinks included, is the business's to set and check (D-025).
 - Davison's pilot (live since 2026-11-20): about 2026-12-02, message Ian and Greig with their stamp count (the stamper's **Shop** button) and ask whether to keep the card going at £15 a month (D-045); the free two weeks end 2026-12-04. Share their post when it appears; nothing of theirs goes in ours until they say yes.
-- Stamp card walk-ins (packs approved 2026-11-21, in `internal/<shop>/`): for each of Coffee Corner, Gelatory and Woodbourne Deli, create the shop on `stamps.aidoo.biz/owner` with exactly its slug (`coffee-corner`, `gelatory`, `woodbourne-deli`) before printing, so the sign's QR works; then print the sign and leaflet and walk in.
+- Stamp card walk-ins (packs in `internal/<shop>/`, printed): go back with the framed sign. Windsor Coffee Co: ask when the manager is in. Gelatory: a quiet time, not the queue. Coffee Corner: mid-morning on a weekday (open 8 to 3). Woodbourne Deli: not yet reported. Each shop goes on `stamps.aidoo.biz/owner` with its exact slug (`windsor-coffee`, `gelatory`, `coffee-corner`, `woodbourne-deli`) before its sign is shown, so the QR works.
 
 ## Work log
+
+### 2026-11-26
+- **A fourth pack, The Windsor Coffee Co (owner, in a plain chat; no roadmap row).** A café at 26/27 Loch Promenade, Douglas, above Paparazzi pizzeria, on the owner's walk along the prom. Their website (linked from Facebook) didn't load, so the name picture was cut from the owner's photo of their lettering (`internal/windsor/source/`), dark on clear. Slug `windsor-coffee`, 8 stamps to a free coffee, card `#B8C41C` (their lime), text `#1F1A17`. The owner approved the sign as built (white, green frame). `/owner` insists on a logo, so the W from their lettering is the stamp mark (`w.png`), as Gelatory uses its G; the visit notes PDF predates that and still says no logo. The pack's PDFs and upload images are in `internal/print/` (untracked). Making a no-logo shop possible on `/owner` is loyalty's to fix (captured as an idea).
+- **The first walk-ins (owner, reported 2026-11-23).** The owner took the printed packs out: The Windsor Coffee Co had no manager in; Gelatory was too busy to talk; Coffee Corner had closed by the time the owner got there. No one said no; each is to be tried again (Owner gates). Woodbourne Deli wasn't mentioned.
 
 ### 2026-11-24
 
